@@ -190,7 +190,7 @@ MAKE_HOOK_OFFSETLESS(Xft_XweaponTrail_Start, void, Xft::XWeaponTrail* self)
 extern "C" void setup(ModInfo& info) 
 {
     info.id = "Qosmetics";
-    info.version = "0.3.4";
+    info.version = "1.0.0";
     modInfo = info;
     Qosmetics::GenericLogger::modInfo = info;
 
