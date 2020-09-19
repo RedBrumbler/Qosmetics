@@ -1,0 +1,28 @@
+{
+  "id": "Qosmetics",
+  "name": "Qosmetics",
+  "version": "0.1.0",
+  "author": "RedBrumbler, Rugtveit (&amp; others?)",
+  "description": [
+    "Quest Cosmetics on a whole new level!"
+  ],
+  "category": "Gameplay",
+  "gameVersion": "1.11.1",
+  "platform": "Quest",
+  "components": [
+    {
+      "type": "HookMod",
+      "installAction": {
+        "installLibraryFile": "libquestcosmetics.so"
+      },
+      "uninstallAction": {
+        "removeLibraryFile": "libquestcosmetics.so"
+      }
+    },
+    {
+      "type": "FileCopyMod",
+      "sourceFileName": "libbeatsaber-hook_2019_0_2_1.so",
+      "targetRootedPathAndFileName": "/sdcard/Android/data/com.beatgames.beatsaber/files/libs/libbeatsaber-hook_2019_0_2_1.so"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "defines": [
+        "MOD_ID=\"QuestCosmetics\"",
+        "VERSION=\"0.2.0\"",
+        "__GNUC__",
+        "__aarch64__",
+        "ID=\"Qosmetics\""
+      ],
+      "includePath": [
+        "${workspaceFolder}/**",
+        "d:/il2cpp/libil2cpp",
+        "d:/android-ndk-r21-windows-x86_64/android-ndk-r21/**",
+        "${workspaceFolder}/shared",
+        "${workspaceFolder}/extern",
+        "${workspaceFolder}/extern/codegen/include/**"
+      ],
+      "name": "Quest",
+      "cStandard": "c11",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "clang-x64"
+    }
+  ],
+  "version": 4
+}

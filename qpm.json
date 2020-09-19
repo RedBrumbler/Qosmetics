@@ -1,0 +1,33 @@
+{
+  "sharedDir": "shared",
+  "dependenciesDir": "extern",
+  "info": {
+    "name": "Qosmetics",
+    "id": "Qosmetics",
+    "version": "0.3.1",
+    "url": null,
+    "additionalData": {}
+  },
+  "dependencies": [
+    {
+      "id": "beatsaber-hook",
+      "versionRange": ">=0.5.2 <0.6.0",
+      "additionalData": {
+        "extraFiles": [
+          "src/inline-hook"
+        ]
+      }
+    },
+    {
+      "id": "codegen",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "bs-utils",
+      "versionRange": "*",
+      "additionalData": {}
+    }
+  ],
+  "additionalData": {}
+}

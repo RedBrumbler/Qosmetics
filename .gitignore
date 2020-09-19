@@ -1,0 +1,157 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# VSCode config stuff
+!.vscode/c_cpp_properties.json
+!.vscode/tasks.json
+
+# NDK stuff
+out/
+[Ll]ib/
+[Ll]ibs/
+[Oo]bj/
+[Oo]bjs/
+ndkpath.txt
+*.zip
+
+# Other files
+Android.mk
+extern/
+Android.mk.backup
+src/QuestNotes.cpp.txt
+src/QuestWalls.cpp.txt
+include/QuestNotes.hpp.txt
+include/QuestWalls.hpp.txt
+include/AssetBundle.hpp.txt
+src/AssetBundle.cpp.txt
+src/utils.cpp.txt
+include/utils.hpp.txt
+qpm.lock.json
+.vscode/Qosmetics.code-workspace
+UnityProject/Library/
+UnityProject/Logs/
+UnityProject/Assets/SABER/PlasmaKatana/
+UnityProject/Assets/SABER/PlasmaKatana.meta
+UnityProject/Assets/WALL/PCrecreation/
+UnityProject/Assets/WALL/PCrecreation.meta
+
+# =============== #
+# Unity generated #
+# =============== #
+[Tt]emp/
+[Oo]bj/
+[Bb]uild
+/[Bb]uilds/
+/[Ll]ibrary/
+sysinfo.txt
+*.stackdump
+/Assets/AssetStoreTools*
+*.apk
+*.unitypackage
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+.vs/
+/*.userprefs
+/*.csproj
+/*.pidb
+*.pidb.meta
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+.consulo/
+/*.tmp
+/*.svd
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+[Dd]esktop.ini
+Corridor/Library/ShaderCache/
+Corridor/Library/metadata/# =============== #
+# Unity generated #
+# =============== #
+[Tt]emp/
+[Oo]bj/
+[Bb]uild
+/[Bb]uilds/
+/[Ll]ibrary/
+sysinfo.txt
+*.stackdump
+/Assets/AssetStoreTools*
+*.apk
+*.unitypackage
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+.vs/
+/*.userprefs
+/*.csproj
+/*.pidb
+*.pidb.meta
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+.consulo/
+/*.tmp
+/*.svd
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+[Dd]esktop.ini
+Corridor/Library/ShaderCache/
+Corridor/Library/metadata/
+
