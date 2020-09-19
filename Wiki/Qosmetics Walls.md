@@ -2,7 +2,7 @@
 
 ![QosmeticsGif](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/Qosmetics.gif)
 
-If you haven't already, check out the General Qosmetics exporter setup guide [here](TODO URL)
+If you haven't already, check out the [General Setup Guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup)
 
 Now that you've setup your qosmetics project, let's get to exporting a Wall! This guide will not cover making materials in detail, though it will give some pointers where neccesary, there are a lot of resources available online to learn how to make shaders and materials already, I will however touch on specific things that have to be done with walls.
 

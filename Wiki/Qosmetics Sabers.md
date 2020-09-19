@@ -2,7 +2,7 @@
 
 ![QosmeticsGif](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/Qosmetics.gif)
 
-If you haven't already, check out the General Qosmetics exporter setup guide [here](TODO URL)
+If you haven't already, check out the [General Setup Guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup)
 
 Now that you've setup your qosmetics project, let's get to exporting a saber! This guide will not cover making an actual model, there are enough resources available online on how to make models with for example blender.
 

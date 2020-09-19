@@ -5,7 +5,7 @@
 Qosmetics is finally here! and that means it's time for me to communicate how to use the exporters for the mod. for each type of exporter it will be split across 2 guides, this one, and the specific guide for that exporter. The reason for this is that the project and initial setup for all exporters is the same, and that way I can write a guide more specific to each exporter without repeating too much information. This will also go for information directly related to just the project and not the specific exporters, so here we go:
 
 ### Needed files:
-- [Unity project](TODO url)
+- [Unity project](https://github.com/RedBrumbler/Qosmetics/releases/download/v1.0.0/QosmeticsUnityProject.zip)
 - [Unity Hub](https://unity3d.com/get-unity/download)
 - [Unity 2019.3.2f1](https://unity3d.com/get-unity/download/archive) Get the Unity hub version and: **Don't forget to add android build support in unity hub!**
 
@@ -23,9 +23,9 @@ All Qosmetics specific Editor GUIs can be found in the top bar in Tools->Qosmeti
 ## Qosmetics Config Editor
 For the project I have decided to make some things configurable, which I will now show based on the GUI that you should find here:
 
-![EditorConfigLocation](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/EditorConfigLocation.png)
+![EditorConfigLocation](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/ConfigEditorLocation.png)
 
-![EditorConfigWindow](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/EditorConfigWindow.png)
+![EditorConfigWindow](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/ConfigEditorWindow.png)
 
 ### object cleanup at export config
 The top two options are **Remove Lights at export** and **Remove Cameras at export**, all these options will do is if you export your object with either lights or cameras still on it (from a blender export maybe) it will remove these so that you will not accidentally have these in your exported object and have to re export. This can be left disabled if you are doing this on purpose however.
@@ -58,6 +58,6 @@ Now onto the Main part of the project, the Exporters. These can be found here:
 ![ExportersLocation](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/ExportersLocation.png)
 
 And the links to their specific guides are here:
- - [Quest Bloqs]()
- - [Quest Sabers]()
- - [Quest Walls]()
+ - [Quest Bloqs](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-Bloq-Exporter)
+ - [Quest Sabers](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-Saber-Exporter)
+ - [Quest Walls](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-Wall-Exporter)
