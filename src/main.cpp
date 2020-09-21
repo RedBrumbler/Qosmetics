@@ -37,7 +37,7 @@
 
 #include "Utils/MaterialUtils.hpp"
 
-bool getSceneName(UnityEngine::SceneManagement::Scene* scene, std::string& output);
+bool getSceneName(Scene scene, std::string& output);
 
 std::string sceneLoadedName;
 
@@ -77,6 +77,7 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris* self, G
 
 MAKE_HOOK_OFFSETLESS(BombNoteController_Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, UnityEngine::Vector3 moveStartPos, UnityEngine::Vector3 moveEndPos, UnityEngine::Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float cutDirectionAngleOffset)
 {
+    noteData->set_cutDirection(GlobalNamespace::NoteCutDirection::_get_Down());
     BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset);
     if (notesEnabled) Qosmetics::QuestNote::BombController_Init_Post(self);
 }
@@ -99,7 +100,7 @@ MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleCon
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
 }
 
-MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, UnityEngine::SceneManagement::Scene* previousActiveScene, UnityEngine::SceneManagement::Scene* nextActiveScene)
+MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActiveScene, Scene nextActiveScene)
 {
     getSceneName(nextActiveScene, sceneLoadedName);
     std::string oldScene;
@@ -234,9 +235,9 @@ extern "C" void load()
     getLogger().info("Hooks installed");
 }
 
-bool getSceneName(UnityEngine::SceneManagement::Scene* scene, std::string& output)
+bool getSceneName(Scene scene, std::string& output)
 {
-    Il2CppString* csString = scene.get_name();
+    Il2CppString* csString = RET_0_UNLESS(il2cpp_utils::RunMethod<Il2CppString*>("UnityEngine.SceneManagement", "Scene", "GetNameInternal", scene.m_Handle));
     RET_0_UNLESS(csString);
     output = to_utf8(csstrtostr(csString));
     return true; 
