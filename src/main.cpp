@@ -10,6 +10,7 @@
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
+#include "UnityEngine/SceneManagement/Scene.hpp"
 
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/ObstacleController.hpp"
@@ -36,7 +37,7 @@
 
 #include "Utils/MaterialUtils.hpp"
 
-bool getSceneName(Scene scene, std::string& output);
+bool getSceneName(UnityEngine::SceneManagement::Scene* scene, std::string& output);
 
 std::string sceneLoadedName;
 
@@ -98,7 +99,7 @@ MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleCon
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
 }
 
-MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActiveScene, Scene nextActiveScene)
+MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, UnityEngine::SceneManagement::Scene* previousActiveScene, UnityEngine::SceneManagement::Scene* nextActiveScene)
 {
     getSceneName(nextActiveScene, sceneLoadedName);
     std::string oldScene;
@@ -190,7 +191,7 @@ MAKE_HOOK_OFFSETLESS(Xft_XweaponTrail_Start, void, Xft::XWeaponTrail* self)
 extern "C" void setup(ModInfo& info) 
 {
     info.id = "Qosmetics";
-    info.version = "1.0.0";
+    info.version = "1.0.1";
     modInfo = info;
     Qosmetics::GenericLogger::modInfo = info;
 
@@ -233,9 +234,9 @@ extern "C" void load()
     getLogger().info("Hooks installed");
 }
 
-bool getSceneName(Scene scene, std::string& output)
+bool getSceneName(UnityEngine::SceneManagement::Scene* scene, std::string& output)
 {
-    Il2CppString* csString = RET_0_UNLESS(il2cpp_utils::RunMethod<Il2CppString*>("UnityEngine.SceneManagement", "Scene", "GetNameInternal", scene.m_Handle));
+    Il2CppString* csString = scene.get_name();
     RET_0_UNLESS(csString);
     output = to_utf8(csstrtostr(csString));
     return true; 

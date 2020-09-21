@@ -46,6 +46,7 @@ ndkpath.txt
 
 # Other files
 Android.mk
+qpm.shared.json
 extern/
 Android.mk.backup
 src/QuestNotes.cpp.txt

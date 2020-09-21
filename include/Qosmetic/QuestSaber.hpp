@@ -65,6 +65,9 @@ namespace Qosmetics
 
             /// @brief called at menu scene
             static void MenuViewControllers();
+
+            /// @brief wipes all saber data as this is invalidated because of the game restart
+            static void Wipe();
         private:
             /// @brief makes the folder if not found
             static void makeFolder();

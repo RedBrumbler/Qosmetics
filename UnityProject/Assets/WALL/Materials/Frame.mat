@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Frame
   m_Shader: {fileID: 4800000, guid: dac629c1606307f4988464d564288ba7, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _CUSTOMCOLORS_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -57,7 +57,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
-    - _CustomColors: 0
+    - _CustomColors: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0

@@ -149,10 +149,13 @@ namespace Qosmetics
         UnityEngine::Transform* basicSaberModel = saberTransform->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
         UnityEngine::Transform* customSaber = saberTransform->Find(il2cpp_utils::createcsstr(instance->get_saberType().value == 0 ? "LeftSaber" : "RightSaber"));
         
+        bool fakeGlowMoved = false;
+
         // if both transforms are found and the saber doesn't have custom trails, move the trail inside the leftsaber/rightsaber object per request of MichaelZoller
         if (basicSaberModel != nullptr && customSaber != nullptr && !config.get_hasCustomTrails()) 
         {
             TrailUtils::MoveTrail(basicSaberModel, customSaber);
+            fakeGlowMoved = true;
         }
         // if the saber has custom trails, log the fact that it did and that that is why the trail was not moved (it will be disabled later on)
         else if (config.get_hasCustomTrails())
@@ -199,16 +202,19 @@ namespace Qosmetics
             }
         }
         
-        // if the saber creator wants the base game fake glow enabled then re-enable that
+        // if the saber creator wants the base game fake glow enabled then re-enable that, not the best solution but because of the way sabers was programmed there is not a lot I can do about it except rework all of sabers :grimacing:
         if (config.get_enableFakeGlow() && basicSaberModel != nullptr)
         {
             // find their transforms
-            UnityEngine::Transform* fakeGlow0 = basicSaberModel->Find(il2cpp_utils::createcsstr("FakeGlow0"));
-            UnityEngine::Transform* fakeGlow1 = basicSaberModel->Find(il2cpp_utils::createcsstr("FakeGlow1"));
+            UnityEngine::Transform* fakeGlow0 = (fakeGlowMoved && customSaber != nullptr) ? customSaber->Find(il2cpp_utils::createcsstr("FakeGlow0")) : basicSaberModel->Find(il2cpp_utils::createcsstr("FakeGlow0"));
+            UnityEngine::Transform* fakeGlow1 = (fakeGlowMoved && customSaber != nullptr) ? customSaber->Find(il2cpp_utils::createcsstr("FakeGlow1")) : basicSaberModel->Find(il2cpp_utils::createcsstr("FakeGlow1"));
 
             // since them getting disabled is done with the gameobjects being set to not active, set them active again
-            fakeGlow0->get_gameObject()->SetActive(true);
-            fakeGlow1->get_gameObject()->SetActive(true);
+            if (fakeGlow0 != nullptr) fakeGlow0->get_gameObject()->SetActive(true);
+            else getLogger().error("Enabling fakeglow 0 failed because fakeGlow0 transform was null");
+
+            if (fakeGlow1 != nullptr) fakeGlow1->get_gameObject()->SetActive(true);
+            else getLogger().error("Enabling fakeglow 1 failed because fakeGlow1 transform was null");
         }
 
         if (config.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
