@@ -97,6 +97,12 @@ namespace Qosmetics
         
         GlobalNamespace::NoteData* noteData = noteController->get_noteData();
 
+        if (noteData == nullptr)
+        {
+            getLogger().error("NoteData was nullptr, skipping add note...");
+            return;
+        }
+
         bool isLeft = false, isBomb = false, isGhost = false, isDot = false;
         FindNoteType(noteData, isLeft, isDot, isGhost, isBomb);
 
@@ -108,7 +114,6 @@ namespace Qosmetics
         {
             if (!isDot) // left arrow note
             {
-                
                 prefab = customNoteData.get_leftArrow();
                 name = "customLeftArrow";
             }
@@ -117,7 +122,6 @@ namespace Qosmetics
                 prefab = customNoteData.get_leftDot();
                 name = "customLeftDot";
             }
-            
         }
         else // right note
         {
