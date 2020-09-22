@@ -8,7 +8,8 @@
 #include "UnityEngine/Color.hpp"
 
 #include "GlobalNamespace/ColorManager.hpp"
-
+#include "GlobalNamespace/SimpleColorSO.hpp"
+ 
 #include "Utils/UnityUtils.hpp"
 #include "Utils/MaterialUtils.hpp"
 #include "Logging/WallLogger.hpp"

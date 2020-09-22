@@ -62,7 +62,7 @@ void WallUtils::SetObstacleColor(UnityEngine::Material* material)
             return;
         }
 
-        UnityEngine::Color wallColor = colorManager->GetObstacleEffectColor();
+        UnityEngine::Color wallColor = colorManager->obstaclesColor->get_color();
 
         bool setColor = false;
         bool hasCustomColor = MaterialUtils::MatHasProperty(material, "_CustomColors");

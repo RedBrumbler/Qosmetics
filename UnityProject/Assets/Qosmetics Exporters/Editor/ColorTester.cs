@@ -22,7 +22,7 @@ public class ColorTester : EditorWindow
         otherColor = EditorGUILayout.ColorField("Other Color to preview", otherColor);
         objectToColor = EditorGUILayout.ObjectField("Object to Color", objectToColor, typeof(GameObject), true) as GameObject;
 
-        if (objectToColor.GetComponent<WallReferences>() != null)
+        if (objectToColor != null && objectToColor.GetComponent<WallReferences>() != null)
         {
             isWall = true;
         }
@@ -33,7 +33,8 @@ public class ColorTester : EditorWindow
 
         if (GUILayout.Button("Test Colors"))
         {
-            SetColor();
+
+            if (objectToColor != null) SetColor();
         }
     }
 
