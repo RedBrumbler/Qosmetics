@@ -13,6 +13,18 @@ namespace Qosmetics
 
     void TrailUtils::MoveTrail(UnityEngine::Transform* basicSaberModel, UnityEngine::Transform* customSaber)
     {
+        if (customSaber == nullptr) 
+        {
+            getLogger().error("customSaber was null, not moving trail...");
+            return;
+        }
+        if (basicSaberModel == nullptr)
+        {
+            getLogger().error("basicSaberModel was null, not moving trail...");
+            return;
+        }
+
+
         getLogger().info("Attempting to move base game trail into the custom saber per request of michaelzoller");
         Xft::XWeaponTrail* trailComponent = UnityUtils::GetComponent<Xft::XWeaponTrail*>(basicSaberModel->get_gameObject(), "Xft", "XWeaponTrail");
 
@@ -24,6 +36,7 @@ namespace Qosmetics
                 
         // add new trail script into which stuff will be moved
         UnityEngine::GameObject* saberGO = customSaber->get_gameObject();
+        if (saberGO == nullptr) return;
         Xft::XWeaponTrail* newTrail = *il2cpp_utils::RunMethod<Xft::XWeaponTrail*>(saberGO, "AddComponent", UnityUtils::TypeFromString("Xft", "XWeaponTrail"));
 
         if (newTrail == nullptr)
@@ -42,7 +55,8 @@ namespace Qosmetics
 
         for (auto child : children)
         {
-            child->SetParent(customSaber);
+            if (child != nullptr) child->SetParent(customSaber);
+            else getLogger().error("A child was nullptr, not setting parent...");
         }
 
         // copy over properties
@@ -51,12 +65,29 @@ namespace Qosmetics
         UnityEngine::Transform* end = trailComponent-> pointEnd;
         auto* trailPrefab = trailComponent->trailRendererPrefab;
 
+        if (start == nullptr)
+        {
+            getLogger().error("start was nullptr, returning...");
+            return;
+        }
+        else if (end == nullptr)
+        {
+            getLogger().error("start was nullptr, returning...");
+            return;
+        }
+        else if (trailPrefab == nullptr)
+        {
+            getLogger().error("start was nullptr, returning...");
+            return;
+        }
+
+
         newTrail->set_color(trailColor);
         newTrail->pointStart = start;
         newTrail->pointEnd = end;
         newTrail->trailRendererPrefab = trailPrefab;
         // yeet original trail
-        UnityEngine::Object::Destroy(trailComponent);
+        RemoveTrail(basicSaberModel);
     }
 
     void TrailUtils::AddTrail(Qosmetics::CustomTrail &trail, UnityEngine::Transform* customSaber)
@@ -79,6 +110,10 @@ namespace Qosmetics
 
     void TrailUtils::RemoveTrail(UnityEngine::Transform* basicSaberModel)
     {
+        if (basicSaberModel == nullptr)
+        {
+            getLogger().error("basicSaberModel was null, not removing trail");
+        }
         Xft::XWeaponTrail* trailComponent = UnityUtils::GetComponent<Xft::XWeaponTrail*>(basicSaberModel->get_gameObject(), "Xft", "XWeaponTrail");
         
         if (trailComponent == nullptr)
