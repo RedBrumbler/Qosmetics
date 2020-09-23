@@ -51,7 +51,7 @@ const Logger& getLogger() {
 bool wallsEnabled = true;
 bool notesEnabled = true;
 bool sabersEnabled = true;
-
+bool shaderWarmupFirst = true;
 std::string shaderWarmup = "ShaderWarmup";
 std::string healthWarning = "HealthWarning";
 std::string gameCore = "GameCore";
@@ -107,11 +107,12 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
     if (!getSceneName(previousActiveScene, oldScene)) oldScene = "";
     getLogger().info("Found scene %s, handle is %d", sceneLoadedName.c_str(), nextActiveScene.m_Handle);
 
-    if(sceneLoadedName == shaderWarmup)
+    if(sceneLoadedName == shaderWarmup && shaderWarmupFirst)
     {
         if (sabersEnabled) sabersEnabled = Qosmetics::QuestSaber::ShaderWarmup();
         if (wallsEnabled) wallsEnabled = Qosmetics::QuestWall::ShaderWarmup();
         if (notesEnabled) notesEnabled = Qosmetics::QuestNote::ShaderWarmup();
+        shaderWarmupFirst = false;
     }
 
     if(sceneLoadedName == healthWarning)
@@ -128,22 +129,9 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         if (notesEnabled) Qosmetics::QuestNote::GameCore();
     }
 
-    bool MenuSceneLoadedFresh = false;
-
-    if(sceneLoadedName == menuViewControllers)
-    {
-        if(oldScene == emptyTransition)
-        {
-            MenuSceneLoadedFresh = true;
-        } else
-        {
-           MenuSceneLoadedFresh = false;
-        }
-    }
-
     SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
     
-    if (MenuSceneLoadedFresh)
+    if (sceneLoadedName == menuViewControllers)
     {
         if (sabersEnabled) Qosmetics::QuestSaber::MenuViewControllers();
         if (wallsEnabled) Qosmetics::QuestWall::MenuViewControllers();
@@ -159,36 +147,13 @@ MAKE_HOOK_OFFSETLESS(Saber_Start, void, GlobalNamespace::Saber* self)
 
 MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
 {
+    // basically QuestTrailOverlap is forced with this
     UnityEngine::Transform* trailTransform = self->get_transform();
     std::string thisName = to_utf8(csstrtostr(trailTransform->get_gameObject()->get_name()));
     if (thisName == "Trail(Clone)") return;
     ConditionalMaterialSwitcher_Awake(self);
 }
 
-MAKE_HOOK_OFFSETLESS(MenuTransitionsHelper_RestartGame, void, Il2CppObject* self)
-{
-    getLogger().error("The game should've restarted, but because that fucks over this mod I have disabled this. if you are a modder who wanted to use this function contact RedBrumbler");
-}
-
-MAKE_HOOK_OFFSETLESS(SettingsFlowCoordinator_HandleSettingsNavigationControllerDidFinish, void, GlobalNamespace::SettingsFlowCoordinator* self, GlobalNamespace::SettingsNavigationController::FinishAction finishAction)
-{
-    SettingsFlowCoordinator_HandleSettingsNavigationControllerDidFinish(self, finishAction);
-
-    if (finishAction == GlobalNamespace::SettingsNavigationController::FinishAction::Ok) // after ok is pressed, call cancel to go back to main menu
-    {
-        SettingsFlowCoordinator_HandleSettingsNavigationControllerDidFinish(self, GlobalNamespace::SettingsNavigationController::FinishAction::Cancel);
-    }
-}
-/*
-MAKE_HOOK_OFFSETLESS(Xft_XweaponTrail_Start, void, Xft::XWeaponTrail* self)
-{
-    // since it changes the trailwidth in this function and we want to define a custom one, just get it before the function, run the start, and then set it back
-    getLogger().info("WeaponTrailStart");
-    Xft_XweaponTrail_Start(self);
-    int maxFrame = self->maxFrame;
-    getLogger().info("Maxframe %d", maxFrame);
-}
-*/
 extern "C" void setup(ModInfo& info) 
 {
     info.id = "Qosmetics";
@@ -228,9 +193,6 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(MenuTransitionsHelper_StartStandardLevel, il2cpp_utils::FindMethodUnsafe("", "MenuTransitionsHelper", "StartStandardLevel", 11));
     INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 7));
     INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(MenuTransitionsHelper_RestartGame, il2cpp_utils::FindMethodUnsafe("", "MenuTransitionsHelper", "RestartGame", 0));
-    //INSTALL_HOOK_OFFSETLESS(Xft_XweaponTrail_Start, il2cpp_utils::FindMethodUnsafe("Xft", "XWeaponTrail", "Start", 0));
-    INSTALL_HOOK_OFFSETLESS(SettingsFlowCoordinator_HandleSettingsNavigationControllerDidFinish, il2cpp_utils::FindMethodUnsafe("", "SettingsFlowCoordinator", "HandleSettingsNavigationControllerDidFinish", 1));
     
     getLogger().info("Hooks installed");
 }

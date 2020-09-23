@@ -141,7 +141,12 @@ namespace Qosmetics
     {
         if (loadedNotes.size() == 0) return;
         auto& selected = loadedNotes[selectedNote];
-        if (!selected.get_config()->get_hasBomb() || !selected.get_complete()) return;
+        if (!selected.get_config()->get_hasBomb() || !selected.get_complete())
+        {
+            if (!selected.get_complete()) getLogger().error("Attempted to use bomb that wasn't loaded");
+            if (!selected.get_config()->get_hasBomb()) getLogger().error("Attempted to use bomb that doesn't exist");
+            return;
+        } 
         NoteUtils::ReplaceBomb(noteController, loadedNotes[selectedNote]);
     }
 }

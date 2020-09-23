@@ -102,7 +102,7 @@ namespace Qosmetics
 
             /// @brief runs after the bomb controller function
             static void BombController_Init_Post(GlobalNamespace::BombNoteController* noteController);
-        
+
         private:
             static inline bool setColors = false;
             static inline bool disableDebris = false;
