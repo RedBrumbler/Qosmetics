@@ -47,6 +47,7 @@ ndkpath.txt
 # Other files
 Android.mk
 *.log
+cover.gif
 qpm.shared.json
 extern/
 Android.mk.backup

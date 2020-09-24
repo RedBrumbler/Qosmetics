@@ -7,4 +7,4 @@ if (-not ($PSVersionTable.PSEdition -eq "Core")) {
 }
 
 & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk
-Compress-Archive -Path "./libs/arm64-v8a/libquestcosmetics.so","./bmbfmod.json","./include/libs/libbeatsaber-hook_2019_0_2_1.so" -DestinationPath "./questcosmetics_v0.1.0.zip" -Update
+Compress-Archive -Path "cover.gif","./libs/arm64-v8a/libquestcosmetics.so","./bmbfmod.json","./extern/libbeatsaber-hook_0_6_0.so","./extern/libbs-utils.so","./extern/libcodegen_0_2_4.so" -DestinationPath "./Qosmetics.zip" -Update

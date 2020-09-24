@@ -156,24 +156,24 @@ MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::C
 
 extern "C" void setup(ModInfo& info) 
 {
-    info.id = "Qosmetics";
-    info.version = "1.0.2";
+    info.id = ID;
+    info.version = VERSION;
     modInfo = info;
     Qosmetics::GenericLogger::modInfo = info;
 
-    Qosmetics::QuestSaber::modInfo.id = "Qosmetics Sabers";
+    Qosmetics::QuestSaber::modInfo.id = string_format("%s Sabers", ID);
     Qosmetics::QuestSaber::modInfo.version = info.version;
-    Qosmetics::SaberLogger::modInfo.id = "Qosmetics Sabers";
+    Qosmetics::SaberLogger::modInfo.id = string_format("%s Sabers", ID);
     Qosmetics::SaberLogger::modInfo.version = info.version;
 
-    Qosmetics::QuestNote::modInfo.id = "Qosmetics Notes";
+    Qosmetics::QuestNote::modInfo.id = string_format("%s Notes", ID);
     Qosmetics::QuestNote::modInfo.version = info.version;
-    Qosmetics::NoteLogger::modInfo.id = "Qosmetics Notes";
+    Qosmetics::NoteLogger::modInfo.id = string_format("%s Notes", ID);
     Qosmetics::NoteLogger::modInfo.version = info.version;
 
-    Qosmetics::QuestWall::modInfo.id = "Qosmetics Walls";
+    Qosmetics::QuestWall::modInfo.id = string_format("%s Walls", ID);
     Qosmetics::QuestWall::modInfo.version = info.version;
-    Qosmetics::WallLogger::modInfo.id = "Qosmetics Walls";
+    Qosmetics::WallLogger::modInfo.id = string_format("%s Walls", ID);
     Qosmetics::WallLogger::modInfo.version = info.version;
     getLogger().info("If you are reading this then idk what you're doing, go play the game, don't read logs");
     getLogger().info(info.version);

@@ -9,14 +9,14 @@ std::vector<Qosmetics::SaberData> Qosmetics::QuestSaber::loadedSabers;
 
 namespace Qosmetics
 {
-    void QuestSaber::makeFolder()
+    void QuestSaber::makeFolder(std::string directory)
     {
-        if (!direxists(fileDir.c_str()))
+        if (!direxists(directory.c_str()))
         {
-            int makePath = mkpath(fileDir.data(), 0700);
+            int makePath = mkpath(directory.data(), 0700);
             if (makePath == -1)
             {
-                getLogger().debug("Failed to make path!");
+                getLogger().debug("Failed to make path %s", directory.c_str());
             }
         }
     }
@@ -26,7 +26,7 @@ namespace Qosmetics
         if (!direxists(fileDir)) 
         {
             getLogger().info("Saber Directory did not exist, creating directory at %s", fileDir.c_str());
-            makeFolder();
+            makeFolder(fileDir);
         }
         else getLogger().info("Saber Directory Exists");
 
@@ -39,6 +39,13 @@ namespace Qosmetics
 
         if (!foundFilesNewDir) 
         {
+            if (!direxists(legacyFileDir))
+            {
+                getLogger().info("Saber Directory did not exist, creating directory at %s", legacyFileDir.c_str());
+                makeFolder(legacyFileDir);
+            }
+            else getLogger().info("Legacy Saber Directory Exists");
+            
             FileUtils::getFileNamesInDir("qsaber", legacyFileDir, legacyFileNames);
             for (auto fileName : legacyFileNames)
             {

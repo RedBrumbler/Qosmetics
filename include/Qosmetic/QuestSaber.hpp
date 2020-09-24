@@ -68,6 +68,6 @@ namespace Qosmetics
 
         private:
             /// @brief makes the folder if not found
-            static void makeFolder();
+            static void makeFolder(std::string directory);
     };
 }
