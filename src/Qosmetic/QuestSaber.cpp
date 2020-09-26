@@ -125,7 +125,7 @@ namespace Qosmetics
         saber->SetActive(true);
 
         // instantiate new one
-        selectedSaberGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)saber);
+        //selectedSaberGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)saber);
 
         // set prefab inactive again
         saber->SetActive(false);
@@ -134,12 +134,14 @@ namespace Qosmetics
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         // if nothing is selected just return
-        if (selectedSaberGO == nullptr) 
+        if (selectedSaberGO == nullptr && false) 
         {
             getLogger().error("selected saber GO was nullptr, returning from saber start");
             return;
         }
+
         SaberData& selected = loadedSabers[selectedSaber];
+
         if (!selected.get_complete())
         {
             getLogger().error("Tried using the saber while it was not finished loading");
@@ -147,7 +149,7 @@ namespace Qosmetics
         }
 
         // replace the saber
-        SaberUtils::ReplaceSaber(instance, selectedSaberGO);
+        SaberUtils::AddSaber(instance, selected);
         Qosmetics::SaberConfig config = *selected.saberConfig;
 
         // get the transform in order to find the other neccesary transforms lower in the hierarchy
@@ -188,9 +190,6 @@ namespace Qosmetics
                     // add this trail to the custom saber
                     TrailUtils::AddTrail(trail, customSaber);
                 }
-
-                // if the basicsabermodel is defined, make the trail invisible
-                if (basicSaberModel != nullptr) TrailUtils::RemoveTrail(basicSaberModel);
             }
             else if (instance->get_saberType().value == 1 && customSaber != nullptr) // if right saber
             {
@@ -203,10 +202,9 @@ namespace Qosmetics
                     // add this trail to the custom saber
                     TrailUtils::AddTrail(trail, customSaber);
                 }
-
-                // if the basicsabermodel is defined, make the trail invisible
-                if (basicSaberModel != nullptr) TrailUtils::RemoveTrail(basicSaberModel);
             }
+            // if the basicsabermodel is defined, make the trail invisible
+            if (basicSaberModel != nullptr) TrailUtils::RemoveTrail(basicSaberModel);
         }
         
         // if the saber creator wants the base game fake glow enabled then re-enable that, not the best solution but because of the way sabers was programmed there is not a lot I can do about it except rework all of sabers :grimacing:

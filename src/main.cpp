@@ -65,6 +65,8 @@ MAKE_HOOK_OFFSETLESS(MenuTransitionsHelper_StartStandardLevel, void, GlobalNames
         Qosmetics::QuestNote::ModifierScoreDisableCheck(gameplayModifiers);
         Qosmetics::QuestNote::ReducedDebrisDisableCheck(playerSpecificSettings);
     }
+    if (sabersEnabled) Qosmetics::QuestSaber::SetTrailIntensity(playerSpecificSettings->saberTrailIntensity);
+
     MenuTransitionsHelper_StartStandardLevel(self, difficultyBeatmap, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects, beforeSceneSwitchCallback, afterSceneSwitchCallback, levelFinishedCallback);
 }
 
@@ -154,6 +156,13 @@ MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::C
     ConditionalMaterialSwitcher_Awake(self);
 }
 
+MAKE_HOOK_OFFSETLESS(XWeaponTrailRenderer_OnEnable, void, GlobalNamespace::XWeaponTrailRenderer* self)
+{
+    if (self->meshRenderer == nullptr)self->meshRenderer = self->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
+    if (self->meshFilter == nullptr) self->meshFilter = self->get_gameObject()->GetComponent<UnityEngine::MeshFilter*>();
+    XWeaponTrailRenderer_OnEnable(self);
+}
+
 extern "C" void setup(ModInfo& info) 
 {
     info.id = ID;
@@ -193,7 +202,7 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(MenuTransitionsHelper_StartStandardLevel, il2cpp_utils::FindMethodUnsafe("", "MenuTransitionsHelper", "StartStandardLevel", 11));
     INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 7));
     INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 9));
-    
+    INSTALL_HOOK_OFFSETLESS(XWeaponTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "XWeaponTrailRenderer", "OnEnable", 0));
     getLogger().info("Hooks installed");
 }
 

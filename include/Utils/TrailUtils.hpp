@@ -33,7 +33,6 @@ namespace Qosmetics
             /// @param customSaber the destination where stuff will get moved
             static void MoveTrail(UnityEngine::Transform* basicSaberModel, UnityEngine::Transform* customSaber);
 
-
             /// @brief adds a trail to the trail object in the customSaber object
             /// @param trail reference to the trail to set
             /// @param customSaber transform of the custom saber

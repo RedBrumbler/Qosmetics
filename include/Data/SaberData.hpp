@@ -77,6 +77,34 @@ namespace Qosmetics
                 if (alsoLoadBundle) LoadBundle();
             }
 
+            UnityEngine::GameObject* get_leftSaber()
+            {
+                if (leftSaber != nullptr) return leftSaber;
+                if (saberPrefab == nullptr) return nullptr;
+
+                UnityEngine::Transform* prefab = saberPrefab->get_transform();
+
+                UnityEngine::Transform* leftSaberT = prefab->Find(il2cpp_utils::createcsstr("LeftSaber"));
+
+                if (leftSaberT != nullptr) leftSaber = leftSaberT->get_gameObject();
+
+                return leftSaber;
+            }
+
+            UnityEngine::GameObject* get_rightSaber()
+            {
+                if (rightSaber != nullptr) return rightSaber;
+                if (saberPrefab == nullptr) return nullptr;
+
+                UnityEngine::Transform* prefab = saberPrefab->get_transform();
+
+                UnityEngine::Transform* rightSaberT = prefab->Find(il2cpp_utils::createcsstr("RightSaber"));
+
+                if (rightSaberT != nullptr) rightSaber = rightSaberT->get_gameObject();
+
+                return rightSaber;
+            }
+
             /// @brief loads asset bundle using bs utils
             /// @param filePath path to load the bundle from
             void LoadBundle(std::string filePath);
@@ -86,7 +114,8 @@ namespace Qosmetics
 
             void LoadAssets();
         private:
-        
+            UnityEngine::GameObject* leftSaber = nullptr;
+            UnityEngine::GameObject* rightSaber = nullptr;
             void OnSaberLoadComplete(UnityEngine::GameObject* saber, bool DontDestroyOnLoad);
 
             void OnConfigLoadComplete(UnityEngine::TextAsset* configAsset);

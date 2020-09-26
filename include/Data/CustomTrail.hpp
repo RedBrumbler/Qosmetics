@@ -101,13 +101,17 @@ namespace Qosmetics
             int get_whiteStep()
             {
                 return whiteStep;
+            }  
+
+            static void set_trailIntensity(float intensity)
+            {
+                trailIntensity = intensity;
             }
 
             /// @brief sets trail info from custom trail on given weapontrail
             /// @param weaponTrail the instance of xft::weapontrail to configure
             /// @param trail input reference of the trail to use for configuring the weaponTrail
             static void set_trailInfo(Xft::XWeaponTrail* weaponTrail, Qosmetics::CustomTrail &trail);
-
         private:
             std::string ObjectPath;
             ColorType trailType; // 0 = leftTrail, 1 = rightTrail, 2 = custom color
@@ -116,9 +120,11 @@ namespace Qosmetics
             UnityEngine::Color multiplierColor;
             int length = 0;
             int whiteStep = 0;
+            static inline float trailIntensity = 1.0f;
+
+            
 
             static GlobalNamespace::XWeaponTrailRenderer* NewTrailRenderer(UnityEngine::Material* material);
-
             GlobalNamespace::XWeaponTrailRenderer* NewTrailRenderer();
     };
 }

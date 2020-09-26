@@ -65,6 +65,12 @@ namespace Qosmetics
 
             /// @brief called at menu scene
             static void MenuViewControllers();
+            
+            /// @brief sets the trail intensity float for the trails.
+            static void SetTrailIntensity(float intensity)
+            {
+                Qosmetics::CustomTrail::set_trailIntensity(intensity);
+            }
 
         private:
             /// @brief makes the folder if not found

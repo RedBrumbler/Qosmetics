@@ -24,6 +24,10 @@ namespace Qosmetics
             return;
         }
 
+        /*basicSaberModel->SetParent(customSaber);
+        basicSaberModel = customSaber->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
+
+        return;*/
 
         getLogger().info("Attempting to move base game trail into the custom saber per request of michaelzoller");
         Xft::XWeaponTrail* trailComponent = UnityUtils::GetComponent<Xft::XWeaponTrail*>(basicSaberModel->get_gameObject(), "Xft", "XWeaponTrail");
@@ -81,7 +85,6 @@ namespace Qosmetics
             return;
         }
 
-
         newTrail->set_color(trailColor);
         newTrail->pointStart = start;
         newTrail->pointEnd = end;
@@ -125,4 +128,5 @@ namespace Qosmetics
         // disabled in this case is just trail width to 0
         trailComponent->trailWidth = 0.0;
     }
+
 }

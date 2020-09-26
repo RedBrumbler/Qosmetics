@@ -64,7 +64,7 @@ LOCAL_SHARED_LIBRARIES += beatsaber-hook_0_6_0
 LOCAL_SHARED_LIBRARIES += codegen_0_2_4
 LOCAL_SHARED_LIBRARIES += bs-utils
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.0.3"' -I'./shared' -I'./extern' -Wno-inaccessible-base
+LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.0.4"' -I'./shared' -I'./extern' -Wno-inaccessible-base
 LOCAL_C_INCLUDES += ./include ./src
 
 include $(BUILD_SHARED_LIBRARY)

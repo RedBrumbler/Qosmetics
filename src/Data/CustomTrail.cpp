@@ -93,10 +93,7 @@ namespace Qosmetics
         if (matSwitcher != nullptr) UnityEngine::Object::Destroy(matSwitcher);
                 
         // calling start so that the trailrenderer gets instanced.
-        weaponTrail->Start();
-
-        // set the material on the meshrenderer just to be safe
-        weaponTrail->trailRenderer->meshRenderer->set_sharedMaterial(trail.get_material());
+        //weaponTrail->Start();
 
         // make a color instance to use later on, also get color manager to get the right colors for the sabers
         UnityEngine::Color newColor = UnityEngine::Color::get_white();
@@ -112,6 +109,9 @@ namespace Qosmetics
             // last resort must mean the color type is custom color (2), or the color manager was not defined. then just take the configured color that's set on the trail
             newColor = trail.get_color();
         
+        // apply trail intensity player setting
+        newColor.a *= trailIntensity;
+
         // setting color
         weaponTrail->set_color(newColor);
         getLogger().info("end of trail set info");
@@ -129,12 +129,9 @@ namespace Qosmetics
         }
 
         // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
-        GlobalNamespace::XWeaponTrailRenderer* trailRendererPrefab = *il2cpp_utils::RunMethod<GlobalNamespace::XWeaponTrailRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("", "XWeaponTrailRenderer"));
-        il2cpp_utils::RunMethod<UnityEngine::MeshFilter*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshFilter"));
-        il2cpp_utils::RunMethod<UnityEngine::MeshRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshRenderer"));
-                
-        // makes it so the trail renderer tries to find the mesh filter and renderer that it has on its gameObject
-        trailRendererPrefab->OnValidate();
+        CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::MeshFilter*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshFilter")));
+        CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::MeshRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshRenderer")));
+        GlobalNamespace::XWeaponTrailRenderer* trailRendererPrefab = CRASH_UNLESS(il2cpp_utils::RunMethod<GlobalNamespace::XWeaponTrailRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("", "XWeaponTrailRenderer")));
 
         // if the material is defined, set it immediately since this is not a static method :)
         if (this->trailMaterial != nullptr) trailRendererPrefab->meshRenderer->set_sharedMaterial(this->trailMaterial);
@@ -158,15 +155,12 @@ namespace Qosmetics
         }
 
         // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
-        GlobalNamespace::XWeaponTrailRenderer* trailRendererPrefab = *il2cpp_utils::RunMethod<GlobalNamespace::XWeaponTrailRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("", "XWeaponTrailRenderer"));
-        il2cpp_utils::RunMethod<UnityEngine::MeshFilter*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshFilter"));
-        il2cpp_utils::RunMethod<UnityEngine::MeshRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshRenderer"));
-        
-        // makes it so the trail renderer tries to find the mesh filter and renderer that it has on it's gameObject
-        trailRendererPrefab->OnValidate();
+        CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::MeshFilter*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshFilter")));
+        CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::MeshRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshRenderer")));
+        GlobalNamespace::XWeaponTrailRenderer* trailRendererPrefab = CRASH_UNLESS(il2cpp_utils::RunMethod<GlobalNamespace::XWeaponTrailRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("", "XWeaponTrailRenderer")));
 
         // if the material is not nullptr set it
-        if (material != nullptr) trailRendererPrefab->meshRenderer->set_sharedMaterial(material);
+        if (material != nullptr) trailRendererPrefab->meshRenderer->set_sharedMaterial(material);      
 
         // give it a good name, for identification I guess
         newPrefab->set_name(il2cpp_utils::createcsstr("Trail"));
