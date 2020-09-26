@@ -113,32 +113,34 @@ namespace Qosmetics
         }
         
         // selected saber from the loadedsabers vector, in the future this may be selectable
-        selectedSaber = 0; 
+        selectedSaber = 0;
+
+        loadedSabers[selectedSaber].ClearActive();
         // get the saber prefab (asset with name _CustomSaber)
-        auto saber = loadedSabers[selectedSaber].get_saberPrefab();
-        if (saber == nullptr)
+        //auto saber = loadedSabers[selectedSaber].get_saberPrefab();
+        /*if (saber == nullptr)
         {
             getLogger().error("Saber gameobject was nullptr, not instantiating");
             return;
-        }
+        }*/
         // set it to active
-        saber->SetActive(true);
+        //saber->SetActive(true);
 
         // instantiate new one
         //selectedSaberGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)saber);
 
         // set prefab inactive again
-        saber->SetActive(false);
+        //saber->SetActive(false);
     };
     
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         // if nothing is selected just return
-        if (selectedSaberGO == nullptr && false) 
+        /*if (selectedSaberGO == nullptr && false) 
         {
             getLogger().error("selected saber GO was nullptr, returning from saber start");
             return;
-        }
+        }*/
 
         SaberData& selected = loadedSabers[selectedSaber];
 

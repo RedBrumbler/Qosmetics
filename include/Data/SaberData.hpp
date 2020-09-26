@@ -113,9 +113,18 @@ namespace Qosmetics
             void LoadBundle();
 
             void LoadAssets();
+
+            void ClearActive()
+            {
+                getLogger().info("Clearing active saber pointers");
+                leftSaber = nullptr;
+                rightSaber = nullptr;
+            }
+
         private:
             UnityEngine::GameObject* leftSaber = nullptr;
             UnityEngine::GameObject* rightSaber = nullptr;
+
             void OnSaberLoadComplete(UnityEngine::GameObject* saber, bool DontDestroyOnLoad);
 
             void OnConfigLoadComplete(UnityEngine::TextAsset* configAsset);
@@ -135,6 +144,7 @@ namespace Qosmetics
             bool isLoading = false;
             bool replacedMaterials = false;
             bool bundleLoading = false;
+            
             bs_utils::AssetBundle* bundle = nullptr;
     };
 }

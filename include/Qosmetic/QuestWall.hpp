@@ -31,8 +31,7 @@ namespace Qosmetics
             static inline std::string fileDir = "/sdcard/Qosmetics/walls/";
             static std::vector<std::string> fileNames;
             static std::vector<WallData> loadedWalls;
-
-            static inline UnityEngine::GameObject* selectedWallGO = nullptr; 
+            
             static inline int selectedWall = 0; 
 
             /// @brief called at shader warmup scene

@@ -24,11 +24,6 @@ namespace Qosmetics
             return;
         }
 
-        /*basicSaberModel->SetParent(customSaber);
-        basicSaberModel = customSaber->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
-
-        return;*/
-
         getLogger().info("Attempting to move base game trail into the custom saber per request of michaelzoller");
         Xft::XWeaponTrail* trailComponent = UnityUtils::GetComponent<Xft::XWeaponTrail*>(basicSaberModel->get_gameObject(), "Xft", "XWeaponTrail");
 
@@ -57,9 +52,14 @@ namespace Qosmetics
             children.push_back(child);
         }
 
-        for (auto child : children)
+        for (UnityEngine::Transform* child : children)
         {
-            if (child != nullptr) child->SetParent(customSaber);
+            if (child != nullptr)
+            {
+                std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
+                getLogger().info("%s pointer address: %p", name.c_str(), child);
+                child->SetParent(customSaber);
+            } 
             else getLogger().error("A child was nullptr, not setting parent...");
         }
 

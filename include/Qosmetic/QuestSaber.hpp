@@ -47,7 +47,6 @@ namespace Qosmetics
 
             static std::vector<SaberData> loadedSabers;
 
-            static inline UnityEngine::GameObject* selectedSaberGO = nullptr; 
             static inline int selectedSaber = 0; 
 
             /// @brief called with the saber start hook

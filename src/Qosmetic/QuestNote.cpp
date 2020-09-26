@@ -89,7 +89,7 @@ namespace Qosmetics
         // selected note from the loadednotes vector, in the future this may be selectable
         selectedNote = 0; 
         Qosmetics::NoteData& selected = loadedNotes[selectedNote];
-
+        selected.ClearActive();
         NoteUtils::clearMaterialList();
 
         if (!selected.get_complete())

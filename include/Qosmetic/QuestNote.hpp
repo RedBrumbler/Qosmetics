@@ -42,8 +42,7 @@ namespace Qosmetics
             static inline std::string fileDir = "/sdcard/Qosmetics/notes/";
             static std::vector<std::string> fileNames;
             static std::vector<NoteData> loadedNotes;
-
-            static inline UnityEngine::GameObject* selectedNoteGO = nullptr; 
+            
             static inline int selectedNote = 0; 
 
             /// @brief called at shader warmup scene

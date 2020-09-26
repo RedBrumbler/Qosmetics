@@ -271,6 +271,21 @@ namespace Qosmetics
                 if (bomb != nullptr) this->bomb = bomb->get_gameObject();
             }
 
+            void ClearActive()
+            {
+                getLogger().info("Clearing Active bloq pointers");
+                leftArrow = nullptr;
+                rightArrow = nullptr;
+                leftDot = nullptr;
+                rightDot = nullptr;
+
+                leftDebris = nullptr;
+                rightDebris = nullptr;
+
+                bomb = nullptr;
+
+            }
+
         private:
             Qosmetics::Descriptor* noteDescriptor = nullptr;
             Qosmetics::NoteConfig* noteConfig = nullptr;

@@ -89,8 +89,8 @@ namespace Qosmetics
         }
 
         // get matswitcher and if not null delete it
-        GlobalNamespace::ConditionalMaterialSwitcher* matSwitcher = UnityUtils::GetComponent<GlobalNamespace::ConditionalMaterialSwitcher*>(weaponTrail->trailRendererPrefab->get_gameObject(), "", "ConditionalMaterialSwitcher");
-        if (matSwitcher != nullptr) UnityEngine::Object::Destroy(matSwitcher);
+        //GlobalNamespace::ConditionalMaterialSwitcher* matSwitcher = UnityUtils::GetComponent<GlobalNamespace::ConditionalMaterialSwitcher*>(weaponTrail->trailRendererPrefab->get_gameObject(), "", "ConditionalMaterialSwitcher");
+        //if (matSwitcher != nullptr) UnityEngine::Object::Destroy(matSwitcher);
                 
         // calling start so that the trailrenderer gets instanced.
         //weaponTrail->Start();
@@ -138,6 +138,9 @@ namespace Qosmetics
 
         // give it a good name, for identification I guess
         newPrefab->set_name(il2cpp_utils::createcsstr("Trail"));
+
+        getLogger().info("new trail Prefab: %p", newPrefab);
+        getLogger().info("new trail renderer script: %p", trailRendererPrefab);
 
         // return the trail renderer pointer
         return trailRendererPrefab;
