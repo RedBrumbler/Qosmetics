@@ -122,9 +122,7 @@ namespace Qosmetics
             }
 
         private:
-            UnityEngine::GameObject* leftSaber = nullptr;
-            UnityEngine::GameObject* rightSaber = nullptr;
-
+            
             void OnSaberLoadComplete(UnityEngine::GameObject* saber, bool DontDestroyOnLoad);
 
             void OnConfigLoadComplete(UnityEngine::TextAsset* configAsset);
@@ -136,6 +134,9 @@ namespace Qosmetics
             std::string filePath = "";
 
             UnityEngine::GameObject* saberPrefab = nullptr;
+            
+            UnityEngine::GameObject* leftSaber = nullptr;
+            UnityEngine::GameObject* rightSaber = nullptr;
 
             bool finishedSaberLoad = false;
             bool objectComplete = false;

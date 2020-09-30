@@ -106,12 +106,22 @@ namespace Qosmetics
 
             UnityEngine::GameObject* get_core()
             {
-                return core;
+                if (wallPrefab == nullptr) return nullptr;
+
+                UnityEngine::Transform* coreT = wallPrefab->get_transform()->Find(il2cpp_utils::createcsstr("Core"));
+
+                if (coreT != nullptr) this->core = coreT->get_gameObject();
+                return this->core;
             }
 
             UnityEngine::GameObject* get_frame()
             {
-                return frame;
+                if (wallPrefab == nullptr) return nullptr;
+
+                UnityEngine::Transform* frameT = wallPrefab->get_transform()->Find(il2cpp_utils::createcsstr("Frame"));
+
+                if (frameT != nullptr) this->frame = frameT->get_gameObject();
+                return this->frame;
             }
 
             Qosmetics::WallConfig* get_config()

@@ -43,6 +43,7 @@ namespace Qosmetics
             getLogger().error("Adding new trail component failed, skipping move trail...");
             return;
         }
+        /*
         // relocate children from basicsabermodel into LeftSaber.Leftsaber (or right)
         std::vector<UnityEngine::Transform*> children;
         int childCount = basicSaberModel->get_childCount();
@@ -62,11 +63,16 @@ namespace Qosmetics
             } 
             else getLogger().error("A child was nullptr, not setting parent...");
         }
-
+        */
         // copy over properties
         UnityEngine::Color trailColor = trailComponent->get_color();
-        UnityEngine::Transform* start = trailComponent->pointStart;
-        UnityEngine::Transform* end = trailComponent-> pointEnd;
+        UnityEngine::Transform* start = ((UnityEngine::Transform*)UnityEngine::Object::Instantiate((UnityEngine::Object*)trailComponent->pointStart->get_gameObject()))->get_transform();
+        UnityEngine::Transform* end = ((UnityEngine::Transform*)UnityEngine::Object::Instantiate((UnityEngine::Object*)trailComponent-> pointEnd->get_gameObject()))->get_transform();
+        int maxFrame = trailComponent->maxFrame;
+        int granularity = trailComponent->granularity;
+        int whiteStep = trailComponent->whiteSteps;
+        UnityEngine::Color color = trailComponent->get_color();
+
         auto* trailPrefab = trailComponent->trailRendererPrefab;
 
         if (start == nullptr)
@@ -76,19 +82,30 @@ namespace Qosmetics
         }
         else if (end == nullptr)
         {
-            getLogger().error("start was nullptr, returning...");
+            getLogger().error("end was nullptr, returning...");
             return;
         }
         else if (trailPrefab == nullptr)
         {
-            getLogger().error("start was nullptr, returning...");
+            getLogger().error("trailPrefab was nullptr, returning...");
             return;
         }
+
+        start->SetParent(customSaber);
+        end->SetParent(customSaber);
+        
+        start->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, start->get_localPosition().z));
+        end->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, end->get_localPosition().z));
+
 
         newTrail->set_color(trailColor);
         newTrail->pointStart = start;
         newTrail->pointEnd = end;
         newTrail->trailRendererPrefab = trailPrefab;
+        newTrail->color = color;
+        newTrail->maxFrame = maxFrame;
+        newTrail->granularity = granularity;
+        newTrail->whiteSteps = whiteStep;
         // yeet original trail
         RemoveTrail(basicSaberModel);
     }

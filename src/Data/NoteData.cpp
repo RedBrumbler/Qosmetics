@@ -57,7 +57,6 @@ namespace Qosmetics
 
         this->notePrefab = instantiated;
         objectComplete = true;
-        SetReferences();
         getLogger().info("Loaded Bloq prefab");
     }
 

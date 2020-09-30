@@ -57,7 +57,6 @@ namespace Qosmetics
 
         this->wallPrefab = instantiated;
         objectComplete = true;
-        SetReferences();
         getLogger().info("Loaded Wall prefab");
     }
 
@@ -115,7 +114,7 @@ namespace Qosmetics
 
     UnityEngine::Mesh* WallData::get_coreMesh()
     {   
-        if (core == nullptr) 
+        if (get_core() == nullptr) 
         {
             getLogger().error("Tried getting core mesh but core was null, returning nullptr");
             return nullptr;
@@ -135,7 +134,7 @@ namespace Qosmetics
 
     UnityEngine::Mesh* WallData::get_frameMesh()
     {
-        if (frame == nullptr) 
+        if (get_frame() == nullptr) 
         {
             getLogger().error("Tried getting frame mesh but frame was null, returning nullptr");
             return nullptr;
@@ -155,7 +154,7 @@ namespace Qosmetics
 
     UnityEngine::Material* WallData::get_coreMaterial()
     {
-        if (core == nullptr) 
+        if (get_core() == nullptr) 
         {
             getLogger().error("Tried getting core material but core was null, returning nullptr");
             return nullptr;
@@ -176,7 +175,7 @@ namespace Qosmetics
 
     UnityEngine::Material* WallData::get_frameMaterial()
     {
-        if (frame == nullptr) 
+        if (get_frame() == nullptr) 
         {
             getLogger().error("Tried getting frame material but frame was null, returning nullptr");
             return nullptr;
@@ -197,7 +196,7 @@ namespace Qosmetics
 
     Array<UnityEngine::Material*>* WallData::get_coreSharedMaterials()
     {
-        if (core == nullptr) 
+        if (get_core() == nullptr) 
         {
             getLogger().error("Tried getting core material array but core was null, returning nullptr");
             return nullptr;
@@ -218,7 +217,7 @@ namespace Qosmetics
 
     Array<UnityEngine::Material*>* WallData::get_frameSharedMaterials()
     {
-        if (frame == nullptr) 
+        if (get_frame() == nullptr) 
         {
             getLogger().error("Tried getting frame material array but frame was null, returning nullptr");
             return nullptr;
@@ -239,7 +238,7 @@ namespace Qosmetics
 
     UnityEngine::MeshRenderer* WallData::get_coreRenderer()
     {
-        if (core == nullptr) 
+        if (get_core() == nullptr) 
         {
             getLogger().error("Tried getting core renderer but core was null, returning nullptr");
             return nullptr;
@@ -253,7 +252,7 @@ namespace Qosmetics
 
     UnityEngine::MeshRenderer* WallData::get_frameRenderer()
     {
-        if (frame == nullptr) 
+        if (get_frame() == nullptr) 
         {
             getLogger().error("Tried getting frame renderer but frame was null, returning nullptr");
             return nullptr;
