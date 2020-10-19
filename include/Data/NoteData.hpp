@@ -283,7 +283,6 @@ namespace Qosmetics
                 rightDebris = nullptr;
 
                 bomb = nullptr;
-
             }
 
         private:
