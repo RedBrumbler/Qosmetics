@@ -102,6 +102,14 @@ namespace Qosmetics
             /// @brief runs after the bomb controller function
             static void BombController_Init_Post(GlobalNamespace::BombNoteController* noteController);
 
+            static void ClearAllInternalPointers()
+            {
+                for (auto &note : loadedNotes)
+                {
+                    note.ClearActive();
+                }
+            }
+            
         private:
             static inline bool setColors = false;
             static inline bool disableDebris = false;

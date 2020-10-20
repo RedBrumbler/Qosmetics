@@ -52,6 +52,14 @@ namespace Qosmetics
 
             /// @brief runs on the obstacle controller set hide hook
             static void ObstacleController_Set_Hide(GlobalNamespace::ObstacleController* obstacleController, bool value);
+
+            static void ClearAllInternalPointers()
+            {
+                for (auto &wall : loadedWalls)
+                {
+                    wall.ClearActive();
+                }
+            }
         private:
             static inline bool setColors = false;
             /// @brief makes the folder if not found

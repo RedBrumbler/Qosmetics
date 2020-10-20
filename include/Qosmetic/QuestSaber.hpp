@@ -71,6 +71,14 @@ namespace Qosmetics
                 Qosmetics::CustomTrail::set_trailIntensity(intensity);
             }
 
+            static void ClearAllInternalPointers()
+            {
+                for (auto &saber : loadedSabers)
+                {
+                    saber.ClearActive();
+                }
+            }
+            
         private:
             /// @brief makes the folder if not found
             static void makeFolder(std::string directory);

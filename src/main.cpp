@@ -189,6 +189,13 @@ extern "C" void setup(ModInfo& info)
     getLogger().info(info.id);
 }
 
+void WipeAllDefinedPointers()
+{
+    if (sabersEnabled) Qosmetics::QuestSaber::ClearAllInternalPointers();
+    if (wallsEnabled) Qosmetics::QuestWall::ClearAllInternalPointers();
+    if (notesEnabled) Qosmetics::QuestNote::ClearAllInternalPointers();
+}
+
 extern "C" void load() 
 {
     il2cpp_functions::Init();
@@ -203,6 +210,24 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 7));
     INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 9));
     INSTALL_HOOK_OFFSETLESS(XWeaponTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "XWeaponTrailRenderer", "OnEnable", 0));
+
+    std::thread WipeRoutine(
+        [&]{
+            int timer = 0;
+            while (1) {
+                WipeAllDefinedPointers();
+                getLogger().info("Wiped ALL pointers...");
+                timer = 0;
+                while (timer < 2000)
+                {
+                    usleep(2000);
+                    timer++;
+                }
+            }
+        });
+
+    WipeRoutine.detach();
+    
     getLogger().info("Hooks installed");
 }
 
