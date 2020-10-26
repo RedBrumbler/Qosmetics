@@ -17,7 +17,7 @@ class UnityUtils
     /// @brief returns the result of running GetComponent on gameobject with the given type, nameSpace defaults to UnityEngine
     /// @param gameObject object to run on
     /// @param type
-    template <class Type = typeof(Il2CppObject*)>
+    template <class Type>
     static Type GetComponent(UnityEngine::GameObject* gameObject, std::string type)
     {
         return *il2cpp_utils::RunMethod<Type>((Il2CppObject*)gameObject, "GetComponent", TypeFromString(type));
@@ -27,7 +27,7 @@ class UnityUtils
     /// @param gameObject object to run on
     /// @param nameSpace
     /// @param type
-    template <class Type = typeof(Il2CppObject*)>
+    template <class Type>
     static Type GetComponent(UnityEngine::GameObject* gameObject, std::string nameSpace, std::string type)
     {
         return *il2cpp_utils::RunMethod<Type>((Il2CppObject*)gameObject, "GetComponent", TypeFromString(nameSpace, type));
@@ -36,7 +36,7 @@ class UnityUtils
     /// @brief returns the result of running GetComponent on gameobject with the given type, nameSpace defaults to UnityEngine
     /// @param transform object to run on
     /// @param type
-    template <class Type = typeof(Il2CppObject*)>
+    template <class Type>
     static Type GetComponent(UnityEngine::Transform* transform, std::string type)
     {
         UnityEngine::GameObject* object = transform->get_gameObject();
@@ -47,7 +47,7 @@ class UnityUtils
     /// @param transform object to run on
     /// @param nameSpace
     /// @param type
-    template <class Type = typeof(Il2CppObject*)>
+    template <class Type>
     static Type GetComponent(UnityEngine::Transform* transform, std::string nameSpace, std::string type)
     {
         UnityEngine::GameObject* object = transform->get_gameObject();
@@ -70,7 +70,7 @@ class UnityUtils
     };
     
     /// @brief returns last object of the specified type as the given type in the template arguments
-    template <class Type = typeof(Il2CppObject*)>
+    template <class Type>
     static Type GetLastObjectOfType(Il2CppClass *klass) 
     {
         Il2CppReflectionType* klassType = il2cpp_utils::GetSystemType(klass);
@@ -80,7 +80,7 @@ class UnityUtils
     };
 
     /// @brief returns first object of the specified type as the given type in the template arguments
-    template <class Type = typeof(Il2CppObject*)>
+    template <class Type>
     static Type GetFirstObjectOfType(Il2CppClass *klass) 
     {
         Il2CppReflectionType* klassType = il2cpp_utils::GetSystemType(klass);

@@ -13,7 +13,7 @@ namespace Qosmetics
     {
         if (!direxists(directory.c_str()))
         {
-            int makePath = mkpath(directory.data(), 0700);
+            int makePath = mkpath(directory.data());
             if (makePath == -1)
             {
                 getLogger().debug("Failed to make path %s", directory.c_str());
@@ -99,7 +99,15 @@ namespace Qosmetics
             {
                 saber.LoadAssets();
             }
-          
+
+            if (saber.get_complete())
+            {
+                for (auto &trail : *saber.saberConfig->get_leftTrails())
+                    TrailUtils::AddTrail(trail, saber.get_leftSaber()->get_transform());
+                for (auto &trail : *saber.saberConfig->get_rightTrails())
+                    TrailUtils::AddTrail(trail, saber.get_rightSaber()->get_transform());
+                saber.set_trailsAdded(true);
+            }
         }
     }
 
@@ -116,32 +124,10 @@ namespace Qosmetics
         selectedSaber = 0;
 
         loadedSabers[selectedSaber].ClearActive();
-        // get the saber prefab (asset with name _CustomSaber)
-        //auto saber = loadedSabers[selectedSaber].get_saberPrefab();
-        /*if (saber == nullptr)
-        {
-            getLogger().error("Saber gameobject was nullptr, not instantiating");
-            return;
-        }*/
-        // set it to active
-        //saber->SetActive(true);
-
-        // instantiate new one
-        //selectedSaberGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)saber);
-
-        // set prefab inactive again
-        //saber->SetActive(false);
     };
     
-    void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
+    void QuestSaber::SaberStart(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* instance)
     {
-        // if nothing is selected just return
-        /*if (selectedSaberGO == nullptr && false) 
-        {
-            getLogger().error("selected saber GO was nullptr, returning from saber start");
-            return;
-        }*/
-
         SaberData& selected = loadedSabers[selectedSaber];
 
         if (!selected.get_complete())
@@ -151,13 +137,13 @@ namespace Qosmetics
         }
 
         // replace the saber
-        SaberUtils::AddSaber(instance, selected);
+        SaberUtils::AddSaber(modelController, instance, selected);
         Qosmetics::SaberConfig config = *selected.saberConfig;
 
         // get the transform in order to find the other neccesary transforms lower in the hierarchy
-        UnityEngine::Transform* saberTransform = instance->get_transform();
+        UnityEngine::Transform* saberTransform = modelController->get_transform();
 
-        UnityEngine::Transform* basicSaberModel = saberTransform->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
+        UnityEngine::Transform* basicSaberModel = saberTransform->Find(il2cpp_utils::createcsstr("BasicSaber"));
         UnityEngine::Transform* customSaber = saberTransform->Find(il2cpp_utils::createcsstr(instance->get_saberType().value == 0 ? "LeftSaber" : "RightSaber"));
         
         bool fakeGlowMoved = false;
@@ -179,53 +165,13 @@ namespace Qosmetics
             getLogger().error("basicsabermodel null: %d, customSaber null: %d", basicSaberModel == nullptr, customSaber == nullptr);
         }
 
-        if (config.get_hasCustomTrails())
-        {
-            if (instance->get_saberType().value == 0 && customSaber != nullptr) // if left saber
-            {
-                // do this for each left trail
-                for (auto& trail : *config.get_leftTrails())
-                {
-                    // if the material is a nullptr, try to find the material
-                    if (trail.get_material() == nullptr) trail.FindMaterial(customSaber);
-
-                    // add this trail to the custom saber
-                    TrailUtils::AddTrail(trail, customSaber);
-                }
-            }
-            else if (instance->get_saberType().value == 1 && customSaber != nullptr) // if right saber
-            {
-                // do this for each right trail
-                for (auto& trail : *config.get_rightTrails())
-                {
-                    // if the material is a nullptr, try to find the material
-                    if (trail.get_material() == nullptr) trail.FindMaterial(customSaber);
-
-                    // add this trail to the custom saber
-                    TrailUtils::AddTrail(trail, customSaber);
-                }
-            }
-            // if the basicsabermodel is defined, make the trail invisible
-            if (basicSaberModel != nullptr) TrailUtils::RemoveTrail(basicSaberModel);
-        }
-        
-        // if the saber creator wants the base game fake glow enabled then re-enable that, not the best solution but because of the way sabers was programmed there is not a lot I can do about it except rework all of sabers :grimacing:
-        if (config.get_enableFakeGlow() && basicSaberModel != nullptr)
-        {
-            // find their transforms
-            UnityEngine::Transform* fakeGlow0 = (fakeGlowMoved && customSaber != nullptr) ? customSaber->Find(il2cpp_utils::createcsstr("FakeGlow0")) : basicSaberModel->Find(il2cpp_utils::createcsstr("FakeGlow0"));
-            UnityEngine::Transform* fakeGlow1 = (fakeGlowMoved && customSaber != nullptr) ? customSaber->Find(il2cpp_utils::createcsstr("FakeGlow1")) : basicSaberModel->Find(il2cpp_utils::createcsstr("FakeGlow1"));
-
-            // since them getting disabled is done with the gameobjects being set to not active, set them active again
-            if (fakeGlow0 != nullptr) fakeGlow0->get_gameObject()->SetActive(true);
-            else getLogger().error("Enabling fakeglow 0 failed because fakeGlow0 transform was null");
-
-            if (fakeGlow1 != nullptr) fakeGlow1->get_gameObject()->SetActive(true);
-            else getLogger().error("Enabling fakeglow 1 failed because fakeGlow1 transform was null");
-        }
-
+        if (basicSaberModel != nullptr && config.get_hasCustomTrails())
+             TrailUtils::RemoveTrail(basicSaberModel);
+    
         if (config.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
         {
+            // TODO
+            /*
             // This code currently doesn't work, so by && with false it just never executes
             GlobalNamespace::ObstacleSaberSparkleEffectManager* sparkleManager = UnityUtils::GetFirstObjectOfType<GlobalNamespace::ObstacleSaberSparkleEffectManager*>(il2cpp_utils::GetClassFromName("", "ObstacleSaberSparkleEffectManager"));
             if (sparkleManager != nullptr)
@@ -246,7 +192,7 @@ namespace Qosmetics
                         }
                     }
                 }
-            }
+            }*/
         }
 
         if (config.get_hasCustomSliceParticles() && customSaber != nullptr)

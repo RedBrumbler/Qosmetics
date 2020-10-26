@@ -12,11 +12,14 @@
 #include "GlobalNamespace/ColorManager.hpp"
 #include "GlobalNamespace/NoteCutDirection.hpp"
 #include "GlobalNamespace/NoteDebris.hpp"
-#include "GlobalNamespace/NoteType.hpp"
+#include "GlobalNamespace/BeatmapSaveData.hpp"
+#include "GlobalNamespace/BeatmapSaveData_NoteType.hpp"
+#include "GlobalNamespace/BeatmapSaveData_NoteData.hpp"
 #include "GlobalNamespace/NoteData.hpp"
 #include "GlobalNamespace/NoteController.hpp"
 #include "GlobalNamespace/BombNoteController.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
+#include "GlobalNamespace/SaberType.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/UnityUtils.hpp"
@@ -41,7 +44,7 @@ namespace Qosmetics
             static void ReplaceNote(GlobalNamespace::NoteController* noteController, Qosmetics::NoteData &customNoteData);
 
             /// @brief replaces the debris with custom debris
-            static void ReplaceDebris(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, Qosmetics::NoteData &customNoteData);
+            static void ReplaceDebris(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, Qosmetics::NoteData &customNoteData);
 
             /// @brief replaces the bomb
             static void ReplaceBomb(GlobalNamespace::BombNoteController* noteController, Qosmetics::NoteData &customNoteData);
@@ -49,9 +52,8 @@ namespace Qosmetics
             /// @brief sets the given bools based on the given noteData
             static void FindNoteType(GlobalNamespace::NoteData* noteData, bool &isLeft, bool &isDot, bool &isGhost, bool &isBomb)
             {
-                int cutDirection = noteData->get_cutDirection().value;
-                int type = noteData->get_noteType().value;
-
+                int cutDirection = noteData->cutDirection.value;
+                int type = noteData->get_colorType().value;
                 switch(type)
                 {
                     case 0: // noteA
@@ -138,7 +140,7 @@ namespace Qosmetics
             /// @param note object to look in
             /// @param type note type to look for
             /// @return true if found, false if not found
-            static bool FindOldDebris(UnityEngine::Transform* note, GlobalNamespace::NoteType type);
+            static bool FindOldDebris(UnityEngine::Transform* note, GlobalNamespace::BeatmapSaveData::NoteType type);
 
             /// @brief will disable all types of notes EXCEPT the given note type
             /// @param note the object to look in
@@ -148,7 +150,7 @@ namespace Qosmetics
             /// @brief disables old debris of the other kind, but if debris is found of this note type it will enable that
             /// @param noteDebrisMesh the transform in which to look
             /// @param noteType the type of the note (L/R)
-            static void DisableOldDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::NoteType noteType);
+            static void DisableOldDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::BeatmapSaveData::NoteType noteType);
 
             /// @brief disables all base game items in the given object, but will check the config for base game arrows
             /// @param note the object to look in for the base game note objects
@@ -175,7 +177,7 @@ namespace Qosmetics
             /// @param noteDebrisMesh transform to which is parented
             /// @param noteType used to determine which debris to Add
             /// @param customNoteData reference to the used notedata
-            static void AddDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::NoteType noteType, Qosmetics::NoteData &customNoteData);
+            static void AddDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::BeatmapSaveData::NoteType noteType, Qosmetics::NoteData &customNoteData);
 
             /// @brief sets the vector data that the debris needs to render as cut
             /// @param base the transform in which to look for renderers to set the vector data on

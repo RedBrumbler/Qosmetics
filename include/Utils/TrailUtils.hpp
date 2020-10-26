@@ -1,5 +1,7 @@
 #pragma once
-#include "Xft/XWeaponTrail.hpp"
+#include "GlobalNamespace/SaberTrail.hpp"
+#include "GlobalNamespace/TrailElementCollection.hpp"
+#include "System/Math.hpp"
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -36,10 +38,9 @@ namespace Qosmetics
             /// @brief adds a trail to the trail object in the customSaber object
             /// @param trail reference to the trail to set
             /// @param customSaber transform of the custom saber
-            /// @param trailRendererPrefab prefab of a trail renderer to be set on the new trail
             static void AddTrail(Qosmetics::CustomTrail &trail, UnityEngine::Transform* customSaber);
 
-            /// @brief sets the xweapontrail component disabled
+            /// @brief sets the weapontrail to not show up
             /// @param basicSaberModel transform on which to set the script to disabled
             static void RemoveTrail(UnityEngine::Transform* basicSaberModel);
     };

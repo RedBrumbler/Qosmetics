@@ -28,9 +28,10 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 # Creating prebuilt for dependency: beatsaber-hook - version: 0.5.7
 include $(CLEAR_VARS)
-LOCAL_MODULE := beatsaber-hook_0_6_0
+LOCAL_MODULE := beatsaber-hook_0_7_7
 LOCAL_EXPORT_C_INCLUDES := extern/beatsaber-hook
-LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_6_0.so
+LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_7_7.so
+LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -DNEED_UNSAFE_CSHARP -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
 
@@ -39,16 +40,23 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
 LOCAL_SRC_FILES := extern/libbs-utils.so
+LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
 
 # Creating prebuilt for dependency: codegen - version: 0.2.2
 include $(CLEAR_VARS)
-LOCAL_MODULE := codegen_0_2_4
+LOCAL_MODULE := codegen_0_3_4
 LOCAL_EXPORT_C_INCLUDES := extern/codegen
-LOCAL_SRC_FILES := extern/libcodegen_0_2_4.so
+LOCAL_SRC_FILES := extern/libcodegen_0_3_4.so
 LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -Wno-inaccessible-base
+include $(PREBUILT_SHARED_LIBRARY)
+# Creating prebuilt for dependency: custom-types - version: 0.2.9
+include $(CLEAR_VARS)
+LOCAL_MODULE := custom-types
+LOCAL_EXPORT_C_INCLUDES := extern/custom-types
+LOCAL_SRC_FILES := extern/libcustom-types.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 # If you would like to use more shared libraries (such as custom UI, utils, or more) add them here, following the format above.
@@ -60,11 +68,11 @@ LOCAL_SRC_FILES += $(call rwildcard,src/**,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.c)
 LOCAL_SHARED_LIBRARIES += modloader
-LOCAL_SHARED_LIBRARIES += beatsaber-hook_0_6_0
-LOCAL_SHARED_LIBRARIES += codegen_0_2_4
+LOCAL_SHARED_LIBRARIES += beatsaber-hook_0_7_7
+LOCAL_SHARED_LIBRARIES += codegen_0_3_4
 LOCAL_SHARED_LIBRARIES += bs-utils
+LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.0.4"' -I'./shared' -I'./extern' -Wno-inaccessible-base
+LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.1.0"' -I'./shared' -I'./extern' -Wno-inaccessible-base
 LOCAL_C_INCLUDES += ./include ./src
-
 include $(BUILD_SHARED_LIBRARY)

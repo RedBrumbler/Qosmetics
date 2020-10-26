@@ -17,6 +17,7 @@
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp" 
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #include "Logging/SaberLogger.hpp"
+
 //#include "beatsaber-hook"
 namespace Qosmetics
 {
@@ -61,6 +62,16 @@ namespace Qosmetics
                 return finishedSaberLoad;
             }
 
+            bool get_trailsAdded()
+            {
+                return trailsAdded;
+            }
+
+            void set_trailsAdded(bool value)
+            {
+                this->trailsAdded = value;
+            }
+            
             bool get_replacedMaterials()
             {
                 return replacedMaterials;
@@ -145,7 +156,7 @@ namespace Qosmetics
             bool isLoading = false;
             bool replacedMaterials = false;
             bool bundleLoading = false;
-            
+            bool trailsAdded = false;
             bs_utils::AssetBundle* bundle = nullptr;
     };
 }

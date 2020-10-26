@@ -7,8 +7,8 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/Component.hpp"
-#include "Xft/XWeaponTrail.hpp"
-#include "GlobalNamespace/XWeaponTrailRenderer.hpp"
+#include "GlobalNamespace/SaberTrail.hpp"
+#include "GlobalNamespace/SaberTrailRenderer.hpp"
 #include "UnityEngine/Color.hpp"
 #include "GlobalNamespace/ColorManager.hpp"
 #include "Utils/UnityUtils.hpp"
@@ -16,6 +16,14 @@
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include "Logging/SaberLogger.hpp"
+#include "GlobalNamespace/SaberMovementData.hpp"
+#include "GlobalNamespace/Saber.hpp"
+#include "GlobalNamespace/IBladeMovementData.hpp"
+#include "GlobalNamespace/BladeMovementDataElement.hpp"
+#include "System/Math.hpp"
+#include "GlobalNamespace/TrailElementCollection.hpp"
+
+#include "Data/QosmeticsTrail.hpp"
 namespace Qosmetics
 {
     class CustomTrail
@@ -53,9 +61,6 @@ namespace Qosmetics
             /// @brief finds the objectpath in the given transform
             /// @param saber LeftSaber or Rightsaber generally
             void FindMaterial(UnityEngine::Transform* saber);
-
-            /// @brief multiplies 2 colors, there was no avvailable color multiply function for UnityEngine::Color so I made my own
-            static UnityEngine::Color ColorMultiply(UnityEngine::Color first, UnityEngine::Color second);
 
             void set_material(UnityEngine::Material* material) 
             {
@@ -95,23 +100,13 @@ namespace Qosmetics
             const UnityEngine::Color get_color()
             {
                 // premultiplies the color for us
-                return ColorMultiply(trailColor, multiplierColor);
+                return trailColor * multiplierColor;
             }
 
             int get_whiteStep()
             {
                 return whiteStep;
             }  
-
-            static void set_trailIntensity(float intensity)
-            {
-                trailIntensity = intensity;
-            }
-
-            /// @brief sets trail info from custom trail on given weapontrail
-            /// @param weaponTrail the instance of xft::weapontrail to configure
-            /// @param trail input reference of the trail to use for configuring the weaponTrail
-            static void set_trailInfo(Xft::XWeaponTrail* weaponTrail, Qosmetics::CustomTrail &trail);
         private:
             std::string ObjectPath;
             ColorType trailType; // 0 = leftTrail, 1 = rightTrail, 2 = custom color
@@ -120,12 +115,6 @@ namespace Qosmetics
             UnityEngine::Color multiplierColor;
             int length = 0;
             int whiteStep = 0;
-            static inline float trailIntensity = 1.0f;
-
-            
-
-            static GlobalNamespace::XWeaponTrailRenderer* NewTrailRenderer(UnityEngine::Material* material);
-            GlobalNamespace::XWeaponTrailRenderer* NewTrailRenderer();
     };
 }
 

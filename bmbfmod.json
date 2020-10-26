@@ -1,16 +1,16 @@
 {
   "id": "Qosmetics",
   "name": "Qosmetics",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "icon": "cover.gif",
   "coverImageFilename": "cover.gif",
   "author": "RedBrumbler",
   "description": [
     "Quest Cosmetics on a whole new level!",
-	"Massive thanks to Sc2ad and Rugtveit for all the help with making this mod"
+    "Massive thanks to Sc2ad and Rugtveit for all the help with making this mod"
   ],
   "category": "Gameplay",
-  "gameVersion": "1.11.1",
+  "gameVersion": "1.12.2",
   "platform": "Quest",
   "components": [
     {
@@ -25,7 +25,7 @@
     {
       "type": "HookModLibrary",
       "installAction": {
-        "installLibraryFile": "libbeatsaber-hook_0_6_0.so"
+        "installLibraryFile": "libbeatsaber-hook_0_7_7.so"
       }
     },
     {
@@ -37,7 +37,13 @@
     {
       "type": "HookModLibrary",
       "installAction": {
-        "installLibraryFile": "libcodegen_0_2_4.so"
+        "installLibraryFile": "libcodegen_0_3_4.so"
+      }
+    }
+    {
+      "type": "HookModLibrary",
+      "installAction": {
+        "installLibraryFile": "libcustom-types.so"
       }
     }
   ]

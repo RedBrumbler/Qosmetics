@@ -3,7 +3,7 @@
     {
       "defines": [
         "MOD_ID=\"QuestCosmetics\"",
-        "VERSION=\"0.2.0\"",
+        "VERSION=\"1.0.4\"",
         "__GNUC__",
         "__aarch64__",
         "ID=\"Qosmetics\""

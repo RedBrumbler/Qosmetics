@@ -15,7 +15,8 @@
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/ObstacleController.hpp"
 #include "GlobalNamespace/NoteController.hpp"
-#include "GlobalNamespace/NoteData.hpp"
+#include "GlobalNamespace/BeatmapSaveData_NoteData.hpp"
+#include "GlobalNamespace/BeatmapSaveData.hpp"
 #include "GlobalNamespace/GameplayModifiers.hpp"
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "GlobalNamespace/NoteDebris.hpp"
@@ -23,7 +24,9 @@
 #include "GlobalNamespace/PlayerSpecificSettings.hpp"
 #include "GlobalNamespace/SettingsFlowCoordinator.hpp"
 #include "GlobalNamespace/SettingsNavigationController.hpp"
-
+#include "GlobalNamespace/ColorType.hpp"
+#include "GlobalNamespace/SaberModelController.hpp"
+#include "GlobalNamespace/StandardLevelScenesTransitionSetupDataSO.hpp"
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QuestNote.hpp"
 #include "Qosmetic/QuestWall.hpp"
@@ -34,8 +37,11 @@
 #include "Logging/GenericLogger.hpp"
 
 #include "Data/CustomTrail.hpp"
+#include "Data/QosmeticsTrail.hpp"
 
 #include "Utils/MaterialUtils.hpp"
+
+#include "custom-types/shared/register.hpp"
 
 bool getSceneName(Scene scene, std::string& output);
 
@@ -52,41 +58,46 @@ bool wallsEnabled = true;
 bool notesEnabled = true;
 bool sabersEnabled = true;
 bool shaderWarmupFirst = true;
+
 std::string shaderWarmup = "ShaderWarmup";
 std::string healthWarning = "HealthWarning";
 std::string gameCore = "GameCore";
 std::string menuViewControllers = "MenuViewControllers";
 std::string emptyTransition = "EmptyTransition";
 
-MAKE_HOOK_OFFSETLESS(MenuTransitionsHelper_StartStandardLevel, void, GlobalNamespace::MenuTransitionsHelper* self, Il2CppObject* difficultyBeatmap, Il2CppObject* overrideEnvironmentSettings, Il2CppObject* overrideColorScheme, GlobalNamespace::GameplayModifiers* gameplayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, Il2CppObject* practiceSettings, Il2CppString* backButtonText, bool useTestNoteCutSoundEffects, Il2CppObject* beforeSceneSwitchCallback, Il2CppObject* afterSceneSwitchCallback, Il2CppObject* levelFinishedCallback)
+MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, GlobalNamespace::StandardLevelScenesTransitionSetupDataSO* self, Il2CppString* gameMode, Il2CppObject* difficultyBeatmap, Il2CppObject* overrideEnvironmentSettings, Il2CppObject* overrideColorScheme, GlobalNamespace::GameplayModifiers* gameplayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, Il2CppObject* practiceSettings, Il2CppString* backButtonText, bool useTestNoteCutSoundEffects)
 {
+    StandardLevelScenesTransitionSetupDataSO_Init(self, gameMode, difficultyBeatmap, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects);
+    
     if (notesEnabled) 
     {
         Qosmetics::QuestNote::ModifierScoreDisableCheck(gameplayModifiers);
         Qosmetics::QuestNote::ReducedDebrisDisableCheck(playerSpecificSettings);
     }
     if (sabersEnabled) Qosmetics::QuestSaber::SetTrailIntensity(playerSpecificSettings->saberTrailIntensity);
-
-    MenuTransitionsHelper_StartStandardLevel(self, difficultyBeatmap, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects, beforeSceneSwitchCallback, afterSceneSwitchCallback, levelFinishedCallback);
 }
 
-MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris* self, GlobalNamespace::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, UnityEngine::Vector3 force, UnityEngine::Vector3 torque, float lifeTime)
+MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, GlobalNamespace::ColorType colorType, UnityEngine::Vector3 notePos, UnityEngine::Quaternion noteRot, UnityEngine::Vector3 positionOffset, UnityEngine::Quaternion rotationOffset, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, UnityEngine::Vector3 force, UnityEngine::Vector3 torque, float lifeTime)
 {
-    
-    NoteDebris_Init(self, noteType, initTransform, cutPoint, cutNormal, force, torque, lifeTime);
-    if (notesEnabled) Qosmetics::QuestNote::NoteDebris_Init_Post(self, noteType, initTransform, cutPoint, cutNormal);
+    NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
+    if (notesEnabled) 
+    {
+        UnityEngine::Transform* initTransform = (UnityEngine::Transform*)(((UnityEngine::GameObject*)(UnityEngine::Object::Instantiate((UnityEngine::Object*)UnityEngine::GameObject::New_ctor())))->get_transform());
+        initTransform->set_localPosition(notePos);
+        Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
+    }
 }
 
-MAKE_HOOK_OFFSETLESS(BombNoteController_Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, UnityEngine::Vector3 moveStartPos, UnityEngine::Vector3 moveEndPos, UnityEngine::Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float cutDirectionAngleOffset)
+MAKE_HOOK_OFFSETLESS(BombNoteController_Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::BeatmapSaveData::NoteData* noteData, float worldRotation, UnityEngine::Vector3 moveStartPos, UnityEngine::Vector3 moveEndPos, UnityEngine::Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float endRotation)
 {
-    noteData->set_cutDirection(GlobalNamespace::NoteCutDirection::_get_Down());
-    BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset);
+    noteData->cutDirection = GlobalNamespace::NoteCutDirection::_get_Down();
+    BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, endRotation);
     if (notesEnabled) Qosmetics::QuestNote::BombController_Init_Post(self);
 }
 
-MAKE_HOOK_OFFSETLESS(NoteController_Init, void, GlobalNamespace::NoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float cutDirectionAngleOffset)
+MAKE_HOOK_OFFSETLESS(NoteController_Init, void, GlobalNamespace::NoteController* self, GlobalNamespace::BeatmapSaveData::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float endRotation)
 {
-    NoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset);
+    NoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, endRotation);
     if (notesEnabled) Qosmetics::QuestNote::NoteController_Init_Post(self);
 }
 
@@ -144,7 +155,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 MAKE_HOOK_OFFSETLESS(Saber_Start, void, GlobalNamespace::Saber* self)
 {
     Saber_Start(self);
-    if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self);
+    //if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self);
 }
 
 MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
@@ -156,11 +167,17 @@ MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::C
     ConditionalMaterialSwitcher_Awake(self);
 }
 
-MAKE_HOOK_OFFSETLESS(XWeaponTrailRenderer_OnEnable, void, GlobalNamespace::XWeaponTrailRenderer* self)
+MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTrailRenderer* self)
 {
     if (self->meshRenderer == nullptr)self->meshRenderer = self->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
     if (self->meshFilter == nullptr) self->meshFilter = self->get_gameObject()->GetComponent<UnityEngine::MeshFilter*>();
-    XWeaponTrailRenderer_OnEnable(self);
+    SaberTrailRenderer_OnEnable(self);
+}
+
+MAKE_HOOK_OFFSETLESS(SaberModelController_Init, void, GlobalNamespace::SaberModelController* self, UnityEngine::Transform* parent, GlobalNamespace::Saber* saber)
+{
+    SaberModelController_Init(self, parent, saber);
+    if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self, saber);
 }
 
 extern "C" void setup(ModInfo& info) 
@@ -206,10 +223,13 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(ObstacleController_Init, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "Init", 9));
     INSTALL_HOOK_OFFSETLESS(ObstacleController_set_hide, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "set_hide", 1));
     INSTALL_HOOK_OFFSETLESS(NoteController_Init, il2cpp_utils::FindMethodUnsafe("", "NoteController", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(MenuTransitionsHelper_StartStandardLevel, il2cpp_utils::FindMethodUnsafe("", "MenuTransitionsHelper", "StartStandardLevel", 11));
-    INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 7));
+    INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 10));
     INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(XWeaponTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "XWeaponTrailRenderer", "OnEnable", 0));
+    INSTALL_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
+    INSTALL_HOOK_OFFSETLESS(SaberModelController_Init, il2cpp_utils::FindMethodUnsafe("", "SaberModelController", "Init", 2));
+    INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
+    
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
 
     std::thread WipeRoutine(
         [&]{

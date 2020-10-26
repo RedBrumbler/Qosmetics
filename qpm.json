@@ -4,20 +4,11 @@
   "info": {
     "name": "Qosmetics",
     "id": "Qosmetics",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "url": null,
     "additionalData": {}
   },
   "dependencies": [
-    {
-      "id": "beatsaber-hook",
-      "versionRange": "^0.6.0",
-      "additionalData": {
-        "extraFiles": [
-          "src/inline-hook"
-        ]
-      }
-    },
     {
       "id": "codegen",
       "versionRange": "*",
@@ -25,6 +16,20 @@
     },
     {
       "id": "bs-utils",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "beatsaber-hook",
+      "versionRange": "^0.7.5",
+      "additionalData": {
+        "extraFiles": [
+          "src/inline-hook"
+        ]
+      }
+    },
+    {
+      "id": "custom-types",
       "versionRange": "*",
       "additionalData": {}
     }

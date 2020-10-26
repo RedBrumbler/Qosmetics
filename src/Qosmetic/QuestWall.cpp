@@ -11,7 +11,7 @@ namespace Qosmetics
     {
         if (!direxists(fileDir.c_str()))
         {
-            int makePath = mkpath(fileDir.data(), 0700);
+            int makePath = mkpath(fileDir.data());
             if (makePath == -1)
             {
                 getLogger().debug("Failed to make path!");

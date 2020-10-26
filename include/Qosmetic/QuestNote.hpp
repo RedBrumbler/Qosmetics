@@ -97,7 +97,7 @@ namespace Qosmetics
             static void NoteController_Init_Post(GlobalNamespace::NoteController* noteController);;
 
             /// @brief runs after the debris init function
-            static void NoteDebris_Init_Post(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal);
+            static void NoteDebris_Init_Post(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal);
 
             /// @brief runs after the bomb controller function
             static void BombController_Init_Post(GlobalNamespace::BombNoteController* noteController);

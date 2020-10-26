@@ -6,7 +6,7 @@ namespace Qosmetics
     {
         bundleLoading = true;
         getLogger().info("Loading Bundle");
-        bs_utils::AssetBundle::LoadFromFileAsync(filePath, [this](bs_utils::AssetBundle* bundle){ 
+        bs_utils::AssetBundle::LoadFromFileAsync(filePath, [&](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
             this->bundleLoading = false;

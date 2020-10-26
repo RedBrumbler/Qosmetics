@@ -11,7 +11,7 @@ namespace Qosmetics
     {
         if (!direxists(fileDir.c_str()))
         {
-            int makePath = mkpath(fileDir.data(), 0700);
+            int makePath = mkpath(fileDir.data());
             if (makePath == -1)
             {
                 getLogger().debug("Failed to make path!");
@@ -128,7 +128,7 @@ namespace Qosmetics
         NoteUtils::ReplaceNote(noteController, selected);
     }
 
-    void QuestNote::NoteDebris_Init_Post(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal)
+    void QuestNote::NoteDebris_Init_Post(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal)
     {
         if (loadedNotes.size() == 0) return;
         if (disableDebris) return;

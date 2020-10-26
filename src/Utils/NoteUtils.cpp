@@ -49,13 +49,17 @@ namespace Qosmetics
             UnityEngine::Transform* noteCircleGlow = noteCube->Find(il2cpp_utils::createcsstr("NoteCircleGlow"));
 
             if (noteCircleGlow != nullptr) noteCircleGlow->get_gameObject()->SetActive(false);
+            else getLogger().error("Couldn't find circleGlow");
             if (noteArrow != nullptr) noteArrow->get_gameObject()->SetActive(false);
+            else getLogger().error("Couldn't find arrow");
             if (noteArrowGlow != nullptr) noteArrowGlow->get_gameObject()->SetActive(false);
+            else getLogger().error("Couldn't find arrowGlow");
         }
 
-        UnityEngine::MeshRenderer* cubeRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(noteCube, "MeshRenderer");
+        UnityEngine::MeshFilter* cubeFilter = UnityUtils::GetComponent<UnityEngine::MeshFilter*>(noteCube, "MeshFilter");
         // if cube renderer not found, don't try to disable it (it crashes sort of so that's not great)
-        if (cubeRenderer != nullptr) cubeRenderer->set_enabled(false);
+        if (cubeFilter != nullptr) cubeFilter->set_mesh(nullptr);
+        else getLogger().error("Cube Filter for note was not found");
     }
 
     void NoteUtils::DisableBaseGameTutorialNotes(UnityEngine::Transform* noteCube, bool disableArrows)
@@ -95,7 +99,7 @@ namespace Qosmetics
             return;
         }
         
-        GlobalNamespace::NoteData* noteData = noteController->get_noteData();
+        GlobalNamespace::NoteData* noteData = (GlobalNamespace::NoteData*)noteController->get_noteData();
 
         if (noteData == nullptr)
         {
@@ -138,6 +142,7 @@ namespace Qosmetics
         }
         if (prefab != nullptr)
         {
+            getLogger().info("Spawning custom note");
             UnityEngine::GameObject* instantiatedNote = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)prefab);
 
             instantiatedNote->get_transform()->SetParent(note);
@@ -154,7 +159,7 @@ namespace Qosmetics
         }
     }
 
-    bool NoteUtils::FindOldDebris(UnityEngine::Transform* note, GlobalNamespace::NoteType type)
+    bool NoteUtils::FindOldDebris(UnityEngine::Transform* note, GlobalNamespace::BeatmapSaveData::NoteType type)
     {
         if (note == nullptr) 
         {
@@ -180,7 +185,7 @@ namespace Qosmetics
         if (debrisRenderer != nullptr) debrisRenderer->set_enabled(false);
     }
 
-    void NoteUtils::AddDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::NoteType noteType, Qosmetics::NoteData &customNoteData)
+    void NoteUtils::AddDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::BeatmapSaveData::NoteType noteType, Qosmetics::NoteData &customNoteData)
     {
         if (noteDebrisMesh == nullptr) return;
         UnityEngine::GameObject* prefab = nullptr;
@@ -209,7 +214,7 @@ namespace Qosmetics
         }
     }
 
-    void NoteUtils::DisableOldDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::NoteType noteType)
+    void NoteUtils::DisableOldDebris(UnityEngine::Transform* noteDebrisMesh, GlobalNamespace::BeatmapSaveData::NoteType noteType)
     {
         UnityEngine::Transform* thisDebris = nullptr;
         UnityEngine::Transform* otherDebris = nullptr;
@@ -274,7 +279,7 @@ namespace Qosmetics
         }
     }
 
-    void NoteUtils::ReplaceDebris(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, Qosmetics::NoteData &customNoteData)
+    void NoteUtils::ReplaceDebris(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, Qosmetics::NoteData &customNoteData)
     {
         UnityEngine::Transform* note = noteDebris->get_transform();
 
@@ -368,7 +373,6 @@ namespace Qosmetics
         bool isLeft = false, isBomb = false, isGhost = false, isDot = false;
         FindNoteType(noteData, isLeft, isDot, isGhost, isBomb);
         if (isGhost || isBomb) return;
-        
 
         std::vector<UnityEngine::Transform*> toDisable; // vector to store all stuff in that will need to be disabled
         if (isLeft)
@@ -433,6 +437,7 @@ namespace Qosmetics
                 if (rightDot != nullptr) rightDot->get_gameObject()->SetActive(true);
             }
         }
+
         // disable all object added to the array
         for (auto ob : toDisable)
         {
@@ -451,8 +456,8 @@ namespace Qosmetics
             return;
         }
         
-        UnityEngine::Color thisColor = isLeft ? colorManager->ColorForNoteType(GlobalNamespace::NoteType::_get_NoteA()) : colorManager->ColorForNoteType(GlobalNamespace::NoteType::_get_NoteB());
-        UnityEngine::Color otherColor = isLeft ? colorManager->ColorForNoteType(GlobalNamespace::NoteType::_get_NoteB()) : colorManager->ColorForNoteType(GlobalNamespace::NoteType::_get_NoteA());
+        UnityEngine::Color thisColor = isLeft ? colorManager->ColorForSaberType(0) : colorManager->ColorForSaberType(1);
+        UnityEngine::Color otherColor = isLeft ? colorManager->ColorForSaberType(1) : colorManager->ColorForSaberType(0);
 
         Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>();
         if (renderers == nullptr) 

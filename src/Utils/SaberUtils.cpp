@@ -33,7 +33,7 @@ namespace Qosmetics
         setCustomColor(saberTransform, saberType);
     }
 
-    void SaberUtils::AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
+    void SaberUtils::AddSaber(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
     {
         getLogger().info("AddSaber");
         if (saberScript == nullptr)
@@ -42,9 +42,8 @@ namespace Qosmetics
             return;
         }
 
-        UnityEngine::Transform* gameSaber = saberScript->get_transform();
-
-        UnityEngine::Transform* basicSaberModel = gameSaber->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
+        UnityEngine::Transform* gameSaber = modelController->get_transform();
+        UnityEngine::Transform* basicSaberModel = gameSaber->Find(il2cpp_utils::createcsstr("BasicSaber"));
         
         if (basicSaberModel == nullptr)
         {
@@ -52,7 +51,7 @@ namespace Qosmetics
             return;
         }
 
-        Array<UnityEngine::MeshFilter*>* meshFilters = basicSaberModel->GetComponentsInChildren<UnityEngine::MeshFilter*>();
+        Array<UnityEngine::MeshFilter*>* meshFilters = modelController->GetComponentsInChildren<UnityEngine::MeshFilter*>();
         
         if (meshFilters != nullptr)
             DisableMesh(meshFilters, customSaberData);
@@ -81,7 +80,7 @@ namespace Qosmetics
             customGO->set_name(il2cpp_utils::createcsstr(name));
             setCustomColor(customGO->get_transform(), saberType);
 
-            customGO->get_transform()->SetParent(saberScript->get_transform());
+            customGO->get_transform()->SetParent(modelController->get_transform());
             customGO->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
             customGO->get_transform()->set_eulerAngles(UnityEngine::Vector3::get_zero());
             customGO->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());
@@ -108,6 +107,7 @@ namespace Qosmetics
             if(filterGO != nullptr)
             {
                 std::string name = to_utf8(csstrtostr(filterGO->get_name()));
+                getLogger().info("found object with name %s in saber", name.c_str());
                 if (enableFakeGlow && (name == "FakeGlow0" || name == "FakeGlow1")) continue;
 
                 filterGO->SetActive(false);

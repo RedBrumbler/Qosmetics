@@ -10,12 +10,15 @@
 #include "UnityEngine/GameObject.hpp"
 #include "include/Utils/SaberUtils.hpp"
 #include "Data/SaberData.hpp"
+#include "Data/QosmeticsTrail.hpp"
 #include "Config/SaberConfig.hpp"
 #include "Utils/TrailUtils.hpp"
 #include "UnityEngine/Shader.hpp"
 #include "GlobalNamespace/Saber.hpp"
-#include "Xft/XWeaponTrail.hpp"
-#include "GlobalNamespace/XWeaponTrailRenderer.hpp"
+#include "GlobalNamespace/SaberTrail.hpp"
+#include "GlobalNamespace/SaberTrailRenderer.hpp"
+#include "GlobalNamespace/SaberModelController.hpp"
+
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include <vector>
@@ -28,6 +31,7 @@
 #include "UnityEngine/ParticleSystem.hpp"
 #include "Logging/SaberLogger.hpp"
 #include "Utils/MaterialUtils.hpp"
+
 namespace Qosmetics
 {
     class QuestSaber
@@ -50,7 +54,7 @@ namespace Qosmetics
             static inline int selectedSaber = 0; 
 
             /// @brief called with the saber start hook
-            static void SaberStart(GlobalNamespace::Saber* instance);
+            static void SaberStart(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* instance);
 
             /// @brief called at shader warmup scene
             /// @return false if 0 files found, thus making this part of the mod disabled in main
@@ -68,7 +72,7 @@ namespace Qosmetics
             /// @brief sets the trail intensity float for the trails.
             static void SetTrailIntensity(float intensity)
             {
-                Qosmetics::CustomTrail::set_trailIntensity(intensity);
+                Qosmetics::QosmeticsTrail::set_trailIntensity(intensity);
             }
 
             static void ClearAllInternalPointers()
