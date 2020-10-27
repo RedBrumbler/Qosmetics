@@ -39,7 +39,7 @@
       "installAction": {
         "installLibraryFile": "libcodegen_0_3_4.so"
       }
-    }
+    },
     {
       "type": "HookModLibrary",
       "installAction": {
