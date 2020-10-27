@@ -58,6 +58,7 @@
      <Compile Include="Assets\Qosmetics Exporters\Bloq specifics\Editor\QuestCompileBloqWindow.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Editor\ColorTester.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Editor\ConfigEditor.cs" />
+     <Compile Include="Assets\Qosmetics Exporters\Editor\EventConfigurator.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Editor\QosmeticUtils.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Editor\SceneChanger.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Saber specifics\Editor\QuestCompileSaberWindow.cs" />

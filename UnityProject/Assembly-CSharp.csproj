@@ -59,6 +59,7 @@
      <Compile Include="Assets\Qosmetics Exporters\Bloq specifics\BloqConfig.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Bloq specifics\BloqReferences.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Descriptor.cs" />
+     <Compile Include="Assets\Qosmetics Exporters\EventReferences.cs" />
      <Compile Include="Assets\Qosmetics Exporters\ExportersConfig.cs" />
      <Compile Include="Assets\Qosmetics Exporters\QosmeticsCam.cs" />
      <Compile Include="Assets\Qosmetics Exporters\Saber specifics\SaberConfig.cs" />
