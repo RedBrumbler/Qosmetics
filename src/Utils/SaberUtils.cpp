@@ -33,7 +33,7 @@ namespace Qosmetics
         setCustomColor(saberTransform, saberType);
     }
 
-    void SaberUtils::AddSaber(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
+    void SaberUtils::AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
     {
         getLogger().info("AddSaber");
         if (saberScript == nullptr)
@@ -42,16 +42,16 @@ namespace Qosmetics
             return;
         }
 
-        UnityEngine::Transform* gameSaber = modelController->get_transform();
-        UnityEngine::Transform* basicSaberModel = gameSaber->Find(il2cpp_utils::createcsstr("BasicSaber"));
-        
+        UnityEngine::Transform* gameSaber = saberScript->get_transform();
+        UnityEngine::Transform* basicSaberModel = gameSaber->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
+
         if (basicSaberModel == nullptr)
         {
             getLogger().error("Couldn't find basicsabermodel in AddSaber");
             return;
         }
 
-        Array<UnityEngine::MeshFilter*>* meshFilters = modelController->GetComponentsInChildren<UnityEngine::MeshFilter*>();
+        Array<UnityEngine::MeshFilter*>* meshFilters = saberScript->GetComponentsInChildren<UnityEngine::MeshFilter*>();
         
         if (meshFilters != nullptr)
             DisableMesh(meshFilters, customSaberData);
@@ -80,7 +80,7 @@ namespace Qosmetics
             customGO->set_name(il2cpp_utils::createcsstr(name));
             setCustomColor(customGO->get_transform(), saberType);
 
-            customGO->get_transform()->SetParent(modelController->get_transform());
+            customGO->get_transform()->SetParent(gameSaber);
             customGO->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
             customGO->get_transform()->set_eulerAngles(UnityEngine::Vector3::get_zero());
             customGO->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());

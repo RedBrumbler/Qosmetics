@@ -54,7 +54,7 @@ namespace Qosmetics
             static inline int selectedSaber = 0; 
 
             /// @brief called with the saber start hook
-            static void SaberStart(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* instance);
+            static void SaberStart(GlobalNamespace::Saber* instance);
 
             /// @brief called at shader warmup scene
             /// @return false if 0 files found, thus making this part of the mod disabled in main
