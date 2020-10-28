@@ -100,7 +100,7 @@ namespace Qosmetics
                 saber.LoadAssets();
             }
 
-            if (saber.get_complete())
+            if (saber.saberConfig->get_hasCustomTrails() && saber.get_complete())
             {
                 for (auto &trail : *saber.saberConfig->get_leftTrails())
                     TrailUtils::AddTrail(trail, saber.get_leftSaber()->get_transform());
