@@ -63,6 +63,11 @@ public class ColorTester : EditorWindow
     bool ShouldHaveCC(Material mat)
     {
         bool shouldCC = false;
+        if (mat == null)
+        {
+            Debug.Log("Mat was null, so not setting data on it");
+            return false;
+        }
 
         if(mat.HasProperty("_CustomColors"))
         {
