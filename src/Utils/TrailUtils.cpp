@@ -28,23 +28,35 @@ namespace Qosmetics
         getLogger().info("Attempting to move base game trail into the custom saber per request of michaelzoller");
         GlobalNamespace::SaberTrail* trailComponent = basicSaberModel->get_gameObject()->GetComponent<GlobalNamespace::SaberTrail*>();
 
+        UnityEngine::Transform* trailStart = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor(), customSaber)->get_transform();
+        trailStart->get_gameObject()->set_name(il2cpp_utils::createcsstr("TrailStart"));
+        trailStart->set_localPosition(UnityEngine::Vector3::get_zero());
+
+        UnityEngine::Transform* trailEnd = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor(), customSaber)->get_transform();
+        trailEnd->get_gameObject()->set_name(il2cpp_utils::createcsstr("TrailEnd"));
+        trailEnd->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, 1.0f));
+
         if (trailComponent == nullptr) 
         {
             getLogger().error("Tried moving trail but trailcomponent was nullptr, skipping...");
             return;
         }
+        else
+        {
+            getLogger().info("Found trail Component!");
+        }
                 
         // add new trail script into which stuff will be moved
         UnityEngine::GameObject* saberGO = customSaber->get_gameObject();
         if (saberGO == nullptr) return;
-        GlobalNamespace::SaberTrail* newTrail = *il2cpp_utils::RunMethod<GlobalNamespace::SaberTrail*>(saberGO, "AddComponent", UnityUtils::TypeFromString("GlobalNamespace", "SaberTrail"));
+        QosmeticsTrail* newTrail = saberGO->AddComponent<QosmeticsTrail*>()->CopyFromBase(trailComponent);
 
         if (newTrail == nullptr)
         {
             getLogger().error("Adding new trail component failed, skipping move trail...");
             return;
         }
-        /*
+        
         // relocate children from basicsabermodel into LeftSaber.Leftsaber (or right)
         std::vector<UnityEngine::Transform*> children;
         int childCount = basicSaberModel->get_childCount();
@@ -53,42 +65,18 @@ namespace Qosmetics
             UnityEngine::Transform* child = basicSaberModel->GetChild(i);
             children.push_back(child);
         }
-
+        
         for (UnityEngine::Transform* child : children)
         {
             if (child != nullptr)
             {
                 std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
-                getLogger().info("%s pointer address: %p", name.c_str(), child);
+                //getLogger().info("%s pointer address: %p", name.c_str(), child);
                 child->SetParent(customSaber);
             } 
             else getLogger().error("A child was nullptr, not setting parent...");
         }
-        */
-        // copy over properties
-        UnityEngine::Color trailColor = trailComponent->color;
-        int trailDuration = trailComponent->trailDuration;
-        int granularity = trailComponent->granularity;
-        int whiteStep = trailComponent->whiteSectionMaxDuration;
-        UnityEngine::Color color = trailComponent->color;
-
-        auto* trailPrefab = trailComponent->trailRendererPrefab;
-
-        if (trailPrefab == nullptr)
-        {
-            getLogger().error("trailPrefab was nullptr, returning...");
-            return;
-        }
-
-
-        newTrail->color = trailColor;
-        newTrail->movementData = trailComponent->movementData;
-        newTrail->trailRendererPrefab = trailPrefab;
-        newTrail->color = color;
-        newTrail->trailDuration = trailDuration;
-        newTrail->granularity = granularity;
-        newTrail->whiteSectionMaxDuration = whiteStep;
-
+        
         // yeet original trail
         RemoveTrail(basicSaberModel);
     }
@@ -115,15 +103,8 @@ namespace Qosmetics
             getLogger().error("basicSaberModel was null, not removing trail");
             return;
         }
-        UnityEngine::Transform* parent = basicSaberModel->get_parent();
 
-        if (parent == nullptr) 
-        {
-            getLogger().error("Parent of basicsaber was nullptr, not removing trail");
-            return;
-        }
-
-        GlobalNamespace::SaberTrail* trailComponent = parent->get_gameObject()->GetComponent<GlobalNamespace::SaberTrail*>();
+        GlobalNamespace::SaberTrail* trailComponent = basicSaberModel->get_gameObject()->GetComponent<GlobalNamespace::SaberTrail*>();
         
         if (trailComponent == nullptr)
         {

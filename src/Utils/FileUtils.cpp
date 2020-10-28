@@ -11,7 +11,7 @@ std::string GetFileExtension(const std::string& FileName)
 
  bool FileUtils::getFileNamesInDir(std::string extension, std::string dir, std::vector<std::string> &fileNames)
 {
-    bool foundExtension = false; 
+    bool foundTheExtension = false; 
     DIR* fileDir = opendir(dir.data());
     struct dirent *files;
     if(fileDir != NULL)
@@ -22,12 +22,11 @@ std::string GetFileExtension(const std::string& FileName)
             if(foundExtension == extension)
             {
                 fileNames.push_back(std::string(files->d_name));
-                foundExtension = true; 
+                foundTheExtension = true; 
             }
-                
         }
         closedir(fileDir);
-        if(!foundExtension) return false; 
+        if(!foundTheExtension) return false; 
         return true;
     } else return false;
 

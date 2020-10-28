@@ -27,6 +27,8 @@
 #include "GlobalNamespace/ColorType.hpp"
 #include "GlobalNamespace/SaberModelController.hpp"
 #include "GlobalNamespace/StandardLevelScenesTransitionSetupDataSO.hpp"
+#include "GlobalNamespace/SaberModelContainer.hpp"
+
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QuestNote.hpp"
 #include "Qosmetic/QuestWall.hpp"
@@ -155,6 +157,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 MAKE_HOOK_OFFSETLESS(Saber_Start, void, GlobalNamespace::Saber* self)
 {
     Saber_Start(self);
+    //getLogger().info("Saber start on %s called", to_utf8(csstrtostr(self->get_gameObject()->get_name())).c_str());
     //if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self);
 }
 
@@ -177,7 +180,12 @@ MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTr
 MAKE_HOOK_OFFSETLESS(SaberModelController_Init, void, GlobalNamespace::SaberModelController* self, UnityEngine::Transform* parent, GlobalNamespace::Saber* saber)
 {
     SaberModelController_Init(self, parent, saber);
-    if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self, saber);
+}
+
+MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberModelContainer* self)
+{
+    SaberModelContainer_Start(self);
+    if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self->saber);
 }
 
 extern "C" void setup(ModInfo& info) 
@@ -227,6 +235,7 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 9));
     INSTALL_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
     INSTALL_HOOK_OFFSETLESS(SaberModelController_Init, il2cpp_utils::FindMethodUnsafe("", "SaberModelController", "Init", 2));
+    INSTALL_HOOK_OFFSETLESS(SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
     
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());

@@ -126,7 +126,7 @@ namespace Qosmetics
         loadedSabers[selectedSaber].ClearActive();
     };
     
-    void QuestSaber::SaberStart(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* instance)
+    void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         SaberData& selected = loadedSabers[selectedSaber];
 
@@ -137,13 +137,13 @@ namespace Qosmetics
         }
 
         // replace the saber
-        SaberUtils::AddSaber(modelController, instance, selected);
+        SaberUtils::AddSaber(instance, selected);
         Qosmetics::SaberConfig config = *selected.saberConfig;
 
         // get the transform in order to find the other neccesary transforms lower in the hierarchy
-        UnityEngine::Transform* saberTransform = modelController->get_transform();
+        UnityEngine::Transform* saberTransform = instance->get_transform();
 
-        UnityEngine::Transform* basicSaberModel = saberTransform->Find(il2cpp_utils::createcsstr("BasicSaber"));
+        UnityEngine::Transform* basicSaberModel = saberTransform->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
         UnityEngine::Transform* customSaber = saberTransform->Find(il2cpp_utils::createcsstr(instance->get_saberType().value == 0 ? "LeftSaber" : "RightSaber"));
         
         bool fakeGlowMoved = false;

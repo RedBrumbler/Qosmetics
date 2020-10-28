@@ -13,6 +13,24 @@ float Qosmetics::QosmeticsTrail::trailIntensity = 1.0f;
 
 namespace Qosmetics
 {
+	Qosmetics::QosmeticsTrail* QosmeticsTrail::CopyFromBase(GlobalNamespace::SaberTrail* base)
+	{
+		int length = base->samplingFrequency * base->trailDuration;
+		int granularity = 60 * ((length > 10) ? ((float)length / 10.0f) : 1);
+		int colorType = 2;
+		int whiteStep = base->samplingFrequency * base->whiteSectionMaxDuration;
+		UnityEngine::Material* mat = base->trailRendererPrefab->meshRenderer->get_material();
+		this->trailRenderer = NewTrailRenderer(mat);
+		UnityEngine::Color trailColor = base->color;
+		UnityEngine::Color multiplier = UnityEngine::Color::get_white();
+
+		this->TrailSetup(length, granularity, colorType, whiteStep, mat, trailColor, multiplier);
+		this->Awake();
+		this->framesPassed = 0;
+		this->set_enabled(true);
+		return this;
+	}
+
 	void QosmeticsTrail::AddTrailAndSetup(UnityEngine::Transform* trailObject, Qosmetics::CustomTrail &trail)
 	{
 		QosmeticsTrail* customTrail = trailObject->get_gameObject()->GetComponent<QosmeticsTrail*>();
@@ -36,7 +54,11 @@ namespace Qosmetics
     void QosmeticsTrail::Awake()
     {
 		// get the material to use for the trail renderer
-		if (this->trailMaterial == nullptr) this->trailMaterial = this->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>()->get_material();
+		if (this->trailMaterial == nullptr) 
+		{
+			UnityEngine::MeshRenderer* renderer = this->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
+			if (renderer != nullptr) this->trailMaterial = renderer->get_material();
+		}
 
 		// make a new trail renderer to use
         this->trailRenderer = NewTrailRenderer(this->trailMaterial);
@@ -86,10 +108,18 @@ namespace Qosmetics
 
     void QosmeticsTrail::Update()
     {
-		
 		if (!this->topTransform || !this->bottomTransform) 
-			this->set_enabled(false); // if either transform not defined (should be after awake) disable the trail
-
+		{
+			if (this->topTransform == nullptr)
+			{
+				this->topTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailEnd"));
+			}
+			if (this->bottomTransform == nullptr)
+			{
+				this->bottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailStart"));
+			}
+			if (!this->topTransform || !this->bottomTransform) return;
+		}
 		// this method just makes sure that the trail gets updated positions through it's custom movementData
         UnityEngine::Vector3 topPos = this->topTransform->get_position();
 		UnityEngine::Vector3 bottomPos = this->bottomTransform->get_position();
@@ -107,7 +137,7 @@ namespace Qosmetics
         GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = CRASH_UNLESS(il2cpp_utils::RunMethod<GlobalNamespace::SaberTrailRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("", "SaberTrailRenderer")));
 
         // if the material is not nullptr set it
-        if (material != nullptr) trailRendererPrefab->meshRenderer->set_sharedMaterial(material);      
+        if (material != nullptr) trailRendererPrefab->meshRenderer->set_material(material);      
 
         // give it a good name, for identification I guess
         newPrefab->set_name(il2cpp_utils::createcsstr("Trail"));

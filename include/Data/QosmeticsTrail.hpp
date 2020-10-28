@@ -20,12 +20,12 @@ namespace Qosmetics
 
 DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
 
-    DECLARE_INSTANCE_FIELD(UnityEngine::Transform*, topTransform);
-    DECLARE_INSTANCE_FIELD(UnityEngine::Transform*, bottomTransform);
-    DECLARE_INSTANCE_FIELD(UnityEngine::Material*, trailMaterial);
-    DECLARE_INSTANCE_FIELD(int, length);
-    DECLARE_INSTANCE_FIELD(int, whitestep);
-    DECLARE_INSTANCE_FIELD(int, colorType);
+    DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Transform*, topTransform, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Transform*, bottomTransform, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Material*, trailMaterial, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(int, length, 20);
+    DECLARE_INSTANCE_FIELD_DEFAULT(int, whitestep, 0);
+    DECLARE_INSTANCE_FIELD_DEFAULT(int, colorType, 2);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, trailColor);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, multiplierColor);
     DECLARE_INSTANCE_FIELD(GlobalNamespace::SaberMovementData*, customMovementData);
@@ -49,6 +49,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     }
 
     public: static GlobalNamespace::SaberTrailRenderer* NewTrailRenderer(UnityEngine::Material* material);
+
+    public: Qosmetics::QosmeticsTrail* CopyFromBase(GlobalNamespace::SaberTrail* base);
 
     REGISTER_FUNCTION(QosmeticsTrail,
         REGISTER_METHOD(Update);

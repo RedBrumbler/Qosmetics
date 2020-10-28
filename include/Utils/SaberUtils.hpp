@@ -39,7 +39,7 @@ namespace Qosmetics
             /// @brief adds the correct saber type to the transform of saberscript
             /// @param saberScript the saber script on the normal saber
             /// @param customSaber reference to the custom saberdata object to use
-            static void AddSaber(GlobalNamespace::SaberModelController* modelController, GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData);
+            static void AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData);
 
         private:
             /// @brief disables all the gameObjects of these meshfilters
