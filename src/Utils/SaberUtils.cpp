@@ -57,6 +57,7 @@ namespace Qosmetics
             DisableMesh(meshFilters, customSaberData);
         else
             getLogger().error("meshFilters were null so didn't disable");
+            
         // actually start adding the sabers
         GlobalNamespace::SaberType saberType = saberScript->get_saberType();
 
@@ -76,11 +77,10 @@ namespace Qosmetics
 
         if (prefab != nullptr)
         {
-            UnityEngine::GameObject* customGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)prefab);
+            UnityEngine::GameObject* customGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)prefab, gameSaber);
             customGO->set_name(il2cpp_utils::createcsstr(name));
             setCustomColor(customGO->get_transform(), saberType);
 
-            customGO->get_transform()->SetParent(gameSaber);
             customGO->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
             customGO->get_transform()->set_eulerAngles(UnityEngine::Vector3::get_zero());
             customGO->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());
