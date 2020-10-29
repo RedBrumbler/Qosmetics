@@ -110,7 +110,7 @@ namespace Qosmetics
             getLogger().error("Attempted to use bloq that was not finished loading");
             return;
         }
-        
+
         if (!setColors) // if colors have not been set yet, set them
         {
             if (selected.get_config()->get_hasDebris()) // if there is debris, set the color
@@ -132,21 +132,38 @@ namespace Qosmetics
     {
         if (loadedNotes.size() == 0) return;
         if (disableDebris) return;
-        auto& selected = loadedNotes[selectedNote];
+        NoteData &selected = loadedNotes[selectedNote];
+
+        if (!selected.get_complete())
+        {
+            getLogger().error("Attempted to use bloq that was not finished loading");
+            return;
+        }
         if (!selected.get_config()->get_hasDebris() || !selected.get_complete()) return;
         NoteUtils::ReplaceDebris(noteDebris, noteType, initTransform, cutPoint, cutNormal, loadedNotes[selectedNote]);
     }
 
     void QuestNote::BombController_Init_Post(GlobalNamespace::BombNoteController* noteController)
     {
+        getLogger().info("BombNoteController Init post");
         if (loadedNotes.size() == 0) return;
-        auto& selected = loadedNotes[selectedNote];
+        getLogger().info("Getting selected");
+        NoteData &selected = loadedNotes[selectedNote];
+
+        if (!selected.get_complete())
+        {
+            getLogger().error("Attempted to use bloq that was not finished loading");
+            return;
+        }
+
+        getLogger().info("config is nullptr: %d", selected.get_config() == nullptr);
         if (!selected.get_config()->get_hasBomb() || !selected.get_complete())
         {
             if (!selected.get_complete()) getLogger().error("Attempted to use bomb that wasn't loaded");
             if (!selected.get_config()->get_hasBomb()) getLogger().error("Attempted to use bomb that doesn't exist");
             return;
         } 
+        getLogger().info("Replacing Bomb");
         NoteUtils::ReplaceBomb(noteController, loadedNotes[selectedNote]);
     }
 }
