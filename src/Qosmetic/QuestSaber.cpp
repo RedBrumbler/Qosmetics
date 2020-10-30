@@ -99,7 +99,7 @@ namespace Qosmetics
             {
                 saber.LoadAssets();
             }
-
+            /*
             if (saber.saberConfig->get_hasCustomTrails() && saber.get_complete())
             {
                 for (auto &trail : *saber.saberConfig->get_leftTrails())
@@ -108,6 +108,7 @@ namespace Qosmetics
                     TrailUtils::AddTrail(trail, saber.get_rightSaber()->get_transform());
                 saber.set_trailsAdded(true);
             }
+            */
         }
     }
 
@@ -146,13 +147,11 @@ namespace Qosmetics
         UnityEngine::Transform* basicSaberModel = saberTransform->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
         UnityEngine::Transform* customSaber = saberTransform->Find(il2cpp_utils::createcsstr(instance->get_saberType().value == 0 ? "LeftSaber" : "RightSaber"));
         
-        bool fakeGlowMoved = false;
-
         // if both transforms are found and the saber doesn't have custom trails, move the trail inside the leftsaber/rightsaber object per request of MichaelZoller
         if (basicSaberModel != nullptr && customSaber != nullptr && !config.get_hasCustomTrails()) 
         {
             TrailUtils::MoveTrail(basicSaberModel, customSaber);
-            fakeGlowMoved = true;
+            
         }
         // if the saber has custom trails, log the fact that it did and that that is why the trail was not moved (it will be disabled later on)
         else if (config.get_hasCustomTrails())
@@ -165,8 +164,19 @@ namespace Qosmetics
             getLogger().error("basicsabermodel null: %d, customSaber null: %d", basicSaberModel == nullptr, customSaber == nullptr);
         }
 
-        if (basicSaberModel != nullptr && config.get_hasCustomTrails())
-             TrailUtils::RemoveTrail(basicSaberModel);
+        if (basicSaberModel != nullptr && customSaber != nullptr && config.get_hasCustomTrails())
+        {
+            for (auto &trail : *config.get_leftTrails())
+            {
+                TrailUtils::AddTrail(trail, customSaber);
+            }
+            for (auto &trail : *config.get_rightTrails())
+            {
+                TrailUtils::AddTrail(trail, customSaber);
+            }
+            TrailUtils::RemoveTrail(basicSaberModel);
+        }
+             
     
         if (config.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
         {

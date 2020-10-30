@@ -37,6 +37,9 @@ namespace Qosmetics
 		if (customTrail == nullptr) customTrail = trailObject->get_gameObject()->AddComponent<QosmeticsTrail*>();
 		float granularity = 60 * ((trail.get_length() > 10) ? ((float)trail.get_length() / 10.0f) : 1);
         customTrail->TrailSetup(trail.get_length(), granularity, trail.get_type(), trail.get_whiteStep(), trail.get_material(), trail.get_trailColor(), trail.get_multiplierColor());
+		customTrail->Awake();
+		customTrail->framesPassed = 0;
+		customTrail->set_enabled(true);
 	}
 
 	void QosmeticsTrail::TrailSetup(int length, int granularity, int colorType, int whiteStep, UnityEngine::Material* trailMaterial, UnityEngine::Color trailColor, UnityEngine::Color multiplierColor)
