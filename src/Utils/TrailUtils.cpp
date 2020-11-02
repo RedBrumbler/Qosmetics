@@ -122,9 +122,10 @@ namespace Qosmetics
             getLogger().error("trailRenderer was nullptr, couldn't disable it");
             return;
         }
+        
+        trailComponent->trailDuration = 0.0f;
+        trailComponent->whiteSectionMaxDuration = 0.0f;
         trailComponent->set_enabled(false);
-        //trailComponent->trailRenderer->trailDuration = 0.0f;
-        //trailComponent->trailRenderer->whiteSectionMaxDuration = 0.0f;
     }
 
 }

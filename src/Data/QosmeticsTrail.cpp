@@ -15,10 +15,10 @@ namespace Qosmetics
 {
 	Qosmetics::QosmeticsTrail* QosmeticsTrail::CopyFromBase(GlobalNamespace::SaberTrail* base)
 	{
-		int length = base->samplingFrequency * base->trailDuration;
-		int granularity = 60 * ((length > 10) ? ((float)length / 10.0f) : 1);
+		int length = (int)((float)base->samplingFrequency * base->trailDuration * 0.5f);
+		int granularity = (int)((float)base->granularity * ((length > 10) ? ((float)length / 10.0f) : 1.0f));
 		int colorType = 2;
-		int whiteStep = base->samplingFrequency * base->whiteSectionMaxDuration;
+		int whiteStep = (int)((float)base->samplingFrequency * base->whiteSectionMaxDuration * 0.5f);
 		UnityEngine::Material* mat = base->trailRendererPrefab->meshRenderer->get_material();
 		this->trailRenderer = NewTrailRenderer(mat);
 		UnityEngine::Color trailColor = base->color;

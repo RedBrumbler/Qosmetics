@@ -156,7 +156,6 @@ namespace Qosmetics
             return;
         }
 
-        getLogger().info("config is nullptr: %d", selected.get_config() == nullptr);
         if (!selected.get_config()->get_hasBomb() || !selected.get_complete())
         {
             if (!selected.get_complete()) getLogger().error("Attempted to use bomb that wasn't loaded");

@@ -99,16 +99,6 @@ namespace Qosmetics
             {
                 saber.LoadAssets();
             }
-            /*
-            if (saber.saberConfig->get_hasCustomTrails() && saber.get_complete())
-            {
-                for (auto &trail : *saber.saberConfig->get_leftTrails())
-                    TrailUtils::AddTrail(trail, saber.get_leftSaber()->get_transform());
-                for (auto &trail : *saber.saberConfig->get_rightTrails())
-                    TrailUtils::AddTrail(trail, saber.get_rightSaber()->get_transform());
-                saber.set_trailsAdded(true);
-            }
-            */
         }
     }
 
@@ -130,7 +120,7 @@ namespace Qosmetics
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         SaberData& selected = loadedSabers[selectedSaber];
-
+        if (instance->get_saberType().value == 0) return;
         if (!selected.get_complete())
         {
             getLogger().error("Tried using the saber while it was not finished loading");

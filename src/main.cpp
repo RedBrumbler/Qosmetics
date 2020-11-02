@@ -85,9 +85,10 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, 
     NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
     if (notesEnabled) 
     {
-        UnityEngine::Transform* initTransform = (UnityEngine::Transform*)(((UnityEngine::GameObject*)(UnityEngine::Object::Instantiate((UnityEngine::Object*)UnityEngine::GameObject::New_ctor())))->get_transform());
+        UnityEngine::Transform* initTransform = (((UnityEngine::GameObject*)(UnityEngine::Object::Instantiate((UnityEngine::Object*)UnityEngine::GameObject::New_ctor())))->get_transform());
         initTransform->set_localPosition(notePos);
         Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
+        UnityEngine::Object::Destroy(initTransform->get_gameObject());
     }
 }
 
