@@ -95,31 +95,31 @@
      <None Include="Assets\WALL\PCrecreation\RainBowWall 1.shader" />
      <None Include="Assets\SABER\Shaders\sh_custom_lit.shader" />
  <Reference Include="Unity.Timeline.Editor">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.VSCode.Editor">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Timeline">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Rider.Editor">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.UI">
- <HintPath>D:/Users/RedBrumbler/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+ <HintPath>D:/Users/Richard/Documents/GitHub/Qosmetics/UnityProject/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>D:/Program Files/Unity/2019.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

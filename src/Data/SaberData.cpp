@@ -1,5 +1,5 @@
 #include "Data/SaberData.hpp"
-
+#include "Data/GetValInGame.hpp"
 namespace Qosmetics
 {
     void SaberData::LoadBundle(std::string filePath)
@@ -63,6 +63,8 @@ namespace Qosmetics
 
         this->saberPrefab = instantiated;
         this->objectComplete = true;
+
+        this->saberPrefab->get_transform()->Find(il2cpp_utils::createcsstr("LeftSaber"))->get_gameObject()->AddComponent<GlobalNamespace::GetValInGame*>();
         getLogger().info("Loaded Saber prefab");
     }
 

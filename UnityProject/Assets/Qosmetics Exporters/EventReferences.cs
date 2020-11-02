@@ -11,42 +11,64 @@ namespace Qosmetics
     public class EventReferences : MonoBehaviour
     {
         [Tooltip("Qosmetics events for use with the Qosmetics Mod")]
-        public Events events;
+        public Events events = new Events();
 
         [HideInInspector] public bool hideAddMenu = false;
+        [HideInInspector] public bool hideEventsList = false;
     }
 
     [Serializable]
     [DisplayName("Qosmetics Events")]
     public class Events
     {
-        [HideInInspector]public List<QosmeticsEvent> events;
+        /*[HideInInspector]*/public List<QosmeticsEvent> events = new List<QosmeticsEvent>();
     }
 
 
     [Serializable]
     public class QosmeticsEvent
     {
-        public string objectPath;
-        
-        public enum EventType
+        public QosmeticsEvent() { }
+        public QosmeticsEvent (QosmeticsEvent toCopy)
         {
-            [InspectorName("Dis- or Enable GameObjectEvent")]
-            GameObject = 0,
-            [InspectorName("BoolEvent")]
-            Bool = 1,
-            [InspectorName("TriggerEvent")]
-            Trigger = 2,
-            [ObsoleteAttribute]
-            All = ~0,
+            objectPath = toCopy.objectPath;
+            theObject = toCopy.theObject;
+            effect = toCopy.effect;
+            type = toCopy.type;
+            boolean = toCopy.boolean;
+            integer = toCopy.integer;
+            nameToSet = toCopy.nameToSet;
         }
 
-        public EventType type;
+        public string objectPath = "";
+        private GameObject TheObject = null;
+
+        public GameObject theObject
+        {
+            get { return TheObject; }
+            set { TheObject = value; }
+        }
+
+        public enum EffectType
+        {
+            [InspectorName("Toggle GameObject Event")]
+            GameObject = 0,
+            [InspectorName("Bool Event")]
+            Bool = 1,
+            [InspectorName("Trigger Event")]
+            Trigger = 2
+        }
+
+        public EffectType effect = 0;
 
         public enum Event
         {
             [InspectorName("On Slice Bloq")]
             OnSlice,
+            [InspectorName("On Combo Number")]
+            OnCombo,
+            [InspectorName("On Every Nth Combo")]
+            OnEveryNCombo,
             [InspectorName("On Combo Break")]
             OnComboBreak,
             [InspectorName("On Multiplier Up")]
@@ -61,35 +83,22 @@ namespace Qosmetics
             OnLevelFail,
             [InspectorName("On Level End")]
             OnLevelEnded,
-            [InspectorName("On Red Light On")]
+            [InspectorName("On Left Light On")]
             OnLeftLightOn,
-            [InspectorName("On Blue Light On")]
+            [InspectorName("On Left Light Off")]
+            OnLeftLightOff,
+            [InspectorName("On Right Light On")]
             OnRightLightOn,
-            [Obsolete]
-            All = ~0,
+            [InspectorName("On Right Light Off")]
+            OnRightLightOff
         }
 
-        public Event objectEvent;
+        public Event type = 0;
 
-        public enum ValueHandle
-        {
-            [InspectorName("<")]
-            Smaller,
-            [InspectorName("<=")]
-            SmallerOrEqual,
-            [InspectorName("==")]
-            Equal,
-            [InspectorName(">=")]
-            GreaterOrEqual,
-            [InspectorName(">")]
-            Greater,
-            [Obsolete]
-            All = ~0,
-        }
+        public bool boolean = true;
+        public int integer = 0;
+        public string nameToSet = "";
 
-        public ValueHandle HandleValue;
-        public bool boolean;
-        public int integer;
-        public string nameToSet;
+
     }
 }

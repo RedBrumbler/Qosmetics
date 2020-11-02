@@ -40,6 +40,7 @@
 
 #include "Data/CustomTrail.hpp"
 #include "Data/QosmeticsTrail.hpp"
+#include "Data/GetValInGame.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 
@@ -239,6 +240,7 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
     
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::EventManager>());
 
     std::thread WipeRoutine(
         [&]{

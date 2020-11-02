@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using Qosmetics;
-using UnityEngine.UI;
+﻿using Qosmetics;
 using System;
+using UnityEditor;
+using UnityEngine;
 
 public class EventConfigurator : EditorWindow
 {
     private EventReferences[] questevents;
     private QosmeticsEvent newEvent = new QosmeticsEvent();
-
+    Vector2 minorScrollPos;
     [MenuItem("Tools/Qosmetics/Event Configurator")]
     public static void ShowWindow()
     {
@@ -20,57 +17,104 @@ public class EventConfigurator : EditorWindow
     void OnGUI()
     {
         GUILayout.Label("Event Configurator", EditorStyles.boldLabel);
-        foreach (var qevent in questevents)
+        minorScrollPos = GUILayout.BeginScrollView(minorScrollPos);
+        try
         {
-            displayWhich(qevent);
-            qevent.hideAddMenu = EditorGUILayout.BeginFoldoutHeaderGroup(qevent.hideAddMenu, "Add new Event Menu");
+            foreach (var qevent in questevents)
+            {
+                displayWhich(qevent);
+                qevent.hideAddMenu = EditorGUILayout.BeginFoldoutHeaderGroup(qevent.hideAddMenu, "Add new Event Menu");
 
-            if (qevent.hideAddMenu)
-            {
-                AddEventMenu(qevent);
-            }
-            GUILayout.Space(10);
-            try
-            {
-                foreach (var qosEvent in qevent.events.events)
+                if (qevent.hideAddMenu)
                 {
-                    GUILayout.Label(qosEvent.type.ToString() + " Event " + qosEvent.objectEvent.ToString(), EditorStyles.boldLabel);
-                    DisplayEvent(qevent, qosEvent);
-                    if (GUILayout.Button("Remove Event"))
+                    AddEventMenu(qevent);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+
+                qevent.hideEventsList = EditorGUILayout.BeginFoldoutHeaderGroup(qevent.hideEventsList, "Events List");
+                if (qevent.hideEventsList)
+                {
+                    foreach (var qosEvent in qevent.events.events)
                     {
-                        qevent.events.events.Remove(qosEvent);
+                        GUILayout.Space(10);
+                        GUILayout.Label(qosEvent.effect.ToString() + " Event " + qosEvent.type.ToString(), EditorStyles.boldLabel);
+                        DisplayEvent(qevent, qosEvent);
+                        if (GUILayout.Button("Remove Event"))
+                        {
+                            qevent.events.events.Remove(qosEvent);
+                        }
                     }
                 }
+
+                EditorGUILayout.EndFoldoutHeaderGroup();
+
+                GUILayout.Space(10);
+                if (GUILayout.Button("Log JSON"))
+                {
+                    foreach (var qosEvent in qevent.events.events)
+                    {
+                        qosEvent.objectPath = GoToSaber(qosEvent.theObject.transform);
+                    }
+                    Debug.Log(JsonUtility.ToJson(qevent.events, true));
+
+                }
             }
-            catch (InvalidOperationException)
-            {}
         }
+        catch (InvalidOperationException)
+        { }
+        catch (MissingReferenceException ex)
+        { 
+            OnFocus();
+            throw ex;
+        }
+        GUILayout.EndScrollView();
+    }
+
+    string GoToSaber(Transform eventObject)
+    {
+        string result = eventObject.name;
+        Transform current = eventObject.parent;
+        while (current.name != "LeftSaber" && current.name != "RightSaber" && current.parent != null)
+        {
+            result = current.name + "/" + result;
+            current = current.parent;
+        } 
+
+        return result;
     }
 
     void AddEventMenu(EventReferences qevent)
     {
-        
         DisplayEvent(qevent, newEvent);
 
         GUILayout.Space(5);
-
-        if (GUILayout.Button("Add Event"))
+        if (newEvent.theObject == null) GUILayout.Label("GameObject to use is null, can't make an event like this!", EditorStyles.boldLabel);
+        else if (GUILayout.Button("Add Event") && newEvent.theObject != null)
         {
+            newEvent.objectPath = GoToSaber(newEvent.theObject.transform);
             qevent.events.events.Add(newEvent);
-            newEvent = new QosmeticsEvent();
+            newEvent = new QosmeticsEvent(newEvent);
         }
+        GUILayout.Space(10);
     }
 
     void DisplayEvent(EventReferences qevent, QosmeticsEvent display)
     {
-        display.type = (QosmeticsEvent.EventType)EditorGUILayout.EnumPopup("Effect type", display.type);
-        display.objectEvent = (QosmeticsEvent.Event)EditorGUILayout.EnumPopup("Event Type", display.objectEvent);
+        display.theObject = EditorGUILayout.ObjectField("GameObject to use", display.theObject, typeof(GameObject), true) as GameObject;
+        display.effect = (QosmeticsEvent.EffectType)EditorGUILayout.EnumPopup("Effect type", display.effect);
+        display.type = (QosmeticsEvent.Event)EditorGUILayout.EnumPopup("Event Type", display.type);
         GUILayout.Space(5);
 
-        switch (display.objectEvent)
+        switch (display.type)
         {
             case QosmeticsEvent.Event.OnSlice:
                 ShowOnSlice(display);
+                break;
+            case QosmeticsEvent.Event.OnCombo:
+                ShowOnCombo(display);
+                break;
+            case QosmeticsEvent.Event.OnEveryNCombo:
+                ShowOnEveryNCombo(display);
                 break;
             case QosmeticsEvent.Event.OnComboBreak:
                 ShowOnComboBreak(display);
@@ -96,87 +140,146 @@ public class EventConfigurator : EditorWindow
             case QosmeticsEvent.Event.OnLeftLightOn:
                 ShowOnLeftLightOn(display);
                 break;
+            case QosmeticsEvent.Event.OnLeftLightOff:
+                ShowOnLeftLightOff(display);
+                break;
             case QosmeticsEvent.Event.OnRightLightOn:
                 ShowOnRightLightOn(display);
+                break;
+            case QosmeticsEvent.Event.OnRightLightOff:
+                ShowOnRightLightOff(display);
                 break;
         }
     }
 
     void ShowOnSlice(QosmeticsEvent display)
     {
-        switch (display.type)
+        
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
+                break;
+        }
+    }
+
+    void ShowOnEveryNCombo(QosmeticsEvent display)
+    {
+        switch (display.effect)
+        {
+            case QosmeticsEvent.EffectType.GameObject:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                display.integer = EditorGUILayout.IntField("Combo Value to Compare", display.integer);
+                break;
+            case QosmeticsEvent.EffectType.Bool:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
+                display.integer = EditorGUILayout.IntField("Combo Value to Compare", display.integer);
+                break;
+            case QosmeticsEvent.EffectType.Trigger:
+                display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
+                display.integer = EditorGUILayout.IntField("Combo Value to Compare", display.integer);
+                break;
+        }
+    }
+
+    void ShowOnCombo(QosmeticsEvent display)
+    {
+        switch (display.effect)
+        {
+            case QosmeticsEvent.EffectType.GameObject:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                display.integer = EditorGUILayout.IntField("Combo Value to Compare", display.integer);
+                
+                break;
+            case QosmeticsEvent.EffectType.Bool:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
+                display.integer = EditorGUILayout.IntField("Combo Value to Compare", display.integer);
+                
+                break;
+            case QosmeticsEvent.EffectType.Trigger:
+                display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
+                display.integer = EditorGUILayout.IntField("Combo Value to Compare", display.integer);
+                
                 break;
         }
     }
 
     void ShowOnComboBreak(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
-                display.integer = EditorGUILayout.IntField("Combo value to compare", display.integer);
-                newEvent.HandleValue = (QosmeticsEvent.ValueHandle)EditorGUILayout.EnumPopup("How to Handle Value", newEvent.HandleValue);
+               
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
-                display.integer = EditorGUILayout.IntField("Combo value to compare", display.integer);
-                newEvent.HandleValue = (QosmeticsEvent.ValueHandle)EditorGUILayout.EnumPopup("How to Handle Value", newEvent.HandleValue);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
-                display.integer = EditorGUILayout.IntField("Combo value to compare", display.integer);
-                newEvent.HandleValue = (QosmeticsEvent.ValueHandle)EditorGUILayout.EnumPopup("How to Handle Value", newEvent.HandleValue);
                 break;
         }
     }
+    private enum multiplier
+    {
+        [InspectorName("2x")]
+        Two = 2,
+        [InspectorName("4x")]
+        Four = 4,
+        [InspectorName("8x")]
+        Eight = 8
+    }
+
 
     void ShowMultiplierUp(QosmeticsEvent display)
     {
-        switch (display.type)
+        if (!(display.integer == 2 ||
+            display.integer == 4 ||
+            display.integer == 8))
+            display.integer = 2;
+        multiplier temp = (multiplier)display.integer;
+
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
-                display.integer = EditorGUILayout.IntField("Multiplier value to compare", display.integer);
-                newEvent.HandleValue = (QosmeticsEvent.ValueHandle)EditorGUILayout.EnumPopup("How to Handle Value", newEvent.HandleValue);
+                display.integer = (int)(multiplier)EditorGUILayout.EnumPopup("Value to Compare", temp);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
-                display.integer = EditorGUILayout.IntField("Multiplier value to compare", display.integer);
-                newEvent.HandleValue = (QosmeticsEvent.ValueHandle)EditorGUILayout.EnumPopup("How to Handle Value", newEvent.HandleValue);
+                display.integer = (int)(multiplier)EditorGUILayout.EnumPopup("Value to Compare", temp);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
-                display.integer = EditorGUILayout.IntField("Multiplier value to compare", display.integer);
-                newEvent.HandleValue = (QosmeticsEvent.ValueHandle)EditorGUILayout.EnumPopup("How to Handle Value", newEvent.HandleValue);
+                display.integer = (int)(multiplier)EditorGUILayout.EnumPopup("Value to Compare", temp);
                 break;
         }
     }
 
     void ShowSaberStartColliding(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
@@ -184,16 +287,16 @@ public class EventConfigurator : EditorWindow
 
     void ShowSaberStopColliding(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
@@ -201,16 +304,16 @@ public class EventConfigurator : EditorWindow
 
     void ShowOnLevelStart(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
@@ -218,16 +321,16 @@ public class EventConfigurator : EditorWindow
 
     void ShowOnLevelFail(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
@@ -235,16 +338,16 @@ public class EventConfigurator : EditorWindow
 
     void ShowOnLevelEnded(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
@@ -252,16 +355,16 @@ public class EventConfigurator : EditorWindow
 
     void ShowOnLeftLightOn(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
@@ -269,16 +372,50 @@ public class EventConfigurator : EditorWindow
 
     void ShowOnRightLightOn(QosmeticsEvent display)
     {
-        switch (display.type)
+        switch (display.effect)
         {
-            case QosmeticsEvent.EventType.GameObject:
+            case QosmeticsEvent.EffectType.GameObject:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 break;
-            case QosmeticsEvent.EventType.Bool:
+            case QosmeticsEvent.EffectType.Bool:
                 display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
                 display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
                 break;
-            case QosmeticsEvent.EventType.Trigger:
+            case QosmeticsEvent.EffectType.Trigger:
+                display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
+                break;
+        }
+    }
+
+    void ShowOnLeftLightOff(QosmeticsEvent display)
+    {
+        switch (display.effect)
+        {
+            case QosmeticsEvent.EffectType.GameObject:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                break;
+            case QosmeticsEvent.EffectType.Bool:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
+                break;
+            case QosmeticsEvent.EffectType.Trigger:
+                display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
+                break;
+        }
+    }
+
+    void ShowOnRightLightOff(QosmeticsEvent display)
+    {
+        switch (display.effect)
+        {
+            case QosmeticsEvent.EffectType.GameObject:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                break;
+            case QosmeticsEvent.EffectType.Bool:
+                display.boolean = EditorGUILayout.Toggle("Value to set", display.boolean);
+                display.nameToSet = EditorGUILayout.TextField("Boolean to set", display.nameToSet);
+                break;
+            case QosmeticsEvent.EffectType.Trigger:
                 display.nameToSet = EditorGUILayout.TextField("Trigger to set", display.nameToSet);
                 break;
         }
