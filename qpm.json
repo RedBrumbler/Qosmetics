@@ -4,7 +4,7 @@
   "info": {
     "name": "Qosmetics",
     "id": "Qosmetics",
-    "version": "1.0.4",
+    "version": "1.1.3",
     "url": null,
     "additionalData": {}
   },
@@ -21,7 +21,7 @@
     },
     {
       "id": "beatsaber-hook",
-      "versionRange": "^0.7.5",
+      "versionRange": "^0.8.2",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
