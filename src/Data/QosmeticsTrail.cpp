@@ -57,8 +57,9 @@ namespace Qosmetics
     void QosmeticsTrail::Awake()
     {
 		// get the material to use for the trail renderer
-		if (this->trailMaterial == nullptr) 
+		if (this->trailMaterial == nullptr)
 		{
+			SaberLogger::GetLogger().info("trailMaterial from trail reference was nullptr, redefining the trailmaterial from local object");
 			UnityEngine::MeshRenderer* renderer = this->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
 			if (renderer != nullptr) this->trailMaterial = renderer->get_material();
 		}
@@ -95,7 +96,7 @@ namespace Qosmetics
 				case 1:	// RightSaber
 					this->color = colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) * this->multiplierColor;
 					break;
-				case 2:	// Custom Color
+				default:	// Custom Color
 					this->color = this->trailColor * this->multiplierColor;
 					break;
 			}

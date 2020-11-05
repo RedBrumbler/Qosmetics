@@ -176,7 +176,7 @@ namespace Qosmetics
 
             void ClearActive()
             {
-                getLogger().info("Clearing active wall pointers");
+                //getLogger().info("Clearing active wall pointers");
                 activeFrameMat = nullptr;
                 activeCoreMat = nullptr;
                 activeFrameMesh = nullptr;

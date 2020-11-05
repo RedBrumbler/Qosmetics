@@ -60,6 +60,7 @@ namespace Qosmetics
                     wall.ClearActive();
                 }
             }
+            
         private:
             static inline bool setColors = false;
             /// @brief makes the folder if not found

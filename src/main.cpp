@@ -246,7 +246,7 @@ extern "C" void load()
             int timer = 0;
             while (1) {
                 WipeAllDefinedPointers();
-                getLogger().info("Wiped ALL pointers...");
+                //getLogger().info("Wiped ALL pointers...");
                 timer = 0;
                 while (timer < 2000)
                 {

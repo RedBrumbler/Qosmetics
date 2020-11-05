@@ -127,7 +127,7 @@ namespace Qosmetics
 
             void ClearActive()
             {
-                getLogger().info("Clearing active saber pointers");
+                //getLogger().info("Clearing active saber pointers");
                 leftSaber = nullptr;
                 rightSaber = nullptr;
             }

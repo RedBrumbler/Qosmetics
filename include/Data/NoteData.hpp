@@ -273,7 +273,7 @@ namespace Qosmetics
 
             void ClearActive()
             {
-                getLogger().info("Clearing Active bloq pointers");
+                //getLogger().info("Clearing Active bloq pointers");
                 leftArrow = nullptr;
                 rightArrow = nullptr;
                 leftDot = nullptr;

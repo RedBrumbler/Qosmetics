@@ -155,13 +155,20 @@ namespace Qosmetics
 
         if (basicSaberModel != nullptr && customSaber != nullptr && config.get_hasCustomTrails())
         {
-            for (auto &trail : *config.get_leftTrails())
+            switch (instance->get_saberType().value)
             {
-                TrailUtils::AddTrail(trail, customSaber);
-            }
-            for (auto &trail : *config.get_rightTrails())
-            {
-                TrailUtils::AddTrail(trail, customSaber);
+                case 0: // LeftSaber
+                    for (auto &trail : *config.get_leftTrails())
+                    {
+                        TrailUtils::AddTrail(trail, customSaber);
+                    }
+                    break;
+                case 1: // RightSaber
+                    for (auto &trail : *config.get_rightTrails())
+                    {
+                        TrailUtils::AddTrail(trail, customSaber);
+                    }
+                    break;
             }
             TrailUtils::RemoveTrail(basicSaberModel);
         }
@@ -169,7 +176,7 @@ namespace Qosmetics
     
         if (config.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
         {
-            // TODO
+            // TODO: probably not anymore because this will be doable with an eventsystem which will not be implemented for some time
             /*
             // This code currently doesn't work, so by && with false it just never executes
             GlobalNamespace::ObstacleSaberSparkleEffectManager* sparkleManager = UnityUtils::GetFirstObjectOfType<GlobalNamespace::ObstacleSaberSparkleEffectManager*>(il2cpp_utils::GetClassFromName("", "ObstacleSaberSparkleEffectManager"));
