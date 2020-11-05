@@ -120,7 +120,6 @@ namespace Qosmetics
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         SaberData& selected = loadedSabers[selectedSaber];
-        if (instance->get_saberType().value == 0) return;
         if (!selected.get_complete())
         {
             getLogger().error("Tried using the saber while it was not finished loading");
