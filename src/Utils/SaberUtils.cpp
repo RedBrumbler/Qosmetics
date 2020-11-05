@@ -149,13 +149,16 @@ namespace Qosmetics
         int bloomID = UnityEngine::Shader::PropertyToID(bloomString);
         int customID = UnityEngine::Shader::PropertyToID(customString);
 
+        typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
+        auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
+
         for(int i = 0; i < renderers->Length(); i++)
         {
-            Array<UnityEngine::Material*>* sharedMaterials = renderers->values[i]->get_sharedMaterials();
-            for(int j = 0; j < sharedMaterials->Length(); j++)
+            Array<UnityEngine::Material*>* materials = GetMaterialArray(renderers->values[i]);
+            for(int j = 0; j < materials->Length(); j++)
             {
-                if(sharedMaterials->values[j] == nullptr) continue;
-                UnityEngine::Material* currentMaterial = sharedMaterials->values[j];
+                if(materials->values[j] == nullptr) continue;
+                UnityEngine::Material* currentMaterial = materials->values[j];
                 std::string matName = to_utf8(csstrtostr(currentMaterial->get_name()));
                 bool hasCustomColors = currentMaterial->HasProperty(customID);
                 bool setColor = false;

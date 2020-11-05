@@ -466,55 +466,61 @@ namespace Qosmetics
             return;
         }
         int rendererCount = renderers->Length();
+        typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
+        auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
 
         for (int i = 0; i < rendererCount; i++)
         {
             UnityEngine::Renderer* current = renderers->values[i];
             if (current == nullptr) continue;
-            UnityEngine::Material* material = current->get_material();
+            Array<UnityEngine::Material*>* materials = GetMaterialArray(current);
 
-            bool setColor = false;
-            bool hasCustomColor = material->HasProperty(il2cpp_utils::createcsstr("_CustomColors"));
-            std::string matName = to_utf8(csstrtostr(material->get_name()));
-
-            if (hasCustomColor)
+            for (int j = 0; j < materials->Length(); j++)
             {
-                float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
-                if (customColor > 0.0f) setColor = true;
-            }
-            else
-            {
-                bool hasGlow = material->HasProperty(il2cpp_utils::createcsstr("_Glow"));
+                UnityEngine::Material* material = materials->values[j];
+                bool setColor = false;
+                bool hasCustomColor = material->HasProperty(il2cpp_utils::createcsstr("_CustomColors"));
+                std::string matName = to_utf8(csstrtostr(material->get_name()));
 
-                if (hasGlow)
+                if (hasCustomColor)
                 {
-                    float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
+                    float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
                     if (customColor > 0.0f) setColor = true;
                 }
                 else
                 {
-                    bool hasBloom = material->HasProperty(il2cpp_utils::createcsstr("_Bloom"));
+                    bool hasGlow = material->HasProperty(il2cpp_utils::createcsstr("_Glow"));
 
-                    if (hasBloom)
+                    if (hasGlow)
                     {
-                        float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
+                        float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
                         if (customColor > 0.0f) setColor = true;
                     }
-                    else // if that property does not exist
+                    else
                     {
-                        bool hasReplaceName = (matName.find("_replace") != std::string::npos); // if material has _replace in the name
-                        if (hasReplaceName)
+                        bool hasBloom = material->HasProperty(il2cpp_utils::createcsstr("_Bloom"));
+
+                        if (hasBloom)
                         {
-                            if (matName.find("_noCC") == std::string::npos) // if the mat does not have "_noCC" in its name
-                                setColor = true;
-                        } 
-                    }
-                } 
-            }
-            if (setColor)
-            {
-                if (material->HasProperty(il2cpp_utils::createcsstr("_Color"))) material->SetColor(il2cpp_utils::createcsstr("_Color"), thisColor);
-                if (material->HasProperty(il2cpp_utils::createcsstr("_OtherColor"))) material->SetColor(il2cpp_utils::createcsstr("_OtherColor"), otherColor);
+                            float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
+                            if (customColor > 0.0f) setColor = true;
+                        }
+                        else // if that property does not exist
+                        {
+                            bool hasReplaceName = (matName.find("_replace") != std::string::npos); // if material has _replace in the name
+                            if (hasReplaceName)
+                            {
+                                if (matName.find("_noCC") == std::string::npos) // if the mat does not have "_noCC" in its name
+                                    setColor = true;
+                            } 
+                        }
+                    } 
+                }
+                if (setColor)
+                {
+                    if (material->HasProperty(il2cpp_utils::createcsstr("_Color"))) material->SetColor(il2cpp_utils::createcsstr("_Color"), thisColor);
+                    if (material->HasProperty(il2cpp_utils::createcsstr("_OtherColor"))) material->SetColor(il2cpp_utils::createcsstr("_OtherColor"), otherColor);
+                }
             }
         }
         

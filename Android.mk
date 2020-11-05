@@ -73,6 +73,6 @@ LOCAL_SHARED_LIBRARIES += codegen_0_3_5
 LOCAL_SHARED_LIBRARIES += bs-utils
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.1.3"' -I'./shared' -I'./extern' -Wno-inaccessible-base
+LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.1.4"' -I'./shared' -I'./extern' -Wno-inaccessible-base
 LOCAL_C_INCLUDES += ./include ./src
 include $(BUILD_SHARED_LIBRARY)
