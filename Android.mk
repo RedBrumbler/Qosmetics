@@ -28,9 +28,9 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 # Creating prebuilt for dependency: beatsaber-hook - version: 0.5.7
 include $(CLEAR_VARS)
-LOCAL_MODULE := beatsaber-hook_0_8_2
+LOCAL_MODULE := beatsaber-hook_0_8_4
 LOCAL_EXPORT_C_INCLUDES := extern/beatsaber-hook
-LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_8_2.so
+LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_8_4.so
 LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -DNEED_UNSAFE_CSHARP -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
@@ -46,9 +46,9 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 # Creating prebuilt for dependency: codegen - version: 0.2.2
 include $(CLEAR_VARS)
-LOCAL_MODULE := codegen_0_3_5
+LOCAL_MODULE := codegen_0_4_0
 LOCAL_EXPORT_C_INCLUDES := extern/codegen
-LOCAL_SRC_FILES := extern/libcodegen_0_3_5.so
+LOCAL_SRC_FILES := extern/libcodegen_0_4_0.so
 LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
@@ -68,11 +68,11 @@ LOCAL_SRC_FILES += $(call rwildcard,src/**,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.c)
 LOCAL_SHARED_LIBRARIES += modloader
-LOCAL_SHARED_LIBRARIES += beatsaber-hook_0_8_2
-LOCAL_SHARED_LIBRARIES += codegen_0_3_5
+LOCAL_SHARED_LIBRARIES += beatsaber-hook_0_8_4
+LOCAL_SHARED_LIBRARIES += codegen_0_4_0
 LOCAL_SHARED_LIBRARIES += bs-utils
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.1.4"' -I'./shared' -I'./extern' -Wno-inaccessible-base
+LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"1.1.5"' -I'./shared' -I'./extern' -Wno-inaccessible-base
 LOCAL_C_INCLUDES += ./include ./src
 include $(BUILD_SHARED_LIBRARY)
