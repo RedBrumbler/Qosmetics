@@ -1,7 +1,7 @@
 {
   "id": "Qosmetics",
   "name": "Qosmetics",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "icon": "cover.gif",
   "coverImageFilename": "cover.gif",
   "author": "RedBrumbler",
@@ -32,12 +32,6 @@
       "type": "HookModLibrary",
       "installAction": {
         "installLibraryFile": "libbs-utils.so"
-      }
-    },
-    {
-      "type": "HookModLibrary",
-      "installAction": {
-        "installLibraryFile": "libcodegen_0_4_0.so"
       }
     },
     {

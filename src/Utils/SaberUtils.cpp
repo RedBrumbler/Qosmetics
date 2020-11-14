@@ -82,8 +82,8 @@ namespace Qosmetics
             setCustomColor(customGO->get_transform(), saberType);
 
             customGO->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
-            customGO->get_transform()->set_eulerAngles(UnityEngine::Vector3::get_zero());
-            customGO->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());
+            customGO->get_transform()->set_rotation(gameSaber->get_transform()->get_rotation());
+            customGO->get_transform()->set_position(gameSaber->get_transform()->get_position());
         }
         else
         {
