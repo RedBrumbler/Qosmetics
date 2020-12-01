@@ -1,4 +1,6 @@
 #include "Data/NoteData.hpp"
+#include "Utils/NoteUtils.hpp"
+
 namespace Qosmetics
 {
     void NoteData::LoadBundle()
@@ -111,5 +113,141 @@ namespace Qosmetics
         while (this->noteDescriptor == nullptr){sleep(1);}
         this->noteDescriptor->SetCoverImage(texture);
         getLogger().info("loaded texture");
+    }
+
+    std::vector<UnityEngine::Material*>& NoteData::get_leftNoteCCmaterials()
+    {
+        if (leftNoteCCmats.size() > 0) return leftNoteCCmats;
+        Array<UnityEngine::Renderer*>* renderers = get_leftArrow()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+        for (int i = 0; i < renderers->Length(); i++)
+        {
+            Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+            for (int j = 0; j < sharedMats->Length(); i++)
+            {
+                UnityEngine::Material* newMat = sharedMats->values[j];
+                bool found = false;
+                for (auto mat : leftNoteCCmats)
+                {
+                    if (found) continue;
+                    if (newMat == mat) found = true;
+                }
+                if (found) continue;
+
+                if (NoteUtils::ShouldChangeNoteMaterialColor(newMat)) leftNoteCCmats.push_back(newMat);
+            }
+        }
+
+        renderers = get_leftDot()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+        for (int i = 0; i < renderers->Length(); i++)
+        {
+            Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+            for (int j = 0; j < sharedMats->Length(); i++)
+            {
+                UnityEngine::Material* newMat = sharedMats->values[j];
+                bool found = false;
+                for (auto mat : leftNoteCCmats)
+                {
+                    if (found) continue;
+                    if (newMat == mat) found = true;
+                }
+                if (found) continue;
+
+                if (NoteUtils::ShouldChangeNoteMaterialColor(newMat)) leftNoteCCmats.push_back(newMat);
+            }
+        }
+
+        if (this->noteConfig->get_hasDebris())
+        {
+            renderers = get_leftDebris()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+            for (int i = 0; i < renderers->Length(); i++)
+            {
+                Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+                for (int j = 0; j < sharedMats->Length(); i++)
+                {
+                    UnityEngine::Material* newMat = sharedMats->values[j];
+                    bool found = false;
+                    for (auto mat : leftNoteCCmats)
+                    {
+                        if (found) continue;
+                        if (newMat == mat) found = true;
+                    }
+                    if (found) continue;
+
+                    if (NoteUtils::ShouldChangeNoteMaterialColor(newMat)) leftNoteCCmats.push_back(newMat);
+                }
+            }
+        }
+        return rightNoteCCmats;
+    }
+
+    std::vector<UnityEngine::Material*>& NoteData::get_rightNoteCCmaterials()
+    {
+        if (rightNoteCCmats.size() > 0) return rightNoteCCmats;
+        Array<UnityEngine::Renderer*>* renderers = get_rightArrow()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+        for (int i = 0; i < renderers->Length(); i++)
+        {
+            Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+            for (int j = 0; j < sharedMats->Length(); i++)
+            {
+                UnityEngine::Material* newMat = sharedMats->values[j];
+                bool found = false;
+                for (auto mat : rightNoteCCmats)
+                {
+                    if (found) continue;
+                    if (newMat == mat) found = true;
+                }
+                if (found) continue;
+
+                if (NoteUtils::ShouldChangeNoteMaterialColor(newMat)) rightNoteCCmats.push_back(newMat);
+            }
+        }
+
+        renderers = get_rightDot()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+        for (int i = 0; i < renderers->Length(); i++)
+        {
+            Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+            for (int j = 0; j < sharedMats->Length(); i++)
+            {
+                UnityEngine::Material* newMat = sharedMats->values[j];
+                bool found = false;
+                for (auto mat : rightNoteCCmats)
+                {
+                    if (found) continue;
+                    if (newMat == mat) found = true;
+                }
+                if (found) continue;
+
+                if (NoteUtils::ShouldChangeNoteMaterialColor(newMat)) rightNoteCCmats.push_back(newMat);
+            }
+        }
+
+        if (this->noteConfig->get_hasDebris())
+        {
+            renderers = get_rightDebris()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+            for (int i = 0; i < renderers->Length(); i++)
+            {
+                Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+                for (int j = 0; j < sharedMats->Length(); i++)
+                {
+                    UnityEngine::Material* newMat = sharedMats->values[j];
+                    bool found = false;
+                    for (auto mat : rightNoteCCmats)
+                    {
+                        if (found) continue;
+                        if (newMat == mat) found = true;
+                    }
+                    if (found) continue;
+
+                    if (NoteUtils::ShouldChangeNoteMaterialColor(newMat)) rightNoteCCmats.push_back(newMat);
+                }
+            }
+        }
+        return rightNoteCCmats;
     }
 }

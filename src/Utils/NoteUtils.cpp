@@ -1,4 +1,7 @@
 #include "Utils/NoteUtils.hpp"
+#include "Qosmetic/QosmeticsColorManager.hpp"
+#include "UnityEngine/Object.hpp"
+#include "Data/NoteData.hpp"
 
 namespace Qosmetics
 {
@@ -142,8 +145,8 @@ namespace Qosmetics
         }
         if (prefab != nullptr)
         {
-            getLogger().info("Spawning custom note");
-            UnityEngine::GameObject* instantiatedNote = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)prefab);
+            getLogger().info("Spawning custom note, prefab ptr: %p", prefab);
+            UnityEngine::GameObject* instantiatedNote = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(prefab);
 
             instantiatedNote->get_transform()->SetParent(note);
             instantiatedNote->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());
@@ -203,7 +206,8 @@ namespace Qosmetics
 
         if (prefab != nullptr)
         {
-            UnityEngine::GameObject* instantiatedDebris = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)prefab);
+            getLogger().info("spawning new custom debris, ptr: %p", prefab);
+            UnityEngine::GameObject* instantiatedDebris = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(prefab);
 
             instantiatedDebris->get_transform()->SetParent(noteDebrisMesh);
             instantiatedDebris->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());
@@ -313,7 +317,7 @@ namespace Qosmetics
         
         if (oldBomb == nullptr)
         {
-            UnityEngine::GameObject* instantiatedBomb = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)customNoteData.get_bomb());
+            UnityEngine::GameObject* instantiatedBomb = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(customNoteData.get_bomb());
 
             instantiatedBomb->get_transform()->SetParent(mesh->get_transform());
             instantiatedBomb->get_transform()->set_localPosition(UnityEngine::Vector3::get_zero());
@@ -448,7 +452,7 @@ namespace Qosmetics
     void NoteUtils::SetColor(UnityEngine::Transform* object, bool isLeft)
     {
         getLogger().info("Attempting to set colors on custom Bloqs");
-        GlobalNamespace::ColorManager* colorManager = UnityUtils::GetLastObjectOfType<GlobalNamespace::ColorManager*>(il2cpp_utils::GetClassFromName("", "ColorManager"));
+        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
 
         if (colorManager == nullptr)
         {   
@@ -469,6 +473,9 @@ namespace Qosmetics
         typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
         auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
 
+        Il2CppString* colorString = il2cpp_utils::createcsstr("_Color");
+        Il2CppString* otherColorString = il2cpp_utils::createcsstr("_OtherColor");
+
         for (int i = 0; i < rendererCount; i++)
         {
             UnityEngine::Renderer* current = renderers->values[i];
@@ -478,52 +485,42 @@ namespace Qosmetics
             for (int j = 0; j < materials->Length(); j++)
             {
                 UnityEngine::Material* material = materials->values[j];
-                bool setColor = false;
-                bool hasCustomColor = material->HasProperty(il2cpp_utils::createcsstr("_CustomColors"));
-                std::string matName = to_utf8(csstrtostr(material->get_name()));
-
-                if (hasCustomColor)
-                {
-                    float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
-                    if (customColor > 0.0f) setColor = true;
-                }
-                else
-                {
-                    bool hasGlow = material->HasProperty(il2cpp_utils::createcsstr("_Glow"));
-
-                    if (hasGlow)
-                    {
-                        float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
-                        if (customColor > 0.0f) setColor = true;
-                    }
-                    else
-                    {
-                        bool hasBloom = material->HasProperty(il2cpp_utils::createcsstr("_Bloom"));
-
-                        if (hasBloom)
-                        {
-                            float customColor = material->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
-                            if (customColor > 0.0f) setColor = true;
-                        }
-                        else // if that property does not exist
-                        {
-                            bool hasReplaceName = (matName.find("_replace") != std::string::npos); // if material has _replace in the name
-                            if (hasReplaceName)
-                            {
-                                if (matName.find("_noCC") == std::string::npos) // if the mat does not have "_noCC" in its name
-                                    setColor = true;
-                            } 
-                        }
-                    } 
-                }
+                bool setColor = ShouldChangeNoteMaterialColor(material);
                 if (setColor)
                 {
-                    if (material->HasProperty(il2cpp_utils::createcsstr("_Color"))) material->SetColor(il2cpp_utils::createcsstr("_Color"), thisColor);
-                    if (material->HasProperty(il2cpp_utils::createcsstr("_OtherColor"))) material->SetColor(il2cpp_utils::createcsstr("_OtherColor"), otherColor);
+                    if (material->HasProperty(colorString)) material->SetColor(colorString, thisColor);
+                    if (material->HasProperty(otherColorString)) material->SetColor(otherColorString, otherColor);
                 }
             }
         }
         
+    }
+
+    void NoteUtils::SetColor(std::vector<UnityEngine::Material*>& vector, bool isLeft)
+    {
+        if (vector.size() == 0) return;
+        getLogger().info("Attempting to set colors on custom Bloqs");
+        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
+
+        if (colorManager == nullptr)
+        {   
+            getLogger().error("ColorManager was nullptr, skipping setting colors...");
+            return;
+        }
+        
+        UnityEngine::Color thisColor = isLeft ? colorManager->ColorForSaberType(0) : colorManager->ColorForSaberType(1);
+        UnityEngine::Color otherColor = isLeft ? colorManager->ColorForSaberType(1) : colorManager->ColorForSaberType(0);
+
+        Il2CppString* colorString = il2cpp_utils::createcsstr("_Color");
+        Il2CppString* otherColorString = il2cpp_utils::createcsstr("_OtherColor");
+
+        for (UnityEngine::Material* material : vector)
+        {
+            if (material->HasProperty(colorString)) 
+                    material->SetColor(colorString, thisColor);
+            if (material->HasProperty(otherColorString)) 
+                    material->SetColor(otherColorString, otherColor);
+        }
     }
 
     void NoteUtils::ReplaceBombMaterials(UnityEngine::Transform* bomb, Qosmetics::NoteData &customNoteData)
@@ -751,5 +748,98 @@ namespace Qosmetics
         getLogger().info("note materials list should have been made now");
         listDefined = true;
         definingList = false;
+    }
+
+    bool NoteUtils::ShouldChangeNoteMaterialColor(UnityEngine::Material* mat)
+    {
+        bool hasCustomColor = mat->HasProperty(il2cpp_utils::createcsstr("_CustomColors"));
+        std::string matName = to_utf8(csstrtostr(mat->get_name()));
+
+        if (hasCustomColor)
+        {
+            float customColor = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
+            if (customColor > 0.0f) return true;
+        }
+        else
+        {
+            bool hasGlow = mat->HasProperty(il2cpp_utils::createcsstr("_Glow"));
+
+            if (hasGlow)
+            {
+                float customColor = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
+                if (customColor > 0.0f) return true;
+            }
+            else
+            {
+                bool hasBloom = mat->HasProperty(il2cpp_utils::createcsstr("_Bloom"));
+
+                if (hasBloom)
+                {
+                    float customColor = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
+                    if (customColor > 0.0f) return true;
+                }
+                else // if that property does not exist
+                {
+                    bool hasReplaceName = (matName.find("_replace") != std::string::npos); // if mat has _replace in the name
+                    if (hasReplaceName)
+                    {
+                        if (matName.find("_noCC") == std::string::npos) // if the mat does not have "_noCC" in its name
+                            return true;
+                    } 
+                }
+            } 
+        }
+        return false;
+    }
+
+    void NoteUtils::SetSharedColor(UnityEngine::Transform* object, bool isLeft)
+    {
+        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
+
+        if (colorManager == nullptr)
+        {   
+            getLogger().error("ColorManager was nullptr, skipping setting colors...");
+            return;
+        }
+        
+        
+        UnityEngine::Color thisColor = isLeft ? colorManager->ColorForSaberType(0) : colorManager->ColorForSaberType(1);
+        UnityEngine::Color otherColor = isLeft ? colorManager->ColorForSaberType(1) : colorManager->ColorForSaberType(0);
+
+        Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>();
+        if (renderers == nullptr) 
+        {
+            getLogger().error("Found array of renderers was nullptr, skipping setting colors...");
+            return;
+        }
+        int rendererCount = renderers->Length();
+
+        for (int i = 0; i < rendererCount; i++)
+        {
+            UnityEngine::Renderer* current = renderers->values[i];
+            if (current == nullptr) continue;
+            Array<UnityEngine::Material*>* materials = current->get_sharedMaterials();
+
+            for (int j = 0; j < materials->Length(); j++)
+            {
+                UnityEngine::Material* material = materials->values[j];
+                bool setColor = ShouldChangeNoteMaterialColor(material);
+                if (setColor)
+                {
+                    if (material->HasProperty(il2cpp_utils::createcsstr("_Color"))) material->SetColor(il2cpp_utils::createcsstr("_Color"), thisColor);
+                    if (material->HasProperty(il2cpp_utils::createcsstr("_OtherColor"))) material->SetColor(il2cpp_utils::createcsstr("_OtherColor"), otherColor);
+                }
+            }
+        }
+    }
+
+    void NoteUtils::HandleColorsDidChangeEvent(Qosmetics::NoteData& noteData)
+    {
+        getLogger().info("Handling colorsDidChangeEvent");
+        
+        SetColor(noteData.get_leftNoteCCmaterials(), true);
+        SetColor(noteData.get_rightNoteCCmaterials(), false);
+
+        getLogger().info("it do be handled");
     }
 }

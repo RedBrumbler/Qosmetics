@@ -18,11 +18,12 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/GameObject.hpp"
 
-#include "Data/SaberData.hpp"
+
 #include "../Logging/SaberLogger.hpp"
 #include "Utils/UnityUtils.hpp"
 namespace Qosmetics
 {
+    class SaberData;
     class SaberUtils 
     {
         public:
@@ -41,6 +42,15 @@ namespace Qosmetics
             /// @param customSaber reference to the custom saberdata object to use
             static void AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData);
 
+
+            /// @param handles the color update "event" from the Qosmetics color manager
+            /// @param customSaberData the saber data for the object
+            static void HandleColorsDidUpdateEvent(Qosmetics::SaberData& customSaberData);
+            
+            /// @brief checks wether or not a material should have it's color changed based on CC
+            /// @param mat the material to check
+            static bool ShouldChangeSaberMaterialColor(UnityEngine::Material* mat);
+
         private:
             /// @brief disables all the gameObjects of these meshfilters
             /// @param meshFilters array of meshfilters
@@ -50,5 +60,10 @@ namespace Qosmetics
             /// @param transform the transform in which to get all renderers and set colors on
             /// @param saberType the color type to use for it
             static void setCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType);
+
+            /// @brief sets the custom colors on all meshrenderers in the given transform
+            /// @param vector the array that will completely be set
+            /// @param saberType the color type to use for it
+            static void setCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType);
     };
 }

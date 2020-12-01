@@ -132,6 +132,15 @@ namespace Qosmetics
                 rightSaber = nullptr;
             }
 
+            void ClearMatVectors()
+            {
+                leftSaberCCmats.clear();
+                rightSaberCCmats.clear();
+            }
+
+            std::vector<UnityEngine::Material*>& get_leftSaberCCmaterials();
+            std::vector<UnityEngine::Material*>& get_rightSaberCCmaterials();
+
         private:
             
             void OnSaberLoadComplete(UnityEngine::GameObject* saber, bool DontDestroyOnLoad);
@@ -148,6 +157,9 @@ namespace Qosmetics
             
             UnityEngine::GameObject* leftSaber = nullptr;
             UnityEngine::GameObject* rightSaber = nullptr;
+
+            std::vector<UnityEngine::Material*> leftSaberCCmats;
+            std::vector<UnityEngine::Material*> rightSaberCCmats;
 
             bool finishedSaberLoad = false;
             bool objectComplete = false;

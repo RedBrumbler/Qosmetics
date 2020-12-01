@@ -1,5 +1,5 @@
 #include "Qosmetic/QuestSaber.hpp"
-
+#include "Qosmetic/QosmeticsColorManager.hpp"
 ModInfo Qosmetics::QuestSaber::modInfo;
 
 std::vector<std::string> Qosmetics::QuestSaber::fileNames;
@@ -115,6 +115,7 @@ namespace Qosmetics
         selectedSaber = 0;
 
         loadedSabers[selectedSaber].ClearActive();
+        loadedSabers[selectedSaber].ClearMatVectors();
     };
     
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
@@ -125,7 +126,7 @@ namespace Qosmetics
             getLogger().error("Tried using the saber while it was not finished loading");
             return;
         }
-
+        ColorManager::Init();
         // replace the saber
         SaberUtils::AddSaber(instance, selected);
         Qosmetics::SaberConfig config = *selected.saberConfig;
@@ -208,5 +209,19 @@ namespace Qosmetics
 
         getLogger().info("End of saber start");
     };
+
+    void QuestSaber::HandleColorsDidChangeEvent()
+    {
+        if (loadedSabers.size() == 0) return;
+
+        SaberData& selected = loadedSabers[selectedSaber];
+        if (!selected.get_complete())
+        {
+            getLogger().error("Tried using the saber while it was not finished loading");
+            return;
+        }
+
+        SaberUtils::HandleColorsDidUpdateEvent(selected);
+    }
 }
 

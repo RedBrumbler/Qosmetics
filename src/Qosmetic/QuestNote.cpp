@@ -1,4 +1,5 @@
 #include "Qosmetic/QuestNote.hpp"
+#include "Qosmetic/QosmeticsColorManager.hpp"
 
 ModInfo Qosmetics::QuestNote::modInfo;
 
@@ -97,6 +98,9 @@ namespace Qosmetics
             getLogger().error("Tried using the bloq while it was not finished loading");
             return;
         }
+
+        //auto action = il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, []{});
+        selected.ClearMatVectors();
         setColors = false;
     };
 
@@ -113,6 +117,7 @@ namespace Qosmetics
 
         if (!setColors) // if colors have not been set yet, set them
         {
+            ColorManager::Init();
             if (selected.get_config()->get_hasDebris()) // if there is debris, set the color
             {
                 NoteUtils::SetColor(selected.get_leftDebris()->get_transform(), true);
@@ -141,6 +146,19 @@ namespace Qosmetics
         }
         if (!selected.get_config()->get_hasDebris() || !selected.get_complete()) return;
         NoteUtils::ReplaceDebris(noteDebris, noteType, initTransform, cutPoint, cutNormal, loadedNotes[selectedNote]);
+    }
+
+    void QuestNote::HandleColorsDidChangeEvent()
+    {
+        if (loadedNotes.size() == 0) return;
+        NoteData &selected = loadedNotes[selectedNote];
+        if (!selected.get_complete())
+        {
+            getLogger().error("Attempted to use bloq that was not finished loading");
+            return;
+        }
+
+        NoteUtils::HandleColorsDidChangeEvent(selected);
     }
 
     void QuestNote::BombController_Init_Post(GlobalNamespace::BombNoteController* noteController)

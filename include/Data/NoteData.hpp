@@ -16,6 +16,7 @@
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/Transform.hpp"
+#include "UnityEngine/Renderer.hpp"
 
 #include "Config/NoteConfig.hpp"
 #include "Data/Descriptor.hpp"
@@ -285,6 +286,15 @@ namespace Qosmetics
                 bomb = nullptr;
             }
 
+            void ClearMatVectors()
+            {
+                leftNoteCCmats.clear();
+                rightNoteCCmats.clear();
+            }
+
+            std::vector<UnityEngine::Material*>& get_leftNoteCCmaterials();
+            std::vector<UnityEngine::Material*>& get_rightNoteCCmaterials();
+
         private:
             Qosmetics::Descriptor* noteDescriptor = nullptr;
             Qosmetics::NoteConfig* noteConfig = nullptr;
@@ -312,6 +322,9 @@ namespace Qosmetics
             UnityEngine::GameObject* rightDebris = nullptr;
 
             UnityEngine::GameObject* bomb = nullptr;
+
+            std::vector<UnityEngine::Material*> leftNoteCCmats;
+            std::vector<UnityEngine::Material*> rightNoteCCmats;
 
             void OnNoteLoadComplete(UnityEngine::GameObject* note, bool DontDestroyOnLoad);
 

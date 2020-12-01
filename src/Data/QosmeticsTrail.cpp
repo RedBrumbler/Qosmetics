@@ -7,6 +7,7 @@
 #include "GlobalNamespace/ColorManager.hpp"
 #include "GlobalNamespace/SaberType.hpp"
 #include "Utils/UnityUtils.hpp"
+#include "Qosmetic/QosmeticsColorManager.hpp"
 
 DEFINE_CLASS(Qosmetics::QosmeticsTrail);
 float Qosmetics::QosmeticsTrail::trailIntensity = 1.0f;
@@ -85,26 +86,7 @@ namespace Qosmetics
 		}
 
 		// get color set
-		GlobalNamespace::ColorManager* colorManager = UnityUtils::GetLastObjectOfType<GlobalNamespace::ColorManager*>(il2cpp_utils::GetClassFromName("", "ColorManager"));
-        if (colorManager != nullptr) // if colormanager defined, get colors from it, else just get the set color
-		{
-			switch (this->colorType)
-			{
-				case 0: // LeftSaber
-					this->color = colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberA) * this->multiplierColor;
-					break;
-				case 1:	// RightSaber
-					this->color = colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) * this->multiplierColor;
-					break;
-				default:	// Custom Color
-					this->color = this->trailColor * this->multiplierColor;
-					break;
-			}
-		}
-		else this->color = this->trailColor * this->multiplierColor;
-		
-		// apply trailIntensity with a *= and not a = because it should not overwrite the set color.a, just modify it
-		this->color.a *= trailIntensity;
+		UpdateColors();
 
 		// set whitestep length, preferred is 0 though
 		this->whiteSectionMaxDuration = (float)this->whitestep / (float)this->samplingFrequency;
@@ -133,12 +115,12 @@ namespace Qosmetics
 	GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer(UnityEngine::Material* material)
     {
         // make a new gameobject to house the prefab on
-        UnityEngine::GameObject* newPrefab = *il2cpp_utils::RunMethod<UnityEngine::GameObject*>("UnityEngine", "Object", "Instantiate", UnityEngine::GameObject::New_ctor());
+        UnityEngine::GameObject* newPrefab = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor());
 
         // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
-        CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::MeshFilter*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshFilter")));
-        CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::MeshRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("MeshRenderer")));
-        GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = CRASH_UNLESS(il2cpp_utils::RunMethod<GlobalNamespace::SaberTrailRenderer*>(newPrefab, "AddComponent", UnityUtils::TypeFromString("", "SaberTrailRenderer")));
+        newPrefab->AddComponent<UnityEngine::MeshFilter*>();
+        newPrefab->AddComponent<UnityEngine::MeshRenderer*>();
+        GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = newPrefab->AddComponent<GlobalNamespace::SaberTrailRenderer*>();
 
         // if the material is not nullptr set it
         if (material != nullptr) trailRendererPrefab->meshRenderer->set_material(material);      
@@ -149,4 +131,28 @@ namespace Qosmetics
         // return the trail renderer pointer
         return trailRendererPrefab;
     }
+
+	void QosmeticsTrail::UpdateColors()
+	{
+		Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
+        if (colorManager != nullptr) // if colormanager defined, get colors from it, else just get the set color
+		{
+			switch (this->colorType)
+			{
+				case 0: // LeftSaber
+					this->color = colorManager->ColorForTrailType(GlobalNamespace::SaberType::SaberA) * this->multiplierColor;
+					break;
+				case 1:	// RightSaber
+					this->color = colorManager->ColorForTrailType(GlobalNamespace::SaberType::SaberB) * this->multiplierColor;
+					break;
+				default:	// Custom Color
+					this->color = this->trailColor * this->multiplierColor;
+					break;
+			}
+		}
+		else this->color = this->trailColor * this->multiplierColor;
+		
+		// apply trailIntensity with a *= and not a = because it should not overwrite the set color.a, just modify it
+		this->color.a *= trailIntensity;
+	}
 }

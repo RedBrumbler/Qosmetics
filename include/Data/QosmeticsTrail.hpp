@@ -33,6 +33,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
 
     DECLARE_METHOD(void, Update);
     DECLARE_METHOD(void, Awake);
+    DECLARE_METHOD(void, UpdateColors);
     DECLARE_METHOD(void, TrailSetup, int length,
                                      int granularity,
                                      int colorType,
@@ -56,6 +57,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
         REGISTER_METHOD(Update);
         REGISTER_METHOD(Awake);
         REGISTER_METHOD(TrailSetup);
+        REGISTER_METHOD(UpdateColors);
         
         REGISTER_FIELD(topTransform);
         REGISTER_FIELD(bottomTransform);

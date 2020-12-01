@@ -1,4 +1,6 @@
 #include "include/Utils/SaberUtils.hpp"
+#include "Qosmetic/QosmeticsColorManager.hpp"
+#include "Data/SaberData.hpp"
 
 namespace Qosmetics
 {
@@ -124,7 +126,7 @@ namespace Qosmetics
         }
 
         auto colorManagerType = il2cpp_utils::GetSystemType("", "ColorManager");
-        GlobalNamespace::ColorManager* colorManager = UnityUtils::GetLastObjectOfType<GlobalNamespace::ColorManager*>(il2cpp_utils::GetClassFromName("", "ColorManager"));
+        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
         
         if (colorManager == nullptr)
         {
@@ -133,21 +135,14 @@ namespace Qosmetics
         }
 
         // make all the strings
-        Il2CppString* glowString = il2cpp_utils::createcsstr("_Glow");
-        Il2CppString* bloomString = il2cpp_utils::createcsstr("_Bloom");
-        Il2CppString* customString = il2cpp_utils::createcsstr("_CustomColors");
         Il2CppString* colorString = il2cpp_utils::createcsstr("_Color");
         Il2CppString* otherColorString = il2cpp_utils::createcsstr("_OtherColor");
 
-        UnityEngine::Color saberColor = colorManager->ColorForSaberType(saberType);
+        UnityEngine::Color saberColor = colorManager->ColorForSaberType(saberType.value);
         UnityEngine::Color otherSaberColor = (saberType.value == 0) ? colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) : colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberA);
         
         auto rendererType = il2cpp_utils::GetSystemType("UnityEngine", "Renderer");
         Array<UnityEngine::Renderer*>* renderers = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<UnityEngine::Renderer*>*>(transform, "GetComponentsInChildren", rendererType, false));
-        
-        int glowID = UnityEngine::Shader::PropertyToID(glowString);
-        int bloomID = UnityEngine::Shader::PropertyToID(bloomString);
-        int customID = UnityEngine::Shader::PropertyToID(customString);
 
         typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
         auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
@@ -159,43 +154,7 @@ namespace Qosmetics
             {
                 if(materials->values[j] == nullptr) continue;
                 UnityEngine::Material* currentMaterial = materials->values[j];
-                std::string matName = to_utf8(csstrtostr(currentMaterial->get_name()));
-                bool hasCustomColors = currentMaterial->HasProperty(customID);
-                bool setColor = false;
-
-                if (hasCustomColors) /// if there is a _CustomColors property
-                {
-                    float customFLoat = currentMaterial->GetFloat(customID);
-                    if (customFLoat > 0.0f) setColor = true;
-                }
-                else // if that property does not exist
-                {
-                    bool hasGlow = currentMaterial->HasProperty(glowID);
-                    if(hasGlow) // if there is a _Glow property
-                    {
-                        float glowFloat = currentMaterial->GetFloat(glowID);
-                        if(glowFloat > 0.0f) setColor = true; 
-                    }
-                    else // if that property does not exist
-                    {
-                        bool hasBloom = currentMaterial->HasProperty(bloomID);
-                        if(hasBloom) /// if there is a _Bloom property
-                        {
-                            float bloomFloat = currentMaterial->GetFloat(bloomID);
-                            if(bloomFloat > 0.0f) setColor = true; 
-                        }
-                        else // if that property does not exist
-                        {
-                            bool hasReplaceName = (matName.find("_replace") != std::string::npos); // if material has _replace in the name
-                            if (hasReplaceName)
-                            {
-                                if (matName.find("_noCC") == std::string::npos) // if the mat does not have "_noCC" in its name
-                                    setColor = true;
-                            }
-                        }
-                        
-                    }
-                }
+                bool setColor = ShouldChangeSaberMaterialColor(materials->values[j]);
 
                 if(setColor)
                 {
@@ -208,5 +167,90 @@ namespace Qosmetics
                 }
             }
         }
+    }
+
+    void SaberUtils::setCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType)
+    {
+        if (vector.size() == 0) return;
+        auto colorManagerType = il2cpp_utils::GetSystemType("", "ColorManager");
+        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
+        
+        if (colorManager == nullptr)
+        {
+            getLogger().error("colorManager was nullptr, skipping custom saber colors...");
+            return;
+        }
+
+        // make all the strings
+        Il2CppString* colorString = il2cpp_utils::createcsstr("_Color");
+        Il2CppString* otherColorString = il2cpp_utils::createcsstr("_OtherColor");
+
+        UnityEngine::Color saberColor = colorManager->ColorForSaberType(saberType.value);
+        UnityEngine::Color otherSaberColor = (saberType.value == 0) ? colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) : colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberA);
+        for(UnityEngine::Material* mat : vector)
+        {
+            bool setColor = ShouldChangeSaberMaterialColor(mat);
+            if(setColor)
+            {
+                if (mat->HasProperty(colorString)) 
+                    // if material has _Color property
+                    mat->SetColor(colorString, saberColor); // set the saber color on _Color
+                if (mat->HasProperty(otherColorString)) 
+                    // if material has _OtherColor property
+                    mat->SetColor(otherColorString, otherSaberColor); // set the other saber color on _OtherColor
+            }
+        }
+    }
+
+    void SaberUtils::HandleColorsDidUpdateEvent(Qosmetics::SaberData& customSaberData)
+    {
+        Array<GlobalNamespace::Saber*>* sabers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::Saber*>();
+
+        for (int i = 0; i < sabers->Length(); i++)
+        {
+            GlobalNamespace::Saber* saber = sabers->values[i];
+
+            UnityEngine::Transform* gameSaber = saber->get_transform();
+            Il2CppString* saberName = saber->get_saberType().value == 0 ? il2cpp_utils::createcsstr("LeftSaber") : il2cpp_utils::createcsstr("RightSaber");
+            UnityEngine::Transform* customSaber = gameSaber->Find(saberName);
+
+            setCustomColor(customSaber, saber->get_saberType());
+        }
+
+        Array<QosmeticsTrail*>* trails = UnityEngine::Object::FindObjectsOfType<QosmeticsTrail*>();
+
+        for (int i = 0; i < trails->Length(); i++)
+        {
+            trails->values[i]->UpdateColors();
+        }
+    }
+
+    bool SaberUtils::ShouldChangeSaberMaterialColor(UnityEngine::Material* mat)
+    {
+        bool hasCustomColors = mat->HasProperty(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
+        if (hasCustomColors) /// if there is a _CustomColors property
+        {
+            float customFLoat = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
+            if (customFLoat > 0.0f) return true;
+        }
+        else // if that property does not exist
+        {
+            bool hasGlow = mat->HasProperty(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
+            if(hasGlow) // if there is a _Glow property
+            {
+                float glowFloat = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
+                if(glowFloat > 0.0f) return true; 
+            }
+            else // if that property does not exist
+            {
+                bool hasBloom = mat->HasProperty(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
+                if(hasBloom) /// if there is a _Bloom property
+                {
+                    float bloomFloat = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
+                    if(bloomFloat > 0.0f) return true; 
+                }
+            }
+        }
+        return false;
     }
 }

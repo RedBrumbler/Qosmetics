@@ -6,11 +6,17 @@
 #include "beatsaber-hook/shared/utils/typedefs.h"
 
 #include <string>
+#include <cstdlib>
 
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/SceneManagement/Scene.hpp"
+#include "UnityEngine/Object.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/SendMessageOptions.hpp"
+
+#include "System/Action.hpp"
 
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/ObstacleController.hpp"
@@ -28,10 +34,14 @@
 #include "GlobalNamespace/SaberModelController.hpp"
 #include "GlobalNamespace/StandardLevelScenesTransitionSetupDataSO.hpp"
 #include "GlobalNamespace/SaberModelContainer.hpp"
+#include "GlobalNamespace/SetSaberFakeGlowColor.hpp"
+#include "GlobalNamespace/ColorScheme.hpp"
 
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QuestNote.hpp"
 #include "Qosmetic/QuestWall.hpp"
+#include "Qosmetic/QosmeticsColorManager.hpp"
+#include "Qosmetic/QosmeticsColorScheme.hpp"
 
 #include "Logging/WallLogger.hpp"
 #include "Logging/NoteLogger.hpp"
@@ -84,7 +94,7 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, 
     NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
     if (notesEnabled) 
     {
-        UnityEngine::Transform* initTransform = (((UnityEngine::GameObject*)(UnityEngine::Object::Instantiate((UnityEngine::Object*)UnityEngine::GameObject::New_ctor())))->get_transform());
+        UnityEngine::Transform* initTransform = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
         initTransform->set_localPosition(notePos);
         Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
         UnityEngine::Object::Destroy(initTransform->get_gameObject());
@@ -128,6 +138,11 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         if (sabersEnabled) sabersEnabled = Qosmetics::QuestSaber::ShaderWarmup();
         if (wallsEnabled) wallsEnabled = Qosmetics::QuestWall::ShaderWarmup();
         if (notesEnabled) notesEnabled = Qosmetics::QuestNote::ShaderWarmup();
+
+        if (!sabersEnabled) unsetenv("qsabersenabled");
+        if (!notesEnabled) unsetenv("qbloqsenabled");
+        if (!wallsEnabled) unsetenv("qwallssenabled");
+
         shaderWarmupFirst = false;
     }
 
@@ -140,6 +155,71 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 
     if(sceneLoadedName == gameCore)
     {
+        if (sabersEnabled || wallsEnabled || notesEnabled) // if any of the "submods" is loaded, 
+        {
+            Qosmetics::ColorManager::GameCore();
+/*
+            std::thread ColorRoutine([&]{
+                
+                Il2CppString* managerName = il2cpp_utils::createcsstr("QosmeticsColorManager");
+                UnityEngine::GameObject* managerGO = UnityEngine::GameObject::Find(managerName);
+
+        while (!managerGO)
+        {
+            managerGO = UnityEngine::GameObject::Find(managerName);
+            int timer = 0;
+            while (timer < 2000)
+            {
+                usleep(2000);
+                timer++;
+            }
+        }
+        //free(managerName);
+                Qosmetics::ColorManager* manager = managerGO->GetComponent<Qosmetics::ColorManager*>();
+        while (!manager)
+        {
+            manager = managerGO->GetComponent<Qosmetics::ColorManager*>();
+            int timer = 0;
+            while (timer < 2000)
+            {
+                usleep(2000);
+                timer++;
+            }
+        }
+
+        GlobalNamespace::SimpleColorSO* colorSO = GlobalNamespace::SimpleColorSO::New_ctor();
+        int color = 0;
+        int timer = 0;
+
+        while (timer < 2000)
+            {
+                usleep(2000);
+                timer++;
+            }
+        while (1)
+        {
+            timer = 0;
+            while (timer < 20)
+            {
+                usleep(2000);
+                timer ++;
+            }
+            
+            color++;
+            color %= 100;
+            colorSO->SetColor(UnityEngine::Color::HSVToRGB((float)color / 100.0f, 1, 1));
+            managerGO->SendMessage(il2cpp_utils::createcsstr("ChangeLeftSaberColor"), colorSO, 1);
+            colorSO->SetColor(UnityEngine::Color::HSVToRGB((float)(color >= 50 ? color - 50 : color + 500) / 1000.0f, 1, 1));
+            managerGO->SendMessage(il2cpp_utils::createcsstr("ChangeRightSaberColor"), colorSO, 1);
+        }
+
+
+    });
+
+    ColorRoutine.detach();*/
+
+        }
+
         if (sabersEnabled) Qosmetics::QuestSaber::GameCore();
         if (wallsEnabled) Qosmetics::QuestWall::GameCore();
         if (notesEnabled) Qosmetics::QuestNote::GameCore();
@@ -240,13 +320,15 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
     
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());
 
     std::thread WipeRoutine(
         [&]{
             int timer = 0;
             while (1) {
                 WipeAllDefinedPointers();
-                //getLogger().info("Wiped ALL pointers...");
+                getLogger().info("Wiped ALL pointers...");
                 timer = 0;
                 while (timer < 2000)
                 {
@@ -258,6 +340,10 @@ extern "C" void load()
 
     WipeRoutine.detach();
     
+    setenv("qsabersenabled", "1", 1);
+    setenv("qbloqsenabled", "1", 1);
+    setenv("qwallsenabled", "1", 1);
+
     getLogger().info("Hooks installed");
 }
 

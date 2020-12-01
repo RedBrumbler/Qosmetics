@@ -109,6 +109,8 @@ namespace Qosmetics
                     note.ClearActive();
                 }
             }
+            /// @brief handles the colors did change event for notes
+            static void HandleColorsDidChangeEvent();
             
         private:
             static inline bool setColors = false;

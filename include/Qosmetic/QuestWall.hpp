@@ -60,6 +60,9 @@ namespace Qosmetics
                     wall.ClearActive();
                 }
             }
+
+            /// @brief handles the colors did change event for walls
+            static void HandleColorsDidChangeEvent();
             
         private:
             static inline bool setColors = false;

@@ -82,6 +82,9 @@ namespace Qosmetics
                     saber.ClearActive();
                 }
             }
+
+            /// @brief handles the colors did change event for sabers
+            static void HandleColorsDidChangeEvent();
             
         private:
             /// @brief makes the folder if not found

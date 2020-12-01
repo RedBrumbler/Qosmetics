@@ -1,5 +1,5 @@
 #include "Qosmetic/QuestWall.hpp"
-
+#include "Qosmetic/QosmeticsColorManager.hpp"
 ModInfo Qosmetics::QuestWall::modInfo;
 
 std::vector<std::string> Qosmetics::QuestWall::fileNames;
@@ -124,6 +124,8 @@ namespace Qosmetics
         if (!setColors)
         {
             getLogger().info("Setting wall colors");
+            ColorManager::Init();
+            
             WallUtils::SetObstacleColors(selected);
             setColors = true;
         }
@@ -168,5 +170,24 @@ namespace Qosmetics
         }
         
         if (!value) ObstacleController_Init_Pre(obstacleController);
+    }
+
+    void QuestWall::HandleColorsDidChangeEvent()
+    {
+        if (loadedWalls.size() == 0)
+        {
+            getLogger().error("Tried changing colors with no walls loaded");
+            return;
+        }
+
+        Qosmetics::WallData& selected = loadedWalls[selectedWall];
+
+        if (!selected.get_complete())
+        {
+            getLogger().error("Tried using the wall when it was not completely loaded");
+            return;
+        }
+
+        WallUtils::SetObstacleColors(selected);
     }
 }

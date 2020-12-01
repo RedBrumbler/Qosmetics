@@ -1,4 +1,5 @@
 #include "Utils/WallUtils.hpp"
+#include "Qosmetic/QosmeticsColorManager.hpp"
 
 void WallUtils::SetObstacleColors(Qosmetics::WallData &customWall)
 {
@@ -55,14 +56,14 @@ void WallUtils::SetObstacleColor(UnityEngine::Material* material)
             return;
         }
 
-        GlobalNamespace::ColorManager* colorManager = UnityUtils::GetLastObjectOfType<GlobalNamespace::ColorManager*>(il2cpp_utils::GetClassFromName("", "ColorManager"));
+        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
         if (colorManager == nullptr) 
         {
             getLogger().error("ColorManager was not found, skipping...");
             return;
         }
 
-        UnityEngine::Color wallColor = colorManager->obstaclesColor->get_color();
+        UnityEngine::Color wallColor = colorManager->ColorForObstacle();
 
         bool setColor = false;
         bool hasCustomColor = MaterialUtils::MatHasProperty(material, "_CustomColors");

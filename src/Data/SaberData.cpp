@@ -1,4 +1,5 @@
 #include "Data/SaberData.hpp"
+#include "Utils/SaberUtils.hpp"
 
 namespace Qosmetics
 {
@@ -131,5 +132,57 @@ namespace Qosmetics
         while (this->saberDescriptor == nullptr){sleep(1);}
         this->saberDescriptor->SetCoverImage(texture);
         getLogger().info("loaded texture");
+    }
+
+    std::vector<UnityEngine::Material*>& SaberData::get_leftSaberCCmaterials()
+    {
+        if (leftSaberCCmats.size() > 0) return leftSaberCCmats;
+
+        Array<UnityEngine::Renderer*>* renderers = get_leftSaber()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+        for (int i = 0; i < renderers->Length(); i++)
+        {
+            Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+            for (int j = 0; j < sharedMats->Length(); i++)
+            {
+                UnityEngine::Material* newMat = sharedMats->values[j];
+                bool found = false;
+                for (auto mat : leftSaberCCmats)
+                {
+                    if (found) continue;
+                    if (newMat == mat) found = true;
+                }
+                if (found) continue;
+
+                if (SaberUtils::ShouldChangeSaberMaterialColor(newMat)) leftSaberCCmats.push_back(newMat);
+            }
+        }
+        return leftSaberCCmats;
+    }
+
+    std::vector<UnityEngine::Material*>& SaberData::get_rightSaberCCmaterials()
+    {
+        if (rightSaberCCmats.size() > 0) return rightSaberCCmats;
+
+        Array<UnityEngine::Renderer*>* renderers = get_rightSaber()->GetComponentsInChildren<UnityEngine::Renderer*>();
+
+        for (int i = 0; i < renderers->Length(); i++)
+        {
+            Array<UnityEngine::Material*>* sharedMats = renderers->values[i]->get_sharedMaterials();
+            for (int j = 0; j < sharedMats->Length(); i++)
+            {
+                UnityEngine::Material* newMat = sharedMats->values[j];
+                bool found = false;
+                for (auto mat : rightSaberCCmats)
+                {
+                    if (found) continue;
+                    if (newMat == mat) found = true;
+                }
+                if (found) continue;
+
+                if (SaberUtils::ShouldChangeSaberMaterialColor(newMat)) rightSaberCCmats.push_back(newMat);
+            }
+        }
+        return rightSaberCCmats;
     }
 }

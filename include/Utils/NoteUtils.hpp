@@ -23,13 +23,13 @@
 
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/UnityUtils.hpp"
-#include "Data/NoteData.hpp"
 #include "Config/NoteConfig.hpp"
 #include "Logging/NoteLogger.hpp"
 
 
 namespace Qosmetics
 {
+    class NoteData;
     class NoteUtils
     {
         public:
@@ -100,6 +100,11 @@ namespace Qosmetics
             /// @param isLeft true means left color, false means right color
             static void SetColor(UnityEngine::Transform* object, bool isLeft);
 
+            /// @brief sets the appropriate color on all renderers in object
+            /// @param vector the vector to set all custom colors on
+            /// @param isLeft true means left color, false means right color
+            static void SetColor(std::vector<UnityEngine::Material*>& vector, bool isLeft);
+
             /// @brief makes the list of materials to use for replacement on original notes
             /// @param noteRoot root of the note before anything gets done with it
             static void MakeMaterialList(UnityEngine::Transform* noteRoot);
@@ -120,6 +125,13 @@ namespace Qosmetics
                 debrisDefined = false;
             }
 
+            /// @brief returns wether or not a material should get it's color changed
+            /// @param mat the material to check
+            static bool ShouldChangeNoteMaterialColor(UnityEngine::Material* mat);
+
+            /// @brief handles if the colors got changed during a map, sets colors on all sharedmaterials
+            /// @param noteData active notedata to use
+            static void HandleColorsDidChangeEvent(Qosmetics::NoteData& noteData);
         private:
 
             static inline std::vector<UnityEngine::Material*> materialList = std::vector<UnityEngine::Material*>();
@@ -197,6 +209,11 @@ namespace Qosmetics
             /// @param debris root of the note before anything gets done with it
             /// @param customNoteData reference to the used noteData so that stuff may be edited on it and retrieved from it
             static void ReplaceDebrisMaterials(UnityEngine::Transform* debris, Qosmetics::NoteData &customNoteData);
+
+            /// @brief sets the shared color on the object's material array (and children)
+            /// @param object the object to check
+            /// @param isLeft is this the left or right note?
+            static void SetSharedColor(UnityEngine::Transform* object, bool isLeft);
 
             /// @brief makes string lowercase
             /// @param in string to make lowercase
