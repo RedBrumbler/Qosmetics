@@ -214,7 +214,7 @@ namespace Qosmetics
             Il2CppString* saberName = saber->get_saberType().value == 0 ? il2cpp_utils::createcsstr("LeftSaber") : il2cpp_utils::createcsstr("RightSaber");
             UnityEngine::Transform* customSaber = gameSaber->Find(saberName);
 
-            setCustomColor(customSaber, saber->get_saberType());
+            if (customSaber) setCustomColor(customSaber, saber->get_saberType());
         }
 
         Array<QosmeticsTrail*>* trails = UnityEngine::Object::FindObjectsOfType<QosmeticsTrail*>();

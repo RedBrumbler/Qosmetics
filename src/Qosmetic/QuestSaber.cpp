@@ -1,5 +1,7 @@
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
+#include <thread>
+
 ModInfo Qosmetics::QuestSaber::modInfo;
 
 std::vector<std::string> Qosmetics::QuestSaber::fileNames;
@@ -220,8 +222,7 @@ namespace Qosmetics
             getLogger().error("Tried using the saber while it was not finished loading");
             return;
         }
-
         SaberUtils::HandleColorsDidUpdateEvent(selected);
-    }
+    }   
 }
 

@@ -1,5 +1,6 @@
 #include "Qosmetic/QuestNote.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
+#include <thread>
 
 ModInfo Qosmetics::QuestNote::modInfo;
 
@@ -157,7 +158,6 @@ namespace Qosmetics
             getLogger().error("Attempted to use bloq that was not finished loading");
             return;
         }
-
         NoteUtils::HandleColorsDidChangeEvent(selected);
     }
 

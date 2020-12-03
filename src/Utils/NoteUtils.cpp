@@ -837,9 +837,15 @@ namespace Qosmetics
     {
         getLogger().info("Handling colorsDidChangeEvent");
         
-        SetColor(noteData.get_leftNoteCCmaterials(), true);
-        SetColor(noteData.get_rightNoteCCmaterials(), false);
-
+        if (noteData.get_config()->get_hasDebris()) // if there is debris, set the color
+        {
+            NoteUtils::SetSharedColor(noteData.get_leftDebris()->get_transform(), true);
+            NoteUtils::SetSharedColor(noteData.get_rightDebris()->get_transform(), false);
+        }
+        NoteUtils::SetSharedColor(noteData.get_leftArrow()->get_transform(), true);
+        NoteUtils::SetSharedColor(noteData.get_rightArrow()->get_transform(), false);
+        NoteUtils::SetSharedColor(noteData.get_leftDot()->get_transform(), true);
+        NoteUtils::SetSharedColor(noteData.get_rightDot()->get_transform(), false);
         getLogger().info("it do be handled");
     }
 }

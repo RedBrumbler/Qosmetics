@@ -94,7 +94,7 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, 
     NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
     if (notesEnabled) 
     {
-        UnityEngine::Transform* initTransform = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
+        UnityEngine::Transform* initTransform = UnityEngine::GameObject::New_ctor()->get_transform();//UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
         initTransform->set_localPosition(notePos);
         Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
         UnityEngine::Object::Destroy(initTransform->get_gameObject());
@@ -142,7 +142,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         if (!sabersEnabled) unsetenv("qsabersenabled");
         if (!notesEnabled) unsetenv("qbloqsenabled");
         if (!wallsEnabled) unsetenv("qwallssenabled");
-
+        
         shaderWarmupFirst = false;
     }
 
@@ -155,71 +155,6 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 
     if(sceneLoadedName == gameCore)
     {
-        if (sabersEnabled || wallsEnabled || notesEnabled) // if any of the "submods" is loaded, 
-        {
-            Qosmetics::ColorManager::GameCore();
-/*
-            std::thread ColorRoutine([&]{
-                
-                Il2CppString* managerName = il2cpp_utils::createcsstr("QosmeticsColorManager");
-                UnityEngine::GameObject* managerGO = UnityEngine::GameObject::Find(managerName);
-
-        while (!managerGO)
-        {
-            managerGO = UnityEngine::GameObject::Find(managerName);
-            int timer = 0;
-            while (timer < 2000)
-            {
-                usleep(2000);
-                timer++;
-            }
-        }
-        //free(managerName);
-                Qosmetics::ColorManager* manager = managerGO->GetComponent<Qosmetics::ColorManager*>();
-        while (!manager)
-        {
-            manager = managerGO->GetComponent<Qosmetics::ColorManager*>();
-            int timer = 0;
-            while (timer < 2000)
-            {
-                usleep(2000);
-                timer++;
-            }
-        }
-
-        GlobalNamespace::SimpleColorSO* colorSO = GlobalNamespace::SimpleColorSO::New_ctor();
-        int color = 0;
-        int timer = 0;
-
-        while (timer < 2000)
-            {
-                usleep(2000);
-                timer++;
-            }
-        while (1)
-        {
-            timer = 0;
-            while (timer < 20)
-            {
-                usleep(2000);
-                timer ++;
-            }
-            
-            color++;
-            color %= 100;
-            colorSO->SetColor(UnityEngine::Color::HSVToRGB((float)color / 100.0f, 1, 1));
-            managerGO->SendMessage(il2cpp_utils::createcsstr("ChangeLeftSaberColor"), colorSO, 1);
-            colorSO->SetColor(UnityEngine::Color::HSVToRGB((float)(color >= 50 ? color - 50 : color + 500) / 1000.0f, 1, 1));
-            managerGO->SendMessage(il2cpp_utils::createcsstr("ChangeRightSaberColor"), colorSO, 1);
-        }
-
-
-    });
-
-    ColorRoutine.detach();*/
-
-        }
-
         if (sabersEnabled) Qosmetics::QuestSaber::GameCore();
         if (wallsEnabled) Qosmetics::QuestWall::GameCore();
         if (notesEnabled) Qosmetics::QuestNote::GameCore();
@@ -232,14 +167,9 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         if (sabersEnabled) Qosmetics::QuestSaber::MenuViewControllers();
         if (wallsEnabled) Qosmetics::QuestWall::MenuViewControllers();
         if (notesEnabled) Qosmetics::QuestNote::MenuViewControllers();
-    }
-}
 
-MAKE_HOOK_OFFSETLESS(Saber_Start, void, GlobalNamespace::Saber* self)
-{
-    Saber_Start(self);
-    //getLogger().info("Saber start on %s called", to_utf8(csstrtostr(self->get_gameObject()->get_name())).c_str());
-    //if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self);
+        if(sabersEnabled || wallsEnabled || notesEnabled) Qosmetics::ColorManager::Menu();
+    }
 }
 
 MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
@@ -256,11 +186,6 @@ MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTr
     if (self->meshRenderer == nullptr)self->meshRenderer = self->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
     if (self->meshFilter == nullptr) self->meshFilter = self->get_gameObject()->GetComponent<UnityEngine::MeshFilter*>();
     SaberTrailRenderer_OnEnable(self);
-}
-
-MAKE_HOOK_OFFSETLESS(SaberModelController_Init, void, GlobalNamespace::SaberModelController* self, UnityEngine::Transform* parent, GlobalNamespace::Saber* saber)
-{
-    SaberModelController_Init(self, parent, saber);
 }
 
 MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberModelContainer* self)
@@ -306,7 +231,7 @@ extern "C" void load()
 {
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");
-    INSTALL_HOOK_OFFSETLESS(Saber_Start, il2cpp_utils::FindMethodUnsafe("", "Saber", "Start", 0));
+
     INSTALL_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
     INSTALL_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
     INSTALL_HOOK_OFFSETLESS(ObstacleController_Init, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "Init", 9));
@@ -315,7 +240,6 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 10));
     INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 8));
     INSTALL_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
-    INSTALL_HOOK_OFFSETLESS(SaberModelController_Init, il2cpp_utils::FindMethodUnsafe("", "SaberModelController", "Init", 2));
     INSTALL_HOOK_OFFSETLESS(SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
     
