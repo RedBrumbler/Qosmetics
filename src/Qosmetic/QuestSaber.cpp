@@ -223,6 +223,36 @@ namespace Qosmetics
             return;
         }
         SaberUtils::HandleColorsDidUpdateEvent(selected);
-    }   
+    }
+
+    void QuestSaber::ReplaceMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node)
+    {
+        if (!controller)
+        {
+            getLogger().error("controller transform was nullptr, not replacing menu pointers");
+            return;
+        }
+        
+        SaberData& selected = loadedSabers[selectedSaber];
+
+        if (!selected.get_complete())
+        {
+            getLogger().error("Tried using saber that was not finished loading, returning");
+            return;
+        }
+
+        bool isLeft = node.value == 4; // left == 4, right == 5
+        std::string menuHandle = "MenuHandle";
+        std::string name = isLeft ? "MenuHandle/CustomLeftPointer" : "MenuHandle/CustomRightPointer";
+
+        if (UnityEngine::Transform* oldPointer = controller->Find(il2cpp_utils::createcsstr(name)))
+        {
+            SaberUtils::SetCustomColor(oldPointer, isLeft ? 0 : 1);
+        }
+        else
+        {
+            SaberUtils::AddMenuPointerSaber(controller->Find(il2cpp_utils::createcsstr(menuHandle)), isLeft, selected);
+        }
+    }
 }
 

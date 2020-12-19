@@ -32,7 +32,7 @@ namespace Qosmetics
         saberTransform->set_position(gameSaberPos);
         saberTransform->set_rotation(gameSaberRot);
         
-        setCustomColor(saberTransform, saberType);
+        SetCustomColor(saberTransform, saberType);
     }
 
     void SaberUtils::AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
@@ -56,7 +56,7 @@ namespace Qosmetics
         Array<UnityEngine::MeshFilter*>* meshFilters = saberScript->GetComponentsInChildren<UnityEngine::MeshFilter*>();
         
         if (meshFilters != nullptr)
-            DisableMesh(meshFilters, customSaberData);
+            DisableMesh(meshFilters, customSaberData.saberConfig->get_enableFakeGlow());
         else
             getLogger().error("meshFilters were null so didn't disable");
             
@@ -79,13 +79,15 @@ namespace Qosmetics
 
         if (prefab != nullptr)
         {
-            UnityEngine::GameObject* customGO = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)prefab, gameSaber);
+            UnityEngine::GameObject* customGO = UnityEngine::Object::Instantiate(prefab, gameSaber);
+            customGO->SetActive(false);
             customGO->set_name(il2cpp_utils::createcsstr(name));
-            setCustomColor(customGO->get_transform(), saberType);
+            SetCustomColor(customGO->get_transform(), saberType);
 
             customGO->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
             customGO->get_transform()->set_rotation(gameSaber->get_transform()->get_rotation());
             customGO->get_transform()->set_position(gameSaber->get_transform()->get_position());
+            customGO->SetActive(true);
         }
         else
         {
@@ -93,9 +95,8 @@ namespace Qosmetics
         }
     }
     
-    void SaberUtils::DisableMesh(Array<UnityEngine::MeshFilter*>* meshFilters, Qosmetics::SaberData& customSaberData)
+    void SaberUtils::DisableMesh(Array<UnityEngine::MeshFilter*>* meshFilters, bool enableFakeGlow)
     {
-        bool enableFakeGlow = customSaberData.saberConfig->get_enableFakeGlow();
         for(int i = 0; i < meshFilters->Length(); i++)
         {
             UnityEngine::MeshFilter* filter = meshFilters->values[i];
@@ -117,7 +118,7 @@ namespace Qosmetics
         }
     }
 
-    void SaberUtils::setCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType)
+    void SaberUtils::SetCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType)
     {
         if (transform == nullptr)
         {
@@ -125,7 +126,6 @@ namespace Qosmetics
             return;
         }
 
-        auto colorManagerType = il2cpp_utils::GetSystemType("", "ColorManager");
         Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
         
         if (colorManager == nullptr)
@@ -142,7 +142,7 @@ namespace Qosmetics
         UnityEngine::Color otherSaberColor = (saberType.value == 0) ? colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) : colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberA);
         
         auto rendererType = il2cpp_utils::GetSystemType("UnityEngine", "Renderer");
-        Array<UnityEngine::Renderer*>* renderers = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<UnityEngine::Renderer*>*>(transform, "GetComponentsInChildren", rendererType, false));
+        Array<UnityEngine::Renderer*>* renderers = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<UnityEngine::Renderer*>*>(transform, "GetComponentsInChildren", rendererType, true));
 
         typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
         auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
@@ -169,7 +169,7 @@ namespace Qosmetics
         }
     }
 
-    void SaberUtils::setCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType)
+    void SaberUtils::SetCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType)
     {
         if (vector.size() == 0) return;
         auto colorManagerType = il2cpp_utils::GetSystemType("", "ColorManager");
@@ -214,7 +214,7 @@ namespace Qosmetics
             Il2CppString* saberName = saber->get_saberType().value == 0 ? il2cpp_utils::createcsstr("LeftSaber") : il2cpp_utils::createcsstr("RightSaber");
             UnityEngine::Transform* customSaber = gameSaber->Find(saberName);
 
-            if (customSaber) setCustomColor(customSaber, saber->get_saberType());
+            if (customSaber) SetCustomColor(customSaber, saber->get_saberType());
         }
 
         Array<QosmeticsTrail*>* trails = UnityEngine::Object::FindObjectsOfType<QosmeticsTrail*>();
@@ -252,5 +252,34 @@ namespace Qosmetics
             }
         }
         return false;
+    }
+
+    void SaberUtils::AddMenuPointerSaber(UnityEngine::Transform* parent, bool isLeft, SaberData& saberData)
+    {
+        if (!parent) 
+        {
+            getLogger().info("Tried adding menu pointer to nullptr parent");
+            return;
+        }
+        UnityEngine::GameObject* prefab = isLeft ? saberData.get_leftSaber() : saberData.get_rightSaber();
+        std::string name = isLeft ? "CustomLeftPointer" : "CustomRightPointer";
+
+        Array<UnityEngine::MeshFilter*>* meshFilters = parent->get_gameObject()->GetComponentsInChildren<UnityEngine::MeshFilter*>();
+
+        if (prefab)
+        {
+            if (meshFilters != nullptr)
+                DisableMesh(meshFilters, false);
+            else
+                getLogger().error("meshFilters were null so didn't disable");
+
+            UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate(prefab, parent);
+            instantiated->set_name(il2cpp_utils::createcsstr(name));
+            instantiated->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.4f);
+            instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.05f));
+            instantiated->get_transform()->set_localEulerAngles(UnityEngine::Vector3::get_zero());
+
+            SetCustomColor(instantiated->get_transform(), isLeft ? 0 : 1);
+        }
     }
 }

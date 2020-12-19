@@ -51,19 +51,24 @@ namespace Qosmetics
             /// @param mat the material to check
             static bool ShouldChangeSaberMaterialColor(UnityEngine::Material* mat);
 
-        private:
-            /// @brief disables all the gameObjects of these meshfilters
-            /// @param meshFilters array of meshfilters
-            static void DisableMesh(Array<UnityEngine::MeshFilter*>* meshFilters, Qosmetics::SaberData& customSaberData);
-
+            /// @brief Adds the correct saber as a child to the parent
+            /// @param parent the parent of the new object
+            /// @param isLeft wether or not this is the left saber
+            /// @param saberData the custom saber data to use
+            static void AddMenuPointerSaber(UnityEngine::Transform* parent, bool isLeft, SaberData& saberData);
+            
             /// @brief sets the custom colors on all meshrenderers in the given transform
             /// @param transform the transform in which to get all renderers and set colors on
             /// @param saberType the color type to use for it
-            static void setCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType);
+            static void SetCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType);
+        private:
+            /// @brief disables all the gameObjects of these meshfilters
+            /// @param meshFilters array of meshfilters
+            static void DisableMesh(Array<UnityEngine::MeshFilter*>* meshFilters, bool enableFakeGlow);
 
             /// @brief sets the custom colors on all meshrenderers in the given transform
             /// @param vector the array that will completely be set
             /// @param saberType the color type to use for it
-            static void setCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType);
+            static void SetCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType);
     };
 }

@@ -18,6 +18,11 @@ static bool setColors = true;
 
 namespace Qosmetics
 {
+    void ColorManager::Awake()
+    {
+        Init();
+    }
+
     void ColorManager::SetLeftSaberColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
         if (!sabersEnabled) return;
@@ -91,6 +96,7 @@ namespace Qosmetics
 
     UnityEngine::Color ColorManager::ColorForSaberType(GlobalNamespace::ColorType type)
     {
+        //if (!this->colorScheme) Init();
         switch (type.value)
         {
             case 0:
@@ -152,15 +158,42 @@ namespace Qosmetics
     {
         if (!setColors) return;
         GlobalNamespace::ColorManager* BaseGameManager = UnityEngine::Object::FindObjectOfType<GlobalNamespace::ColorManager*>();
-        GlobalNamespace::ColorScheme* orig = BaseGameManager->colorScheme;
+        GlobalNamespace::ColorScheme* orig = BaseGameManager ? BaseGameManager->colorScheme : nullptr;
         Qosmetics::ColorManager* QosmeticsManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
 
+        if (!QosmeticsManager) return;
         if (!QosmeticsManager->colorScheme)
         {
             QosmeticsManager->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*>(orig));
         }
         else
         {
+            if (!orig) return;
+            QosmeticsManager->colorScheme->saberAColor = orig->saberAColor;
+            QosmeticsManager->colorScheme->saberBColor = orig->saberBColor;
+            QosmeticsManager->colorScheme->noteAColor = orig->saberAColor;
+            QosmeticsManager->colorScheme->noteBColor = orig->saberBColor;
+            QosmeticsManager->colorScheme->obstaclesColor = orig->obstaclesColor;
+            QosmeticsManager->colorScheme->trailAColor = orig->saberAColor;
+            QosmeticsManager->colorScheme->trailBColor = orig->saberBColor;
+        }
+        setColors = false;
+    }
+
+    void ColorManager::Init(GlobalNamespace::ColorManager* BaseGameManager)
+    {
+        if (!setColors) return;
+        GlobalNamespace::ColorScheme* orig = BaseGameManager ? BaseGameManager->colorScheme : nullptr;
+        Qosmetics::ColorManager* QosmeticsManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
+
+        if (!QosmeticsManager) return;
+        if (!QosmeticsManager->colorScheme)
+        {
+            QosmeticsManager->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*>(orig));
+        }
+        else
+        {
+            if (!orig) return;
             QosmeticsManager->colorScheme->saberAColor = orig->saberAColor;
             QosmeticsManager->colorScheme->saberBColor = orig->saberBColor;
             QosmeticsManager->colorScheme->noteAColor = orig->saberAColor;

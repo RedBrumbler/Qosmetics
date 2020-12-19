@@ -36,6 +36,17 @@
 #include "GlobalNamespace/SaberModelContainer.hpp"
 #include "GlobalNamespace/SetSaberFakeGlowColor.hpp"
 #include "GlobalNamespace/ColorScheme.hpp"
+#include "GlobalNamespace/VRController.hpp"
+#include "GlobalNamespace/GamePause.hpp"
+#include "GlobalNamespace/MultiplayerSessionManager.hpp"
+#include "GlobalNamespace/MultiplayerLobbyConnectionController.hpp"
+#include "GlobalNamespace/BeatmapDifficultyMask.hpp"
+#include "GlobalNamespace/SongPackMask.hpp"
+#include "GlobalNamespace/INetworkPlayer.hpp"
+#include "GlobalNamespace/UnifiedNetworkPlayerModel_CreatePartyConfig.hpp"
+#include "GlobalNamespace/MultiplayerPlayersManager.hpp"
+#include "GlobalNamespace/PauseMenuManager.hpp"
+#include "GlobalNamespace/MultiplayerLocalActivePlayerInGameMenuViewController.hpp"
 
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QuestNote.hpp"
@@ -54,6 +65,8 @@
 #include "Utils/MaterialUtils.hpp"
 
 #include "custom-types/shared/register.hpp"
+
+#include "config.hpp"
 
 bool getSceneName(Scene scene, std::string& output);
 
@@ -76,6 +89,8 @@ std::string healthWarning = "HealthWarning";
 std::string gameCore = "GameCore";
 std::string menuViewControllers = "MenuViewControllers";
 std::string emptyTransition = "EmptyTransition";
+
+extern config_t config;
 
 MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, GlobalNamespace::StandardLevelScenesTransitionSetupDataSO* self, Il2CppString* gameMode, Il2CppObject* difficultyBeatmap, Il2CppObject* overrideEnvironmentSettings, Il2CppObject* overrideColorScheme, GlobalNamespace::GameplayModifiers* gameplayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, Il2CppObject* practiceSettings, Il2CppString* backButtonText, bool useTestNoteCutSoundEffects)
 {
@@ -125,6 +140,7 @@ MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleCon
     if (wallsEnabled) Qosmetics::QuestWall::ObstacleController_Init_Pre(self);
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
 }
+bool afterHealthWarning = false;
 
 MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActiveScene, Scene nextActiveScene)
 {
@@ -141,7 +157,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 
         if (!sabersEnabled) unsetenv("qsabersenabled");
         if (!notesEnabled) unsetenv("qbloqsenabled");
-        if (!wallsEnabled) unsetenv("qwallssenabled");
+        if (!wallsEnabled) unsetenv("qwallsenabled");
         
         shaderWarmupFirst = false;
     }
@@ -151,6 +167,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         if (sabersEnabled) Qosmetics::QuestSaber::HealthWarning();
         if (wallsEnabled) Qosmetics::QuestWall::HealthWarning();
         if (notesEnabled) Qosmetics::QuestNote::HealthWarning();
+        afterHealthWarning = true;
     }
 
     if(sceneLoadedName == gameCore)
@@ -160,8 +177,6 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         if (notesEnabled) Qosmetics::QuestNote::GameCore();
     }
 
-    SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
-    
     if (sceneLoadedName == menuViewControllers)
     {
         if (sabersEnabled) Qosmetics::QuestSaber::MenuViewControllers();
@@ -170,6 +185,35 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 
         if(sabersEnabled || wallsEnabled || notesEnabled) Qosmetics::ColorManager::Menu();
     }
+
+    if (afterHealthWarning)
+    {
+        if (sabersEnabled && config.enableMenuPointer) 
+        {
+            Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
+            if (VRControllers)
+            {
+                std::string distantParentName = "";
+                for (int i = 0; i < VRControllers->Length(); i++)
+                {
+                    int node = VRControllers->values[i]->node;
+                    
+                    if (!(node == 4 || node == 5)) continue;
+                    UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
+                    UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
+                    UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
+                    UnityEngine::Transform* distantParent = parent3 ? parent3 : nullptr;
+                    distantParentName = distantParent ? to_utf8(csstrtostr(distantParent->get_gameObject()->get_name())) : "null";
+                    if (distantParentName.find("Multiplayer") != std::string::npos ||
+                        //distantParentName.find("LocalPlayerGameCore") != std::string::npos ||
+                        distantParentName.find("IsActive") != std::string::npos) continue;
+                        Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                }
+            }
+        }
+    }
+
+    SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
 }
 
 MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
@@ -192,6 +236,83 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
 {
     SaberModelContainer_Start(self);
     if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self->saber);
+}
+
+MAKE_HOOK_OFFSETLESS(GamePause_Pause, void, GlobalNamespace::GamePause* self)
+{
+    GamePause_Pause(self);
+    if (afterHealthWarning)
+    {
+        if (sabersEnabled && config.enableMenuPointer) 
+        {
+            Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
+            if (VRControllers)
+            {
+                std::string distantParentName = "";
+                for (int i = 0; i < VRControllers->Length(); i++)
+                {
+                    int node = VRControllers->values[i]->node;
+                    
+                    if (!(node == 4 || node == 5)) continue;
+                    UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
+                    UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
+                    UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
+                    UnityEngine::Transform* distantParent = parent3 ? parent3 : nullptr;
+                    distantParentName = distantParent ? to_utf8(csstrtostr(distantParent->get_gameObject()->get_name())) : "null";
+                    if (distantParentName.find("Multiplayer") != std::string::npos ||
+                        //distantParentName.find("LocalPlayerGameCore") != std::string::npos ||
+                        distantParentName.find("IsActive") != std::string::npos) continue;
+                        Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                }
+            }
+        }
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(MultiplayerPlayersManager_SwitchLocalPlayerToInactive, void, GlobalNamespace::MultiplayerPlayersManager* self)
+{
+    MultiplayerPlayersManager_SwitchLocalPlayerToInactive(self);
+    getLogger().info("Multi pause!");
+}
+
+MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, void, GlobalNamespace::MultiplayerLocalActivePlayerInGameMenuViewController* self)
+{
+    MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu(self);
+    if (sabersEnabled && config.enableMenuPointer) 
+        {
+            Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
+            if (VRControllers)
+            {
+                std::string distantParentName = "";
+                std::string parent1Name = "";
+                std::string parent2Name = "";
+                std::string parent3Name = "";
+                for (int i = 0; i < VRControllers->Length(); i++)
+                {
+                    int node = VRControllers->values[i]->node;
+                    
+                    if (!(node == 4 || node == 5)) continue;
+                    UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
+                    UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
+                    UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
+                    UnityEngine::Transform* parent4 = parent3 ? parent3->get_parent() : nullptr;
+                    UnityEngine::Transform* distantParent = parent4 ? parent4 : nullptr;
+                    distantParentName = distantParent ? to_utf8(csstrtostr(distantParent->get_gameObject()->get_name())) : "null";
+                    parent1Name = parent1 ? to_utf8(csstrtostr(parent1->get_gameObject()->get_name())) : "null";
+                    parent2Name = parent2 ? to_utf8(csstrtostr(parent2->get_gameObject()->get_name())) : "null";
+                    parent3Name = parent3 ? to_utf8(csstrtostr(parent3->get_gameObject()->get_name())) : "null";
+
+                    if (parent2Name.find("MultiplayerLocalActivePlayerInGameMenuViewController") != std::string::npos &&
+                        parent3Name.find("Multiplayer") == std::string::npos &&
+                        distantParentName.find("Clone") != std::string::npos)
+                    {
+                        getLogger().info("Found MP Tree %s/%s/%s/%s", distantParentName.c_str(), parent3Name.c_str(), parent2Name.c_str(), parent1Name.c_str());
+                        getLogger().info("Found %d vrcontroller node", node);
+                        Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                    }
+                }
+            }
+        }
 }
 
 extern "C" void setup(ModInfo& info) 
@@ -229,6 +350,7 @@ void WipeAllDefinedPointers()
 
 extern "C" void load() 
 {
+    if (!LoadConfig()) SaveConfig();
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");
 
@@ -242,7 +364,10 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
     INSTALL_HOOK_OFFSETLESS(SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
-    
+    INSTALL_HOOK_OFFSETLESS(GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
+    //INSTALL_HOOK_OFFSETLESS(MultiplayerPlayersManager_SwitchLocalPlayerToInactive, il2cpp_utils::FindMethodUnsafe("", "MultiplayerPlayersManager", "SwitchLocalPlayerToInactive", 0));
+    INSTALL_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, il2cpp_utils::FindMethodUnsafe("", "MultiplayerLocalActivePlayerInGameMenuViewController", "ShowMenu", 0));
+
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());

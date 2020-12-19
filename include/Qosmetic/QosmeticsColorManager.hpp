@@ -14,8 +14,10 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, UnityEngine::MonoBehaviour,
 
     public: static void Menu();
     public: static void Init();
+    public: static void Init(GlobalNamespace::ColorManager* BaseGameManager);
 
     DECLARE_METHOD(void, SetColorScheme, GlobalNamespace::ColorScheme*);
+    DECLARE_METHOD(void, Awake);
 
     DECLARE_METHOD(void, SetLeftSaberColor, GlobalNamespace::SimpleColorSO* colorSO);
     DECLARE_METHOD(void, SetRightSaberColor, GlobalNamespace::SimpleColorSO* colorSO);
@@ -41,6 +43,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, UnityEngine::MonoBehaviour,
 
     REGISTER_FUNCTION(ColorManager,
         REGISTER_METHOD(SetColorScheme);
+        REGISTER_METHOD(Awake);
 
         REGISTER_METHOD(SetLeftSaberColor);
         REGISTER_METHOD(SetRightSaberColor);

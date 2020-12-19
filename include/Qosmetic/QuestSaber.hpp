@@ -21,6 +21,8 @@
 
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/MeshFilter.hpp"
+#include "UnityEngine/XR/XRNode.hpp"
+
 #include <vector>
 #include "Utils/UnityUtils.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
@@ -85,6 +87,9 @@ namespace Qosmetics
 
             /// @brief handles the colors did change event for sabers
             static void HandleColorsDidChangeEvent();
+
+            /// @brief exchanges the menu pointers for the loaded saber, if the saber is even loaded
+            static void ReplaceMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
             
         private:
             /// @brief makes the folder if not found

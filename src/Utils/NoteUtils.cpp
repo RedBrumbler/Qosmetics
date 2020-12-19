@@ -463,7 +463,7 @@ namespace Qosmetics
         UnityEngine::Color thisColor = isLeft ? colorManager->ColorForSaberType(0) : colorManager->ColorForSaberType(1);
         UnityEngine::Color otherColor = isLeft ? colorManager->ColorForSaberType(1) : colorManager->ColorForSaberType(0);
 
-        Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>();
+        Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>(true);
         if (renderers == nullptr) 
         {
             getLogger().error("Found array of renderers was nullptr, skipping setting colors...");
