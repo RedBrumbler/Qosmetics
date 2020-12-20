@@ -1,3 +1,5 @@
+#include "config.hpp"
+
 #include "beatsaber-hook/shared/utils/utils.h"
 #include "beatsaber-hook/shared/utils/logging.hpp"
 #include "modloader/shared/modloader.hpp"
@@ -66,7 +68,6 @@
 
 #include "custom-types/shared/register.hpp"
 
-#include "config.hpp"
 
 bool getSceneName(Scene scene, std::string& output);
 
@@ -365,7 +366,6 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
     INSTALL_HOOK_OFFSETLESS(GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
-    //INSTALL_HOOK_OFFSETLESS(MultiplayerPlayersManager_SwitchLocalPlayerToInactive, il2cpp_utils::FindMethodUnsafe("", "MultiplayerPlayersManager", "SwitchLocalPlayerToInactive", 0));
     INSTALL_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, il2cpp_utils::FindMethodUnsafe("", "MultiplayerLocalActivePlayerInGameMenuViewController", "ShowMenu", 0));
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
