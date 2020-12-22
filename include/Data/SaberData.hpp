@@ -116,6 +116,11 @@ namespace Qosmetics
                 return rightSaber;
             }
 
+            std::string get_filePath()
+            {
+                return filePath;
+            }
+
             /// @brief loads asset bundle using bs utils
             /// @param filePath path to load the bundle from
             void LoadBundle(std::string filePath);

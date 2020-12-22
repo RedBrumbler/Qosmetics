@@ -24,6 +24,7 @@
 #include "UnityEngine/XR/XRNode.hpp"
 
 #include <vector>
+#include <map>
 #include "Utils/UnityUtils.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include <iostream>
@@ -90,8 +91,27 @@ namespace Qosmetics
 
             /// @brief exchanges the menu pointers for the loaded saber, if the saber is even loaded
             static void ReplaceMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
+            static void SetActiveSaber(SaberData* saber)
+            {
+                activeSaber = saber;
+            }
+
+            static std::vector<Descriptor>& get_saberDescriptors()
+            {
+                return saberDescriptors;
+            }
+
+            static std::map<Descriptor, SaberData>& get_saberMap()
+            {
+                return saberMap;
+            }
             
         private:
+            static inline std::map<Descriptor, SaberData> saberMap = {};
+            static inline std::vector<Descriptor> saberDescriptors = {};
+
+            static inline SaberData* activeSaber = nullptr;
+
             /// @brief makes the folder if not found
             static void makeFolder(std::string directory);
     };

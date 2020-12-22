@@ -9,6 +9,13 @@ std::string GetFileExtension(const std::string& FileName)
     return "";
 }
 
+std::string FileUtils::GetFileName(const std::string& FilePath)
+{
+    if(FilePath.find_last_of("/") != std::string::npos)
+        return FilePath.substr(FilePath.find_last_of("/")+1);
+    return "";
+}
+
  bool FileUtils::getFileNamesInDir(std::string extension, std::string dir, std::vector<std::string> &fileNames)
 {
     bool foundTheExtension = false; 

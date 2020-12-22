@@ -62,11 +62,14 @@
 #include "Logging/GenericLogger.hpp"
 
 #include "Data/CustomTrail.hpp"
+#include "Data/Descriptor.hpp"
 #include "Data/QosmeticsTrail.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 
 #include "custom-types/shared/register.hpp"
+#include "UI/SaberSwitcherViewController.hpp"
+#include "questui/shared/QuestUI.hpp"
 
 
 bool getSceneName(Scene scene, std::string& output);
@@ -352,6 +355,8 @@ void WipeAllDefinedPointers()
 extern "C" void load() 
 {
     if (!LoadConfig()) SaveConfig();
+
+    QuestUI::Init();
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");
 
@@ -371,7 +376,11 @@ extern "C" void load()
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::DescriptorWrapper>());
 
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSwitcherViewController>());
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSwitcherViewController*>(modInfo);
+    
     std::thread WipeRoutine(
         [&]{
             int timer = 0;

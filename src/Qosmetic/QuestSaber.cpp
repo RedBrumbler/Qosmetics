@@ -64,6 +64,7 @@ namespace Qosmetics
         // each file is a saber, so for each file
         for (int i = 0; i < filePaths.size(); i++)
         {
+            Descriptor newDescriptor("dipshit", "horseass", "doodoo", filePaths[i], saber, nullptr);
             // make a new saber
             SaberData newSaber;
 
@@ -71,7 +72,11 @@ namespace Qosmetics
             loadedSabers.emplace_back(newSaber);
 
             // load bundle of filename
-            loadedSabers[i].LoadBundle(filePaths[i]);
+            //loadedSabers[i].LoadBundle(filePaths[i]);
+
+            saberDescriptors.emplace_back(newDescriptor);
+            saberMap[newDescriptor] = newSaber;
+            saberMap[newDescriptor].LoadBundle(filePaths[i]);
         }
 
         return true;

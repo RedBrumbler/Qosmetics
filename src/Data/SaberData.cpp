@@ -117,7 +117,7 @@ namespace Qosmetics
         d.Parse(json.c_str());
         // if descriptor already exists for some reason, just overwrite it
         if (this->saberDescriptor != nullptr) delete(this->saberDescriptor);
-        this->saberDescriptor = new Qosmetics::Descriptor(d);
+        this->saberDescriptor = new Qosmetics::Descriptor(d, this->filePath, saber);
         this->descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
     }
