@@ -39,6 +39,12 @@ namespace Qosmetics
                 this->filePath = filePath;
             }
 
+            SaberData(Descriptor* descriptor)
+            {
+                this->saberDescriptor = descriptor;
+                this->filePath = descriptor->get_filePath();
+            }
+
             const UnityEngine::GameObject* get_saber()
             {
                 return saberPrefab;

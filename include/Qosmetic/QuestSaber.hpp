@@ -91,24 +91,29 @@ namespace Qosmetics
 
             /// @brief exchanges the menu pointers for the loaded saber, if the saber is even loaded
             static void ReplaceMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
+            
+            static void SetActiveSaber(Descriptor* saberDescriptor)
+            {
+                activeSaber = saberMap[saberDescriptor];
+            }
+            
             static void SetActiveSaber(SaberData* saber)
             {
                 activeSaber = saber;
             }
 
-            static std::vector<Descriptor>& get_saberDescriptors()
+            static SaberData* GetActiveSaber()
             {
-                return saberDescriptors;
+                return activeSaber;
             }
 
-            static std::map<Descriptor, SaberData>& get_saberMap()
+            static std::map<Descriptor*, SaberData*>& get_saberMap()
             {
                 return saberMap;
             }
             
         private:
-            static inline std::map<Descriptor, SaberData> saberMap = {};
-            static inline std::vector<Descriptor> saberDescriptors = {};
+            static inline std::map<Descriptor*, SaberData*> saberMap = {};
 
             static inline SaberData* activeSaber = nullptr;
 

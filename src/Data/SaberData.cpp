@@ -1,5 +1,7 @@
 #include "Data/SaberData.hpp"
 #include "Utils/SaberUtils.hpp"
+#include "Utils/FileUtils.hpp"
+#include "Data/QosmeticsDescriptorCache.hpp"
 
 namespace Qosmetics
 {
@@ -12,8 +14,8 @@ namespace Qosmetics
     void SaberData::LoadBundle()
     {
         bundleLoading = true;
-        getLogger().info("Loading Bundle");
-        bs_utils::AssetBundle::LoadFromFileAsync(filePath, [this](bs_utils::AssetBundle* bundle){ 
+        getLogger().info("Loading Bundle %s", filePath.c_str());
+        bs_utils::AssetBundle::LoadFromFileAsync(saberDescriptor->get_filePath(), [this](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
             this->bundleLoading = false;
@@ -74,6 +76,7 @@ namespace Qosmetics
             this->saberConfig = new Qosmetics::SaberConfig();
             this->configComplete = true;
             getLogger().info("saber config did not exist, is this a legacy saber, or did someone fuck with the exporters? regardless, setting default config");
+            if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
             return;
         }
         
@@ -98,6 +101,7 @@ namespace Qosmetics
         this->configComplete = true;
 
         getLogger().info("succesfully loaded config");
+        if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
             
     void SaberData::OnDescriptorLoadComplete(UnityEngine::TextAsset* descriptorAsset)
@@ -105,7 +109,14 @@ namespace Qosmetics
         if (descriptorAsset == nullptr) 
         {
             this->descriptorComplete = true;
-            getLogger().error("Loading saber descriptor returned nullptr, marking descriptor load as finished");
+            getLogger().error("Loading saber descriptor returned nullptr, generating legacy config instead");
+            std::string filename = FileUtils::GetFileName(this->filePath);
+
+            filename.erase(filename.find_first_of("."));
+            if (this->saberDescriptor) this->saberDescriptor->Copy(Descriptor(filename, "---", "legacy saber", this->filePath, saber));
+            else this->saberDescriptor = new Qosmetics::Descriptor(filename, "---", "legacy saber", this->filePath, saber);
+            DescriptorCache::GetCache().AddToSaberCache(this->saberDescriptor);
+            if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
             return;
         }
         Il2CppString* jsonCS = descriptorAsset->get_text();
@@ -115,11 +126,14 @@ namespace Qosmetics
         rapidjson::Document d;
 
         d.Parse(json.c_str());
-        // if descriptor already exists for some reason, just overwrite it
-        if (this->saberDescriptor != nullptr) delete(this->saberDescriptor);
-        this->saberDescriptor = new Qosmetics::Descriptor(d, this->filePath, saber);
+        // if descriptor already exists, overwrite with latest data
+        if (this->saberDescriptor) this->saberDescriptor->Copy(Descriptor(d, this->filePath, saber));
+        else this->saberDescriptor = new Qosmetics::Descriptor(d, this->filePath, saber);
+        DescriptorCache::GetCache().AddToSaberCache(this->saberDescriptor);
+
         this->descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
+        if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
 
     void SaberData::OnTextureLoadComplete(UnityEngine::Texture2D* texture)
@@ -127,11 +141,13 @@ namespace Qosmetics
         if (texture == nullptr)
         {
             getLogger().error("Loading saber thumbnail returned nullptr");
+            if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
             return;
         }
         while (this->saberDescriptor == nullptr){sleep(1);}
         this->saberDescriptor->SetCoverImage(texture);
         getLogger().info("loaded texture");
+        if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
 
     std::vector<UnityEngine::Material*>& SaberData::get_leftSaberCCmaterials()

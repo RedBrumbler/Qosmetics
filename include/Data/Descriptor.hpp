@@ -13,7 +13,8 @@ typedef enum _qosmeticsType {
     bloq,           // 1
     wall,           // 2
     menupointer,    // 3
-    platform        // 4
+    platform,       // 4
+    invalid = 1000
 } qosmeticsType;
 
 namespace Qosmetics
@@ -21,6 +22,32 @@ namespace Qosmetics
     class Descriptor 
     {
         public:
+            bool valid = true;
+
+            Descriptor() {}
+
+            Descriptor(qosmeticsType theType)
+            {
+                if (theType == invalid)
+                {
+                    valid = false;
+                    name = "invalid";
+                    author = "invalid";
+                    description = "invalid";
+                    filePath = "invalid";
+                    type = invalid;
+                }
+            }
+            
+            Descriptor(std::string filePath)
+            {
+                this->filePath = filePath;
+            }
+            Descriptor(const Descriptor& orig)
+            {
+                Descriptor(orig.name, orig.author, orig.description, orig.filePath, orig.type, orig.coverImage);
+            }
+
             Descriptor(const rapidjson::Document &config, const std::string &filePath = "", const qosmeticsType &type = saber)
             {
                 this->name = config["objectName"].GetString();
@@ -46,34 +73,52 @@ namespace Qosmetics
                 this->coverImage->DontDestroyOnLoad(coverImage);
             }
 
-            const qosmeticsType get_type()
+            const qosmeticsType get_type() const
             {
                 return type;
             }
 
-            const std::string get_name()
+            const std::string get_name() const
             {
                 return name;
             }
 
-            const std::string get_author()
+            const std::string get_author() const
             {
                 return author;
             }
 
-            const std::string get_description()
+            const std::string get_description() const
             {
                 return description;
             }
 
-            const UnityEngine::Texture2D* get_coverImage()
+            const UnityEngine::Texture2D* get_coverImage() const
             {
                 return coverImage;
             }
 
-            const std::string get_filePath()
+            const std::string get_filePath() const
             {
                 return filePath;
+            }
+
+            const std::string get_fileName() const
+            {
+                if(filePath.find_last_of("/") != std::string::npos)
+                    return filePath.substr(filePath.find_last_of("/")+1);
+                return filePath;
+            }
+
+            void Copy(const Descriptor& orig)
+            {
+                this->name = orig.name;
+                this->author = orig.author;
+                this->description = orig.description;
+                this->coverImage = orig.coverImage;
+                this->filePath = orig.filePath;
+                this->type = orig.type;
+                this->valid = true;
             }
 
             bool operator<(const Descriptor& other) const
@@ -82,12 +127,12 @@ namespace Qosmetics
             }
 
         private:
-            std::string name;
-            std::string author;
-            std::string description;
-            std::string filePath;
-            UnityEngine::Texture2D* coverImage;
-            qosmeticsType type;
+            std::string name = "";
+            std::string author = "";
+            std::string description = "";
+            std::string filePath = "";
+            UnityEngine::Texture2D* coverImage = nullptr;
+            qosmeticsType type = invalid;
     };
 }
 

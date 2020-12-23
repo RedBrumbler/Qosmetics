@@ -64,6 +64,7 @@
 #include "Data/CustomTrail.hpp"
 #include "Data/Descriptor.hpp"
 #include "Data/QosmeticsTrail.hpp"
+#include "Data/QosmeticsDescriptorCache.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 
@@ -356,6 +357,8 @@ extern "C" void load()
 {
     if (!LoadConfig()) SaveConfig();
 
+    if (!Qosmetics::DescriptorCache::Load()) Qosmetics::DescriptorCache::Write();
+
     QuestUI::Init();
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");
@@ -379,7 +382,7 @@ extern "C" void load()
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::DescriptorWrapper>());
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSwitcherViewController>());
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSwitcherViewController*>(modInfo);
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSwitcherViewController*>((ModInfo){"Qosmetics Saber Switcher", VERSION});
     
     std::thread WipeRoutine(
         [&]{

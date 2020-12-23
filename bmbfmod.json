@@ -6,7 +6,7 @@
   "coverImageFilename": "cover.gif",
   "author": "RedBrumbler",
   "description": [
-    "Quest Cosmetics on a whole new level! Happy Christmas from the QB team!",
+    "Quest Cosmetics on a whole new level!",
     "Massive thanks to Sc2ad and Rugtveit for all the help with making this mod"
   ],
   "category": "Gameplay",
@@ -38,6 +38,12 @@
       "type": "HookModLibrary",
       "installAction": {
         "installLibraryFile": "libcustom-types.so"
+      }
+    },
+    {
+      "type": "HookModLibrary",
+      "installAction": {
+        "installLibraryFile": "libquestui.so"
       }
     }
   ]
