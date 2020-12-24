@@ -1,3 +1,4 @@
+#include "config.hpp"
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include <thread>
@@ -9,6 +10,9 @@ std::vector<std::string> Qosmetics::QuestSaber::fileNames;
 std::vector<std::string> Qosmetics::QuestSaber::legacyFileNames;
 std::vector<std::string> Qosmetics::QuestSaber::filePaths;
 std::vector<Qosmetics::SaberData> Qosmetics::QuestSaber::loadedSabers;
+
+extern config_t config;
+
 namespace Qosmetics
 {
     void QuestSaber::makeFolder(std::string directory)
@@ -87,16 +91,24 @@ namespace Qosmetics
             DescriptorCache::GetCache().AddToSaberCache(descriptor);
         }
 
+        Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveSaber, saber);
+        SetActiveSaber(descriptor);
+
         return true;
     };
 
     void QuestSaber::HealthWarning()
     {
+        // if there is an active saber pointer, and it's not loading and is not compplete, load it's assets
+        //if (activeSaber && !activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadAssets();
+
+        
         // for all loaded saber files, load the assets in them (if there are none loaded it won't actually do anything)
         for (auto& pair : saberMap)
         {
             pair.second->LoadAssets();
         }
+        
     };
 
     
@@ -108,6 +120,8 @@ namespace Qosmetics
             return;
         }
         */
+        //if (activeSaber && !activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadAssets();
+        
         for (auto& pair : saberMap)
         {
             if (!pair.second->get_complete() && !pair.second->get_isLoading()) 
@@ -115,6 +129,8 @@ namespace Qosmetics
                 pair.second->LoadAssets();
             }
         }
+        
+        
     }
 
     void QuestSaber::GameCore()
@@ -266,6 +282,21 @@ namespace Qosmetics
         {
             SaberUtils::AddMenuPointerSaber(controller->Find(il2cpp_utils::createcsstr(menuHandle)), isLeft, selected);
         }
+    }
+
+    void QuestSaber::OnActiveSaberSet(bool ifLoadAlsoAssets)
+    {
+        if (!activeSaber) 
+        {
+            config.lastActiveSaber = "";
+            getLogger().info("activeSaber was nullptr, clearing last active saber");
+            return;
+        }
+
+        config.lastActiveSaber = activeSaber->saberDescriptor->get_fileName();
+
+        // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
+        if (!activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadBundle(ifLoadAlsoAssets); 
     }
 }
 

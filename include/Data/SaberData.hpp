@@ -57,7 +57,8 @@ namespace Qosmetics
 
             bool get_isLoading()
             {
-                return isLoading;
+                if (finishedSaberLoad) isLoading = false;
+                return isLoading || bundleLoading;
             }
 
             bool get_complete()
@@ -132,7 +133,8 @@ namespace Qosmetics
             void LoadBundle(std::string filePath);
 
             /// @brief loads asset bundle using bs utils, only use if filePath is already given
-            void LoadBundle();
+            /// @brief 
+            void LoadBundle(bool alsoLoadAssets = false);
 
             void LoadAssets();
 

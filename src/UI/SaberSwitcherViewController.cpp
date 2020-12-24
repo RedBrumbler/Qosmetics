@@ -1,5 +1,5 @@
 #include "UI/SaberSwitcherViewController.hpp"
-
+#include "config.hpp"
 #include "Config/SaberConfig.hpp"
 #include "Data/Descriptor.hpp"
 
@@ -35,12 +35,52 @@ using namespace HMUI;
 DEFINE_CLASS(Qosmetics::SaberSwitcherViewController);
 
 #define INFO(value...) SaberLogger::GetLogger().info(value)
+#define toString = 
 namespace Qosmetics
 {
     //void OnButtonClick(QuestUI::ModSettings)
     void SaberSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         DescriptorCache::Write();
+        SaveConfig();
+        /*
+        Transform* transform = get_transform();
+        for (int i = 0; i < transform->get_childCount(); i++)
+        {
+            Transform* child = transform->GetChild(i);
+            std::string childName = to_utf8(csstrtostr(child->get_name()));
+            INFO("Found %s", childName.c_str());
+            for (int j = 0; j < child->get_childCount(); j++)
+            {
+                Transform* child2 = child->GetChild(j);
+                std::string child2Name = to_utf8(csstrtostr(child2->get_name()));
+
+                INFO("\t%s", child2Name.c_str());
+                for (int k = 0; k < child2->get_childCount(); k++)
+                {
+                    Transform* child3 = child2->GetChild(k);
+                    std::string child3Name = to_utf8(csstrtostr(child3->get_name()));
+
+                    INFO("\t\t%s", child3Name.c_str());
+                    for (int l = 0; l < child3->get_childCount(); l++)
+                    {
+                        Transform* child4 = child3->GetChild(l);
+
+                        std::string child4Name = to_utf8(csstrtostr(child4->get_name()));
+                        INFO("\t\t\t%s", child4Name.c_str());
+                        for (int m = 0; m < child4->get_childCount(); m++)
+                        {
+                            Transform* child5 = child4->GetChild(m);
+
+                            std::string child5Name = to_utf8(csstrtostr(child5->get_name()));
+                            INFO("\t\t\t\t%s", child5Name.c_str());
+                            //if (child5Name.find(".qsaber") != std::string::npos) Object::Destroy(child5);
+                        }
+                    }
+                }
+            }
+        }
+        */
     }
 
     void SaberSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -48,33 +88,25 @@ namespace Qosmetics
         if (firstActivation)
         {
             get_gameObject()->AddComponent<Touchable*>();
-
             GameObject* layout = QuestUI::BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
-		    layout->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+		    //layout->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
 
             std::vector<Descriptor*>& descriptors = DescriptorCache::GetSaberDescriptors();
             for (int i = 0; i < descriptors.size(); i++)
             {
-                DescriptorWrapper* descriptorWrapper = CRASH_UNLESS(il2cpp_utils::New<DescriptorWrapper*>());//CRASH_UNLESS(il2cpp_utils::New<DescriptorWrapper*>(((void*)&descriptors[i])));
-                descriptorWrapper->descriptor = (void*)descriptors[i];
-                QuestUI::BeatSaberUI::CreateUIButton(layout->get_transform(), descriptors[i]->get_fileName(), il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), descriptorWrapper, +[](DescriptorWrapper* wrapper, Button* button){
-                    INFO("a saber toggle was clicked!");
-                    if (!wrapper) return;
-                    if (!wrapper->descriptor) return;
-                    QuestSaber::SetActiveSaber((Descriptor*)wrapper->descriptor);
-                    Descriptor& descriptor = *(Descriptor*)wrapper->descriptor;
-                    INFO("saber name was: %s", descriptor.get_name().c_str());
-                    INFO("saber author was: %s", descriptor.get_author().c_str());
-                    INFO("saber description was: %s", descriptor.get_description().c_str());
-                    INFO("saber file path was: %s", descriptor.get_filePath().c_str());
-                    INFO("saber type was: %d", descriptor.get_type());
-                    std::string saberDataPath = "";
-                    saberDataPath = QuestSaber::get_saberMap()[(Descriptor*)wrapper->descriptor]->get_filePath();
-                    INFO("Saber file path from saber data was %s", saberDataPath.c_str());
+                std::string stringName = descriptors[i]->get_fileName();
 
-                    Descriptor* descriptorFromCache = DescriptorCache::GetDescriptor(FileUtils::GetFileName(saberDataPath), saber);
-                    if (descriptorFromCache->valid) INFO("Saber Name from DescriptorCache was %s", descriptorFromCache->get_name().c_str());
+                std::string buttonName = descriptors[i]->get_fileName();
+                buttonName.erase(buttonName.find_last_of("."));
+                Button* descriptorButton = QuestUI::BeatSaberUI::CreateUIButton(layout->get_transform(), buttonName, il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+                    INFO("a saber toggle was clicked!");
+                    if (!fileName) return;
+                    std::string name = to_utf8(csstrtostr(fileName));
+                    Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
+                    QuestSaber::SetActiveSaber(descriptor, true);
+                    INFO("Saber %s was selected", descriptor->get_name().c_str());
                 }));
+                descriptorButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(descriptors[i]->get_fileName()));
             }
         }
     }

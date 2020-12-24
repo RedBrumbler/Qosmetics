@@ -1,4 +1,5 @@
 #pragma once
+
 #include "beatsaber-hook/shared/utils/utils.h"
 #include "beatsaber-hook/shared/utils/logging.hpp"
 #include "modloader/shared/modloader.hpp"
@@ -92,15 +93,26 @@ namespace Qosmetics
             /// @brief exchanges the menu pointers for the loaded saber, if the saber is even loaded
             static void ReplaceMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
             
-            static void SetActiveSaber(Descriptor* saberDescriptor)
+            static void SetActiveSaber(Descriptor* saberDescriptor, bool ifLoadAlsoAssets = false)
             {
+                if (saberDescriptor->get_type() == qosmeticsType::invalid)
+                {
+                    activeSaber = nullptr;
+                    OnActiveSaberSet(false);
+                    return;
+                }
+
                 activeSaber = saberMap[saberDescriptor];
+                OnActiveSaberSet(ifLoadAlsoAssets);
             }
             
-            static void SetActiveSaber(SaberData* saber)
+            static void SetActiveSaber(SaberData* saber, bool ifLoadAlsoAssets = false)
             {
                 activeSaber = saber;
+                OnActiveSaberSet(ifLoadAlsoAssets);
             }
+
+            static void OnActiveSaberSet(bool ifLoadAlsoAssets);
 
             static SaberData* GetActiveSaber()
             {

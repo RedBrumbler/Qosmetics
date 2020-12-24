@@ -49,7 +49,7 @@ namespace Qosmetics
             objectComplete = true;
             return;
         }
-        UnityEngine::GameObject* instantiated = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)wall);
+        UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(wall);
 
         if (DontDestroyOnLoad) instantiated->DontDestroyOnLoad(instantiated);
 

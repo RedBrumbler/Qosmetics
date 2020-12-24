@@ -2,7 +2,7 @@
 #include "Utils/SaberUtils.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
-
+#include <thread>
 namespace Qosmetics
 {
     void SaberData::LoadBundle(std::string filePath)
@@ -11,41 +11,60 @@ namespace Qosmetics
         this->LoadBundle();
     }
 
-    void SaberData::LoadBundle()
+    void SaberData::LoadBundle(bool alsoLoadAssets)
     {
-        bundleLoading = true;
+        getLogger().info("alsoLoadAssets was %d on LoadBundle", alsoLoadAssets);
+        if (this->bundleLoading || this->bundle) 
+        {
+            getLogger().info("Was already loading bundle, not loading again");
+            if (alsoLoadAssets) LoadAssets();
+            return;
+        }
+        this->bundleLoading = true;
         getLogger().info("Loading Bundle %s", filePath.c_str());
-        bs_utils::AssetBundle::LoadFromFileAsync(saberDescriptor->get_filePath(), [this](bs_utils::AssetBundle* bundle){ 
+        bs_utils::AssetBundle::LoadFromFileAsync(saberDescriptor->get_filePath(), [&](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
             this->bundleLoading = false;
             });
+
+        if (alsoLoadAssets) 
+        {
+            std::thread assetLoad([this]{
+                while(!this->bundle) usleep(1000);
+                getLogger().info("Loading assets directly from the bundle load");
+                this->LoadAssets();
+            });
+
+            assetLoad.detach();
+        }
     }
 
     void SaberData::LoadAssets()
     {
+        if (isLoading) return;
         if (bundle == nullptr) 
         {
-            getLogger().info("bundle %s was null, not loading assets", filePath.c_str());
-            if (!bundleLoading && filePath != "") LoadBundle();
+            getLogger().info("bundle %s was null, not loading assets", saberDescriptor->get_filePath().c_str());
+            if (!get_isLoading() && saberDescriptor->get_filePath() != "") LoadBundle();
             return;
         }
         isLoading = true;
         getLogger().info("Loading assets");
 
-        bundle->LoadAssetAsync("_CustomSaber", [this](bs_utils::Asset* asset){
+        bundle->LoadAssetAsync("_CustomSaber", [&](bs_utils::Asset* asset){
             this->OnSaberLoadComplete((UnityEngine::GameObject*)asset, true);
         }, il2cpp_utils::GetSystemType("UnityEngine", "GameObject"));
 
-        bundle->LoadAssetAsync("config", [this](bs_utils::Asset* asset){
+        bundle->LoadAssetAsync("config", [&](bs_utils::Asset* asset){
             this->OnConfigLoadComplete((UnityEngine::TextAsset* )asset);
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
-        bundle->LoadAssetAsync("descriptor", [this](bs_utils::Asset* asset){
+        bundle->LoadAssetAsync("descriptor", [&](bs_utils::Asset* asset){
             this->OnDescriptorLoadComplete((UnityEngine::TextAsset* )asset);
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
-        bundle->LoadAssetAsync("thumbnail", [this](bs_utils::Asset* asset){
+        bundle->LoadAssetAsync("thumbnail", [&](bs_utils::Asset* asset){
             this->OnTextureLoadComplete((UnityEngine::Texture2D*)asset);
         }, il2cpp_utils::GetSystemType("UnityEngine", "Texture2D"));
     }
@@ -58,7 +77,7 @@ namespace Qosmetics
             getLogger().error("Loading _CustomSaber object returned nullptr, marking object load as finished");
             return;
         }
-        UnityEngine::GameObject* instantiated = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)saber);
+        UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(saber);
 
         if (DontDestroyOnLoad) instantiated->DontDestroyOnLoad(instantiated);
 
@@ -76,7 +95,6 @@ namespace Qosmetics
             this->saberConfig = new Qosmetics::SaberConfig();
             this->configComplete = true;
             getLogger().info("saber config did not exist, is this a legacy saber, or did someone fuck with the exporters? regardless, setting default config");
-            if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
             return;
         }
         
@@ -101,7 +119,6 @@ namespace Qosmetics
         this->configComplete = true;
 
         getLogger().info("succesfully loaded config");
-        if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
             
     void SaberData::OnDescriptorLoadComplete(UnityEngine::TextAsset* descriptorAsset)
@@ -116,7 +133,6 @@ namespace Qosmetics
             if (this->saberDescriptor) this->saberDescriptor->Copy(Descriptor(filename, "---", "legacy saber", this->filePath, saber));
             else this->saberDescriptor = new Qosmetics::Descriptor(filename, "---", "legacy saber", this->filePath, saber);
             DescriptorCache::GetCache().AddToSaberCache(this->saberDescriptor);
-            if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
             return;
         }
         Il2CppString* jsonCS = descriptorAsset->get_text();
@@ -133,7 +149,6 @@ namespace Qosmetics
 
         this->descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
-        if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
 
     void SaberData::OnTextureLoadComplete(UnityEngine::Texture2D* texture)
@@ -141,13 +156,11 @@ namespace Qosmetics
         if (texture == nullptr)
         {
             getLogger().error("Loading saber thumbnail returned nullptr");
-            if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
             return;
         }
         while (this->saberDescriptor == nullptr){sleep(1);}
         this->saberDescriptor->SetCoverImage(texture);
         getLogger().info("loaded texture");
-        if (get_complete()) il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
 
     std::vector<UnityEngine::Material*>& SaberData::get_leftSaberCCmaterials()

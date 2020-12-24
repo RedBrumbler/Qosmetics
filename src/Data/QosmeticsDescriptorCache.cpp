@@ -45,7 +45,7 @@ namespace Qosmetics
         for (auto& descriptor : descriptors.GetArray())
         {
             if (!fileexists(descriptor["filePath"].GetString())) continue; // if the file does not exist, don't try to add the descriptor to the cache as it is now invalid
-            if (descriptor["type"].GetInt() == 1000) continue;
+            if (descriptor["type"].GetInt() == 1000) continue; // if the type is 1000, if it ended up in the cache, ignore it
             cacheVector.push_back(LoadDescriptorFromValue(descriptor));
         }
     }
@@ -99,7 +99,7 @@ namespace Qosmetics
         // add all the descriptor data to it
         for (auto* descriptor : descriptorVector)
         {
-            if (descriptor->get_type() == qosmeticsType::invalid) continue;
+            if (descriptor->get_type() == qosmeticsType::invalid) continue; // do not write invalid descriptors to file
             rapidjson::Value newDescriptor;
             newDescriptor.SetObject();
             AddDescriptorToValue(newDescriptor, allocator, descriptor);
@@ -135,9 +135,7 @@ namespace Qosmetics
             getLogger().info("not adding to cache because descriptor was invalid");
             return;
         }
-
         saberDescriptors.push_back(descriptor);
-        getLogger().info("Added %s to cache", descriptor->get_name().c_str());
     }
 
     void DescriptorCache::AddToNoteCache(Descriptor* descriptor)
@@ -172,11 +170,9 @@ namespace Qosmetics
             case saber:
                 for (auto* descriptor : cache->saberDescriptors)
                 {
-                    getLogger().info("Found file name %s", descriptor->get_fileName().c_str());
                     if (descriptor->get_fileName().find(fileName) != std::string::npos) return cache->saberDescriptors[i];
                     i++;
                 }
-                getLogger().info("Didn't find anything, returning invalid");
                 return invalid;
                 break;
             case bloq:

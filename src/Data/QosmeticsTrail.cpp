@@ -115,7 +115,7 @@ namespace Qosmetics
 	GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer(UnityEngine::Material* material)
     {
         // make a new gameobject to house the prefab on
-        UnityEngine::GameObject* newPrefab = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor());
+        UnityEngine::GameObject* newPrefab = UnityEngine::GameObject::New_ctor();
 
         // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
         newPrefab->AddComponent<UnityEngine::MeshFilter*>();
