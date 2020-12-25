@@ -1,12 +1,12 @@
 {
   "id": "Qosmetics",
   "name": "Qosmetics",
-  "version": "QuestBoard Christmas",
+  "version": "1.1.7",
   "icon": "cover.gif",
   "coverImageFilename": "cover.gif",
   "author": "RedBrumbler",
   "description": [
-    "Quest Cosmetics on a whole new level! Happy Christmas from the QB team!",
+    "Quest Cosmetics on a whole new level!",
     "Massive thanks to Sc2ad and Rugtveit for all the help with making this mod"
   ],
   "category": "Gameplay",

@@ -56,7 +56,7 @@ namespace Qosmetics
             getLogger().error("Loading _CustomSaber object returned nullptr, marking object load as finished");
             return;
         }
-        UnityEngine::GameObject* instantiated = (UnityEngine::GameObject*)UnityEngine::Object::Instantiate((UnityEngine::Object*)saber);
+        UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(saber);
 
         if (DontDestroyOnLoad) instantiated->DontDestroyOnLoad(instantiated);
 
