@@ -9,5 +9,5 @@ void SaveConfig();
 bool LoadConfig();
 
 typedef struct _config {
-    bool enableMenuPointer = true;
+    bool enableMenuPointer = false;
 } config_t;
