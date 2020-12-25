@@ -13,15 +13,15 @@ namespace Qosmetics
 
     void SaberData::LoadBundle(bool alsoLoadAssets)
     {
-        getLogger().info("alsoLoadAssets was %d on LoadBundle", alsoLoadAssets);
         if (this->bundleLoading || this->bundle) 
         {
             getLogger().info("Was already loading bundle, not loading again");
-            if (alsoLoadAssets) LoadAssets();
+            if (this->bundle && alsoLoadAssets) LoadAssets();
             return;
         }
+
         this->bundleLoading = true;
-        getLogger().info("Loading Bundle %s", filePath.c_str());
+        getLogger().info("Loading Bundle %s", saberDescriptor->get_filePath().c_str());
         bs_utils::AssetBundle::LoadFromFileAsync(saberDescriptor->get_filePath(), [&](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
@@ -42,8 +42,14 @@ namespace Qosmetics
 
     void SaberData::LoadAssets()
     {
+        if (get_complete())
+        {
+            il2cpp_utils::RunMethod(this->bundle, "Unload", false);
+            return;
+        }
+
         if (isLoading) return;
-        if (bundle == nullptr) 
+        if (!this->bundle) 
         {
             getLogger().info("bundle %s was null, not loading assets", saberDescriptor->get_filePath().c_str());
             if (!get_isLoading() && saberDescriptor->get_filePath() != "") LoadBundle();
@@ -132,20 +138,19 @@ namespace Qosmetics
             filename.erase(filename.find_first_of("."));
             if (this->saberDescriptor) this->saberDescriptor->Copy(Descriptor(filename, "---", "legacy saber", this->filePath, saber));
             else this->saberDescriptor = new Qosmetics::Descriptor(filename, "---", "legacy saber", this->filePath, saber);
-            DescriptorCache::GetCache().AddToSaberCache(this->saberDescriptor);
+            DescriptorCache::AddToSaberCache(this->saberDescriptor);
             return;
         }
         Il2CppString* jsonCS = descriptorAsset->get_text();
 
         std::string json = to_utf8(csstrtostr(jsonCS));
-        //getLogger().info("descriptor %s", json.c_str());
         rapidjson::Document d;
 
         d.Parse(json.c_str());
         // if descriptor already exists, overwrite with latest data
         if (this->saberDescriptor) this->saberDescriptor->Copy(Descriptor(d, this->filePath, saber));
         else this->saberDescriptor = new Qosmetics::Descriptor(d, this->filePath, saber);
-        DescriptorCache::GetCache().AddToSaberCache(this->saberDescriptor);
+        DescriptorCache::AddToSaberCache(this->saberDescriptor);
 
         this->descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
@@ -158,7 +163,7 @@ namespace Qosmetics
             getLogger().error("Loading saber thumbnail returned nullptr");
             return;
         }
-        while (this->saberDescriptor == nullptr){sleep(1);}
+        while (this->saberDescriptor == nullptr){usleep(1);}
         this->saberDescriptor->SetCoverImage(texture);
         getLogger().info("loaded texture");
     }

@@ -41,7 +41,7 @@ namespace Qosmetics
     class QuestSaber
     {
         public:
-            static ModInfo modInfo; 
+            static inline ModInfo modInfo = {"Qosmetics Sabers", VERSION}; 
             static const Logger& getLogger() 
             {
                 return SaberLogger::GetLogger();
@@ -49,13 +49,9 @@ namespace Qosmetics
             
             static inline std::string fileDir = "/sdcard/Qosmetics/sabers/";
             static inline std::string legacyFileDir = "/sdcard/Android/data/com.beatgames.beatsaber/files/sabers/";
-            static std::vector<std::string> fileNames;
-            static std::vector<std::string> legacyFileNames;
-            static std::vector<std::string> filePaths;
-
-            static std::vector<SaberData> loadedSabers;
-
-            static inline int selectedSaber = 0; 
+            static inline std::vector<std::string> fileNames = {};
+            static inline std::vector<std::string> legacyFileNames = {};
+            static inline std::vector<std::string> filePaths = {};
 
             /// @brief called with the saber start hook
             static void SaberStart(GlobalNamespace::Saber* instance);
@@ -81,9 +77,9 @@ namespace Qosmetics
 
             static void ClearAllInternalPointers()
             {
-                for (auto &saber : loadedSabers)
+                for (auto &pair : saberMap)
                 {
-                    saber.ClearActive();
+                    pair.second->ClearActive();
                 }
             }
 
@@ -93,6 +89,7 @@ namespace Qosmetics
             /// @brief exchanges the menu pointers for the loaded saber, if the saber is even loaded
             static void ReplaceMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
             
+            /// @brief Sets the activeSaber pointer to point to the saber that should be active, or handles setting to nulltr (default)
             static void SetActiveSaber(Descriptor* saberDescriptor, bool ifLoadAlsoAssets = false)
             {
                 if (saberDescriptor->get_type() == qosmeticsType::invalid)
@@ -106,14 +103,16 @@ namespace Qosmetics
                 OnActiveSaberSet(ifLoadAlsoAssets);
             }
             
+            /// @brief Sets the activeSaber pointer to point to the saber that should be active, or handles setting to nulltr (default)
             static void SetActiveSaber(SaberData* saber, bool ifLoadAlsoAssets = false)
             {
                 activeSaber = saber;
                 OnActiveSaberSet(ifLoadAlsoAssets);
             }
-
+            /// @brief gets called when the active saber is set
             static void OnActiveSaberSet(bool ifLoadAlsoAssets);
-
+            
+            /// @brief gives the currently active saber if needed
             static SaberData* GetActiveSaber()
             {
                 return activeSaber;

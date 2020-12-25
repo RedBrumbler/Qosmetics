@@ -39,6 +39,12 @@ namespace Qosmetics
                 this->filePath = filePath;
             }
 
+            NoteData(Descriptor* descriptor)
+            {
+                this->noteDescriptor = descriptor;
+                this->filePath = descriptor->get_filePath();
+            }
+
             NoteData(std::string filePath, bool alsoLoadBundle)
             {
                 this->filePath = filePath;
@@ -71,7 +77,7 @@ namespace Qosmetics
             }
 
             /// @brief loads asset bundle using bs utils, only use if filePath is already given
-            void LoadBundle();
+            void LoadBundle(bool alsoLoadAssets = false);
 
             /// @brief loads asset bundle using bs utils
             /// @param filePath path to load the bundle from
@@ -194,7 +200,8 @@ namespace Qosmetics
 
             bool get_isLoading()
             {
-                return isLoading;
+                if (finishedNoteLoad) isLoading = false;
+                return isLoading || bundleLoading;
             }
 
             bool get_replacedMaterials()

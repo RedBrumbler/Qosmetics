@@ -4,13 +4,6 @@
 #include <thread>
 #include "Data/QosmeticsDescriptorCache.hpp"
 
-ModInfo Qosmetics::QuestSaber::modInfo;
-
-std::vector<std::string> Qosmetics::QuestSaber::fileNames;
-std::vector<std::string> Qosmetics::QuestSaber::legacyFileNames;
-std::vector<std::string> Qosmetics::QuestSaber::filePaths;
-std::vector<Qosmetics::SaberData> Qosmetics::QuestSaber::loadedSabers;
-
 extern config_t config;
 
 namespace Qosmetics
@@ -78,59 +71,34 @@ namespace Qosmetics
             // make a new saber
             SaberData* newSaber = new SaberData(descriptor);
 
-            // add it to the list
-            //loadedSabers.emplace_back(*newSaber);
-
-            // load bundle of filename
-            //loadedSabers[i].LoadBundle(filePaths[i]);
-
-            //saberDescriptors.emplace_back(*descriptor);
             saberMap[descriptor] = newSaber;
             saberMap[descriptor]->LoadBundle();
 
-            DescriptorCache::GetCache().AddToSaberCache(descriptor);
+            DescriptorCache::AddToSaberCache(descriptor);
         }
-
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveSaber, saber);
         SetActiveSaber(descriptor);
-
         return true;
     };
 
     void QuestSaber::HealthWarning()
     {
-        // if there is an active saber pointer, and it's not loading and is not compplete, load it's assets
-        //if (activeSaber && !activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadAssets();
-
-        
-        // for all loaded saber files, load the assets in them (if there are none loaded it won't actually do anything)
         for (auto& pair : saberMap)
         {
             pair.second->LoadAssets();
         }
-        
     };
 
     
     void QuestSaber::MenuViewControllers()
     {
-        /*if (loadedSabers.size() == 0)
-        {
-            getLogger().error("Tried using saber mod while no sabers were loaded");
-            return;
-        }
-        */
-        //if (activeSaber && !activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadAssets();
-        
         for (auto& pair : saberMap)
         {
             if (!pair.second->get_complete() && !pair.second->get_isLoading()) 
             {
                 pair.second->LoadAssets();
             }
-        }
-        
-        
+        }   
     }
 
     void QuestSaber::GameCore()
@@ -151,7 +119,7 @@ namespace Qosmetics
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         if (!activeSaber) return;
-        SaberData& selected = *activeSaber;//loadedSabers[selectedSaber];
+        SaberData& selected = *activeSaber;
         if (!selected.get_complete())
         {
             getLogger().error("Tried using the saber while it was not finished loading");

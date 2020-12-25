@@ -1,24 +1,47 @@
 #include "Data/WallData.hpp"
+#include "Data/QosmeticsDescriptorCache.hpp"
 
 namespace Qosmetics
 {
-    void WallData::LoadBundle()
+    void WallData::LoadBundle(bool alsoLoadAssets)
     {
-        bundleLoading = true;
+        if (this->bundleLoading || this->bundle) 
+        {
+            getLogger().info("Was already loading bundle, not loading again");
+            if (this->bundle && alsoLoadAssets) LoadAssets();
+            return;
+        }
+        this->bundleLoading = true;
         getLogger().info("Loading Bundle");
-        bs_utils::AssetBundle::LoadFromFileAsync(filePath, [&](bs_utils::AssetBundle* bundle){ 
+        bs_utils::AssetBundle::LoadFromFileAsync(wallDescriptor->get_filePath(), [&](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
             this->bundleLoading = false;
             });
+        if (alsoLoadAssets) 
+        {
+            std::thread assetLoad([this]{
+                while(!this->bundle) usleep(1000);
+                getLogger().info("Loading assets directly from the bundle load");
+                this->LoadAssets();
+            });
+
+            assetLoad.detach();
+        }
     }
 
     void WallData::LoadAssets()
     {
-        if (bundle == nullptr) 
+        if (get_complete())
         {
-            getLogger().error("bundle %s was null, not loading assets", filePath.c_str());
-            if (!bundleLoading && filePath != "") LoadBundle();
+            il2cpp_utils::RunMethod(this->bundle, "Unload", false);
+            return;
+        }
+        if (isLoading) return;
+        if (!this->bundle) 
+        {
+            getLogger().info("bundle %s was null, not loading assets", wallDescriptor->get_filePath().c_str());
+            if (!get_isLoading() && wallDescriptor->get_filePath() != "") LoadBundle();
             return;
         }
         isLoading = true;
@@ -95,7 +118,10 @@ namespace Qosmetics
 
         d.Parse(json.c_str());
 
-        this->wallDescriptor = new Qosmetics::Descriptor(d);
+        if (this->wallDescriptor) this->wallDescriptor->Copy(Descriptor(d, this->filePath, wall));
+        else this->wallDescriptor = new Qosmetics::Descriptor(d, this->filePath, wall);
+        DescriptorCache::AddToWallCache(this->wallDescriptor);
+
         descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
     }

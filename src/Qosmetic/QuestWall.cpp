@@ -1,11 +1,10 @@
+#include "config.hpp"
 #include "Qosmetic/QuestWall.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include <thread>
+#include "Data/QosmeticsDescriptorCache.hpp"
 
-ModInfo Qosmetics::QuestWall::modInfo;
-
-std::vector<std::string> Qosmetics::QuestWall::fileNames;
-std::vector<Qosmetics::WallData> Qosmetics::QuestWall::loadedWalls;
+extern config_t config;
 
 namespace Qosmetics
 {
@@ -35,46 +34,46 @@ namespace Qosmetics
         // if no files were found, just return
         if (fileNames.size() == 0) return false;
 
-        // each file is a saber, so for each file
+        // each file is a wall, so for each file
         for (int i = 0; i < fileNames.size(); i++)
         {
-            // make a new saber
-            WallData newWall;
+            Descriptor* descriptor = DescriptorCache::GetDescriptor(fileNames[i], wall);
+            if (!descriptor->valid) 
+            {
+                getLogger().info("Wall Descriptor was invalid, making a new one");
+                descriptor = new Descriptor("", "", "", fileDir + fileNames[i], wall, nullptr);
+            }
+            
+            // make a new wall
+            WallData* newWall = new WallData(descriptor);
 
-            // add it to the list
-            loadedWalls.emplace_back(newWall);
+            wallMap[descriptor] = newWall;
+            wallMap[descriptor]->LoadBundle();
 
-            // load bundle of filename
-            loadedWalls[i].LoadBundle(fileDir + fileNames[i]);
+            DescriptorCache::AddToWallCache(descriptor);
         }
-
+        Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveWall, wall);
+        SetActiveWall(descriptor);
         return true;
     };
 
     void QuestWall::HealthWarning()
     {
         // for all loaded wall files, load the assets in them (if there are none loaded it won't actually do anything)
-        for (auto& wall : loadedWalls)
+        for (auto& pair : wallMap)
         {
-            wall.LoadAssets();
-            
+            pair.second->LoadAssets();
         }
     };
 
     void QuestWall::GameCore()
     {
-        // if no walls loaded, skip this code
-        if (loadedWalls.size() == 0)
-        {
-            getLogger().error("Tried using wall mod while no walls were loaded");
-            return;
-        }
-
-        
+        if (!activeWall) return;
 
         // selected wall from the loadedwalls vector, in the future this may be selectable
-        selectedWall = 0; 
-        Qosmetics::WallData& selected = loadedWalls[selectedWall];
+
+        Qosmetics::WallData& selected = *activeWall;
+
         if (!selected.get_complete()) 
         {
             getLogger().error("Tried using the wall while it was not finished loading");
@@ -85,19 +84,14 @@ namespace Qosmetics
         selected.ClearActive();
         setColors = false;
         if (selected.get_config()->get_scoreSubmissionDisabled()) bs_utils::Submission::disable(modInfo);
+        else bs_utils::Submission::enable(modInfo);
     };
 
     void QuestWall::MenuViewControllers()
     {
-        if (loadedWalls.size() == 0)
+        for (auto& pair : wallMap)
         {
-            getLogger().error("tried using the wall mod while no walls are loaded");
-            return;
-        }
-
-        for (auto& wall : loadedWalls)
-        {
-            if (!wall.get_complete() && !wall.get_isLoading()) wall.LoadAssets();
+            if (!pair.second->get_complete() && !pair.second->get_isLoading()) pair.second->LoadAssets();
         }
     }    
 
@@ -105,9 +99,9 @@ namespace Qosmetics
     void QuestWall::ObstacleController_Init_Pre(GlobalNamespace::ObstacleController* obstacleController)
     {
         // if no walls loaded, it's no use so just early return
-        if (loadedWalls.size() == 0) return;
+        if (!activeWall) return;
 
-        WallData& selected = loadedWalls[selectedWall];
+        WallData& selected = *activeWall;
         if (!selected.get_complete()) 
         {
             getLogger().error("Tried replacing things on the wall while it was not finished loading");
@@ -165,30 +159,38 @@ namespace Qosmetics
     void QuestWall::ObstacleController_Set_Hide(GlobalNamespace::ObstacleController* obstacleController, bool value)
     {
         // if no custom walls loaded letting the game do it's own thing is best
-        if (loadedWalls.size() == 0)
-        {
-            getLogger().error("Tried calling hide function while no walls are loaded");
-            return;
-        }
-        
+        if (!activeWall) return;
         if (!value) ObstacleController_Init_Pre(obstacleController);
     }
 
     void QuestWall::HandleColorsDidChangeEvent()
     {
-        if (loadedWalls.size() == 0)
-        {
-            getLogger().error("Tried changing colors with no walls loaded");
-            return;
-        }
+        if (!activeWall) return;
 
-        Qosmetics::WallData& selected = loadedWalls[selectedWall];
+        Qosmetics::WallData& selected = *activeWall;
 
         if (!selected.get_complete())
         {
             getLogger().error("Tried using the wall when it was not completely loaded");
             return;
         }
+
         WallUtils::SetObstacleColors(selected);     
     }
+
+    void QuestWall::OnActiveWallSet(bool ifLoadAlsoAssets)
+    {
+        if (!activeWall) 
+        {
+            config.lastActiveWall = "";
+            getLogger().info("activeWall was nullptr, clearing last active wall");
+            return;
+        }
+
+        config.lastActiveWall = activeWall->get_descriptor()->get_fileName();
+
+        // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
+        if (!activeWall->get_complete() && !activeWall->get_isLoading()) activeWall->LoadBundle(ifLoadAlsoAssets); 
+    }
+
 }

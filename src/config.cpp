@@ -18,7 +18,7 @@ void SaveConfig()
     rapidjson::Document::AllocatorType& allocator = getConfig().config.GetAllocator();
     getConfig().config.AddMember("enableMenuPointer", config.enableMenuPointer, allocator);
     getConfig().config.AddMember("lastActiveSaber", rapidjson::Value(config.lastActiveSaber.c_str(), config.lastActiveSaber.size(), allocator), allocator);
-    getConfig().config.AddMember("lastActiveBloq", rapidjson::Value(config.lastActiveBloq.c_str(), config.lastActiveBloq.size(), allocator), allocator);
+    getConfig().config.AddMember("lastActiveNote", rapidjson::Value(config.lastActiveNote.c_str(), config.lastActiveNote.size(), allocator), allocator);
     getConfig().config.AddMember("lastActiveWall", rapidjson::Value(config.lastActiveWall.c_str(), config.lastActiveWall.size(), allocator), allocator);
     getConfig().Write();
     getLogger().info("Saved Configuration!");
@@ -39,8 +39,8 @@ bool LoadConfig()
     }else{
         foundEverything = false;
     }
-    if(getConfig().config.HasMember("lastActiveBloq") && getConfig().config["lastActiveBloq"].IsString()){
-        config.lastActiveBloq = std::string(getConfig().config["lastActiveBloq"].GetString());    
+    if(getConfig().config.HasMember("lastActiveNote") && getConfig().config["lastActiveNote"].IsString()){
+        config.lastActiveNote = std::string(getConfig().config["lastActiveNote"].GetString());    
     }else{
         foundEverything = false;
     }

@@ -16,23 +16,21 @@
 #include "Utils/WallUtils.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Logging/WallLogger.hpp"
+#include <map>
 
 namespace Qosmetics
 {
     class QuestWall
     {
         public:
-            static ModInfo modInfo;
+            static inline ModInfo modInfo = {"Qosmetics Walls", VERSION};
             static const Logger& getLogger() 
             {
                 return WallLogger::GetLogger();
             };
 
             static inline std::string fileDir = "/sdcard/Qosmetics/walls/";
-            static std::vector<std::string> fileNames;
-            static std::vector<WallData> loadedWalls;
-            
-            static inline int selectedWall = 0; 
+            static inline std::vector<std::string> fileNames = {};
 
             /// @brief called at shader warmup scene
             /// @return false if 0 files found, thus making this part of the mod disabled in main
@@ -55,16 +53,53 @@ namespace Qosmetics
 
             static void ClearAllInternalPointers()
             {
-                for (auto &wall : loadedWalls)
+                for (auto &pair : wallMap)
                 {
-                    wall.ClearActive();
+                    pair.second->ClearActive();
                 }
             }
 
             /// @brief handles the colors did change event for walls
             static void HandleColorsDidChangeEvent();
+
+            /// @brief Sets the activeWall pointer to point to the wall that should be active, or handles setting to nulltr (default)
+            static void SetActiveWall(Descriptor* wallDescriptor, bool ifLoadAlsoAssets = false)
+            {
+                if (wallDescriptor->get_type() == qosmeticsType::invalid)
+                {
+                    activeWall = nullptr;
+                    OnActiveWallSet(false);
+                    return;
+                }
+
+                activeWall = wallMap[wallDescriptor];
+                OnActiveWallSet(ifLoadAlsoAssets);
+            }
+            
+            /// @brief Sets the activeWall pointer to point to the wall that should be active, or handles setting to nulltr (default)
+            static void SetActiveWall(WallData* wall, bool ifLoadAlsoAssets = false)
+            {
+                activeWall = wall;
+                OnActiveWallSet(ifLoadAlsoAssets);
+            }
+            /// @brief gets called when the active wall is set
+            static void OnActiveWallSet(bool ifLoadAlsoAssets);
+            
+            /// @brief gives the currently active wall if needed
+            static WallData* GetActiveWall()
+            {
+                return activeWall;
+            }
+
+            static std::map<Descriptor*, WallData*>& get_wallMap()
+            {
+                return wallMap;
+            }
             
         private:
+            static inline std::map<Descriptor*, WallData*> wallMap = {};
+            static inline WallData* activeWall = nullptr;
+
             static inline bool setColors = false;
             /// @brief makes the folder if not found
             static void makeFolder();

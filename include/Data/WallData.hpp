@@ -43,6 +43,12 @@ namespace Qosmetics
                 this->filePath = filePath;
             }
 
+            WallData(Descriptor* descriptor)
+            {
+                this->wallDescriptor = descriptor;
+                this->filePath = descriptor->get_filePath();
+            }
+
             WallData(std::string filePath, bool alsoLoadBundle)
             {
                 this->filePath = filePath;
@@ -50,7 +56,7 @@ namespace Qosmetics
             }
 
             /// @brief loads asset bundle using bs utils, only use if filePath is already given
-            void LoadBundle();
+            void LoadBundle(bool alsoLoadAssets = false);
 
             /// @brief loads all assets from the bundle
             void LoadAssets();
@@ -136,7 +142,8 @@ namespace Qosmetics
 
             bool get_isLoading()
             {
-                return isLoading;
+                if (finishedWallLoad) isLoading = false;
+                return isLoading || bundleLoading;
             }
 
             bool get_replacedMaterials()

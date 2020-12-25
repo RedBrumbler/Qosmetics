@@ -1,25 +1,49 @@
 #include "Data/NoteData.hpp"
 #include "Utils/NoteUtils.hpp"
-
+#include "Data/QosmeticsDescriptorCache.hpp"
 namespace Qosmetics
 {
-    void NoteData::LoadBundle()
+    void NoteData::LoadBundle(bool alsoLoadAssets)
     {
-        bundleLoading = true;
-        getLogger().info("Loading Bundle");
-        bs_utils::AssetBundle::LoadFromFileAsync(filePath, [this](bs_utils::AssetBundle* bundle){ 
+        if (this->bundleLoading || this->bundle) 
+        {
+            getLogger().info("Was already loading bundle, not loading again");
+            if (this->bundle && alsoLoadAssets) LoadAssets();
+            return;
+        }
+
+        this->bundleLoading = true;
+        getLogger().info("Loading Bundle %s", noteDescriptor->get_filePath().c_str());
+        bs_utils::AssetBundle::LoadFromFileAsync(noteDescriptor->get_filePath(), [&](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
             this->bundleLoading = false;
             });
+
+        if (alsoLoadAssets) 
+        {
+            std::thread assetLoad([this]{
+                while(!this->bundle) usleep(1000);
+                getLogger().info("Loading assets directly from the bundle load");
+                this->LoadAssets();
+            });
+
+            assetLoad.detach();
+        }
     }
 
     void NoteData::LoadAssets()
     {
-        if (bundle == nullptr) 
+        if (get_complete())
         {
-            getLogger().info("bundle %s was null, not loading assets", filePath.c_str());
-            if (!bundleLoading && filePath != "") LoadBundle();
+            il2cpp_utils::RunMethod(this->bundle, "Unload", false);
+            return;
+        }
+        if (isLoading) return;
+        if (!this->bundle) 
+        {
+            getLogger().info("bundle %s was null, not loading assets", noteDescriptor->get_filePath().c_str());
+            if (!get_isLoading() && noteDescriptor->get_filePath() != "") LoadBundle();
             return;
         }
         isLoading = true;
@@ -87,7 +111,7 @@ namespace Qosmetics
     {
         if (descriptorAsset == nullptr) 
         {
-            getLogger().error("Loading wall descriptor returned nullptr, marking descriptor load as finished");
+            getLogger().error("Loading note descriptor returned nullptr, marking descriptor load as finished");
             descriptorComplete = true;
             return;
         }
@@ -98,7 +122,10 @@ namespace Qosmetics
 
         d.Parse(json.c_str());
 
-        this->noteDescriptor = new Qosmetics::Descriptor(d);
+        if (this->noteDescriptor) this->noteDescriptor->Copy(Descriptor(d, this->filePath, note));
+        else this->noteDescriptor = new Qosmetics::Descriptor(d, this->filePath, note);
+        DescriptorCache::AddToNoteCache(this->noteDescriptor);
+
         descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
     }

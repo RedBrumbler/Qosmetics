@@ -10,7 +10,7 @@
 
 typedef enum _qosmeticsType {
     saber,          // 0
-    bloq,           // 1
+    note,           // 1
     wall,           // 2
     menupointer,    // 3
     platform,       // 4
@@ -135,13 +135,3 @@ namespace Qosmetics
             qosmeticsType type = invalid;
     };
 }
-
-// C# wrapper type
-DECLARE_CLASS_CODEGEN(Qosmetics, DescriptorWrapper, Il2CppObject,
-    DECLARE_INSTANCE_FIELD_DEFAULT(void*, descriptor, nullptr);
-    DECLARE_CTOR(ctor);
-    REGISTER_FUNCTION(DescriptorWrapper,
-        REGISTER_METHOD(ctor);
-        REGISTER_FIELD(descriptor);
-    )
-)

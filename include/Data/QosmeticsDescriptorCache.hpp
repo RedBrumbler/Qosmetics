@@ -9,9 +9,9 @@ namespace Qosmetics
     class DescriptorCache
     {
         public:
-            void AddToSaberCache(Descriptor* descriptor);
-            void AddToNoteCache(Descriptor* descriptor);
-            void AddToWallCache(Descriptor* descriptor);
+            static void AddToSaberCache(Descriptor* descriptor);
+            static void AddToNoteCache(Descriptor* descriptor);
+            static void AddToWallCache(Descriptor* descriptor);
             
             static DescriptorCache& GetCache()
             {

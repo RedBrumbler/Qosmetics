@@ -130,9 +130,9 @@ namespace Qosmetics
     void DescriptorCache::AddToSaberCache(Descriptor* descriptor)
     {
         RET_IF_CONTAINS(saberDescriptors, descriptor)
-        if (descriptor->get_type() == qosmeticsType::invalid) 
+        if (descriptor->get_type() != qosmeticsType::saber) 
         {
-            getLogger().info("not adding to cache because descriptor was invalid");
+            getLogger().info("not adding to cache because descriptor was not correct");
             return;
         }
         saberDescriptors.push_back(descriptor);
@@ -141,9 +141,9 @@ namespace Qosmetics
     void DescriptorCache::AddToNoteCache(Descriptor* descriptor)
     {
         RET_IF_CONTAINS(noteDescriptors, descriptor)
-        if (descriptor->get_type() == qosmeticsType::invalid) 
+        if (descriptor->get_type() != qosmeticsType::note) 
         {
-            getLogger().info("not adding to cache because descriptor was invalid");
+            getLogger().info("not adding to cache because descriptor was not correct");
             return;
         }
         noteDescriptors.push_back(descriptor);
@@ -152,9 +152,9 @@ namespace Qosmetics
     void DescriptorCache::AddToWallCache(Descriptor* descriptor)
     {
         RET_IF_CONTAINS(wallDescriptors, descriptor)
-        if (descriptor->get_type() == qosmeticsType::invalid) 
+        if (descriptor->get_type() != qosmeticsType::wall) 
         {
-            getLogger().info("not adding to cache because descriptor was invalid");
+            getLogger().info("not adding to cache because descriptor was not correct");
             return;
         }
         wallDescriptors.push_back(descriptor);
@@ -170,15 +170,15 @@ namespace Qosmetics
             case saber:
                 for (auto* descriptor : cache->saberDescriptors)
                 {
-                    if (descriptor->get_fileName().find(fileName) != std::string::npos) return cache->saberDescriptors[i];
+                    if (descriptor->get_fileName().find(fileName) != std::string::npos) return descriptor;
                     i++;
                 }
                 return invalid;
                 break;
-            case bloq:
+            case note:
                 for (auto* descriptor : cache->noteDescriptors)
                 {
-                    if (descriptor->get_fileName().find(fileName) != std::string::npos) return cache->noteDescriptors[i];
+                    if (descriptor->get_fileName().find(fileName) != std::string::npos) return descriptor;
                     i++;
                 }
                 return invalid;
@@ -186,7 +186,7 @@ namespace Qosmetics
             case wall:
                 for (auto* descriptor : cache->wallDescriptors)
                 {
-                    if (descriptor->get_fileName().find(fileName) != std::string::npos) return cache->wallDescriptors[i];
+                    if (descriptor->get_fileName().find(fileName) != std::string::npos) return descriptor;
                     i++;
                 }
                 return invalid;

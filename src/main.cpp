@@ -70,6 +70,8 @@
 
 #include "custom-types/shared/register.hpp"
 #include "UI/SaberSwitcherViewController.hpp"
+#include "UI/WallSwitcherViewController.hpp"
+#include "UI/NoteSwitcherViewController.hpp"
 #include "questui/shared/QuestUI.hpp"
 
 
@@ -379,10 +381,13 @@ extern "C" void load()
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());
-    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::DescriptorWrapper>());
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSwitcherViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NoteSwitcherViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallSwitcherViewController>());
     QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSwitcherViewController*>((ModInfo){"Qosmetics Saber Switcher", VERSION});
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::NoteSwitcherViewController*>((ModInfo){"Qosmetics Bloq Switcher", VERSION});
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::WallSwitcherViewController*>((ModInfo){"Qosmetics Wall Switcher", VERSION});
     
     std::thread WipeRoutine(
         [&]{

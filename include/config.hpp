@@ -11,6 +11,6 @@ bool LoadConfig();
 typedef struct _config {
     bool enableMenuPointer = true;
     std::string lastActiveSaber = "";
-    std::string lastActiveBloq = "";
+    std::string lastActiveNote = "";
     std::string lastActiveWall = "";
 } config_t;

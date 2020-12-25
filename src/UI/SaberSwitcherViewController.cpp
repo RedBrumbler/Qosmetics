@@ -5,6 +5,7 @@
 
 #include "UnityEngine/RectOffset.hpp"
 #include "UnityEngine/RectTransform.hpp"
+#include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/Image.hpp"
 #include "UnityEngine/UI/Toggle.hpp"
@@ -35,52 +36,14 @@ using namespace HMUI;
 DEFINE_CLASS(Qosmetics::SaberSwitcherViewController);
 
 #define INFO(value...) SaberLogger::GetLogger().info(value)
-#define toString = 
+
+
 namespace Qosmetics
 {
-    //void OnButtonClick(QuestUI::ModSettings)
     void SaberSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         DescriptorCache::Write();
         SaveConfig();
-        /*
-        Transform* transform = get_transform();
-        for (int i = 0; i < transform->get_childCount(); i++)
-        {
-            Transform* child = transform->GetChild(i);
-            std::string childName = to_utf8(csstrtostr(child->get_name()));
-            INFO("Found %s", childName.c_str());
-            for (int j = 0; j < child->get_childCount(); j++)
-            {
-                Transform* child2 = child->GetChild(j);
-                std::string child2Name = to_utf8(csstrtostr(child2->get_name()));
-
-                INFO("\t%s", child2Name.c_str());
-                for (int k = 0; k < child2->get_childCount(); k++)
-                {
-                    Transform* child3 = child2->GetChild(k);
-                    std::string child3Name = to_utf8(csstrtostr(child3->get_name()));
-
-                    INFO("\t\t%s", child3Name.c_str());
-                    for (int l = 0; l < child3->get_childCount(); l++)
-                    {
-                        Transform* child4 = child3->GetChild(l);
-
-                        std::string child4Name = to_utf8(csstrtostr(child4->get_name()));
-                        INFO("\t\t\t%s", child4Name.c_str());
-                        for (int m = 0; m < child4->get_childCount(); m++)
-                        {
-                            Transform* child5 = child4->GetChild(m);
-
-                            std::string child5Name = to_utf8(csstrtostr(child5->get_name()));
-                            INFO("\t\t\t\t%s", child5Name.c_str());
-                            //if (child5Name.find(".qsaber") != std::string::npos) Object::Destroy(child5);
-                        }
-                    }
-                }
-            }
-        }
-        */
     }
 
     void SaberSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -88,26 +51,72 @@ namespace Qosmetics
         if (firstActivation)
         {
             get_gameObject()->AddComponent<Touchable*>();
-            GameObject* layout = QuestUI::BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
-		    //layout->AddComponent<QuestUI::Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+            GameObject* settingsLayout = QuestUI::BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
+            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default saber", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+                INFO("Default saber selected!");
+                QuestSaber::SetActiveSaber((SaberData*)nullptr);
+            }));
+
+            HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
+            VerticalLayoutGroup* infoLayout = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
+            VerticalLayoutGroup* buttonList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
 
             std::vector<Descriptor*>& descriptors = DescriptorCache::GetSaberDescriptors();
             for (int i = 0; i < descriptors.size(); i++)
             {
-                std::string stringName = descriptors[i]->get_fileName();
+                HorizontalLayoutGroup* buttonLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(buttonList->get_transform());
 
-                std::string buttonName = descriptors[i]->get_fileName();
-                buttonName.erase(buttonName.find_last_of("."));
-                Button* descriptorButton = QuestUI::BeatSaberUI::CreateUIButton(layout->get_transform(), buttonName, il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
-                    INFO("a saber toggle was clicked!");
-                    if (!fileName) return;
-                    std::string name = to_utf8(csstrtostr(fileName));
-                    Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
-                    QuestSaber::SetActiveSaber(descriptor, true);
-                    INFO("Saber %s was selected", descriptor->get_name().c_str());
-                }));
-                descriptorButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(descriptors[i]->get_fileName()));
+                AddButtonsForDescriptor(buttonLayout->get_transform(), descriptors[i]);
+                AddTextForDescriptor(infoLayout->get_transform(), descriptors[i]);
             }
         }
+    }
+
+    void SaberSwitcherViewController::AddButtonsForDescriptor(Transform* layout, Descriptor* descriptor)
+    {
+        if (!layout || !descriptor) return;
+
+        std::string stringName = descriptor->get_fileName();
+
+        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+            if (!fileName) return;
+            std::string name = to_utf8(csstrtostr(fileName));
+            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
+            QuestSaber::SetActiveSaber(descriptor, true);
+            INFO("Selected saber %s", descriptor->get_name().c_str());
+        }));
+
+        selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
+        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "erase", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+            if (!fileName) return;
+            std::string name = to_utf8(csstrtostr(fileName));
+            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
+            if (fileexists(descriptor->get_filePath())) 
+            {
+                INFO("Deleting %s", descriptor->get_filePath().c_str());
+                deletefile(descriptor->get_filePath());
+                INFO("Deleted %s", descriptor->get_filePath().c_str());
+            }
+        }));
+    }
+
+    void SaberSwitcherViewController::AddTextForDescriptor(Transform* layout, Descriptor* descriptor)
+    {
+        if (!layout || !descriptor) return; // if either is nullptr, early return
+        
+        std::string buttonName = descriptor->get_name();
+        
+        if (buttonName == "") // if the name is empty, use the filename instead
+        {
+            descriptor->get_fileName();
+            buttonName.erase(buttonName.find_last_of("."));
+        }
+
+        TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName + " ");
+        TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, descriptor->get_author() + " ");
+
+        QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
+        authorText->set_color(UnityEngine::Color(0.8f, 0.8f, 0.8f, 0.8f));
+        authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
     }
 }
