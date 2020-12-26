@@ -50,6 +50,11 @@ namespace Qosmetics
         {
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* settingsLayout = QuestUI::BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
+
+            ExternalComponents* externalComponents = settingsLayout->GetComponent<ExternalComponents*>();
+            RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
+            scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
+            
             Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default bloqs", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
                 INFO("Default note selected!");
                 QuestNote::SetActiveNote((NoteData*)nullptr);
