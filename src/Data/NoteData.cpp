@@ -34,11 +34,6 @@ namespace Qosmetics
 
     void NoteData::LoadAssets()
     {
-        if (get_complete())
-        {
-            il2cpp_utils::RunMethod(this->bundle, "Unload", false);
-            return;
-        }
         if (isLoading) return;
         if (!this->bundle) 
         {

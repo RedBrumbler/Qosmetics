@@ -1,7 +1,10 @@
+#include "config.hpp"
 #include "Utils/NoteUtils.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include "UnityEngine/Object.hpp"
 #include "Data/NoteData.hpp"
+
+extern config_t config;
 
 namespace Qosmetics
 {
@@ -96,6 +99,19 @@ namespace Qosmetics
             getLogger().error("Note transform was nullptr, skipping add note...");
             return;
         }
+
+        if (config.noteConfig.overrideNoteSize) // apply custom size
+        {
+            UnityEngine::Vector3 size = UnityEngine::Vector3::get_one() * (float)config.noteConfig.noteSize;
+            note->get_transform()->set_localScale(size);
+            UnityEngine::Transform* bigCuttable = note->get_transform()->Find(il2cpp_utils::createcsstr("BigCuttable"));
+            UnityEngine::Transform* smallCuttable = note->get_transform()->Find(il2cpp_utils::createcsstr("SmallCuttable"));
+
+            UnityEngine::Vector3 othersize = UnityEngine::Vector3::get_one() / (float)config.noteConfig.noteSize;
+            if (bigCuttable) bigCuttable->set_localScale(othersize);
+            if (smallCuttable) smallCuttable->set_localScale(othersize);
+        }
+
         else if (noteController == nullptr)
         {
             getLogger().error("Note controller was nullptr, skipping add note...");
@@ -285,6 +301,7 @@ namespace Qosmetics
 
     void NoteUtils::ReplaceDebris(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, Qosmetics::NoteData &customNoteData)
     {
+        if (config.noteConfig.forceDefaultDebris) return;
         UnityEngine::Transform* note = noteDebris->get_transform();
 
         ReplaceDebrisMaterials(note, customNoteData);
@@ -302,6 +319,7 @@ namespace Qosmetics
 
     void NoteUtils::ReplaceBomb(GlobalNamespace::BombNoteController* noteController, Qosmetics::NoteData &customNoteData)
     {
+        if (config.noteConfig.forceDefaultBombs) return;
         // the bomb method is much more straight forward so no need to make seperate methods for finding old bombs and such
         UnityEngine::Transform* bomb = noteController->get_transform();
 

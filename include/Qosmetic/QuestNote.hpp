@@ -32,7 +32,7 @@ namespace Qosmetics
     class QuestNote
     {
         public:
-            static inline ModInfo modInfo = {"Qosmetics Notes", VERSION};
+            static inline ModInfo modInfo = {string_format("%s Notes", ID), VERSION};
             static const Logger& getLogger() 
             {
                 return NoteLogger::GetLogger();

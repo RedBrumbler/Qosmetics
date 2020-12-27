@@ -4,16 +4,16 @@
 #include "HMUI/FlowCoordinator.hpp"
 
 #include "UI/QosmeticsViewController.hpp"
-#include "UI/SaberSwitcherViewController.hpp"
-#include "UI/NoteSwitcherViewController.hpp"
-#include "UI/WallSwitcherViewController.hpp"
+#include "UI/Saber/SaberSwitcherViewController.hpp"
+#include "UI/Note/NoteSwitcherViewController.hpp"
+#include "UI/Wall/WallSwitcherViewController.hpp"
 
 #include "custom-types/shared/macros.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
     
-    DECLARE_INSTANCE_FIELD(HMUI::ViewController*, ActiveViewController);
-    DECLARE_INSTANCE_FIELD(Qosmetics::QosmeticsViewController*, QosmeticsViewController);
+    DECLARE_INSTANCE_FIELD_DEFAULT(HMUI::ViewController*, ActiveViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::QosmeticsViewController*, QosmeticsViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::SaberSwitcherViewController*, SaberSwitcherViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::NoteSwitcherViewController*, NoteSwitcherViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallSwitcherViewController*, WallSwitcherViewController, nullptr);

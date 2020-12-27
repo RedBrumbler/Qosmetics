@@ -41,7 +41,7 @@ namespace Qosmetics
     class QuestSaber
     {
         public:
-            static inline ModInfo modInfo = {"Qosmetics Sabers", VERSION}; 
+            static inline ModInfo modInfo = {string_format("%s Sabers", ID), VERSION};
             static const Logger& getLogger() 
             {
                 return SaberLogger::GetLogger();

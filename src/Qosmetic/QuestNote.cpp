@@ -179,10 +179,11 @@ namespace Qosmetics
         if (!activeNote) 
         {
             config.lastActiveNote = "";
+            unsetenv("qbloqsenabled");
             getLogger().info("activeNote was nullptr, clearing last active note");
             return;
         }
-
+        setenv("qbloqsenabled", "1", 1);
         config.lastActiveNote = activeNote->get_descriptor()->get_fileName(); 
         getLogger().info("Last active note is now %s, should be %s", config.lastActiveNote.c_str(), activeNote->get_descriptor()->get_filePath().c_str());
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested

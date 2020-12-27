@@ -3,10 +3,10 @@
 
 namespace Qosmetics
 {
-    class WallLogger
+    class UILogger
     {
         public:
-            static inline ModInfo modInfo = {string_format("%s Walls", ID), VERSION};
+            static inline ModInfo modInfo = {string_format("%s UI", ID), VERSION};
             static const Logger& GetLogger()
             {
                 static const Logger& log(modInfo);

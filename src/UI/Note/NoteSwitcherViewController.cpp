@@ -1,4 +1,4 @@
-#include "UI/NoteSwitcherViewController.hpp"
+#include "UI/Note/NoteSwitcherViewController.hpp"
 #include "config.hpp"
 #include "Config/NoteConfig.hpp"
 #include "Data/Descriptor.hpp"
@@ -22,7 +22,7 @@
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
-#include "Logging/NoteLogger.hpp"
+#include "Logging/UILogger.hpp"
 #include "Qosmetic/QuestNote.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
@@ -35,7 +35,7 @@ using namespace HMUI;
 
 DEFINE_CLASS(Qosmetics::NoteSwitcherViewController);
 
-#define INFO(value...) NoteLogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().info(value)
 namespace Qosmetics
 {
     void NoteSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)

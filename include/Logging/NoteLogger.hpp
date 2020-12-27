@@ -6,7 +6,7 @@ namespace Qosmetics
     class NoteLogger
     {
         public:
-            static inline ModInfo modInfo = ModInfo();
+            static inline ModInfo modInfo = {string_format("%s Notes", ID), VERSION};
             static const Logger& GetLogger()
             {
                 static const Logger& log(modInfo);

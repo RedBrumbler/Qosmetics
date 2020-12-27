@@ -24,20 +24,24 @@ using namespace HMUI;
 DEFINE_CLASS(Qosmetics::QosmeticsFlowCoordinator);
 
 void OnOpenSubMenu(Qosmetics::QosmeticsFlowCoordinator* self, QuestUI::CustomDataType* data) {
+    if (!data) return;
     qosmeticsType type = data->GetData<Qosmetics::MenuButtonClickData>().type;
     switch(type)
     {
         case saber:
+            if (!self->SaberSwitcherViewController) break;
             self->SetTitle(il2cpp_utils::createcsstr("Qosmetics Sabers"), ViewController::AnimationType::In);
             self->ReplaceTopViewController(self->SaberSwitcherViewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
             self->ActiveViewController = self->SaberSwitcherViewController;
             break;
         case note:
+            if (!self->NoteSwitcherViewController) break;
             self->SetTitle(il2cpp_utils::createcsstr("Qosmetics Bloqs"), ViewController::AnimationType::In);
             self->ReplaceTopViewController(self->NoteSwitcherViewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
             self->ActiveViewController = self->NoteSwitcherViewController;
             break;
         case wall:
+            if (!self->WallSwitcherViewController) break;
             self->SetTitle(il2cpp_utils::createcsstr("Qosmetics Walls"), ViewController::AnimationType::In);
             self->ReplaceTopViewController(self->WallSwitcherViewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
             self->ActiveViewController = self->WallSwitcherViewController;
@@ -45,15 +49,6 @@ void OnOpenSubMenu(Qosmetics::QosmeticsFlowCoordinator* self, QuestUI::CustomDat
         default:
             break;
     }
-    /*
-    if(info.viewController) {
-        self->SetTitle(il2cpp_utils::createcsstr(info.title), ViewController::AnimationType::In);
-        self->ReplaceTopViewController(info.viewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
-        self->ActiveViewController = info.viewController;
-    } else if(info.flowCoordinator) {
-        self->PresentFlowCoordinator(info.flowCoordinator, nullptr, ViewController::AnimationDirection::Horizontal, false, false);
-    }
-    */
 }
 
 namespace Qosmetics
@@ -115,29 +110,6 @@ namespace Qosmetics
                         break;
                     default:
                         break;
-                    /*
-                    case Register::Type::VIEW_CONTROLLER: {
-                        info.viewController = BeatSaberUI::CreateViewController(info.il2cpp_type);
-                        if(info.showModInfo){
-                            VerticalLayoutGroup* layout = BeatSaberUI::CreateVerticalLayoutGroup(info.viewController->get_rectTransform());
-                            layout->get_rectTransform()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -48.0f));
-                            GameObject* layoutGameObject = layout->get_gameObject();
-                            layoutGameObject->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-                            layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
-                            layout->set_padding(UnityEngine::RectOffset::New_ctor(3, 4, 2, 2));
-                            TextMeshProUGUI* modInfoText = BeatSaberUI::CreateText(layout->get_transform(), info.modInfo.id + "|v" + info.modInfo.version);
-                            modInfoText->set_alignment(TextAlignmentOptions::Center);
-                            modInfoText->set_fontSize(4.8f);
-                        }
-                        break;
-                    }
-                    case Register::Type::FLOW_COORDINATOR: {
-                        info.flowCoordinator = BeatSaberUI::CreateFlowCoordinator(info.il2cpp_type);
-                        break;
-                    }
-                    default:
-                        break;
-                    */
                 }
             }
             if(!QosmeticsViewController)

@@ -128,7 +128,7 @@ namespace Qosmetics
         ColorManager::Init();
         // replace the saber
         SaberUtils::AddSaber(instance, selected);
-        Qosmetics::SaberConfig config = *selected.saberConfig;
+        Qosmetics::SaberConfig saberConfig = *selected.saberConfig;
 
         // get the transform in order to find the other neccesary transforms lower in the hierarchy
         UnityEngine::Transform* saberTransform = instance->get_transform();
@@ -137,13 +137,12 @@ namespace Qosmetics
         UnityEngine::Transform* customSaber = saberTransform->Find(il2cpp_utils::createcsstr(instance->get_saberType().value == 0 ? "LeftSaber" : "RightSaber"));
         
         // if both transforms are found and the saber doesn't have custom trails, move the trail inside the leftsaber/rightsaber object per request of MichaelZoller
-        if (basicSaberModel != nullptr && customSaber != nullptr && !config.get_hasCustomTrails()) 
+        if (basicSaberModel != nullptr && customSaber != nullptr && (!saberConfig.get_hasCustomTrails() || config.saberConfig.trailType == baseGame))
         {
             TrailUtils::MoveTrail(basicSaberModel, customSaber);
-            
         }
         // if the saber has custom trails, log the fact that it did and that that is why the trail was not moved (it will be disabled later on)
-        else if (config.get_hasCustomTrails())
+        else if (saberConfig.get_hasCustomTrails())
         {
             getLogger().info("Saber had custom trails, not moving trail");
         }
@@ -153,18 +152,18 @@ namespace Qosmetics
             getLogger().error("basicsabermodel null: %d, customSaber null: %d", basicSaberModel == nullptr, customSaber == nullptr);
         }
 
-        if (basicSaberModel != nullptr && customSaber != nullptr && config.get_hasCustomTrails())
+        if (basicSaberModel != nullptr && customSaber != nullptr && saberConfig.get_hasCustomTrails() && config.saberConfig.trailType == custom)
         {
             switch (instance->get_saberType().value)
             {
                 case 0: // LeftSaber
-                    for (auto &trail : *config.get_leftTrails())
+                    for (auto &trail : *saberConfig.get_leftTrails())
                     {
                         TrailUtils::AddTrail(trail, customSaber);
                     }
                     break;
                 case 1: // RightSaber
-                    for (auto &trail : *config.get_rightTrails())
+                    for (auto &trail : *saberConfig.get_rightTrails())
                     {
                         TrailUtils::AddTrail(trail, customSaber);
                     }
@@ -174,7 +173,7 @@ namespace Qosmetics
         }
              
     
-        if (config.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
+        if (saberConfig.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
         {
             // TODO: probably not anymore because this will be doable with an eventsystem which will not be implemented for some time
             /*
@@ -201,7 +200,7 @@ namespace Qosmetics
             }*/
         }
 
-        if (config.get_hasCustomSliceParticles() && customSaber != nullptr)
+        if (saberConfig.get_hasCustomSliceParticles() && customSaber != nullptr)
         {
             // TODO
         }
@@ -257,10 +256,11 @@ namespace Qosmetics
         if (!activeSaber) 
         {
             config.lastActiveSaber = "";
+            unsetenv("qsabersenabled");
             getLogger().info("activeSaber was nullptr, clearing last active saber");
             return;
         }
-
+        setenv("qsabersenabled", "1", 1);
         config.lastActiveSaber = activeSaber->saberDescriptor->get_fileName();
 
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested

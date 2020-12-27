@@ -6,7 +6,7 @@ namespace Qosmetics
     class GenericLogger
     {
         public:
-            static inline ModInfo modInfo = ModInfo();
+            static inline ModInfo modInfo = {ID, VERSION};
             static const Logger& GetLogger()
             {
                 static const Logger& log(modInfo);

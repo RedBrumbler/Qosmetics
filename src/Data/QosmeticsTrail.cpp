@@ -1,3 +1,4 @@
+#include "config.hpp"
 #include "Data/QosmeticsTrail.hpp"
 #include "Data/CustomTrail.hpp"
 #include "GlobalNamespace/TimeHelper.hpp"
@@ -11,6 +12,8 @@
 
 DEFINE_CLASS(Qosmetics::QosmeticsTrail);
 float Qosmetics::QosmeticsTrail::trailIntensity = 1.0f;
+
+extern config_t config;
 
 namespace Qosmetics
 {
@@ -46,10 +49,10 @@ namespace Qosmetics
 	void QosmeticsTrail::TrailSetup(int length, int granularity, int colorType, int whiteStep, UnityEngine::Material* trailMaterial, UnityEngine::Color trailColor, UnityEngine::Color multiplierColor)
 	{
 		// sets all the different values
-		this->length = length;
-		this->granularity = granularity;
+		this->length = config.saberConfig.overrideTrailLength ? (int)config.saberConfig.trailLength : length;
+		this->granularity = config.saberConfig.overrideTrailLength ? (int)(60 * (config.saberConfig.trailLength > 10.0f ? (config.saberConfig.trailLength / 10.0f) : 1.0f)): granularity;
 		this->colorType = colorType;
-		this->whitestep = whiteStep;
+		this->whitestep =  config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep : whiteStep;
 		this->trailMaterial = trailMaterial;
 		this->trailColor = trailColor;
 		this->multiplierColor = multiplierColor;

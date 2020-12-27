@@ -1,6 +1,6 @@
-#include "UI/WallSwitcherViewController.hpp"
+#include "UI/Saber/SaberSwitcherViewController.hpp"
 #include "config.hpp"
-#include "Config/WallConfig.hpp"
+#include "Config/SaberConfig.hpp"
 #include "Data/Descriptor.hpp"
 
 #include "UnityEngine/RectOffset.hpp"
@@ -22,8 +22,8 @@
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
-#include "Logging/WallLogger.hpp"
-#include "Qosmetic/QuestWall.hpp"
+#include "Logging/UILogger.hpp"
+#include "Qosmetic/QuestSaber.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
 
@@ -33,39 +33,40 @@ using namespace UnityEngine::UI;
 using namespace UnityEngine::Events;
 using namespace HMUI;
 
-DEFINE_CLASS(Qosmetics::WallSwitcherViewController);
+DEFINE_CLASS(Qosmetics::SaberSwitcherViewController);
 
-#define INFO(value...) WallLogger::GetLogger().info(value)
-#define toString = 
+#define INFO(value...) UILogger::GetLogger().info(value)
+
+
 namespace Qosmetics
 {
-    void WallSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+    void SaberSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         DescriptorCache::Write();
         SaveConfig();
     }
 
-    void WallSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+    void SaberSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         if (firstActivation)
         {
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* settingsLayout = QuestUI::BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
-            
+
             ExternalComponents* externalComponents = settingsLayout->GetComponent<ExternalComponents*>();
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
-            
-            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default wall", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
-                INFO("Default wall selected!");
-                QuestWall::SetActiveWall((WallData*)nullptr);
+
+            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default saber", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+                INFO("Default saber selected!");
+                QuestSaber::SetActiveSaber((SaberData*)nullptr);
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
             VerticalLayoutGroup* infoLayout = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
             VerticalLayoutGroup* buttonList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
 
-            std::vector<Descriptor*>& descriptors = DescriptorCache::GetWallDescriptors();
+            std::vector<Descriptor*>& descriptors = DescriptorCache::GetSaberDescriptors();
             for (int i = 0; i < descriptors.size(); i++)
             {
                 HorizontalLayoutGroup* buttonLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(buttonList->get_transform());
@@ -76,7 +77,7 @@ namespace Qosmetics
         }
     }
 
-    void WallSwitcherViewController::AddButtonsForDescriptor(Transform* layout, Descriptor* descriptor)
+    void SaberSwitcherViewController::AddButtonsForDescriptor(Transform* layout, Descriptor* descriptor)
     {
         if (!layout || !descriptor) return;
 
@@ -85,16 +86,16 @@ namespace Qosmetics
         Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
-            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
-            QuestWall::SetActiveWall(descriptor, true);
-            INFO("Selected wall %s", descriptor->get_name().c_str());
+            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
+            QuestSaber::SetActiveSaber(descriptor, true);
+            INFO("Selected saber %s", descriptor->get_name().c_str());
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
         Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "erase", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
-            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
+            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
             if (fileexists(descriptor->get_filePath())) 
             {
                 INFO("Deleting %s", descriptor->get_filePath().c_str());
@@ -104,7 +105,7 @@ namespace Qosmetics
         }));
     }
 
-    void WallSwitcherViewController::AddTextForDescriptor(Transform* layout, Descriptor* descriptor)
+    void SaberSwitcherViewController::AddTextForDescriptor(Transform* layout, Descriptor* descriptor)
     {
         if (!layout || !descriptor) return; // if either is nullptr, early return
         

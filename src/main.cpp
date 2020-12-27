@@ -69,9 +69,20 @@
 #include "Utils/MaterialUtils.hpp"
 
 #include "custom-types/shared/register.hpp"
-#include "UI/SaberSwitcherViewController.hpp"
-#include "UI/WallSwitcherViewController.hpp"
-#include "UI/NoteSwitcherViewController.hpp"
+
+
+#include "UI/Saber/SaberSwitcherViewController.hpp"
+#include "UI/Saber/SaberPreviewViewController.hpp"
+#include "UI/Saber/SaberSettingsViewController.hpp"
+
+#include "UI/Wall/WallSwitcherViewController.hpp"
+#include "UI/Wall/WallPreviewViewController.hpp"
+#include "UI/Wall/WallSettingsViewController.hpp"
+
+#include "UI/Note/NoteSwitcherViewController.hpp"
+#include "UI/Note/NotePreviewViewController.hpp"
+#include "UI/Note/NoteSettingsViewController.hpp"
+
 #include "UI/QosmeticsViewController.hpp"
 #include "UI/QosmeticsFlowCoordinator.hpp"
 
@@ -119,6 +130,10 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, 
     NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
     if (notesEnabled) 
     {
+        if (config.noteConfig.overrideNoteSize) // apply custom size
+        {
+            self->get_transform()->Find(il2cpp_utils::createcsstr("NoteDebrisMesh"))->set_localScale(UnityEngine::Vector3::get_one() * (float)config.noteConfig.noteSize);
+        }
         UnityEngine::Transform* initTransform = UnityEngine::GameObject::New_ctor()->get_transform();//UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
         initTransform->set_localPosition(notePos);
         Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
@@ -198,7 +213,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 
     if (afterHealthWarning)
     {
-        if (sabersEnabled && config.enableMenuPointer) 
+        if (sabersEnabled && config.saberConfig.enableMenuPointer) 
         {
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -253,7 +268,7 @@ MAKE_HOOK_OFFSETLESS(GamePause_Pause, void, GlobalNamespace::GamePause* self)
     GamePause_Pause(self);
     if (afterHealthWarning)
     {
-        if (sabersEnabled && config.enableMenuPointer) 
+        if (sabersEnabled && config.saberConfig.enableMenuPointer) 
         {
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -288,7 +303,7 @@ MAKE_HOOK_OFFSETLESS(MultiplayerPlayersManager_SwitchLocalPlayerToInactive, void
 MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, void, GlobalNamespace::MultiplayerLocalActivePlayerInGameMenuViewController* self)
 {
     MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu(self);
-    if (sabersEnabled && config.enableMenuPointer) 
+    if (sabersEnabled && config.saberConfig.enableMenuPointer) 
         {
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -330,25 +345,8 @@ extern "C" void setup(ModInfo& info)
     info.id = ID;
     info.version = VERSION;
     modInfo = info;
-    Qosmetics::GenericLogger::modInfo = info;
-
-    Qosmetics::QuestSaber::modInfo.id = string_format("%s Sabers", ID);
-    Qosmetics::QuestSaber::modInfo.version = info.version;
-    Qosmetics::SaberLogger::modInfo.id = string_format("%s Sabers", ID);
-    Qosmetics::SaberLogger::modInfo.version = info.version;
-
-    Qosmetics::QuestNote::modInfo.id = string_format("%s Notes", ID);
-    Qosmetics::QuestNote::modInfo.version = info.version;
-    Qosmetics::NoteLogger::modInfo.id = string_format("%s Notes", ID);
-    Qosmetics::NoteLogger::modInfo.version = info.version;
-
-    Qosmetics::QuestWall::modInfo.id = string_format("%s Walls", ID);
-    Qosmetics::QuestWall::modInfo.version = info.version;
-    Qosmetics::WallLogger::modInfo.id = string_format("%s Walls", ID);
-    Qosmetics::WallLogger::modInfo.version = info.version;
+    
     getLogger().info("If you are reading this then idk what you're doing, go play the game, don't read logs");
-    getLogger().info(info.version);
-    getLogger().info(info.id);
 }
 
 void WipeAllDefinedPointers()
@@ -385,17 +383,27 @@ extern "C" void load()
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());
 
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberPreviewViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSettingsViewController>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSwitcherViewController>());
-    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NoteSwitcherViewController>());
-    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallSwitcherViewController>());
-    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsViewController>());
 
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NotePreviewViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NoteSettingsViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NoteSwitcherViewController>());
+
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallPreviewViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallSettingsViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallSwitcherViewController>());
+
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsViewController>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsFlowCoordinator>());
     
     QuestUI::Register::RegisterModSettingsFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>((ModInfo){"Qosmetics Settings", VERSION});
-    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSwitcherViewController*>((ModInfo){"Qosmetics Saber Switcher", VERSION});
-    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::NoteSwitcherViewController*>((ModInfo){"Qosmetics Bloq Switcher", VERSION});
-    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::WallSwitcherViewController*>((ModInfo){"Qosmetics Wall Switcher", VERSION});
+
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::WallSettingsViewController*>((ModInfo){"Qosmetics Wall Settings", VERSION});
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSettingsViewController*>((ModInfo){"Qosmetics Saber Settings", VERSION});
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::NoteSettingsViewController*>((ModInfo){"Qosmetics Bloq Settings", VERSION});
+    
     
     std::thread WipeRoutine(
         [&]{

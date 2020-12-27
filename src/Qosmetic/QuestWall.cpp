@@ -108,7 +108,7 @@ namespace Qosmetics
             return;
         }
 
-        WallConfig config = *selected.get_config();
+        WallConfig wallConfig = *selected.get_config();
 
         UnityEngine::GameObject* obstacleGO = obstacleController->get_gameObject();
         UnityEngine::Transform* obstacleTransform = obstacleGO->get_transform();
@@ -126,30 +126,30 @@ namespace Qosmetics
             setColors = true;
         }
 
-        if (config.get_disableFakeGlow()) // if fake glow needs to be disabled
+        if (wallConfig.get_disableFakeGlow() || config.wallConfig.forceFakeGlowOff) // if fake glow needs to be disabled
             WallUtils::DisableFakeGlow(obstacleTransform);
 
-        if (config.get_disableFrame()) // if the frame needs to be disabled
+        if (wallConfig.get_disableFrame()) // if the frame needs to be disabled
             WallUtils::DisableFrame(obstacleTransform);
         else // if frame should stay enabled
         {
-            if (config.get_replaceFrameMesh()) // if the frame mesh needs to be replaced
+            if (wallConfig.get_replaceFrameMesh()) // if the frame mesh needs to be replaced
                 WallUtils::ReplaceFrameMesh(obstacleTransform, selected.get_frameMesh());
 
-            if (config.get_replaceFrameMaterial()) // if the frame material needs to be replaced
+            if (wallConfig.get_replaceFrameMaterial()) // if the frame material needs to be replaced
             {
-                if (config.get_moreThan1FrameMat()) // if there is more than 1 material on the frame
+                if (wallConfig.get_moreThan1FrameMat()) // if there is more than 1 material on the frame
                     WallUtils::ReplaceFrameSharedMaterials(obstacleTransform, selected.get_frameSharedMaterials());
                 else // if there is only 1 material on the frame
                     WallUtils::ReplaceFrameMaterial(obstacleTransform, selected.get_frameMaterial());
             }
         }
 
-        if (config.get_replaceCoreMesh()) // if the core mesh needs to be replaced
+        if (wallConfig.get_replaceCoreMesh()) // if the core mesh needs to be replaced
             WallUtils::ReplaceCoreMesh(obstacleTransform, selected.get_coreMesh());
-        if (config.get_replaceCoreMaterial()) // if the core material needs to be replaced
+        if (wallConfig.get_replaceCoreMaterial()) // if the core material needs to be replaced
         {
-            if (config.get_moreThan1CoreMat()) // if there is more than 1 material on the core
+            if (wallConfig.get_moreThan1CoreMat()) // if there is more than 1 material on the core
                 WallUtils::ReplaceCoreSharedMaterials(obstacleTransform, selected.get_coreSharedMaterials());
             else // if there is only 1 material on the frame
                 WallUtils::ReplaceCoreMaterial(obstacleTransform, selected.get_coreMaterial());
@@ -183,10 +183,11 @@ namespace Qosmetics
         if (!activeWall) 
         {
             config.lastActiveWall = "";
+            unsetenv("qwallsenabled");
             getLogger().info("activeWall was nullptr, clearing last active wall");
             return;
         }
-
+        setenv("qwallsenabled", "1", 1);
         config.lastActiveWall = activeWall->get_descriptor()->get_fileName();
 
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
