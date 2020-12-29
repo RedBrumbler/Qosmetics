@@ -52,7 +52,7 @@ namespace Qosmetics
 		this->length = config.saberConfig.overrideTrailLength ? (int)config.saberConfig.trailLength : length;
 		this->granularity = config.saberConfig.overrideTrailLength ? (int)(60 * (config.saberConfig.trailLength > 10.0f ? (config.saberConfig.trailLength / 10.0f) : 1.0f)): granularity;
 		this->colorType = colorType;
-		this->whitestep =  config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep : whiteStep;
+		this->whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep * this->length : whiteStep;
 		this->trailMaterial = trailMaterial;
 		this->trailColor = trailColor;
 		this->multiplierColor = multiplierColor;

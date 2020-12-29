@@ -27,6 +27,8 @@
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
 
+#include "UI/Wall/WallPreviewViewController.hpp"
+
 using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -58,7 +60,11 @@ namespace Qosmetics
             
             Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default wall", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
                 INFO("Default wall selected!");
+                if (QuestWall::GetActiveWall() && QuestWall::GetActiveWall()->get_isLoading()) return;
                 QuestWall::SetActiveWall((WallData*)nullptr);
+                WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
+                if (previewController) previewController->UpdatePreview();
+                else INFO("Couldn't find preview controller");
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
@@ -84,14 +90,18 @@ namespace Qosmetics
 
         Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
+            if (QuestWall::GetActiveWall() && QuestWall::GetActiveWall()->get_isLoading()) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
             QuestWall::SetActiveWall(descriptor, true);
+            WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
+            if (previewController) previewController->UpdatePreview();
+            else INFO("Couldn't find preview controller");
             INFO("Selected wall %s", descriptor->get_name().c_str());
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
-        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "erase", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);

@@ -32,23 +32,47 @@ void OnOpenSubMenu(Qosmetics::QosmeticsFlowCoordinator* self, QuestUI::CustomDat
             if (!self->SaberSwitcherViewController) break;
             self->SetTitle(il2cpp_utils::createcsstr("Qosmetics Sabers"), ViewController::AnimationType::In);
             self->ReplaceTopViewController(self->SaberSwitcherViewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
+            self->SetLeftScreenViewController(self->SaberSettingsViewController, ViewController::AnimationType::In);
+            self->SetRightScreenViewController(self->SaberPreviewViewController, ViewController::AnimationType::In);
             self->ActiveViewController = self->SaberSwitcherViewController;
             break;
         case note:
             if (!self->NoteSwitcherViewController) break;
             self->SetTitle(il2cpp_utils::createcsstr("Qosmetics Bloqs"), ViewController::AnimationType::In);
             self->ReplaceTopViewController(self->NoteSwitcherViewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
+            self->SetLeftScreenViewController(self->NoteSettingsViewController, ViewController::AnimationType::In);
+            self->SetRightScreenViewController(self->NotePreviewViewController, ViewController::AnimationType::In);
             self->ActiveViewController = self->NoteSwitcherViewController;
             break;
         case wall:
             if (!self->WallSwitcherViewController) break;
             self->SetTitle(il2cpp_utils::createcsstr("Qosmetics Walls"), ViewController::AnimationType::In);
             self->ReplaceTopViewController(self->WallSwitcherViewController, self, self, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
+            self->SetLeftScreenViewController(self->WallSettingsViewController, ViewController::AnimationType::In);
+            self->SetRightScreenViewController(self->WallPreviewViewController, ViewController::AnimationType::In);
             self->ActiveViewController = self->WallSwitcherViewController;
             break;
         default:
             break;
     }
+}
+
+VerticalLayoutGroup* SetupSubTitle(VerticalLayoutGroup* layout, std::string subTitle = "")
+{
+    layout->get_rectTransform()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -48.0f));
+
+    GameObject* layoutGameObject = layout->get_gameObject();
+    layoutGameObject->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
+    layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+    layout->set_padding(UnityEngine::RectOffset::New_ctor(3, 4, 2, 2));
+
+    if (subTitle != "")
+    {
+        TextMeshProUGUI* menuSubtitle = BeatSaberUI::CreateText(layout->get_transform(), subTitle);
+        menuSubtitle->set_alignment(TextAlignmentOptions::Center);
+        menuSubtitle->set_fontSize(4.8f);
+    }
+    return layout;
 }
 
 namespace Qosmetics
@@ -59,59 +83,34 @@ namespace Qosmetics
         {
             SetTitle(il2cpp_utils::createcsstr("Qosmetics Settings"), ViewController::AnimationType::Out);
             showBackButton = true;
-            for(int i = 0; i < 5; i++) 
-            {
-                VerticalLayoutGroup* layout = nullptr;
-                GameObject* layoutGameObject = nullptr;
-                TextMeshProUGUI* menuSubtitle = nullptr;
-                switch((qosmeticsType)i) 
-                {
-                    case saber:
-                        SaberSwitcherViewController = BeatSaberUI::CreateViewController<Qosmetics::SaberSwitcherViewController*>();
-                        layout = BeatSaberUI::CreateVerticalLayoutGroup(SaberSwitcherViewController->get_rectTransform());
-                        layout->get_rectTransform()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -48.0f));
 
-                        layoutGameObject = layout->get_gameObject();
-                        layoutGameObject->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-                        layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
-                        layout->set_padding(UnityEngine::RectOffset::New_ctor(3, 4, 2, 2));
+            { // Saber Setup
+                SaberSwitcherViewController = BeatSaberUI::CreateViewController<Qosmetics::SaberSwitcherViewController*>();
+                SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(SaberSwitcherViewController->get_rectTransform()), "Qosmetics Sabers");
 
-                        menuSubtitle = BeatSaberUI::CreateText(layout->get_transform(), "Qosmetics Sabers");
-                        menuSubtitle->set_alignment(TextAlignmentOptions::Center);
-                        menuSubtitle->set_fontSize(4.8f);
-                        break;
-                    case note:
-                        NoteSwitcherViewController = BeatSaberUI::CreateViewController<Qosmetics::NoteSwitcherViewController*>();
-                        layout = BeatSaberUI::CreateVerticalLayoutGroup(NoteSwitcherViewController->get_rectTransform());
-                        layout->get_rectTransform()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -48.0f));
-
-                        layoutGameObject = layout->get_gameObject();
-                        layoutGameObject->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-                        layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
-                        layout->set_padding(UnityEngine::RectOffset::New_ctor(3, 4, 2, 2));
-
-                        menuSubtitle = BeatSaberUI::CreateText(layout->get_transform(), "Qosmetics Bloqs");
-                        menuSubtitle->set_alignment(TextAlignmentOptions::Center);
-                        menuSubtitle->set_fontSize(4.8f);
-                        break;
-                    case wall:
-                        WallSwitcherViewController = BeatSaberUI::CreateViewController<Qosmetics::WallSwitcherViewController*>();
-                        layout = BeatSaberUI::CreateVerticalLayoutGroup(WallSwitcherViewController->get_rectTransform());
-                        layout->get_rectTransform()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -48.0f));
-
-                        layoutGameObject = layout->get_gameObject();
-                        layoutGameObject->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-                        layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
-                        layout->set_padding(UnityEngine::RectOffset::New_ctor(3, 4, 2, 2));
-
-                        menuSubtitle = BeatSaberUI::CreateText(layout->get_transform(), "Qosmetics Walls");
-                        menuSubtitle->set_alignment(TextAlignmentOptions::Center);
-                        menuSubtitle->set_fontSize(4.8f);
-                        break;
-                    default:
-                        break;
-                }
+                SaberSettingsViewController = BeatSaberUI::CreateViewController<Qosmetics::SaberSettingsViewController*>();
+                SaberPreviewViewController = BeatSaberUI::CreateViewController<Qosmetics::SaberPreviewViewController*>();
+                //SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(SaberSwitcherViewController->get_rectTransform()));
             }
+
+            { // Note Setup
+                NoteSwitcherViewController = BeatSaberUI::CreateViewController<Qosmetics::NoteSwitcherViewController*>();
+                SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(NoteSwitcherViewController->get_rectTransform()), "Qosmetics Bloqs");
+
+                NoteSettingsViewController = BeatSaberUI::CreateViewController<Qosmetics::NoteSettingsViewController*>();
+                NotePreviewViewController = BeatSaberUI::CreateViewController<Qosmetics::NotePreviewViewController*>();
+                //SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(SaberSwitcherViewController->get_rectTransform()));
+            }
+            
+            { // Wall Setup
+                WallSwitcherViewController = BeatSaberUI::CreateViewController<Qosmetics::WallSwitcherViewController*>();
+                SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(WallSwitcherViewController->get_rectTransform()), "Qosmetics Walls");
+
+                WallSettingsViewController = BeatSaberUI::CreateViewController<Qosmetics::WallSettingsViewController*>();
+                WallPreviewViewController = BeatSaberUI::CreateViewController<Qosmetics::WallPreviewViewController*>();
+                //SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(SaberSwitcherViewController->get_rectTransform()));
+            }
+            
             if(!QosmeticsViewController)
             {
                 QosmeticsViewController = BeatSaberUI::CreateViewController<Qosmetics::QosmeticsViewController*>();
@@ -128,6 +127,8 @@ namespace Qosmetics
         {
             SetTitle(il2cpp_utils::createcsstr("Qosmetics Settings"), ViewController::AnimationType::Out);
             ReplaceTopViewController(QosmeticsViewController, this, this, nullptr, ViewController::AnimationType::Out, ViewController::AnimationDirection::Horizontal);
+            SetLeftScreenViewController(nullptr, ViewController::AnimationType::Out);
+            SetRightScreenViewController(nullptr, ViewController::AnimationType::Out);
             ActiveViewController = QosmeticsViewController;
         }
         else 

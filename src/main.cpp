@@ -400,9 +400,9 @@ extern "C" void load()
     
     QuestUI::Register::RegisterModSettingsFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>((ModInfo){"Qosmetics Settings", VERSION});
 
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::WallSettingsViewController*>((ModInfo){"Qosmetics Wall Settings", VERSION});
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSettingsViewController*>((ModInfo){"Qosmetics Saber Settings", VERSION});
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::NoteSettingsViewController*>((ModInfo){"Qosmetics Bloq Settings", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::WallSettingsViewController*>((ModInfo){"Qosmetics Wall Settings", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSettingsViewController*>((ModInfo){"Qosmetics Saber Settings", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::NoteSettingsViewController*>((ModInfo){"Qosmetics Bloq Settings", VERSION});
     
     
     std::thread WipeRoutine(

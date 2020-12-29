@@ -20,6 +20,7 @@
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
+#include "UI/Wall/WallPreviewViewController.hpp"
 
 #include "Logging/UILogger.hpp"
 #define INFO(value...) UILogger::GetLogger().info(value)
@@ -45,9 +46,19 @@ namespace Qosmetics
         {
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
+
+            container->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+            
+            ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
+            RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
+            scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
+            
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Disable Fake Glow", config.wallConfig.forceFakeGlowOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
                     config.wallConfig.forceFakeGlowOff = value;
                     SaveConfig();
+                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
                 }));
         }
     }

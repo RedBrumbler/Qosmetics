@@ -27,6 +27,8 @@
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
 
+#include "UI/Note/NotePreviewViewController.hpp"
+
 using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -57,7 +59,11 @@ namespace Qosmetics
             
             Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default bloqs", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
                 INFO("Default note selected!");
+                if (QuestNote::GetActiveNote() && QuestNote::GetActiveNote()->get_isLoading()) return;
                 QuestNote::SetActiveNote((NoteData*)nullptr);
+                NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
+                if (previewController) previewController->UpdatePreview();
+                else INFO("Couldn't find preview controller");
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
@@ -81,17 +87,24 @@ namespace Qosmetics
 
         std::string stringName = descriptor->get_fileName();
 
+        //layout->get_gameObject()->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+
         Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
+            if (QuestNote::GetActiveNote() && QuestNote::GetActiveNote()->get_isLoading()) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, note);
             QuestNote::SetActiveNote(descriptor, true);
+            NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
+            if (previewController) previewController->UpdatePreview();
+            else INFO("Couldn't find preview controller");
             INFO("Selected note %s", descriptor->get_name().c_str());
             INFO("filePath %s", descriptor->get_filePath().c_str());
+
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
-        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "erase", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, note);
@@ -102,12 +115,16 @@ namespace Qosmetics
                 INFO("Deleted %s", descriptor->get_filePath().c_str());
             }
         }));
+
+
     }
 
     void NoteSwitcherViewController::AddTextForDescriptor(Transform* layout, Descriptor* descriptor)
     {
         if (!layout || !descriptor) return; // if either is nullptr, early return
         
+        //layout->get_gameObject()->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+
         std::string buttonName = descriptor->get_name();
         
         if (buttonName == "") // if the name is empty, use the filename instead

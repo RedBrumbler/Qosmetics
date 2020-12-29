@@ -53,30 +53,37 @@ namespace Qosmetics
             NoteData* newNote = new NoteData(descriptor);
 
             noteMap[descriptor] = newNote;
-            noteMap[descriptor]->LoadBundle();
+            //noteMap[descriptor]->LoadBundle();
 
             DescriptorCache::AddToNoteCache(descriptor);
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveNote, note);
         SetActiveNote(descriptor);
+        if (activeNote) activeNote->LoadBundle();
         return true;
     };
 
     void QuestNote::HealthWarning()
     {
         // for all loaded note files, load the assets in them (if there are none loaded it won't actually do anything)
+        if (activeNote && !activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadAssets();
+        /*
         for (auto& pair : noteMap)
         {
             pair.second->LoadAssets();
         }
+        */
     };
 
     void QuestNote::MenuViewControllers()
     {
+        if (activeNote && !activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadAssets();
+        /*
         for (auto& pair : noteMap)
         {
             if (!pair.second->get_complete() && !pair.second->get_isLoading()) pair.second->LoadAssets();
         }
+        */
     }
 
     void QuestNote::GameCore()

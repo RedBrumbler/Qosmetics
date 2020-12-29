@@ -72,33 +72,40 @@ namespace Qosmetics
             SaberData* newSaber = new SaberData(descriptor);
 
             saberMap[descriptor] = newSaber;
-            saberMap[descriptor]->LoadBundle();
+            //saberMap[descriptor]->LoadBundle();
 
             DescriptorCache::AddToSaberCache(descriptor);
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveSaber, saber);
         SetActiveSaber(descriptor);
+        if (activeSaber) activeSaber->LoadBundle();
         return true;
     };
 
     void QuestSaber::HealthWarning()
     {
+        if (activeSaber && !activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadAssets();
+        /*
         for (auto& pair : saberMap)
         {
             pair.second->LoadAssets();
         }
+        */
     };
 
     
     void QuestSaber::MenuViewControllers()
     {
+        if (activeSaber && !activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadAssets();
+        /*
         for (auto& pair : saberMap)
         {
             if (!pair.second->get_complete() && !pair.second->get_isLoading()) 
             {
                 pair.second->LoadAssets();
             }
-        }   
+        }  
+        */ 
     }
 
     void QuestSaber::GameCore()
@@ -171,12 +178,15 @@ namespace Qosmetics
             }
             TrailUtils::RemoveTrail(basicSaberModel);
         }
-             
-    
-        if (saberConfig.get_hasCustomWallParticles() && customSaber != nullptr && false) // disabled permanently atm
+        
+        if (basicSaberModel && config.saberConfig.trailType == none) 
+             TrailUtils::RemoveTrail(basicSaberModel);
+
+        /*
+        if (saberConfig.get_hasCustomSaberParticles() && customSaber != nullptr && false) // disabled permanently atm
         {
             // TODO: probably not anymore because this will be doable with an eventsystem which will not be implemented for some time
-            /*
+            
             // This code currently doesn't work, so by && with false it just never executes
             GlobalNamespace::ObstacleSaberSparkleEffectManager* sparkleManager = UnityUtils::GetFirstObjectOfType<GlobalNamespace::ObstacleSaberSparkleEffectManager*>(il2cpp_utils::GetClassFromName("", "ObstacleSaberSparkleEffectManager"));
             if (sparkleManager != nullptr)
@@ -186,7 +196,7 @@ namespace Qosmetics
                 if (effect != nullptr)
                 {
                     effect->Awake();
-                    UnityEngine::Transform* wallParticles = customSaber->Find(il2cpp_utils::createcsstr("WallParticles"));
+                    UnityEngine::Transform* wallParticles = customSaber->Find(il2cpp_utils::createcsstr("SaberParticles"));
                     if (wallParticles != nullptr)
                     {
                         UnityEngine::ParticleSystem* ps = UnityUtils::GetComponent<UnityEngine::ParticleSystem*>(wallParticles->get_gameObject(), "ParticleSystem");
@@ -197,14 +207,14 @@ namespace Qosmetics
                         }
                     }
                 }
-            }*/
+            }
         }
 
         if (saberConfig.get_hasCustomSliceParticles() && customSaber != nullptr)
         {
             // TODO
         }
-
+        */
         getLogger().info("End of saber start");
     };
 

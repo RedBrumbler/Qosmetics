@@ -22,6 +22,8 @@
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
 #include "Logging/UILogger.hpp"
+#include "UI/Note/NotePreviewViewController.hpp"
+
 #define INFO(value...) UILogger::GetLogger().info(value)
 extern config_t config;
 
@@ -37,7 +39,7 @@ namespace Qosmetics
 {
     void NoteSettingsViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
-
+        
     }
 
     void NoteSettingsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -46,22 +48,41 @@ namespace Qosmetics
         {
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
+
+            container->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+            
+            ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
+            RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
+            scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
+            
             BeatSaberUI::CreateToggle(container->get_transform(), "Override Note Size", config.noteConfig.overrideNoteSize, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.overrideNoteSize = value;
                     SaveConfig();
+                    NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
                 }));
-            QuestUI::IncrementSetting* trailLengthSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
+            QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.noteConfig.noteSize = value;
                     SaveConfig();
+                    NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
                 }));
-            BeatSaberUI::AddHoverHint(trailLengthSetting->get_gameObject(), "The overridden length of the trail, values below 0 get ignored");
+            BeatSaberUI::AddHoverHint(noteSizeSetting->get_gameObject(), "The overridden size of the notes compared to default, set to 1.0f for default size");
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Bombs", config.noteConfig.forceDefaultBombs, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultBombs = value;
                     SaveConfig();
+                    NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
                 }));
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Debris", config.noteConfig.forceDefaultDebris, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultDebris = value;
                     SaveConfig();
+                    NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
                 }));
         }
     }

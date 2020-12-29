@@ -48,22 +48,26 @@ namespace Qosmetics
             WallData* newWall = new WallData(descriptor);
 
             wallMap[descriptor] = newWall;
-            wallMap[descriptor]->LoadBundle();
+            //wallMap[descriptor]->LoadBundle();
 
             DescriptorCache::AddToWallCache(descriptor);
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveWall, wall);
         SetActiveWall(descriptor);
+        if (activeWall) activeWall->LoadBundle();
         return true;
     };
 
     void QuestWall::HealthWarning()
     {
+        if (activeWall && !activeWall->get_complete() && !activeWall->get_isLoading()) activeWall->LoadAssets();
         // for all loaded wall files, load the assets in them (if there are none loaded it won't actually do anything)
+        /*
         for (auto& pair : wallMap)
         {
             pair.second->LoadAssets();
         }
+        */
     };
 
     void QuestWall::GameCore()
@@ -89,10 +93,13 @@ namespace Qosmetics
 
     void QuestWall::MenuViewControllers()
     {
+        if (activeWall && !activeWall->get_complete() && !activeWall->get_isLoading()) activeWall->LoadAssets();
+        /*
         for (auto& pair : wallMap)
         {
             if (!pair.second->get_complete() && !pair.second->get_isLoading()) pair.second->LoadAssets();
         }
+        */
     }    
 
     

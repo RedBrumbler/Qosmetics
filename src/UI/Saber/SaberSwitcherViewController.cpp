@@ -7,6 +7,7 @@
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/UI/Image.hpp"
 #include "UnityEngine/UI/Toggle.hpp"
 #include "UnityEngine/UI/Toggle_ToggleEvent.hpp"
@@ -26,6 +27,8 @@
 #include "Qosmetic/QuestSaber.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
+
+#include "UI/Saber/SaberPreviewViewController.hpp"
 
 using namespace QuestUI;
 using namespace UnityEngine;
@@ -59,7 +62,11 @@ namespace Qosmetics
 
             Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default saber", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
                 INFO("Default saber selected!");
+                if (QuestSaber::GetActiveSaber() && QuestSaber::GetActiveSaber()->get_isLoading()) return;
                 QuestSaber::SetActiveSaber((SaberData*)nullptr);
+                SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
+                if (previewController) previewController->UpdatePreview();
+                else INFO("Couldn't find preview controller");
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
@@ -85,14 +92,18 @@ namespace Qosmetics
 
         Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
+            if (QuestSaber::GetActiveSaber() && QuestSaber::GetActiveSaber()->get_isLoading()) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
             QuestSaber::SetActiveSaber(descriptor, true);
+            SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
+            if (previewController) previewController->UpdatePreview();
+            else INFO("Couldn't find preview controller");
             INFO("Selected saber %s", descriptor->get_name().c_str());
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
-        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "erase", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
