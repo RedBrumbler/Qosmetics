@@ -78,7 +78,7 @@ namespace Qosmetics
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveSaber, saber);
         SetActiveSaber(descriptor);
-        if (activeSaber) activeSaber->LoadBundle();
+        //if (activeSaber) activeSaber->LoadBundle(true);
         return true;
     };
 
@@ -118,13 +118,14 @@ namespace Qosmetics
         }
         
         // selected saber from the loadedsabers vector, in the future this may be selectable
-
-        activeSaber->ClearActive();;//loadedSabers[selectedSaber].ClearActive();
-        activeSaber->ClearMatVectors();;//loadedSabers[selectedSaber].ClearMatVectors();
+        activeSaber->FindPrefab();
+        activeSaber->ClearActive();//loadedSabers[selectedSaber].ClearActive();
+        activeSaber->ClearMatVectors();//loadedSabers[selectedSaber].ClearMatVectors();
     };
     
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
+        SaberUtils::SetSaberSize(instance->get_transform()->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)")));
         if (!activeSaber) return;
         SaberData& selected = *activeSaber;
         if (!selected.get_complete())

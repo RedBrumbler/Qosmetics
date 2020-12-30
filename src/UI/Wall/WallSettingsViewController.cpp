@@ -60,6 +60,20 @@ namespace Qosmetics
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
                 }));
+            BeatSaberUI::CreateToggle(container->get_transform(), "Force Core Off", config.wallConfig.forceCoreOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
+                    config.wallConfig.forceCoreOff = value;
+                    SaveConfig();
+                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
+                }));
+            BeatSaberUI::CreateToggle(container->get_transform(), "Force Frame Off", config.wallConfig.forceFrameOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
+                    config.wallConfig.forceFrameOff = value;
+                    SaveConfig();
+                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else INFO("Couldn't find preview controller");
+                }));
         }
     }
 }

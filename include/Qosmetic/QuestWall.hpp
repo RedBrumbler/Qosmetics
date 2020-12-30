@@ -103,5 +103,7 @@ namespace Qosmetics
             static inline bool setColors = false;
             /// @brief makes the folder if not found
             static void makeFolder();
+
+            static void CheckScoreDisabling();
     };
 }

@@ -3,6 +3,7 @@
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include "UnityEngine/Object.hpp"
 #include "Data/NoteData.hpp"
+#include "UnityEngine/SphereCollider.hpp"
 
 extern config_t config;
 
@@ -98,18 +99,6 @@ namespace Qosmetics
         {
             getLogger().error("Note transform was nullptr, skipping add note...");
             return;
-        }
-
-        if (config.noteConfig.overrideNoteSize) // apply custom size
-        {
-            UnityEngine::Vector3 size = UnityEngine::Vector3::get_one() * (float)config.noteConfig.noteSize;
-            note->get_transform()->set_localScale(size);
-            UnityEngine::Transform* bigCuttable = note->get_transform()->Find(il2cpp_utils::createcsstr("BigCuttable"));
-            UnityEngine::Transform* smallCuttable = note->get_transform()->Find(il2cpp_utils::createcsstr("SmallCuttable"));
-
-            UnityEngine::Vector3 othersize = UnityEngine::Vector3::get_one() / (float)config.noteConfig.noteSize;
-            if (bigCuttable) bigCuttable->set_localScale(othersize);
-            if (smallCuttable) smallCuttable->set_localScale(othersize);
         }
 
         else if (noteController == nullptr)
@@ -865,5 +854,38 @@ namespace Qosmetics
         NoteUtils::SetSharedColor(noteData.get_leftDot()->get_transform(), true);
         NoteUtils::SetSharedColor(noteData.get_rightDot()->get_transform(), false);
         getLogger().info("it do be handled");
+    }
+
+    void NoteUtils::SetNoteSize(UnityEngine::Transform* note)
+    {
+        if (!note || !config.noteConfig.overrideNoteSize) return;
+        UnityEngine::Vector3 size = UnityEngine::Vector3::get_one() * (float)config.noteConfig.noteSize;
+        note->set_localScale(size);
+
+        if (!config.noteConfig.alsoChangeHitboxes)
+        {
+            UnityEngine::Transform* bigCuttable = note->Find(il2cpp_utils::createcsstr("BigCuttable"));
+            UnityEngine::Transform* smallCuttable = note->Find(il2cpp_utils::createcsstr("SmallCuttable"));
+
+            UnityEngine::Vector3 othersize = UnityEngine::Vector3::get_one() / (float)config.noteConfig.noteSize;
+            if (bigCuttable) bigCuttable->set_localScale(othersize);
+            if (smallCuttable) smallCuttable->set_localScale(othersize);
+        }
+    }
+
+    void NoteUtils::SetBombSize(UnityEngine::Transform* bomb)
+    {
+        if (!bomb || !config.noteConfig.overrideNoteSize) return;
+        UnityEngine::Transform* mesh = bomb->Find(il2cpp_utils::createcsstr("Mesh"));
+        if (!mesh) return;
+        UnityEngine::SphereCollider* collider = mesh->get_gameObject()->GetComponent<UnityEngine::SphereCollider*>();
+        if (!collider) return;
+
+        getLogger().info("Original size %f", collider->get_radius());
+
+        auto setRadius = reinterpret_cast<function_ptr_t<void, Il2CppObject*, float>>(il2cpp_functions::resolve_icall("UnityEngine.SphereCollider::set_radius"));
+        //il2cpp_utils::RunMethod(collider, "set_radius", 0.18f / config.noteConfig.noteSize); // not in codegen so this should work ig
+        setRadius(collider, 0.18f / config.noteConfig.noteSize);
+        mesh->set_localScale(UnityEngine::Vector3::get_one() * config.noteConfig.noteSize);
     }
 }

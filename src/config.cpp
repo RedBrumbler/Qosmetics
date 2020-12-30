@@ -35,6 +35,8 @@ void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     wallConfigObject.SetObject();
     wallConfig_t& wallConfig = config.wallConfig;
     wallConfigObject.AddMember("forceFakeGlowOff", wallConfig.forceFakeGlowOff, allocator);
+    wallConfigObject.AddMember("forceCoreOff", wallConfig.forceCoreOff, allocator);
+    wallConfigObject.AddMember("forceFrameOff", wallConfig.forceFrameOff, allocator);
 
     configDoc.AddMember("wallConfig", wallConfigObject, allocator);
     getLogger().info("Wall config Saved Successfully!");
@@ -48,6 +50,7 @@ void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     noteConfig_t& noteConfig = config.noteConfig;
     noteConfigObject.AddMember("overrideNoteSize", noteConfig.overrideNoteSize, allocator);
     noteConfigObject.AddMember("noteSize", noteConfig.noteSize, allocator);
+    noteConfigObject.AddMember("alsoChangeHitboxes", noteConfig.alsoChangeHitboxes, allocator);
     noteConfigObject.AddMember("forceDefaultBombs", noteConfig.forceDefaultBombs, allocator);
     noteConfigObject.AddMember("forceDefaultDebris", noteConfig.forceDefaultDebris, allocator);
 
@@ -125,6 +128,16 @@ bool LoadWallConfig(rapidjson::Value& configValue)
     }else{
         foundEverything = false;
     } 
+    if(configValue.HasMember("forceCoreOff") && configValue["forceCoreOff"].IsBool()){
+        config.wallConfig.forceCoreOff = configValue["forceCoreOff"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
+    if(configValue.HasMember("forceFrameOff") && configValue["forceFrameOff"].IsBool()){
+        config.wallConfig.forceFrameOff = configValue["forceFrameOff"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
     if (foundEverything) getLogger().info("Wall config loaded successfully!");
     return foundEverything;
 }
@@ -140,6 +153,11 @@ bool LoadNoteConfig(rapidjson::Value& configValue)
     } 
     if(configValue.HasMember("noteSize") && configValue["noteSize"].IsDouble()){
         config.noteConfig.noteSize = configValue["noteSize"].GetDouble();    
+    }else{
+        foundEverything = false;
+    } 
+    if(configValue.HasMember("alsoChangeHitboxes") && configValue["alsoChangeHitboxes"].IsBool()){
+        config.noteConfig.alsoChangeHitboxes = configValue["alsoChangeHitboxes"].GetBool();    
     }else{
         foundEverything = false;
     } 

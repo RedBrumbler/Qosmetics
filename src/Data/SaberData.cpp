@@ -1,8 +1,10 @@
 #include "Data/SaberData.hpp"
 #include "Utils/SaberUtils.hpp"
 #include "Utils/FileUtils.hpp"
+#include "Utils/MaterialUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
 #include <thread>
+
 namespace Qosmetics
 {
     void SaberData::LoadBundle(std::string filePath)
@@ -54,14 +56,17 @@ namespace Qosmetics
 
         bundle->LoadAssetAsync("_CustomSaber", [&](bs_utils::Asset* asset){
             this->OnSaberLoadComplete((UnityEngine::GameObject*)asset, true);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "GameObject"));
 
         bundle->LoadAssetAsync("config", [&](bs_utils::Asset* asset){
             this->OnConfigLoadComplete((UnityEngine::TextAsset* )asset);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
         bundle->LoadAssetAsync("descriptor", [&](bs_utils::Asset* asset){
             this->OnDescriptorLoadComplete((UnityEngine::TextAsset* )asset);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
         bundle->LoadAssetAsync("thumbnail", [&](bs_utils::Asset* asset){
@@ -85,6 +90,9 @@ namespace Qosmetics
 
         this->saberPrefab = instantiated;
         this->objectComplete = true;
+
+        MaterialUtils::PreWarmAllShadersOnObj(this->saberPrefab);
+        
         getLogger().info("Loaded Saber prefab");
     }
 
@@ -212,5 +220,19 @@ namespace Qosmetics
             }
         }
         return rightSaberCCmats;
+    }
+
+    void SaberData::OnComplete()
+    {
+        if (!get_complete()) return;
+        this->saberPrefab->set_name(il2cpp_utils::createcsstr(this->saberDescriptor->get_name()));
+    }
+
+    void SaberData::FindPrefab()
+    {
+        if (!get_complete()) return;
+        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(this->saberDescriptor->get_name()));
+        
+        if (prefab) this->saberPrefab = prefab; 
     }
 }

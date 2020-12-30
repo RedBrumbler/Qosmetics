@@ -71,8 +71,6 @@ class WallUtils
         /// @param materials array of materials to use
         static void ReplaceFrameSharedMaterials(UnityEngine::Transform* obstacle,  Array<UnityEngine::Material*>* materials);
         
-    private:
-
         /// @brief sets the renderer enable bool to !value
         /// @param renderer the renderer to hide/unhide
         /// @param doHide wether to hide or to unhide, defaults to true
@@ -84,8 +82,10 @@ class WallUtils
                 return;
             }
             
-            renderer->set_enabled(!doHide);
+            renderer->set_enabled(!doHide); 
         }
+        
+    private:
 
         /// @brief sets the obstacle color to the _Color property of the given material
         /// @param material material on which the color will get set

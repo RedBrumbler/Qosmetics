@@ -59,7 +59,7 @@ namespace Qosmetics
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveNote, note);
         SetActiveNote(descriptor);
-        if (activeNote) activeNote->LoadBundle();
+        //if (activeNote) activeNote->LoadBundle();
         return true;
     };
 
@@ -103,11 +103,13 @@ namespace Qosmetics
 
         //auto action = il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, []{});
         selected.ClearMatVectors();
+        selected.FindPrefab();
         setColors = false;
     };
 
     void QuestNote::NoteController_Init_Post(GlobalNamespace::NoteController* noteController)
     {
+        NoteUtils::SetNoteSize(noteController->get_transform()->Find(il2cpp_utils::createcsstr("NoteCube")));
         if (!activeNote) return;
         NoteData& selected = *activeNote;
         
@@ -137,6 +139,7 @@ namespace Qosmetics
 
     void QuestNote::NoteDebris_Init_Post(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal)
     {
+        NoteUtils::SetNoteSize(noteDebris->get_transform());
         if (!activeNote) return;
         if (disableDebris) return;
         NoteData &selected = *activeNote;
@@ -164,6 +167,7 @@ namespace Qosmetics
 
     void QuestNote::BombController_Init_Post(GlobalNamespace::BombNoteController* noteController)
     {
+        NoteUtils::SetBombSize(noteController->get_transform());
         if (!activeNote) return;
         NoteData &selected = *activeNote;
         if (!selected.get_complete())
@@ -195,5 +199,25 @@ namespace Qosmetics
         getLogger().info("Last active note is now %s, should be %s", config.lastActiveNote.c_str(), activeNote->get_descriptor()->get_filePath().c_str());
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
         if (!activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadBundle(ifLoadAlsoAssets); 
+    }
+
+    void QuestNote::ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers)
+    {
+        getLogger().info("Checking game modifiers in order to disable scores if needed...");
+        if((modifiers->get_ghostNotes() || modifiers->get_disappearingArrows()) && activeNote)
+        {
+            getLogger().info("Ghost notes or disappearing arrows active!");
+            bs_utils::Submission::disable(modInfo);
+        }
+        else if (config.noteConfig.alsoChangeHitboxes)
+        {
+            getLogger().info("Hitboxes Getting changed, disabling score submission!");
+            bs_utils::Submission::disable(modInfo);
+        }
+        else
+        {
+            getLogger().info("No reason to disable Submission from Notes!");
+            bs_utils::Submission::enable(modInfo);
+        }
     }
 }

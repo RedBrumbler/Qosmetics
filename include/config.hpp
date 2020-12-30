@@ -11,6 +11,7 @@ bool LoadConfig();
 typedef struct _noteConfig {
     bool overrideNoteSize;
     double noteSize = 1.0f;
+    bool alsoChangeHitboxes = false;
     bool forceDefaultBombs = false;
     bool forceDefaultDebris = false;
 } noteConfig_t;
@@ -33,6 +34,8 @@ typedef struct _saberConfig {
 
 typedef struct _wallConfig {
     bool forceFakeGlowOff = false;
+    bool forceCoreOff = false;
+    bool forceFrameOff = false;
 } wallConfig_t;
 
 

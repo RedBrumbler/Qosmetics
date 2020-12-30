@@ -302,6 +302,8 @@ namespace Qosmetics
             std::vector<UnityEngine::Material*>& get_leftNoteCCmaterials();
             std::vector<UnityEngine::Material*>& get_rightNoteCCmaterials();
 
+            void FindPrefab();
+            
         private:
             Qosmetics::Descriptor* noteDescriptor = nullptr;
             Qosmetics::NoteConfig* noteConfig = nullptr;
@@ -340,5 +342,7 @@ namespace Qosmetics
             void OnDescriptorLoadComplete(UnityEngine::TextAsset* descriptorAsset);
 
             void OnTextureLoadComplete(UnityEngine::Texture2D* texture);
+
+            void OnComplete();
     };
 }

@@ -97,6 +97,8 @@ namespace Qosmetics
             WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
             if (previewController) previewController->UpdatePreview();
             else INFO("Couldn't find preview controller");
+            SaveConfig();
+            DescriptorCache::Write();
             INFO("Selected wall %s", descriptor->get_name().c_str());
         }));
 
@@ -122,8 +124,8 @@ namespace Qosmetics
         
         if (buttonName == "") // if the name is empty, use the filename instead
         {
-            descriptor->get_fileName();
-            buttonName.erase(buttonName.find_last_of("."));
+            buttonName = descriptor->get_fileName();
+            if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
         }
 
         TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName + " ");

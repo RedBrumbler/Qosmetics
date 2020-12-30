@@ -186,6 +186,34 @@ class MaterialUtils
             return setColor;
         }
 
+        static void PreWarmAllShadersOnObj(UnityEngine::GameObject* gameObject)
+        {
+            Array<UnityEngine::Renderer*>* renderers = gameObject->GetComponentsInChildren<UnityEngine::Renderer*>(true);
+
+            typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
+            auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
+
+            auto createFunc = reinterpret_cast<function_ptr_t<void, Il2CppObject*>>(il2cpp_functions::resolve_icall("UnityEngine.ShaderVariantCollection::Internal_Create")); // or something similar
+            auto addFunc = reinterpret_cast<function_ptr_t<bool, Il2CppObject*, Il2CppObject*, int, Array<Il2CppString*>*>>(il2cpp_functions::resolve_icall("UnityEngine.ShaderVariantCollection::AddVariant")); // or something similar
+            auto warmupFunc = reinterpret_cast<function_ptr_t<void, Il2CppObject*>>(il2cpp_functions::resolve_icall("UnityEngine.ShaderVariantCollection::WarmUp")); // or something similar
+
+            Il2CppObject* obj = UnityEngine::Object::New_ctor();
+            createFunc(obj);
+            std::vector<Il2CppString*> temp;
+            Array<Il2CppString*>* stringArr = il2cpp_utils::vectorToArray(temp);
+
+            for (int i = 0; i < renderers->Length(); i++)
+            {
+                Array<UnityEngine::Material*>* materials = GetMaterialArray(renderers->values[i]);
+                for (int j = 0; j < materials->Length(); j++)
+                {
+                    addFunc(obj, materials->values[j]->get_shader(), 0, stringArr);
+                }
+            }
+            
+            warmupFunc(obj);
+        }
+
     private:
         static std::string toLowerCase(std::string in)
         {

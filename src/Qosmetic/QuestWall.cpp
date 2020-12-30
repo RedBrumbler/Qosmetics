@@ -54,7 +54,7 @@ namespace Qosmetics
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveWall, wall);
         SetActiveWall(descriptor);
-        if (activeWall) activeWall->LoadBundle();
+        //if (activeWall) activeWall->LoadBundle();
         return true;
     };
 
@@ -72,6 +72,7 @@ namespace Qosmetics
 
     void QuestWall::GameCore()
     {
+        CheckScoreDisabling();
         if (!activeWall) return;
 
         // selected wall from the loadedwalls vector, in the future this may be selectable
@@ -85,11 +86,11 @@ namespace Qosmetics
         }
         // clears the references to the active materials, the object may be non destructable,
         // the references can get corrupted accross scene changes so setting them nullptr to be redefined later is the best
+        selected.FindPrefab();
         selected.ClearActive();
         setColors = false;
-        if (selected.get_config()->get_scoreSubmissionDisabled()) bs_utils::Submission::disable(modInfo);
-        else bs_utils::Submission::enable(modInfo);
-    };
+        
+    }
 
     void QuestWall::MenuViewControllers()
     {
@@ -106,6 +107,16 @@ namespace Qosmetics
     void QuestWall::ObstacleController_Init_Pre(GlobalNamespace::ObstacleController* obstacleController)
     {
         // if no walls loaded, it's no use so just early return
+        if (config.wallConfig.forceFakeGlowOff) WallUtils::DisableFakeGlow(obstacleController->get_transform());
+        if (config.wallConfig.forceCoreOff)
+        {
+            WallUtils::DisableDefaults(obstacleController->get_transform());
+            WallUtils::HideRenderer(obstacleController->get_transform()->Find(il2cpp_utils::createcsstr("ObstacleCore/ObstacleCoreLWInside"))->GetComponent<UnityEngine::MeshRenderer*>());
+        }
+        if (config.wallConfig.forceFrameOff)
+        {
+            WallUtils::DisableFrame(obstacleController->get_transform());
+        }
         if (!activeWall) return;
 
         WallData& selected = *activeWall;
@@ -199,6 +210,25 @@ namespace Qosmetics
 
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
         if (!activeWall->get_complete() && !activeWall->get_isLoading()) activeWall->LoadBundle(ifLoadAlsoAssets); 
+    }
+
+    void QuestWall::CheckScoreDisabling()
+    {
+        if (activeWall && activeWall->get_config()->get_scoreSubmissionDisabled()) 
+        {
+            getLogger().info("Custom wall disabled scores");
+            bs_utils::Submission::disable(modInfo);
+        }
+        else if (config.wallConfig.forceCoreOff) 
+        {
+            getLogger().info("Force Core off disabled scores");
+            bs_utils::Submission::disable(modInfo);
+        }
+        else 
+        {
+            getLogger().info("Walls had no reason to disable scores");
+            bs_utils::Submission::enable(modInfo);
+        }
     }
 
 }

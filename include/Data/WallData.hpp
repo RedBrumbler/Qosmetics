@@ -192,6 +192,8 @@ namespace Qosmetics
                 frameSharedMats = nullptr;
             }
 
+            void FindPrefab();
+        
         private:
             Qosmetics::Descriptor* wallDescriptor = nullptr;
             Qosmetics::WallConfig* wallConfig = nullptr;
@@ -235,5 +237,7 @@ namespace Qosmetics
             void OnDescriptorLoadComplete(UnityEngine::TextAsset* descriptorAsset);
 
             void OnTextureLoadComplete(UnityEngine::Texture2D* texture);
+
+            void OnComplete();
     };
 }

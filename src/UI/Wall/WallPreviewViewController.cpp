@@ -62,6 +62,7 @@ namespace Qosmetics
             title = BeatSaberUI::CreateText(textlayout->get_transform(), "placeholder text");
             title->set_fontSize(10.0f);
         }
+        title = get_transform()->Find(il2cpp_utils::createcsstr("QuestUIVerticalLayoutGroup/QuestUIText"))->get_gameObject()->GetComponent<TMPro::TextMeshProUGUI*>();
         UpdatePreview();
     }
 
@@ -76,6 +77,7 @@ namespace Qosmetics
             }
             WallData& selected = *QuestWall::GetActiveWall();
             Descriptor& wallDescriptor = *selected.get_descriptor();
+            selected.FindPrefab();
             GameObject* prefab = selected.get_wallPrefab();
             
             if (!prefab)
@@ -100,15 +102,23 @@ namespace Qosmetics
             }
 
             if (!prefab) return;
+            
             WallUtils::SetObstacleColors(selected);
-            title->set_text(il2cpp_utils::createcsstr(wallDescriptor.get_name()));
+
+            std::string name = wallDescriptor.get_name();
+            if (name == "")
+            {
+                name = wallDescriptor.get_fileName();
+                if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
+            }
+            title->set_text(il2cpp_utils::createcsstr(name));
 
             previewprefab = Object::Instantiate(prefab);
             previewprefab->SetActive(true);
             previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
             previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 60.0f, 0.0f));
             previewprefab->get_transform()->set_localScale(UnityEngine::Vector3(1.5f, 1.0f, 0.5f));
-
+            
             Array<MeshRenderer*>* meshrenderers = previewprefab->GetComponentsInChildren<MeshRenderer*>(true);
 
             typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
@@ -126,6 +136,16 @@ namespace Qosmetics
                     if (materials->values[j]->HasProperty(paramsID)) materials->values[j]->SetVector(paramsID, sizeParams);
                 }
             }
+
+            if (Transform* core = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("Core")))
+            {
+                WallUtils::HideRenderer(core->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceCoreOff);
+            }
+
+            if (Transform* frame = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("Frame")))
+            {
+                WallUtils::HideRenderer(frame->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceFrameOff);
+            }
         }
         else 
         {
@@ -134,8 +154,8 @@ namespace Qosmetics
             {
                 Object::Destroy(previewprefab);
                 previewprefab = nullptr;
-                title->set_text(il2cpp_utils::createcsstr("Default walls (no preview)"));
             }
+            title->set_text(il2cpp_utils::createcsstr("Default walls (no preview)"));
         }
     }
 }

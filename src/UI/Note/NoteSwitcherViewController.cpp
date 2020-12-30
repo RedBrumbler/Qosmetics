@@ -98,6 +98,8 @@ namespace Qosmetics
             NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
             if (previewController) previewController->UpdatePreview();
             else INFO("Couldn't find preview controller");
+            SaveConfig();
+            DescriptorCache::Write();
             INFO("Selected note %s", descriptor->get_name().c_str());
             INFO("filePath %s", descriptor->get_filePath().c_str());
 
@@ -129,8 +131,8 @@ namespace Qosmetics
         
         if (buttonName == "") // if the name is empty, use the filename instead
         {
-            descriptor->get_fileName();
-            buttonName.erase(buttonName.find_last_of("."));
+            buttonName = descriptor->get_fileName();
+            if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
         }
 
         TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName + " ");
@@ -140,5 +142,4 @@ namespace Qosmetics
         authorText->set_color(UnityEngine::Color(0.8f, 0.8f, 0.8f, 0.8f));
         authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
     }
-
 }

@@ -62,6 +62,7 @@ namespace Qosmetics
             title = BeatSaberUI::CreateText(textlayout->get_transform(), "placeholder text");
             title->set_fontSize(10.0f);
         }
+        title = get_transform()->Find(il2cpp_utils::createcsstr("QuestUIVerticalLayoutGroup/QuestUIText"))->get_gameObject()->GetComponent<TMPro::TextMeshProUGUI*>();
         UpdatePreview();
     }
 
@@ -76,6 +77,7 @@ namespace Qosmetics
             }
             SaberData& selected = *QuestSaber::GetActiveSaber();
             Descriptor& saberDescriptor = *selected.saberDescriptor;
+            selected.FindPrefab();
             GameObject* prefab = selected.get_saberPrefab();
             
             if (!prefab)
@@ -100,7 +102,14 @@ namespace Qosmetics
             }
 
             if (!prefab) return;
-            title->set_text(il2cpp_utils::createcsstr(saberDescriptor.get_name()));
+            
+            std::string name = saberDescriptor.get_name();
+            if (name == "")
+            {
+                name = saberDescriptor.get_fileName();
+                if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
+            }
+            title->set_text(il2cpp_utils::createcsstr(name));
 
             previewprefab = Object::Instantiate(prefab);
             previewprefab->SetActive(true);
@@ -130,8 +139,8 @@ namespace Qosmetics
             {
                 Object::Destroy(previewprefab);
                 previewprefab = nullptr;
-                title->set_text(il2cpp_utils::createcsstr("Default sabers (no preview)"));
             }
+            title->set_text(il2cpp_utils::createcsstr("Default sabers (no preview)"));
         }
     }
 }

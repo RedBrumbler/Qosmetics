@@ -33,14 +33,20 @@ public class ColorTester : EditorWindow
 
         if (GUILayout.Button("Test Colors"))
         {
-
             if (objectToColor != null) SetColor();
+        }
+
+        if (GUILayout.Button("Swap Colors"))
+        {
+            Color temp = customColor;
+            customColor = otherColor;
+            otherColor = temp;
         }
     }
 
     void SetColor()
     {
-        foreach (var renderer in objectToColor.GetComponentsInChildren<Renderer>())
+        foreach (var renderer in objectToColor.GetComponentsInChildren<Renderer>(true))
         {
             foreach (var material in renderer.sharedMaterials)
             {

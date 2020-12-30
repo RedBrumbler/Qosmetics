@@ -56,20 +56,7 @@ namespace Qosmetics
 
             /// @brief disables score submission for scoresaber if ghost notes or disappearing arrows is selected as a modifier since these are not compatible with custom notes
             /// @param modifiers the modifier class used in this level
-            static void ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers)
-            {
-                getLogger().info("Checking game modifiers in order to disable scores if needed...");
-                if(modifiers->get_ghostNotes() || modifiers->get_disappearingArrows())
-                {
-                    getLogger().info("Ghost notes or disappearing arrows active!");
-                    bs_utils::Submission::disable(modInfo);
-                }
-                else
-                {
-                    getLogger().info("Ghost notes or disappearing arrows not active!");
-                    bs_utils::Submission::enable(modInfo);
-                }
-            }
+            static void ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers);
 
             /// @brief sets the debris disable bool based on what reduce debris is
             /// @param playerSpecificSettings the currently active player settings

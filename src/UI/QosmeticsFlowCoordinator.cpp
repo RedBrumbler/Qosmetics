@@ -133,8 +133,11 @@ namespace Qosmetics
         }
         else 
         {
+            /*
             HMUI::FlowCoordinator* main = QuestUI::getModSettingsFlowCoordinator();
             if (main) main->DismissFlowCoordinator(this, HMUI::ViewController::AnimationDirection::Horizontal, nullptr, false);
+            */
+            BeatSaberUI::getMainFlowCoordinator()->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
         }
     }
 }

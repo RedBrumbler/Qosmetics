@@ -46,14 +46,17 @@ namespace Qosmetics
 
         bundle->LoadAssetAsync("_CustomBloq", [this](bs_utils::Asset* asset){
             this->OnNoteLoadComplete((UnityEngine::GameObject*)asset, true);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "GameObject"));
 
         bundle->LoadAssetAsync("config", [this](bs_utils::Asset* asset){
             this->OnConfigLoadComplete((UnityEngine::TextAsset* )asset);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
         bundle->LoadAssetAsync("descriptor", [this](bs_utils::Asset* asset){
             this->OnDescriptorLoadComplete((UnityEngine::TextAsset* )asset);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
         bundle->LoadAssetAsync("thumbnail", [this](bs_utils::Asset* asset){
@@ -78,6 +81,7 @@ namespace Qosmetics
 
         this->notePrefab = instantiated;
         objectComplete = true;
+        MaterialUtils::PreWarmAllShadersOnObj(this->notePrefab);
         getLogger().info("Loaded Bloq prefab");
     }
 
@@ -271,5 +275,19 @@ namespace Qosmetics
             }
         }
         return rightNoteCCmats;
+    }
+
+    void NoteData::OnComplete()
+    {
+        if (!get_complete()) return;
+        this->notePrefab->set_name(il2cpp_utils::createcsstr(this->noteDescriptor->get_name()));
+    }
+
+    void NoteData::FindPrefab()
+    {
+        if (!get_complete()) return;
+        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(this->noteDescriptor->get_name()));
+        
+        if (prefab) this->notePrefab = prefab; 
     }
 }

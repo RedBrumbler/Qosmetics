@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "UnityEngine/Sprite.hpp"
+
 class FileUtils
 {
     public:
@@ -14,4 +16,6 @@ class FileUtils
         /// @param FilePath the filepath to get the file name from
         /// @returns File name
         static std::string GetFileName(const std::string& FilePath);
+
+        static UnityEngine::Sprite* SpriteFromFile(const std::string& filePath, int width, int height);
 };

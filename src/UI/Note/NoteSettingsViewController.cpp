@@ -70,6 +70,11 @@ namespace Qosmetics
                     else INFO("Couldn't find preview controller");
                 }));
             BeatSaberUI::AddHoverHint(noteSizeSetting->get_gameObject(), "The overridden size of the notes compared to default, set to 1.0f for default size");
+            UI::Toggle* hitboxSize = BeatSaberUI::CreateToggle(container->get_transform(), "Change Hitbox Sizes", config.noteConfig.alsoChangeHitboxes, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
+                    config.noteConfig.alsoChangeHitboxes = value;
+                    SaveConfig();
+                }));
+            BeatSaberUI::AddHoverHint(hitboxSize->get_gameObject(), "Wether or not to let the hitbox size change along with the note size, turning this on will disable scores");
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Bombs", config.noteConfig.forceDefaultBombs, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultBombs = value;
                     SaveConfig();

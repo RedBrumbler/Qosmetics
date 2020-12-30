@@ -61,6 +61,8 @@ namespace Qosmetics
             /// @param transform the transform in which to get all renderers and set colors on
             /// @param saberType the color type to use for it
             static void SetCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType);
+
+            static void SetSaberSize(UnityEngine::Transform* object);
         private:
             /// @brief disables all the gameObjects of these meshfilters
             /// @param meshFilters array of meshfilters

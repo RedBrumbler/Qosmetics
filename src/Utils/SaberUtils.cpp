@@ -285,4 +285,9 @@ namespace Qosmetics
             SetCustomColor(instantiated->get_transform(), isLeft ? 0 : 1);
         }
     }
+    void SaberUtils::SetSaberSize(UnityEngine::Transform* object)
+    {
+        if (!object) return;
+        object->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
+    }
 }

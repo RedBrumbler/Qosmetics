@@ -1,6 +1,14 @@
 #include "../include/Utils/FileUtils.hpp"
+#include "UnityEngine/Texture2D.hpp"
+#include "UnityEngine/ImageConversion.hpp"
+#include "UnityEngine/SpriteMeshType.hpp"
+#include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/Vector4.hpp"
+#include "UnityEngine/Rect.hpp"
+#include "UnityEngine/TextureFormat.hpp"
 #include <dirent.h>
 #include <stdio.h>
+#include <fstream>
 
 std::string GetFileExtension(const std::string& FileName)
 {
@@ -37,4 +45,15 @@ std::string FileUtils::GetFileName(const std::string& FilePath)
         return true;
     } else return false;
 
+}
+
+UnityEngine::Sprite* FileUtils::SpriteFromFile(const std::string& filePath, int width, int height)
+{
+    std::ifstream instream(filePath, std::ios::in | std::ios::binary);
+    std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+    Array<uint8_t>* bytes = il2cpp_utils::vectorToArray(data);
+    UnityEngine::Texture2D* texture = UnityEngine::Texture2D::New_ctor(width, height, UnityEngine::TextureFormat::RGBA32, false, false);
+    if (UnityEngine::ImageConversion::LoadImage(texture, bytes, false))
+        return UnityEngine::Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)width, (float)height), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false);
+    return nullptr;
 }

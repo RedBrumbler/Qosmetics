@@ -87,11 +87,41 @@ namespace Qosmetics
             title = BeatSaberUI::CreateText(textlayout->get_transform(), "placeholder text");
             title->set_fontSize(10.0f);
         }
+        title = get_transform()->Find(il2cpp_utils::createcsstr("QuestUIVerticalLayoutGroup/QuestUIText"))->get_gameObject()->GetComponent<TMPro::TextMeshProUGUI*>();
         UpdatePreview();
     }
 
     void NotePreviewViewController::UpdatePreview()
     {
+        /*
+        INFO("Found");
+        INFO("%s", to_utf8(csstrtostr(get_gameObject()->get_name())).c_str());
+        for (int i = 0; i < get_transform()->get_childCount(); i++)
+        {
+            Transform* child1 = get_transform()->GetChild(i);
+            std::string name1 = to_utf8(csstrtostr(child1->get_gameObject()->get_name()));
+            INFO("\t%s", name1.c_str());
+            for (int j = 0; child1->get_childCount(); j++)
+            {
+                Transform* child2 = child1->GetChild(j);
+                std::string name2 = to_utf8(csstrtostr(child2->get_gameObject()->get_name()));
+                INFO("\t\t%s", name2.c_str());
+                for (int k = 0; child2->get_childCount(); k++)
+                {
+                    Transform* child3 = child2->GetChild(k);
+                    std::string name3 = to_utf8(csstrtostr(child3->get_gameObject()->get_name()));
+                    INFO("\t\t\t%s", name3.c_str());
+                    for (int q = 0; child2->get_childCount(); q++)
+                    {
+                        Transform* child4 = child3->GetChild(q);
+                        std::string name4 = to_utf8(csstrtostr(child4->get_gameObject()->get_name()));
+                        INFO("\t\t\t\t%s", name4.c_str());
+
+                    }
+                }
+            }
+        }
+        */
         if (QuestNote::GetActiveNote())
         {
             if (previewprefab) 
@@ -101,6 +131,7 @@ namespace Qosmetics
             }
             NoteData& selected = *QuestNote::GetActiveNote();
             Descriptor& noteDescriptor = *selected.get_descriptor();
+            selected.FindPrefab();
             GameObject* prefab = selected.get_notePrefab();
 
             if (!prefab)
@@ -125,8 +156,14 @@ namespace Qosmetics
             }
 
             if (!prefab) return;
-
-            title->set_text(il2cpp_utils::createcsstr(noteDescriptor.get_name()));
+            
+            std::string name = noteDescriptor.get_name();
+            if (name == "")
+            {
+                name = noteDescriptor.get_fileName();
+                if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
+            }
+            title->set_text(il2cpp_utils::createcsstr(name));
 
             previewprefab = Object::Instantiate(prefab);
             previewprefab->SetActive(true);
@@ -140,6 +177,9 @@ namespace Qosmetics
             {
                 Transform* child = previewprefab->get_transform()->GetChild(i);
                 std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
+
+                if (noteNameToNumber.find(name) == noteNameToNumber.end()) continue;
+
                 child->set_localScale(UnityEngine::Vector3::get_one() * config.noteConfig.noteSize);
                 switch(noteNameToNumber[name])
                 {
@@ -186,8 +226,8 @@ namespace Qosmetics
             {
                 Object::Destroy(previewprefab);
                 previewprefab = nullptr;
-                title->set_text(il2cpp_utils::createcsstr("Default bloqs (no preview)"));
             }
+            title->set_text(il2cpp_utils::createcsstr("Default bloqs (no preview)"));
         }
     }
 }

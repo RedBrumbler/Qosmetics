@@ -154,6 +154,8 @@ namespace Qosmetics
             std::vector<UnityEngine::Material*>& get_leftSaberCCmaterials();
             std::vector<UnityEngine::Material*>& get_rightSaberCCmaterials();
 
+            void FindPrefab();
+
         private:
             
             void OnSaberLoadComplete(UnityEngine::GameObject* saber, bool DontDestroyOnLoad);
@@ -183,6 +185,8 @@ namespace Qosmetics
             bool bundleLoading = false;
             bool trailsAdded = false;
             bs_utils::AssetBundle* bundle = nullptr;
+
+            void OnComplete();
     };
 }
 
