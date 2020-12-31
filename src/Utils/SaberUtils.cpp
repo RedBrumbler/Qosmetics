@@ -278,13 +278,35 @@ namespace Qosmetics
 
             UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate(prefab, parent);
             instantiated->set_name(il2cpp_utils::createcsstr(name));
-            instantiated->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.4f);
+            instantiated->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f) * 0.4f);
             instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.05f));
             instantiated->get_transform()->set_localEulerAngles(UnityEngine::Vector3::get_zero());
 
             SetCustomColor(instantiated->get_transform(), isLeft ? 0 : 1);
         }
     }
+
+    void SaberUtils::RevertMenuPointer(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node)
+    {
+        bool isLeft = node.value == 4;
+        std::string menuHandle = "MenuHandle";
+        std::string name = isLeft ? "MenuHandle/CustomLeftPointer" : "MenuHandle/CustomRightPointer";
+
+        if (UnityEngine::Transform* oldPointer = controller->Find(il2cpp_utils::createcsstr(name)))
+        {
+            UnityEngine::Object::DestroyImmediate(oldPointer->get_gameObject());
+        }
+
+        UnityEngine::Transform* handle = controller->Find(il2cpp_utils::createcsstr(menuHandle));
+        if (!handle) return;
+        Array<UnityEngine::MeshFilter*>* meshFilters = handle->get_gameObject()->GetComponentsInChildren<UnityEngine::MeshFilter*>(true);
+
+        for (int i = 0; i < meshFilters->Length(); i++)
+        {
+            meshFilters->values[i]->get_gameObject()->SetActive(true);
+        } 
+    }
+
     void SaberUtils::SetSaberSize(UnityEngine::Transform* object)
     {
         if (!object) return;

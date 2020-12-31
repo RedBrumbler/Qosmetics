@@ -98,7 +98,6 @@ namespace Qosmetics
             NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
             if (previewController) previewController->UpdatePreview();
             else INFO("Couldn't find preview controller");
-            SaveConfig();
             DescriptorCache::Write();
             INFO("Selected note %s", descriptor->get_name().c_str());
             INFO("filePath %s", descriptor->get_filePath().c_str());

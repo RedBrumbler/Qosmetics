@@ -81,7 +81,7 @@ namespace Qosmetics
             //layout->set_childControlWidth(false);
             //layout->set_constraint(UnityEngine::UI::GridLayoutGroup::Constraint::Flexible);
             //layout->set_cellSize(UnityEngine::Vector2(48.0f, 10.0f));
-            layout->set_spacing(-50.0f);
+            layout->set_spacing(-64.0f);
             //layout->set_childAlignment(UnityEngine::TextAnchor::MiddleCenter);
             //layout->set_startAxis(0);
 

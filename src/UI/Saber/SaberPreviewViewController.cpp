@@ -12,6 +12,9 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "UnityEngine/Events/UnityAction_1.hpp"
+#include "UnityEngine/XR/XRNode.hpp"
+#include "GlobalNamespace/VRController.hpp"
+
 #include "HMUI/ScrollView.hpp"
 #include "HMUI/ModalView.hpp"
 #include "HMUI/Touchable.hpp"
@@ -131,6 +134,31 @@ namespace Qosmetics
 
             SaberUtils::SetCustomColor(leftSaber, 0);
             SaberUtils::SetCustomColor(rightSaber, 1);
+
+            Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
+            if (VRControllers)
+            {
+                std::string distantParentName = "";
+                std::string parent1Name = "";
+                std::string parent2Name = "";
+                std::string parent3Name = "";
+                for (int i = 0; i < VRControllers->Length(); i++)
+                {
+                    int node = VRControllers->values[i]->node;
+
+                    if (!(node == 4 || node == 5)) continue;
+                    UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
+                    UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
+                    UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
+                    UnityEngine::Transform* distantParent = parent3 ? parent3 : nullptr;
+                    distantParentName = distantParent ? to_utf8(csstrtostr(distantParent->get_gameObject()->get_name())) : "null";
+                    if (distantParentName.find("Multiplayer") != std::string::npos ||
+                        //distantParentName.find("LocalPlayerGameCore") != std::string::npos ||
+                        distantParentName.find("IsActive") != std::string::npos) continue;
+                        SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
+                        if (config.saberConfig.enableMenuPointer) Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                }
+            }
         }
         else 
         {
@@ -141,6 +169,31 @@ namespace Qosmetics
                 previewprefab = nullptr;
             }
             title->set_text(il2cpp_utils::createcsstr("Default sabers (no preview)"));
+
+            Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
+            if (VRControllers)
+            {
+                std::string distantParentName = "";
+                std::string parent1Name = "";
+                std::string parent2Name = "";
+                std::string parent3Name = "";
+                for (int i = 0; i < VRControllers->Length(); i++)
+                {
+                    int node = VRControllers->values[i]->node;
+                    
+                    if (!(node == 4 || node == 5)) continue;
+                    UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
+                    UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
+                    UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
+                    UnityEngine::Transform* distantParent = parent3 ? parent3 : nullptr;
+                    distantParentName = distantParent ? to_utf8(csstrtostr(distantParent->get_gameObject()->get_name())) : "null";
+                    if (distantParentName.find("Multiplayer") != std::string::npos ||
+                        //distantParentName.find("LocalPlayerGameCore") != std::string::npos ||
+                        distantParentName.find("IsActive") != std::string::npos) continue;
+                        SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
+                }
+            }
+
         }
     }
 }

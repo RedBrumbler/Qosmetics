@@ -97,7 +97,6 @@ namespace Qosmetics
             WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
             if (previewController) previewController->UpdatePreview();
             else INFO("Couldn't find preview controller");
-            SaveConfig();
             DescriptorCache::Write();
             INFO("Selected wall %s", descriptor->get_name().c_str());
         }));

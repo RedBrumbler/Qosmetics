@@ -104,6 +104,19 @@ namespace QuestUI::BeatSaberUI { // I want your methods dammit
     void clearCache();
 }
 
+namespace QuestUI::ModSettingsInfos {
+    typedef struct ModSettingsInfo {
+        ModInfo modInfo;
+        bool showModInfo;
+        std::string title;
+        Register::Type type;
+        Il2CppReflectionType* il2cpp_type;
+        HMUI::ViewController* viewController;
+        HMUI::FlowCoordinator* flowCoordinator;
+    } ModSettingsInfo;
+    std::vector<QuestUI::ModSettingsInfos::ModSettingsInfo>& get();
+}
+
 bool getSceneName(Scene scene, std::string& output);
 
 std::string sceneLoadedName;
@@ -370,6 +383,7 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
     OptionsViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     if(firstActivation) {
         flowCoordinator = nullptr;
+        bool questUIExists = QuestUI::ModSettingsInfos::get().size() > 0;
         QuestUI::BeatSaberUI::clearCache();
         
         UnityEngine::UI::Button* avatarButton = self->settingsButton;
@@ -377,7 +391,25 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
         button->set_name(il2cpp_utils::createcsstr("Qosmetics Settings"));
         UnityEngine::Transform* AvatarParent = self->get_transform()->Find(il2cpp_utils::createcsstr("Wrapper"));
         button->get_transform()->SetParent(AvatarParent, false);
-        button->get_transform()->SetSiblingIndex(self->editAvatarButton->get_transform()->GetSiblingIndex());
+
+        if (questUIExists) // if questui has a menu button, make the base game stuff fuck off to another layout
+        {
+            UnityEngine::UI::HorizontalLayoutGroup* newLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(self->get_transform());
+
+            self->editAvatarButton->get_transform()->SetParent(newLayout->get_transform());
+            self->playerOptionsButton->get_transform()->SetParent(newLayout->get_transform());
+            self->settingsButton->get_transform()->SetParent(newLayout->get_transform());
+
+            newLayout->get_transform()->SetAsFirstSibling();
+            newLayout->set_spacing(-64.0f);
+            newLayout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -7.5f));
+
+            UnityEngine::UI::HorizontalLayoutGroup* oldLayout = AvatarParent->get_gameObject()->GetComponent<UnityEngine::UI::HorizontalLayoutGroup*>();
+            oldLayout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>()->set_anchoredPosition(UnityEngine::Vector2(0.0f, 0.0f));
+            button->get_transform()->SetAsLastSibling();
+        }
+        else button->get_transform()->SetAsFirstSibling();
+
         button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsMenuButtonClick));
         
         UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", 266, 259);
@@ -413,22 +445,31 @@ void WipeAllDefinedPointers()
     Qosmetics::QuestNote::ClearAllInternalPointers();
 }
 
+void CopyIcons()
+{
+    makeFolder("sdcard/Qosmetics");
+    makeFolder("sdcard/Qosmetics/UI");
+    makeFolder("sdcard/Qosmetics/UI/Icons");
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/WallIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png"));
+    
+}
+
 extern "C" void load() 
 {
     if (!LoadConfig()) SaveConfig();
 
     if (!Qosmetics::DescriptorCache::Load()) Qosmetics::DescriptorCache::Write();
 
-    makeFolder("sdcard/Qosmetics");
-    makeFolder("sdcard/Qosmetics/UI");
-    makeFolder("sdcard/Qosmetics/UI/Icons");
+    CopyIcons();
     
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/ExtraFiles/UI/Icons/MenuIcon.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/ExtraFiles/UI/Icons/MenuIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/ExtraFiles/UI/Icons/SaberIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/ExtraFiles/UI/Icons/SaberIcon.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/ExtraFiles/UI/Icons/NoteIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/ExtraFiles/UI/Icons/NoteIcon.png"));
     QuestUI::Init();
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");

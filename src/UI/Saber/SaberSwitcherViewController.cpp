@@ -14,6 +14,7 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "UnityEngine/Events/UnityAction_1.hpp"
+
 #include "HMUI/ScrollView.hpp"
 #include "HMUI/ModalView.hpp"
 #include "HMUI/Touchable.hpp"
@@ -38,8 +39,25 @@ using namespace HMUI;
 
 DEFINE_CLASS(Qosmetics::SaberSwitcherViewController);
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) Qosmetics::UILogger::GetLogger().info(value)
 
+
+void OnSelectButtonClick(Il2CppString* fileName, Button* button)
+{
+    if (!fileName) return;
+    if (Qosmetics::QuestSaber::GetActiveSaber() && Qosmetics::QuestSaber::GetActiveSaber()->get_isLoading()) return; // if the active saber is still loading, return
+    std::string name = to_utf8(csstrtostr(fileName));
+    Qosmetics::Descriptor* descriptor = Qosmetics::DescriptorCache::GetDescriptor(name, saber);
+    Qosmetics::QuestSaber::SetActiveSaber(descriptor, true); // set new active saber
+
+    // update preview
+    Qosmetics::SaberPreviewViewController* previewController = Object::FindObjectOfType<Qosmetics::SaberPreviewViewController*>();
+    if (previewController) previewController->UpdatePreview();
+    else INFO("Couldn't find preview controller");
+
+    Qosmetics::DescriptorCache::Write();
+    INFO("Selected saber %s", descriptor->get_name().c_str());
+}
 
 namespace Qosmetics
 {
@@ -90,19 +108,7 @@ namespace Qosmetics
 
         std::string stringName = descriptor->get_fileName();
 
-        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
-            if (!fileName) return;
-            if (QuestSaber::GetActiveSaber() && QuestSaber::GetActiveSaber()->get_isLoading()) return;
-            std::string name = to_utf8(csstrtostr(fileName));
-            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, saber);
-            QuestSaber::SetActiveSaber(descriptor, true);
-            SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
-            if (previewController) previewController->UpdatePreview();
-            else INFO("Couldn't find preview controller");
-            SaveConfig();
-            DescriptorCache::Write();
-            INFO("Selected saber %s", descriptor->get_name().c_str());
-        }));
+        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), OnSelectButtonClick));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
         Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){

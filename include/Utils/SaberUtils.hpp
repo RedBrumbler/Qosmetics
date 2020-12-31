@@ -17,6 +17,7 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/XR/XRNode.hpp"
 
 
 #include "../Logging/SaberLogger.hpp"
@@ -63,6 +64,8 @@ namespace Qosmetics
             static void SetCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType);
 
             static void SetSaberSize(UnityEngine::Transform* object);
+
+            static void RevertMenuPointer(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
         private:
             /// @brief disables all the gameObjects of these meshfilters
             /// @param meshFilters array of meshfilters
