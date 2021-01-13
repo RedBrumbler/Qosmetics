@@ -27,7 +27,7 @@ namespace Qosmetics
     class NoteData
     {
         public:
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return NoteLogger::GetLogger();
             };

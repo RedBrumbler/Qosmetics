@@ -119,15 +119,15 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
 
-bool getSceneName(Scene scene, std::string& output);
+bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output);
 
 std::string sceneLoadedName;
 
 static ModInfo modInfo;
 
-const Logger& getLogger() {
-  static const Logger& logger(modInfo);
-  return logger;
+Logger& getLogger() {
+  static Logger* logger = new Logger(modInfo, LoggerOptions(false, true));
+  return *logger;
 }
 
 void makeFolder(std::string directory)
@@ -204,7 +204,7 @@ MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleCon
 }
 bool afterHealthWarning = false;
 
-MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActiveScene, Scene nextActiveScene)
+MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, UnityEngine::SceneManagement::Scene previousActiveScene, UnityEngine::SceneManagement::Scene nextActiveScene)
 {
     getSceneName(nextActiveScene, sceneLoadedName);
     std::string oldScene;
@@ -379,7 +379,7 @@ void OnQosmeticsMenuButtonClick(UnityEngine::UI::Button* button) {
     if(!flowCoordinator)
         flowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>();
     flowCoordinator = UnityEngine::Object::FindObjectOfType<Qosmetics::QosmeticsFlowCoordinator*>();
-    QuestUI::BeatSaberUI::getMainFlowCoordinator()->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+    QuestUI::BeatSaberUI::GetMainFlowCoordinator()->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
 }
 
 Qosmetics::QosmeticsSongSelectFlowCoordinator* songSelectFlowCoordinator = nullptr;
@@ -644,22 +644,24 @@ extern "C" void load()
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");
 
-    INSTALL_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
-    INSTALL_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
-    INSTALL_HOOK_OFFSETLESS(ObstacleController_Init, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(ObstacleController_set_hide, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "set_hide", 1));
-    INSTALL_HOOK_OFFSETLESS(NoteController_Init, il2cpp_utils::FindMethodUnsafe("", "NoteController", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 10));
-    INSTALL_HOOK_OFFSETLESS(BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 8));
-    INSTALL_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
-    INSTALL_HOOK_OFFSETLESS(SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
-    INSTALL_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
-    INSTALL_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, il2cpp_utils::FindMethodUnsafe("", "MultiplayerLocalActivePlayerInGameMenuViewController", "ShowMenu", 0));
-    INSTALL_HOOK_OFFSETLESS(OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "GameplaySetupViewController", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
-    INSTALL_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
+    LoggerContextObject logger = getLogger().WithContext("load");
+
+    INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
+    INSTALL_HOOK_OFFSETLESS(logger, SceneManager_ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
+    INSTALL_HOOK_OFFSETLESS(logger, ObstacleController_Init, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "Init", 9));
+    INSTALL_HOOK_OFFSETLESS(logger, ObstacleController_set_hide, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "set_hide", 1));
+    INSTALL_HOOK_OFFSETLESS(logger, NoteController_Init, il2cpp_utils::FindMethodUnsafe("", "NoteController", "Init", 9));
+    INSTALL_HOOK_OFFSETLESS(logger, NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 10));
+    INSTALL_HOOK_OFFSETLESS(logger, BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 8));
+    INSTALL_HOOK_OFFSETLESS(logger, SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
+    INSTALL_HOOK_OFFSETLESS(logger, GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, il2cpp_utils::FindMethodUnsafe("", "MultiplayerLocalActivePlayerInGameMenuViewController", "ShowMenu", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(logger, GameplaySetupViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "GameplaySetupViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
+    INSTALL_HOOK_OFFSETLESS(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
@@ -712,10 +714,11 @@ extern "C" void load()
     getLogger().info("Hooks installed");
 }
 
-bool getSceneName(Scene scene, std::string& output)
+bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)
 {
-    Il2CppString* csString = RET_0_UNLESS(il2cpp_utils::RunMethod<Il2CppString*>("UnityEngine.SceneManagement", "Scene", "GetNameInternal", scene.m_Handle));
-    RET_0_UNLESS(csString);
+    LoggerContextObject logger = getLogger().WithContext("scene name");
+    Il2CppString* csString = UnityEngine::SceneManagement::Scene::GetNameInternal(scene.m_Handle);
+    RET_0_UNLESS(logger, csString);
     output = to_utf8(csstrtostr(csString));
     return true; 
 }

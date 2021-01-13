@@ -29,6 +29,9 @@
 
 #include "UI/Wall/WallPreviewViewController.hpp"
 
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils-methods.hpp"
+
 using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -60,7 +63,7 @@ namespace Qosmetics
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
             
-            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default wall", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default wall", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
                 INFO("Default wall selected!");
                 if (QuestWall::GetActiveWall() && QuestWall::GetActiveWall()->get_isLoading()) return;
                 QuestWall::SetActiveWall((WallData*)nullptr);
@@ -90,7 +93,7 @@ namespace Qosmetics
 
         std::string stringName = descriptor->get_fileName();
 
-        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             if (QuestWall::GetActiveWall() && QuestWall::GetActiveWall()->get_isLoading()) return;
             std::string name = to_utf8(csstrtostr(fileName));
@@ -104,7 +107,7 @@ namespace Qosmetics
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
-        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);

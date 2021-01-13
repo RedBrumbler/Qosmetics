@@ -58,7 +58,7 @@ namespace Qosmetics
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
             
-            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default bloqs", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+            Button* defaultButton = QuestUI::BeatSaberUI::CreateUIButton(settingsLayout->get_transform(), "default bloqs", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr("", il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
                 INFO("Default note selected!");
                 if (QuestNote::GetActiveNote() && QuestNote::GetActiveNote()->get_isLoading()) return;
                 QuestNote::SetActiveNote((NoteData*)nullptr);
@@ -90,7 +90,7 @@ namespace Qosmetics
 
         //layout->get_gameObject()->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
 
-        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             if (QuestNote::GetActiveNote() && QuestNote::GetActiveNote()->get_isLoading()) return;
             std::string name = to_utf8(csstrtostr(fileName));
@@ -106,7 +106,7 @@ namespace Qosmetics
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
-        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::Manual), +[](Il2CppString* fileName, Button* button){
+        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
             if (!fileName) return;
             std::string name = to_utf8(csstrtostr(fileName));
             Descriptor* descriptor = DescriptorCache::GetDescriptor(name, note);

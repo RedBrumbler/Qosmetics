@@ -22,7 +22,7 @@ namespace Qosmetics
     class TrailUtils
     {
         public:
-            static const Logger& getLogger()
+            static Logger& getLogger()
             {
                 return SaberLogger::GetLogger();
             }

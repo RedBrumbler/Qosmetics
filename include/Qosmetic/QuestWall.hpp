@@ -24,7 +24,7 @@ namespace Qosmetics
     {
         public:
             static inline ModInfo modInfo = {string_format("%s Walls", ID), VERSION};
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return WallLogger::GetLogger();
             };

@@ -25,7 +25,6 @@
 
 #include "UI/MenuButtonClickData.hpp"
 #include "Logging/GenericLogger.hpp"
-#include "Utils/FileUtils.hpp"
 
 using namespace QuestUI;
 using namespace UnityEngine;
@@ -68,6 +67,19 @@ void OnSubMenuButtonClick(QuestUI::CustomDataType* data, UnityEngine::UI::Button
         clickData.viewController->openSubMenu->Invoke(data);
 }
 
+void spriteSwapSetup(Button* button, std::string normalName, std::string selectedName)
+{
+    UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::FileToSprite(selectedName, 266, 259);
+    UnityEngine::Sprite* pressed = highlighted;
+    UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::FileToSprite(normalName, 266, 259);
+    UnityEngine::Sprite* disabled = selected;
+    HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
+    spriteSwap->normalStateSprite = selected;
+    spriteSwap->highlightStateSprite = highlighted;
+    spriteSwap->pressedStateSprite = pressed;
+    spriteSwap->disabledStateSprite = disabled;
+}
+
 namespace Qosmetics
 {
     void QosmeticsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -87,10 +99,12 @@ namespace Qosmetics
 
             UnityEngine::RectTransform* rectTransform = layout->GetComponent<UnityEngine::RectTransform*>();
             Button* saberButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Sabers", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, saber}), OnSubMenuButtonClick));
+            spriteSwapSetup(saberButton, "sdcard/Qosmetics/UI/Icons/SaberIcon.png", "sdcard/Qosmetics/UI/Icons/SaberIconSelected.png");
+            /*
             {
-                UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", 266, 259);
+                UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", 266, 259);
                 UnityEngine::Sprite* pressed = highlighted;
-                UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", 266, 259);
+                UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", 266, 259);
                 UnityEngine::Sprite* disabled = selected;
                 HMUI::ButtonSpriteSwap* spriteSwap = saberButton->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
                 spriteSwap->normalStateSprite = selected;
@@ -98,12 +112,15 @@ namespace Qosmetics
                 spriteSwap->pressedStateSprite = pressed;
                 spriteSwap->disabledStateSprite = disabled;
             }
-            
+            */
             Button* noteButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Bloqs", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, note}), OnSubMenuButtonClick));
+            spriteSwapSetup(noteButton, "sdcard/Qosmetics/UI/Icons/NoteIcon.png", "sdcard/Qosmetics/UI/Icons/NoteIconSelected.png");
+            
+            /*
             {
-                UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", 266, 259);
+                UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", 266, 259);
                 UnityEngine::Sprite* pressed = highlighted;
-                UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", 266, 259);
+                UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", 266, 259);
                 UnityEngine::Sprite* disabled = selected;
                 HMUI::ButtonSpriteSwap* spriteSwap = noteButton->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
                 spriteSwap->normalStateSprite = selected;
@@ -111,11 +128,15 @@ namespace Qosmetics
                 spriteSwap->pressedStateSprite = pressed;
                 spriteSwap->disabledStateSprite = disabled;
             }
+            */
             Button* wallButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Walls", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, wall}), OnSubMenuButtonClick));
+            spriteSwapSetup(wallButton, "sdcard/Qosmetics/UI/Icons/WallIcon.png", "sdcard/Qosmetics/UI/Icons/WallIconSelected.png");
+            
+            /*
             {
-                UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", 266, 259);
+                UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", 266, 259);
                 UnityEngine::Sprite* pressed = highlighted;
-                UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/WallIcon.png", 266, 259);
+                UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/WallIcon.png", 266, 259);
                 UnityEngine::Sprite* disabled = selected;
                 HMUI::ButtonSpriteSwap* spriteSwap = wallButton->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
                 spriteSwap->normalStateSprite = selected;
@@ -123,6 +144,7 @@ namespace Qosmetics
                 spriteSwap->pressedStateSprite = pressed;
                 spriteSwap->disabledStateSprite = disabled;
             }
+            */
         }
     }
 }

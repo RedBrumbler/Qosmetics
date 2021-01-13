@@ -18,7 +18,7 @@
 class MaterialUtils
 {
     public:
-        static const Logger& getLogger()
+        static Logger& getLogger()
         { 
             return Qosmetics::GenericLogger::GetLogger();
         }

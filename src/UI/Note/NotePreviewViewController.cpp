@@ -221,6 +221,7 @@ namespace Qosmetics
                         child->get_gameObject()->SetActive(!config.noteConfig.forceDefaultBombs);
                         break;
                     default:
+                        child->get_gameObject()->SetActive(false);
                         break;
                 }
             }

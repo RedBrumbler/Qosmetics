@@ -42,7 +42,7 @@ namespace Qosmetics
     {
         public:
             static inline ModInfo modInfo = {string_format("%s Sabers", ID), VERSION};
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return SaberLogger::GetLogger();
             };

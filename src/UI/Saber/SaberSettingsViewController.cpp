@@ -35,6 +35,12 @@ using namespace UnityEngine::UI;
 using namespace UnityEngine::Events;
 using namespace HMUI;
 
+std::vector<std::string> trailText = {
+    "Custom",
+    "Default",
+    "None"
+};
+
 namespace Qosmetics
 {
     void SaberSettingsViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
@@ -119,7 +125,8 @@ namespace Qosmetics
                 }));
             BeatSaberUI::AddHoverHint(menuPointerSizeSetting->get_gameObject(), "Size of the menu pointer");
 
-            QuestUI::IncrementSetting* trailTypeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Type", 0, 1.0f, (int)config.saberConfig.trailType, 0.0f, 2.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](SaberSettingsViewController* view, float value) {
+            QuestUI::IncrementSetting* trailTypeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Type", 0, 1.0f, (int)config.saberConfig.trailType, 0.0f, 2.0f, nullptr);
+            trailTypeSetting->OnValueChange = il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), trailTypeSetting, +[](QuestUI::IncrementSetting* self, float value) {
                     switch ((int)value)
                     {
                         case 0:
@@ -134,12 +141,15 @@ namespace Qosmetics
                         default:
                             break;
                     }
+                    self->Text->SetText(il2cpp_utils::createcsstr(trailText[value]));
                     SaveConfig();
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
-                }));
+                });
+            trailTypeSetting->Text->SetText(il2cpp_utils::createcsstr(trailText[(int)config.saberConfig.trailType]));
+
             BeatSaberUI::AddHoverHint(trailTypeSetting->get_gameObject(), "Sets the trail type, 0 means the attached trails, 1 means base game, 2 means no trails");
         }
     }

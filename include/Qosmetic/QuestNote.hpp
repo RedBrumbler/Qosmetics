@@ -33,7 +33,7 @@ namespace Qosmetics
     {
         public:
             static inline ModInfo modInfo = {string_format("%s Notes", ID), VERSION};
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return NoteLogger::GetLogger();
             };

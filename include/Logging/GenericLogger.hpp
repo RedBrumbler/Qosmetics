@@ -7,10 +7,10 @@ namespace Qosmetics
     {
         public:
             static inline ModInfo modInfo = {ID, VERSION};
-            static const Logger& GetLogger()
+            static Logger& GetLogger()
             {
-                static const Logger& log(modInfo);
-                return log;
+                static Logger* log = new Logger(modInfo, LoggerOptions(false, true));
+                return *log;
             }
     };
 }

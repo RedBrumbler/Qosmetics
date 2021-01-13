@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <fstream>
 
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+
 std::string GetFileExtension(const std::string& FileName)
 {
     if(FileName.find_last_of(".") != std::string::npos)

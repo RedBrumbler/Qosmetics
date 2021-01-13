@@ -151,7 +151,7 @@ namespace Qosmetics
         }
         else 
         {
-            BeatSaberUI::getMainFlowCoordinator()->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
+            BeatSaberUI::GetMainFlowCoordinator()->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
         }
     }
 }
