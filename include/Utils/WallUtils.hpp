@@ -20,7 +20,7 @@
 class WallUtils
 {
     public:
-        static const Logger& getLogger()
+        static Logger& getLogger()
         { 
             return Qosmetics::WallLogger::GetLogger();
         }

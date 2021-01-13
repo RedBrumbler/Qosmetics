@@ -29,7 +29,7 @@ namespace Qosmetics
     class CustomTrail
     {
         public:
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return SaberLogger::GetLogger();
             }

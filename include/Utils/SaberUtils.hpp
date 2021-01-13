@@ -27,7 +27,7 @@ namespace Qosmetics
     class SaberUtils 
     {
         public:
-            const static Logger& getLogger()
+            static Logger& getLogger()
             {
                 return SaberLogger::GetLogger();
             } 

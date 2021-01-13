@@ -33,7 +33,7 @@ namespace Qosmetics
     class NoteUtils
     {
         public:
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return NoteLogger::GetLogger();
             };

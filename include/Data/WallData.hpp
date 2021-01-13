@@ -31,7 +31,7 @@ namespace Qosmetics
     {
         public:
 
-            static const Logger& getLogger() 
+            static Logger& getLogger() 
             {
                 return WallLogger::GetLogger();
             };
