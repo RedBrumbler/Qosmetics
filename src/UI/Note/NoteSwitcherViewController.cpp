@@ -44,6 +44,7 @@ namespace Qosmetics
     {
         DescriptorCache::Write();
         SaveConfig();
+        QuestNote::SelectionDefinitive();
     }
 
     void NoteSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)

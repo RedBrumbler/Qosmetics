@@ -21,6 +21,8 @@
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
+#include "Qosmetic/QuestNote.hpp"
+
 #include "Logging/UILogger.hpp"
 #include "UI/Note/NotePreviewViewController.hpp"
 
@@ -58,13 +60,15 @@ namespace Qosmetics
             BeatSaberUI::CreateToggle(container->get_transform(), "Override Note Size", config.noteConfig.overrideNoteSize, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.overrideNoteSize = value;
                     SaveConfig();
+                    QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
                 }));
-            QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
+            QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.noteConfig.noteSize = value;
                     SaveConfig();
+                    QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
@@ -78,6 +82,7 @@ namespace Qosmetics
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Bombs", config.noteConfig.forceDefaultBombs, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultBombs = value;
                     SaveConfig();
+                    QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
@@ -85,6 +90,7 @@ namespace Qosmetics
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Debris", config.noteConfig.forceDefaultDebris, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultDebris = value;
                     SaveConfig();
+                    QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");

@@ -59,6 +59,8 @@ namespace Qosmetics
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveNote, note);
         SetActiveNote(descriptor);
+        SelectionDefinitive();
+        
         //if (activeNote) activeNote->LoadBundle();
         return true;
     };

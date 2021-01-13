@@ -75,6 +75,24 @@ VerticalLayoutGroup* SetupSubTitle(VerticalLayoutGroup* layout, std::string subT
     return layout;
 }
 
+void FindViewControllers(Qosmetics::QosmeticsFlowCoordinator* self)
+{
+    // doesn't actually work at all
+    self->SaberSwitcherViewController = Object::FindObjectOfType<Qosmetics::SaberSwitcherViewController*>();
+    self->SaberSettingsViewController = Object::FindObjectOfType<Qosmetics::SaberSettingsViewController*>();
+    self->SaberPreviewViewController = Object::FindObjectOfType<Qosmetics::SaberPreviewViewController*>();
+
+    self->NoteSwitcherViewController = Object::FindObjectOfType<Qosmetics::NoteSwitcherViewController*>();
+    self->NoteSettingsViewController = Object::FindObjectOfType<Qosmetics::NoteSettingsViewController*>();
+    self->NotePreviewViewController = Object::FindObjectOfType<Qosmetics::NotePreviewViewController*>();
+
+    self->WallSwitcherViewController = Object::FindObjectOfType<Qosmetics::WallSwitcherViewController*>();
+    self->WallSettingsViewController = Object::FindObjectOfType<Qosmetics::WallSettingsViewController*>();
+    self->WallPreviewViewController = Object::FindObjectOfType<Qosmetics::WallPreviewViewController*>();
+
+    self->QosmeticsViewController = Object::FindObjectOfType<Qosmetics::QosmeticsViewController*>();
+}
+
 namespace Qosmetics
 {
     void QosmeticsFlowCoordinator::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -133,10 +151,6 @@ namespace Qosmetics
         }
         else 
         {
-            /*
-            HMUI::FlowCoordinator* main = QuestUI::getModSettingsFlowCoordinator();
-            if (main) main->DismissFlowCoordinator(this, HMUI::ViewController::AnimationDirection::Horizontal, nullptr, false);
-            */
             BeatSaberUI::getMainFlowCoordinator()->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
         }
     }

@@ -280,13 +280,15 @@ namespace Qosmetics
     void NoteData::OnComplete()
     {
         if (!get_complete()) return;
-        this->notePrefab->set_name(il2cpp_utils::createcsstr(this->noteDescriptor->get_name()));
+        std::string name = string_format("%s%s", this->noteDescriptor->get_name().c_str(), this->noteDescriptor->get_author().c_str());
+        this->notePrefab->set_name(il2cpp_utils::createcsstr(name));
     }
 
     void NoteData::FindPrefab()
     {
         if (!get_complete()) return;
-        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(this->noteDescriptor->get_name()));
+        std::string name = string_format("%s%s", this->noteDescriptor->get_name().c_str(), this->noteDescriptor->get_author().c_str());
+        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(name));
         
         if (prefab) this->notePrefab = prefab; 
     }

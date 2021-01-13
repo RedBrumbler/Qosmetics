@@ -29,6 +29,7 @@ typedef struct _saberConfig {
     bool overrideWhiteStep = false;
     double whiteStep = 0.1f;
     bool enableMenuPointer = false;
+    double menuPointerSize = 0.4f;
     TrailType trailType = custom;
 } saberConfig_t;
 

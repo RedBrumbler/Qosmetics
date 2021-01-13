@@ -12,6 +12,7 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "UnityEngine/Events/UnityAction_1.hpp"
+#include "UnityEngine/SkinnedMeshRenderer.hpp"
 #include "HMUI/ScrollView.hpp"
 #include "HMUI/ModalView.hpp"
 #include "HMUI/Touchable.hpp"
@@ -122,19 +123,18 @@ namespace Qosmetics
             }
         }
         */
+
         if (QuestNote::GetActiveNote())
         {
-            if (previewprefab) 
+            if (QuestNote::DidSelectDifferentNote() && previewprefab) 
             {
                 Object::Destroy(previewprefab);
                 previewprefab = nullptr;
             }
             NoteData& selected = *QuestNote::GetActiveNote();
             Descriptor& noteDescriptor = *selected.get_descriptor();
-            selected.FindPrefab();
-            GameObject* prefab = selected.get_notePrefab();
-
-            if (!prefab)
+            bool loadComplete = selected.get_complete();
+            if (!loadComplete)
             {
                 title->set_text(il2cpp_utils::createcsstr("Loading .qbloq File"));
                 std::thread waitForLoadedPrefab([]{
@@ -154,22 +154,29 @@ namespace Qosmetics
                 waitForLoadedPrefab.detach();
                 return;
             }
+            if (!loadComplete) return;
 
-            if (!prefab) return;
-            
-            std::string name = noteDescriptor.get_name();
-            if (name == "")
+            selected.FindPrefab();
+            if (QuestNote::DidSelectDifferentNote() || !previewprefab)
             {
-                name = noteDescriptor.get_fileName();
-                if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
-            }
-            title->set_text(il2cpp_utils::createcsstr(name));
+                std::string name = noteDescriptor.get_name();
+                if (name == "")
+                {
+                    name = noteDescriptor.get_fileName();
+                    if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
+                }
+                title->set_text(il2cpp_utils::createcsstr(name));
 
-            previewprefab = Object::Instantiate(prefab);
-            previewprefab->SetActive(true);
-            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
+                GameObject* prefab = selected.get_notePrefab();
+                if (!prefab) return;
+                previewprefab = Object::Instantiate(prefab, get_transform());
+                previewprefab->SetActive(true);
+            }
+
+            //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
+            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
             previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 60.0f, 0.0f));
-            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
+            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 10.0f);
             
             float distance = 1.5f * ((config.noteConfig.noteSize > 1.0f) ? config.noteConfig.noteSize : 1.0f);        
             // set the child positions for a nice preview of all of them

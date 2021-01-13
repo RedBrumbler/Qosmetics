@@ -22,6 +22,7 @@ void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocume
     saberConfigObject.AddMember("overrideWhiteStep", saberConfig.overrideWhiteStep, allocator);
     saberConfigObject.AddMember("whiteStep", saberConfig.whiteStep, allocator);
     saberConfigObject.AddMember("enableMenuPointer", saberConfig.enableMenuPointer, allocator);
+    saberConfigObject.AddMember("menuPointerSize", saberConfig.menuPointerSize, allocator);
     saberConfigObject.AddMember("trailType", (int)saberConfig.trailType, allocator);
 
     configDoc.AddMember("saberConfig", saberConfigObject, allocator);
@@ -107,6 +108,11 @@ bool LoadSaberConfig(rapidjson::Value& configValue)
     } 
     if(configValue.HasMember("enableMenuPointer") && configValue["enableMenuPointer"].IsBool()){
         config.saberConfig.enableMenuPointer = configValue["enableMenuPointer"].GetBool();    
+    }else{
+        foundEverything = false;
+    }
+    if(configValue.HasMember("menuPointerSize") && configValue["menuPointerSize"].IsDouble()){
+        config.saberConfig.menuPointerSize = configValue["menuPointerSize"].GetDouble();    
     }else{
         foundEverything = false;
     } 

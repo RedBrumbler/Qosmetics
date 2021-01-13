@@ -92,6 +92,7 @@ namespace Qosmetics
             /// @brief Sets the activeSaber pointer to point to the saber that should be active, or handles setting to nulltr (default)
             static void SetActiveSaber(Descriptor* saberDescriptor, bool ifLoadAlsoAssets = false)
             {
+                previousActiveSaber = activeSaber;
                 if (saberDescriptor->get_type() == qosmeticsType::invalid)
                 {
                     activeSaber = nullptr;
@@ -106,6 +107,7 @@ namespace Qosmetics
             /// @brief Sets the activeSaber pointer to point to the saber that should be active, or handles setting to nulltr (default)
             static void SetActiveSaber(SaberData* saber, bool ifLoadAlsoAssets = false)
             {
+                previousActiveSaber = activeSaber;
                 activeSaber = saber;
                 OnActiveSaberSet(ifLoadAlsoAssets);
             }
@@ -122,11 +124,25 @@ namespace Qosmetics
             {
                 return saberMap;
             }
+
+            /// @return true for different, false for same
+            static bool DidSelectDifferentSaber()
+            {
+                return activeSaber != previousActiveSaber;
+            }
+
+            static void UpdateMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node);
             
+            static void SelectionDefinitive()
+            {
+                previousActiveSaber = activeSaber;
+            }
+
         private:
             static inline std::map<Descriptor*, SaberData*> saberMap = {};
 
             static inline SaberData* activeSaber = nullptr;
+            static inline SaberData* previousActiveSaber = nullptr;
 
             /// @brief makes the folder if not found
             static void makeFolder(std::string directory);

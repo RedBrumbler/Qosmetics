@@ -53,7 +53,7 @@ namespace Qosmetics
 		this->granularity = config.saberConfig.overrideTrailLength ? (int)(60 * (config.saberConfig.trailLength > 10.0f ? (config.saberConfig.trailLength / 10.0f) : 1.0f)): granularity;
 		this->colorType = colorType;
 		this->whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep * this->length : whiteStep;
-		this->trailMaterial = trailMaterial;
+		if (trailMaterial) this->trailMaterial = trailMaterial;
 		this->trailColor = trailColor;
 		this->multiplierColor = multiplierColor;
 	}
@@ -69,21 +69,21 @@ namespace Qosmetics
 		}
 
 		// make a new trail renderer to use
-        this->trailRenderer = NewTrailRenderer(this->trailMaterial);
+        if (!this->trailRenderer) this->trailRenderer = NewTrailRenderer(this->trailMaterial);
 		// create trail duration from length / sampling
         this->trailDuration = (float)this->length / (float)this->samplingFrequency;
 
 		// make a new movementdata
-		this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
+		if (!this->customMovementData) this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
 		// set the movementData interface to this new movementData
 		this->movementData = reinterpret_cast<GlobalNamespace::IBladeMovementData*>(this->customMovementData);
 
 		// if either is nullptr, set it
-		if (this->topTransform == nullptr)
+		if (!this->topTransform)
 		{
 			this->topTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailEnd"));
 		}
-		if (this->bottomTransform == nullptr)
+		if (!this->bottomTransform)
 		{
 			this->bottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailStart"));
 		}
@@ -112,6 +112,11 @@ namespace Qosmetics
 		// this method just makes sure that the trail gets updated positions through it's custom movementData
         UnityEngine::Vector3 topPos = this->topTransform->get_position();
 		UnityEngine::Vector3 bottomPos = this->bottomTransform->get_position();
+		if (!this->customMovementData) 
+		{
+			this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
+			this->movementData = reinterpret_cast<GlobalNamespace::IBladeMovementData*>(this->customMovementData);
+		}
         this->customMovementData->AddNewData(topPos, bottomPos, GlobalNamespace::TimeHelper::get_time());
     }
 

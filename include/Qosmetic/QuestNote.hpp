@@ -99,6 +99,7 @@ namespace Qosmetics
             /// @brief Sets the activeNote pointer to point to the note that should be active, or handles setting to nulltr (default)
             static void SetActiveNote(Descriptor* noteDescriptor, bool ifLoadAlsoAssets = false)
             {
+                previousActiveNote = activeNote;
                 if (noteDescriptor->get_type() == qosmeticsType::invalid)
                 {
                     activeNote = nullptr;
@@ -113,6 +114,7 @@ namespace Qosmetics
             /// @brief Sets the activeNote pointer to point to the note that should be active, or handles setting to nulltr (default)
             static void SetActiveNote(NoteData* note, bool ifLoadAlsoAssets = false)
             {
+                previousActiveNote = activeNote;
                 activeNote = note;
                 OnActiveNoteSet(ifLoadAlsoAssets);
             }
@@ -130,9 +132,21 @@ namespace Qosmetics
                 return noteMap;
             }
 
+            /// @return true for different, false for same
+            static bool DidSelectDifferentNote()
+            {
+                return activeNote != previousActiveNote;
+            }
+
+            static void SelectionDefinitive()
+            {
+                previousActiveNote = activeNote;
+            }
+
         private:
             static inline std::map<Descriptor*, NoteData*> noteMap = {};
             static inline NoteData* activeNote = nullptr;
+            static inline NoteData* previousActiveNote = nullptr;
             static inline bool setColors = false;
             static inline bool disableDebris = false;
 

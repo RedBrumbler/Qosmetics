@@ -42,6 +42,12 @@ public class ColorTester : EditorWindow
             customColor = otherColor;
             otherColor = temp;
         }
+
+        if (GUILayout.Button("Default Colors"))
+        {
+            customColor = new Color(0.7843137f, 0.08627451f, 0.08627451f, 1.0f);
+            otherColor = new Color(0.0f, 0.4627451f, 0.8235294f, 1.0f);
+        }
     }
 
     void SetColor()

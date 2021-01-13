@@ -54,6 +54,7 @@ namespace Qosmetics
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveWall, wall);
         SetActiveWall(descriptor);
+        SelectionDefinitive();
         //if (activeWall) activeWall->LoadBundle();
         return true;
     };

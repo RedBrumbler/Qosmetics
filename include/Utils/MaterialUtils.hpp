@@ -77,16 +77,18 @@ class MaterialUtils
             material->SetColor(PropertyNameToShaderID(propertyName), color);
         };
 
-        static void ReplaceAllMaterialsForGameObjectChildren(UnityEngine::GameObject* gameObject, UnityEngine::Material* material, std::string materialToReplaceName = "")
+        static void ReplaceAllMaterialsForGameObjectChildren(UnityEngine::GameObject* gameObject, UnityEngine::Material* material, std::vector<UnityEngine::Renderer*>& renderers, std::string materialToReplaceName = "")
         {
-            Array<UnityEngine::Renderer*>* renderers = gameObject->GetComponentsInChildren<UnityEngine::Renderer*>(true);
-            for (int i = 0; i < renderers->Length(); i++)
+            Array<UnityEngine::Renderer*>* objrenderers = gameObject->GetComponentsInChildren<UnityEngine::Renderer*>(true);
+
+            for (int i = 0; i < objrenderers->Length(); i++)
             {
-                ReplaceAllMaterialsForRenderer(renderers->values[i], material, materialToReplaceName);
+                if (!objrenderers->values[i]) continue;
+                if (ReplaceAllMaterialsForRenderer(objrenderers->values[i], material, materialToReplaceName)) renderers.push_back(objrenderers->values[i]);
             }
         };
 
-        static void ReplaceAllMaterialsForRenderer(UnityEngine::Renderer* renderer, UnityEngine::Material* material, std::string materialToReplaceName = "")
+        static bool ReplaceAllMaterialsForRenderer(UnityEngine::Renderer* renderer, UnityEngine::Material* material, std::string materialToReplaceName = "")
         {
             if (renderer == nullptr)
             {
@@ -100,10 +102,11 @@ class MaterialUtils
             if (materialsCopy == nullptr) 
             {
                 getLogger().error("Could not find material array");
-                return;
+                return false;
             }
             //Array<UnityEngine::Material*>* materialsCopy = renderer->get_sharedMaterials(); // not actually a copy, wish it was tho as it would make this a whole lot easier
             bool materialsDidChange = false;
+            bool hasCC = false;
             for (int i = 0; i < materialsCopy->Length(); i++) // for each material
             {
                 if (materialsCopy->values[i] == nullptr)
@@ -130,7 +133,7 @@ class MaterialUtils
                     matName += "_done";
 
                     if (!shouldCC(materialsCopy->values[i])) matName += "_noCC"; // if the material should not have CC, add that to the name
-
+                    else hasCC = true;
                     materialsCopy->values[i] = (UnityEngine::Material*)UnityEngine::Object::Instantiate((UnityEngine::Object*)material); // make new material, else we mess up the materials in the menu for no reason
                     materialsCopy->values[i]->set_name(il2cpp_utils::createcsstr(matName));
                     materialsCopy->values[i]->SetColor(il2cpp_utils::createcsstr("_Color"), oldColor);
@@ -142,6 +145,8 @@ class MaterialUtils
             {
                 renderer->SetMaterialArray(materialsCopy);
             }
+            if (hasCC) return true;
+            return false;
         }
 
         /// @brief finds wether or not this material should have CC applied, excluding the special shader _replace and _noCC parts

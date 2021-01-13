@@ -70,17 +70,15 @@ namespace Qosmetics
     {
         if (QuestWall::GetActiveWall())
         {
-            if (previewprefab) 
+            if (QuestWall::DidSelectDifferentWall() && previewprefab) 
             {
                 Object::Destroy(previewprefab);
                 previewprefab = nullptr;
             }
             WallData& selected = *QuestWall::GetActiveWall();
             Descriptor& wallDescriptor = *selected.get_descriptor();
-            selected.FindPrefab();
-            GameObject* prefab = selected.get_wallPrefab();
-            
-            if (!prefab)
+            bool loadComplete = selected.get_complete();
+            if (!loadComplete)
             {
                 title->set_text(il2cpp_utils::createcsstr("Loading .qwall File"));
                 std::thread waitForLoadedPrefab([]{
@@ -101,42 +99,55 @@ namespace Qosmetics
                 return;
             }
 
-            if (!prefab) return;
-            
-            WallUtils::SetObstacleColors(selected);
-
-            std::string name = wallDescriptor.get_name();
-            if (name == "")
+            if (!loadComplete) return;
+            selected.FindPrefab();
+            bool wasInstantiated = false;
+            if (QuestWall::DidSelectDifferentWall() || !previewprefab)
             {
-                name = wallDescriptor.get_fileName();
-                if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
-            }
-            title->set_text(il2cpp_utils::createcsstr(name));
+                WallUtils::SetObstacleColors(selected);
 
-            previewprefab = Object::Instantiate(prefab);
-            previewprefab->SetActive(true);
-            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
-            previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 60.0f, 0.0f));
-            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3(1.5f, 1.0f, 0.5f));
-            
-            Array<MeshRenderer*>* meshrenderers = previewprefab->GetComponentsInChildren<MeshRenderer*>(true);
-
-            typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
-            auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
-
-            UnityEngine::Vector4 sizeParams = UnityEngine::Vector4(previewprefab->get_transform()->get_localScale().x * 0.5f, previewprefab->get_transform()->get_localScale().y * 0.5f, previewprefab->get_transform()->get_localScale().z * 0.5f, 0.05f);
-            
-            int paramsID = Shader::PropertyToID(il2cpp_utils::createcsstr("_SizeParams"));
-            
-            for (int i = 0; i < meshrenderers->Length(); i++)
-            {
-                Array<Material*>* materials = GetMaterialArray(meshrenderers->values[i]);
-                for (int j = 0; j < materials->Length(); j++)
+                std::string name = wallDescriptor.get_name();
+                if (name == "")
                 {
-                    if (materials->values[j]->HasProperty(paramsID)) materials->values[j]->SetVector(paramsID, sizeParams);
+                    name = wallDescriptor.get_fileName();
+                    if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
+                }
+                title->set_text(il2cpp_utils::createcsstr(name));
+
+                GameObject* prefab = selected.get_wallPrefab();
+                if (!prefab) return;
+
+                previewprefab = Object::Instantiate(prefab, get_transform());
+                previewprefab->SetActive(true);
+                wasInstantiated = true;
+            }
+
+            //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
+            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
+            previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 60.0f, 0.0f));
+            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3(1.5f, 1.0f, 0.5f) * 50.0f);
+            if (wasInstantiated)
+            {
+                Array<MeshRenderer*>* meshrenderers = previewprefab->GetComponentsInChildren<MeshRenderer*>(true);
+
+                typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
+                auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
+
+                UnityEngine::Vector4 sizeParams = UnityEngine::Vector4(previewprefab->get_transform()->get_localScale().x * 0.5f, previewprefab->get_transform()->get_localScale().y * 0.5f, previewprefab->get_transform()->get_localScale().z * 0.5f, 0.05f);
+
+                int paramsID = Shader::PropertyToID(il2cpp_utils::createcsstr("_SizeParams"));
+                int edgeID = Shader::PropertyToID(il2cpp_utils::createcsstr("_EdgeSize"));
+
+                for (int i = 0; i < meshrenderers->Length(); i++)
+                {
+                    Array<Material*>* materials = GetMaterialArray(meshrenderers->values[i]);
+                    for (int j = 0; j < materials->Length(); j++)
+                    {
+                        if (materials->values[j]->HasProperty(paramsID)) materials->values[j]->SetVector(paramsID, sizeParams);
+                        if (materials->values[j]->HasProperty(edgeID)) materials->values[j]->SetFloat(edgeID, materials->values[j]->GetFloat(edgeID) * 50.0f);
+                    }
                 }
             }
-
             if (Transform* core = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("Core")))
             {
                 WallUtils::HideRenderer(core->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceCoreOff);

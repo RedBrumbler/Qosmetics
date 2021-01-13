@@ -2,7 +2,7 @@
 #include "include/Utils/SaberUtils.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include "Data/SaberData.hpp"
-
+#include "Utils/TrailUtils.hpp"
 extern config_t config;
 
 namespace Qosmetics
@@ -278,11 +278,29 @@ namespace Qosmetics
 
             UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate(prefab, parent);
             instantiated->set_name(il2cpp_utils::createcsstr(name));
-            instantiated->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f) * 0.4f);
-            instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.05f));
+            instantiated->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f) * config.saberConfig.menuPointerSize);
+            instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.1f * (1.0f - config.saberConfig.menuPointerSize)));
             instantiated->get_transform()->set_localEulerAngles(UnityEngine::Vector3::get_zero());
 
             SetCustomColor(instantiated->get_transform(), isLeft ? 0 : 1);
+
+            if (saberData.saberConfig->get_hasCustomTrails())
+            {
+                if (isLeft)
+                {
+                    for (auto& trail : *saberData.saberConfig->get_leftTrails())
+                    {
+                        TrailUtils::AddTrail(trail, instantiated->get_transform());
+                    }
+                }
+                else
+                {
+                    for (auto& trail : *saberData.saberConfig->get_rightTrails())
+                    {
+                        TrailUtils::AddTrail(trail, instantiated->get_transform());
+                    }
+                }
+            }
         }
     }
 

@@ -65,6 +65,8 @@ namespace Qosmetics
     {
         DescriptorCache::Write();
         SaveConfig();
+        QuestSaber::SelectionDefinitive();
+
     }
 
     void SaberSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)

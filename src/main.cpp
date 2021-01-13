@@ -55,6 +55,24 @@
 #include "GlobalNamespace/PauseMenuManager.hpp"
 #include "GlobalNamespace/MultiplayerLocalActivePlayerInGameMenuViewController.hpp"
 #include "GlobalNamespace/OptionsViewController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController_Panel.hpp"
+#include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/CampaignFlowCoordinator.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
+#include "GlobalNamespace/MenuDestination.hpp"
+#include "GlobalNamespace/MainMenuViewController.hpp"
+#include "GlobalNamespace/SelectSubMenuDestination.hpp"
+#include "GlobalNamespace/GameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
+
+#include "HMUI/TextSegmentedControl.hpp"
+#include "HMUI/SegmentedControl_IDataSource.hpp"
+#include "HMUI/SegmentedControl.hpp"
+#include "HMUI/SegmentedControlCell.hpp"
 #include "HMUI/ButtonSpriteSwap.hpp"
 
 #include "Qosmetic/QuestSaber.hpp"
@@ -92,6 +110,7 @@
 
 #include "UI/QosmeticsViewController.hpp"
 #include "UI/QosmeticsFlowCoordinator.hpp"
+#include "UI/QosmeticsSongSelectFlowCoordinator.hpp"
 
 #include "questui/shared/QuestUI.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
@@ -99,23 +118,6 @@
 #include "HMUI/ViewController_AnimationType.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
-
-namespace QuestUI::BeatSaberUI { // I want your methods dammit
-    void clearCache();
-}
-
-namespace QuestUI::ModSettingsInfos {
-    typedef struct ModSettingsInfo {
-        ModInfo modInfo;
-        bool showModInfo;
-        std::string title;
-        Register::Type type;
-        Il2CppReflectionType* il2cpp_type;
-        HMUI::ViewController* viewController;
-        HMUI::FlowCoordinator* flowCoordinator;
-    } ModSettingsInfo;
-    std::vector<QuestUI::ModSettingsInfos::ModSettingsInfo>& get();
-}
 
 bool getSceneName(Scene scene, std::string& output);
 
@@ -376,15 +378,78 @@ void OnQosmeticsMenuButtonClick(UnityEngine::UI::Button* button) {
     getLogger().info("QosmeticsMenuButtonClick");
     if(!flowCoordinator)
         flowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>();
+    flowCoordinator = UnityEngine::Object::FindObjectOfType<Qosmetics::QosmeticsFlowCoordinator*>();
     QuestUI::BeatSaberUI::getMainFlowCoordinator()->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+}
+
+Qosmetics::QosmeticsSongSelectFlowCoordinator* songSelectFlowCoordinator = nullptr;
+
+bool soloMenu = false;
+bool partyMenu = false;
+bool campaignMenu = false;
+bool multiMenu = false;
+bool client = false;
+bool host = false;
+
+void OnQosmeticsSongSelectButtonClick(UnityEngine::UI::Button* button) {
+    getLogger().info("QosmeticsSongSelectButtonClick");
+    if(!songSelectFlowCoordinator)
+        songSelectFlowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<Qosmetics::QosmeticsSongSelectFlowCoordinator*>();
+    //songSelectFlowCoordinator = UnityEngine::Object::FindObjectOfType<Qosmetics::QosmeticsSongSelectFlowCoordinator*>();
+
+    if (soloMenu)
+    {
+        GlobalNamespace::SoloFreePlayFlowCoordinator* solo = UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>();
+        if (solo)
+        {
+            songSelectFlowCoordinator->previousFlowCoordinator = solo;
+            getLogger().info("presenting from solo");
+            solo->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+        }
+    }
+    else if (partyMenu)
+    {
+        GlobalNamespace::PartyFreePlayFlowCoordinator* party = UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>();
+        if (party)
+        {
+            songSelectFlowCoordinator->previousFlowCoordinator = party;
+            getLogger().info("presenting from party");
+            party->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+        }
+    }
+    else if (campaignMenu)
+    {
+        GlobalNamespace::CampaignFlowCoordinator* campaign = UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>();
+        if (campaign)
+        {
+            songSelectFlowCoordinator->previousFlowCoordinator = campaign;
+            getLogger().info("presenting from campaign");
+            campaign->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+        }
+    }
+    else if (multiMenu)
+    {
+
+        HMUI::FlowCoordinator* multi = nullptr; 
+        
+        if (host) multi = UnityEngine::Object::FindObjectOfType<GlobalNamespace::HostGameServerLobbyFlowCoordinator*>();
+        if (client) multi = UnityEngine::Object::FindObjectOfType<GlobalNamespace::ClientGameServerLobbyFlowCoordinator*>();
+
+        if (multi)
+        {
+            songSelectFlowCoordinator->previousFlowCoordinator = multi;
+            getLogger().info("presenting from multi");
+            multi->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+        }
+    }
 }
 
 MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     OptionsViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     if(firstActivation) {
         flowCoordinator = nullptr;
-        bool questUIExists = QuestUI::ModSettingsInfos::get().size() > 0;
-        QuestUI::BeatSaberUI::clearCache();
+        bool questUIExists = QuestUI::GetModsCount() > 0;
+        QuestUI::BeatSaberUI::ClearCache();
         
         UnityEngine::UI::Button* avatarButton = self->settingsButton;
         UnityEngine::UI::Button* button = UnityEngine::Object::Instantiate(avatarButton);
@@ -429,6 +494,111 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
     }
 }
 
+MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamespace::GameplaySetupViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+{
+    GameplaySetupViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+    if (firstActivation)
+    {
+        QuestUI::BeatSaberUI::ClearCache();
+        UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(self->get_transform());
+        UnityEngine::RectTransform* rectTransform = layout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>();
+
+        rectTransform->set_anchoredPosition(UnityEngine::Vector2(52.5f, 25.6f));
+        rectTransform->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
+        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, +[](Il2CppObject* obj, UnityEngine::UI::Button* button){}));
+        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsSongSelectButtonClick));
+        {
+            UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", 266, 259);
+            UnityEngine::Sprite* pressed = highlighted;
+            UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", 266, 259);
+            UnityEngine::Sprite* disabled = selected;
+            HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
+            spriteSwap->normalStateSprite = selected;
+            spriteSwap->highlightStateSprite = highlighted;
+            spriteSwap->pressedStateSprite = pressed;
+            spriteSwap->disabledStateSprite = disabled;
+        }
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
+{
+    MainMenuViewController_HandleMenuButton(self, menuButton);
+    switch (menuButton.value)
+    {
+        case 0: // solo
+            soloMenu = true;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+        case 1: // party
+            soloMenu = false;
+            partyMenu = true;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+        case 2: // Editor
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+        case 3: // campaign
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = true;
+            multiMenu = false;
+            break;
+        case 4: // floorAdjust
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+        case 5: // quit
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+        case 6: // multi
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = true;
+            break;
+        case 7: // options
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+        case 8: // howtoplay/tutorial
+            soloMenu = false;
+            partyMenu = false;
+            campaignMenu = false;
+            multiMenu = false;
+            break;
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, void, GlobalNamespace::MultiplayerModeSelectionFlowCoordinator* self, HMUI::ViewController* oldViewController, HMUI::ViewController* newViewController, HMUI::ViewController::AnimationType animationType)
+{
+    MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange(self, oldViewController, newViewController, animationType);
+    if ((void*)newViewController == (void*)self->createServerViewController)
+    {
+        getLogger().info("User is Host");
+        host = true;
+        client = false;
+    }
+    else if ((void*)newViewController == (void*)self->serverCodeEntryViewController)
+    {
+        getLogger().info("User is Client");
+        host = false;
+        client = true;
+    }
+}
 extern "C" void setup(ModInfo& info) 
 {
     info.id = ID;
@@ -487,6 +657,9 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
     INSTALL_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, il2cpp_utils::FindMethodUnsafe("", "MultiplayerLocalActivePlayerInGameMenuViewController", "ShowMenu", 0));
     INSTALL_HOOK_OFFSETLESS(OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "GameplaySetupViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
+    INSTALL_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
@@ -506,6 +679,7 @@ extern "C" void load()
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsViewController>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsFlowCoordinator>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsSongSelectFlowCoordinator>());
     
     //QuestUI::Register::RegisterModSettingsFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>((ModInfo){"Qosmetics Settings", VERSION});
 

@@ -21,6 +21,7 @@
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "UI/Wall/WallPreviewViewController.hpp"
+#include "Qosmetic/QuestWall.hpp"
 
 #include "Logging/UILogger.hpp"
 #define INFO(value...) UILogger::GetLogger().info(value)
@@ -56,6 +57,7 @@ namespace Qosmetics
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Disable Fake Glow", config.wallConfig.forceFakeGlowOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
                     config.wallConfig.forceFakeGlowOff = value;
                     SaveConfig();
+                    QuestWall::SelectionDefinitive();
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
@@ -63,6 +65,7 @@ namespace Qosmetics
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Core Off", config.wallConfig.forceCoreOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
                     config.wallConfig.forceCoreOff = value;
                     SaveConfig();
+                    QuestWall::SelectionDefinitive();
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");
@@ -70,6 +73,7 @@ namespace Qosmetics
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Frame Off", config.wallConfig.forceFrameOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
                     config.wallConfig.forceFrameOff = value;
                     SaveConfig();
+                    QuestWall::SelectionDefinitive();
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
                     else INFO("Couldn't find preview controller");

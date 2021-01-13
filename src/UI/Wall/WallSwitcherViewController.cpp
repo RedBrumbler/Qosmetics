@@ -45,6 +45,8 @@ namespace Qosmetics
     {
         DescriptorCache::Write();
         SaveConfig();
+        QuestWall::SelectionDefinitive();
+
     }
 
     void WallSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)

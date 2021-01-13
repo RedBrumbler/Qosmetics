@@ -4,6 +4,8 @@
 #include "UnityEngine/Object.hpp"
 #include "Data/NoteData.hpp"
 #include "UnityEngine/SphereCollider.hpp"
+#include "GlobalNamespace/MaterialPropertyBlockController.hpp"
+#include "UnityEngine/MaterialPropertyBlock.hpp"
 
 extern config_t config;
 
@@ -501,6 +503,15 @@ namespace Qosmetics
             }
         }
         
+        if (GlobalNamespace::MaterialPropertyBlockController* matController = object->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>())
+        {
+            UnityEngine::MaterialPropertyBlock* block = matController->get_materialPropertyBlock();
+
+            block->SetColor(colorString, thisColor);
+            block->SetColor(otherColorString, otherColor);
+
+            matController->ApplyChanges();
+        }
     }
 
     void NoteUtils::SetColor(std::vector<UnityEngine::Material*>& vector, bool isLeft)
@@ -536,6 +547,8 @@ namespace Qosmetics
         if (!customNoteData.get_config()->get_hasBomb() || customNoteData.get_replacedBombMaterials()) return;
         customNoteData.set_replacedBombMaterials(true);
         int i = 0;
+        bool replacedAny = false;
+        std::vector<UnityEngine::Renderer*> renderers = {};
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
@@ -546,9 +559,18 @@ namespace Qosmetics
             }
             materialName += "_replace";
             materialName = toLowerCase(materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_bomb(), currentMaterial, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_bomb(), currentMaterial, renderers, materialName);
             
             i++;
+        }
+
+        if (renderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_bomb()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_bomb()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(renderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = bomb->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->materialPropertyBlock = origController->materialPropertyBlock;
         }
     }
 
@@ -559,6 +581,8 @@ namespace Qosmetics
         if (!customNoteData.get_config()->get_hasDebris() || customNoteData.get_replacedDebrisMaterials()) return;
         customNoteData.set_replacedDebrisMaterials(true);
         int i = 0;
+        std::vector<UnityEngine::Renderer*> leftrenderers = {};
+        std::vector<UnityEngine::Renderer*> rightrenderers = {};
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
@@ -569,10 +593,28 @@ namespace Qosmetics
             }
             materialName += "_replace";
             materialName = toLowerCase(materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftDebris(), currentMaterial, materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightDebris(), currentMaterial, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftDebris(), currentMaterial, leftrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightDebris(), currentMaterial, rightrenderers, materialName);
             
             i++;
+        }
+
+        if (leftrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_leftDebris()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_leftDebris()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(leftrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = debris->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+
+        if (rightrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_rightDebris()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_rightDebris()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(rightrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = debris->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->materialPropertyBlock = origController->materialPropertyBlock;
         }
     }
 
@@ -583,6 +625,11 @@ namespace Qosmetics
         if (customNoteData.get_replacedMaterials()) return;
         customNoteData.set_replacedMaterials(true);
         int i = 0;
+        std::vector<UnityEngine::Renderer*> leftarrowrenderers = {};
+        std::vector<UnityEngine::Renderer*> leftdotrenderers = {};
+        std::vector<UnityEngine::Renderer*> rightarrowrenderers = {};
+        std::vector<UnityEngine::Renderer*> rightdotrenderers = {};
+
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
@@ -593,9 +640,48 @@ namespace Qosmetics
             }
             materialName += "_replace";
             materialName = toLowerCase(materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_notePrefab(), currentMaterial, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftArrow(), currentMaterial, leftarrowrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftDot(), currentMaterial, leftdotrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightArrow(), currentMaterial, rightarrowrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightDot(), currentMaterial, rightdotrenderers, materialName);
             
             i++;
+        }
+
+        if (leftarrowrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_leftArrow()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_leftArrow()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(leftarrowrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+
+        if (leftdotrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_leftDot()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_leftDot()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(leftdotrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+
+        if (rightarrowrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_rightArrow()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_rightArrow()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(rightarrowrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+        
+        if (rightdotrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_rightDot()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_rightDot()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(rightdotrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
         }
     }
 

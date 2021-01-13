@@ -294,14 +294,16 @@ namespace Qosmetics
     void WallData::OnComplete()
     {
         if (!get_complete()) return;
-        this->wallPrefab->set_name(il2cpp_utils::createcsstr(this->wallDescriptor->get_name()));
+        std::string name = string_format("%s%s", this->wallDescriptor->get_name().c_str(), this->wallDescriptor->get_author().c_str());
+        this->wallPrefab->set_name(il2cpp_utils::createcsstr(name));
     }
 
     void WallData::FindPrefab()
     {
         if (!get_complete()) return;
-        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(this->wallDescriptor->get_name()));
-        
+        std::string name = string_format("%s%s", this->wallDescriptor->get_name().c_str(), this->wallDescriptor->get_author().c_str());
+        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(name));
+
         if (prefab) this->wallPrefab = prefab; 
     }
 }

@@ -65,6 +65,7 @@ namespace Qosmetics
             /// @brief Sets the activeWall pointer to point to the wall that should be active, or handles setting to nulltr (default)
             static void SetActiveWall(Descriptor* wallDescriptor, bool ifLoadAlsoAssets = false)
             {
+                previousActiveWall = activeWall;
                 if (wallDescriptor->get_type() == qosmeticsType::invalid)
                 {
                     activeWall = nullptr;
@@ -79,6 +80,7 @@ namespace Qosmetics
             /// @brief Sets the activeWall pointer to point to the wall that should be active, or handles setting to nulltr (default)
             static void SetActiveWall(WallData* wall, bool ifLoadAlsoAssets = false)
             {
+                previousActiveWall = activeWall;
                 activeWall = wall;
                 OnActiveWallSet(ifLoadAlsoAssets);
             }
@@ -96,9 +98,21 @@ namespace Qosmetics
                 return wallMap;
             }
             
+            /// @return true for different, false for same
+            static bool DidSelectDifferentWall()
+            {
+                return activeWall != previousActiveWall;
+            }
+
+            static void SelectionDefinitive()
+            {
+                previousActiveWall = activeWall;
+            }
+            
         private:
             static inline std::map<Descriptor*, WallData*> wallMap = {};
             static inline WallData* activeWall = nullptr;
+            static inline WallData* previousActiveWall = nullptr;
 
             static inline bool setColors = false;
             /// @brief makes the folder if not found

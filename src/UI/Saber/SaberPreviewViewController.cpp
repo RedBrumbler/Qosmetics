@@ -73,17 +73,15 @@ namespace Qosmetics
     {
         if (QuestSaber::GetActiveSaber())
         {
-            if (previewprefab) 
+            if (QuestSaber::DidSelectDifferentSaber() && previewprefab) 
             {
                 Object::Destroy(previewprefab);
                 previewprefab = nullptr;
             }
             SaberData& selected = *QuestSaber::GetActiveSaber();
             Descriptor& saberDescriptor = *selected.saberDescriptor;
-            selected.FindPrefab();
-            GameObject* prefab = selected.get_saberPrefab();
-            
-            if (!prefab)
+            bool loadComplete = selected.get_complete();
+            if (!loadComplete)
             {
                 title->set_text(il2cpp_utils::createcsstr("Loading .qsaber File"));
                 std::thread waitForLoadedPrefab([]{
@@ -103,22 +101,30 @@ namespace Qosmetics
                 waitForLoadedPrefab.detach();
                 return;
             }
+            if (!loadComplete) return;
 
-            if (!prefab) return;
-            
-            std::string name = saberDescriptor.get_name();
-            if (name == "")
+            selected.FindPrefab();
+            if (QuestSaber::DidSelectDifferentSaber() || !previewprefab)
             {
-                name = saberDescriptor.get_fileName();
-                if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
-            }
-            title->set_text(il2cpp_utils::createcsstr(name));
+                std::string name = saberDescriptor.get_name();
+                if (name == "")
+                {
+                    name = saberDescriptor.get_fileName();
+                    if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
+                }
+                title->set_text(il2cpp_utils::createcsstr(name));
+                
+                GameObject* prefab = selected.get_saberPrefab();
+                if (!prefab) return;
 
-            previewprefab = Object::Instantiate(prefab);
-            previewprefab->SetActive(true);
-            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
+                previewprefab = Object::Instantiate(prefab, get_transform());
+                previewprefab->SetActive(true);
+            }
+
+            //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
+            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
             previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 150.0f, 0.0f));
-            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
+            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 50.0f);
             
             Transform* leftSaber = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("LeftSaber"));
             Transform* rightSaber = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("RightSaber"));
@@ -147,6 +153,16 @@ namespace Qosmetics
                     int node = VRControllers->values[i]->node;
 
                     if (!(node == 4 || node == 5)) continue;
+                    if (config.saberConfig.enableMenuPointer)
+                    {
+                        if (QuestSaber::DidSelectDifferentSaber()) 
+                        {
+                            SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
+                            Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                        }
+                        else Qosmetics::QuestSaber::UpdateMenuPointers(VRControllers->values[i]->get_transform(), node);
+                    } 
+                    continue;
                     UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
                     UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
                     UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
@@ -182,6 +198,8 @@ namespace Qosmetics
                     int node = VRControllers->values[i]->node;
                     
                     if (!(node == 4 || node == 5)) continue;
+                    SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
+                    continue;
                     UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
                     UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
                     UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;

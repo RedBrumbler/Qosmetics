@@ -78,6 +78,8 @@ namespace Qosmetics
         }
         Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveSaber, saber);
         SetActiveSaber(descriptor);
+        SelectionDefinitive();
+
         //if (activeSaber) activeSaber->LoadBundle(true);
         return true;
     };
@@ -258,7 +260,47 @@ namespace Qosmetics
         }
         else
         {
+            selected.FindPrefab();
             SaberUtils::AddMenuPointerSaber(controller->Find(il2cpp_utils::createcsstr(menuHandle)), isLeft, selected);
+        }
+
+        UpdateMenuPointers(controller, node);
+    }
+
+    void QuestSaber::UpdateMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node)
+    {
+        if (!controller) return;
+        bool isLeft = node == 4;
+
+        std::string name = isLeft ? "MenuHandle/CustomLeftPointer" : "MenuHandle/CustomRightPointer";
+        if (UnityEngine::Transform* oldPointer = controller->Find(il2cpp_utils::createcsstr(name)))
+        {
+            SaberUtils::SetCustomColor(oldPointer, isLeft ? 0 : 1);
+            oldPointer->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f) * config.saberConfig.menuPointerSize);
+            oldPointer->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.2f * (1.0f - config.saberConfig.menuPointerSize)));
+
+            Array<Qosmetics::QosmeticsTrail*>* trails = oldPointer->get_gameObject()->GetComponentsInChildren<Qosmetics::QosmeticsTrail*>(true);
+            if (config.saberConfig.trailType != TrailType::custom && trails)
+            {
+                for (int i = 0; i < trails->Length(); i++)
+                {
+                    Qosmetics::QosmeticsTrail* trail = trails->values[i];
+                    if (!trail) continue;
+                    trail->set_enabled(false);
+                }
+            }
+            else if (config.saberConfig.trailType == TrailType::custom)
+            {
+                for (int i = 0; i < trails->Length(); i++)
+                {
+                    Qosmetics::QosmeticsTrail* trail = trails->values[i];
+                    if (!trail) continue;
+                    trail->TrailSetup(trail->length, trail->granularity, trail->colorType, trail->whitestep, trail->trailMaterial, trail->trailColor, trail->multiplierColor);
+                    trail->Awake();
+                    trail->framesPassed = 0;
+                    trail->set_enabled(true);
+                }
+            }
         }
     }
 

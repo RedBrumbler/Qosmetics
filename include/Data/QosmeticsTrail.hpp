@@ -28,7 +28,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_INSTANCE_FIELD_DEFAULT(int, colorType, 2);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, trailColor);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, multiplierColor);
-    DECLARE_INSTANCE_FIELD(GlobalNamespace::SaberMovementData*, customMovementData);
+    DECLARE_INSTANCE_FIELD_DEFAULT(GlobalNamespace::SaberMovementData*, customMovementData, nullptr);
     DECLARE_STATIC_FIELD(float, trailIntensity);
 
     DECLARE_METHOD(void, Update);
