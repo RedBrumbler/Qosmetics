@@ -50,7 +50,7 @@ namespace Qosmetics
 		this->granularity = granularity;
 		this->colorType = colorType;
 		this->whitestep = whiteStep;
-		this->trailMaterial = trailMaterial;
+		this->trailMaterial = trailMaterial ? trailMaterial : nullptr;
 		this->trailColor = trailColor;
 		this->multiplierColor = multiplierColor;
 	}
@@ -66,21 +66,21 @@ namespace Qosmetics
 		}
 
 		// make a new trail renderer to use
-        this->trailRenderer = NewTrailRenderer(this->trailMaterial);
+        if (!this->trailRenderer) this->trailRenderer = NewTrailRenderer(this->trailMaterial);
 		// create trail duration from length / sampling
         this->trailDuration = (float)this->length / (float)this->samplingFrequency;
 
 		// make a new movementdata
-		this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
+		if (!this->customMovementData) this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
 		// set the movementData interface to this new movementData
 		this->movementData = reinterpret_cast<GlobalNamespace::IBladeMovementData*>(this->customMovementData);
 
 		// if either is nullptr, set it
-		if (this->topTransform == nullptr)
+		if (!this->topTransform)
 		{
 			this->topTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailEnd"));
 		}
-		if (this->bottomTransform == nullptr)
+		if (!this->bottomTransform)
 		{
 			this->bottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailStart"));
 		}
@@ -109,13 +109,29 @@ namespace Qosmetics
 		// this method just makes sure that the trail gets updated positions through it's custom movementData
         UnityEngine::Vector3 topPos = this->topTransform->get_position();
 		UnityEngine::Vector3 bottomPos = this->bottomTransform->get_position();
+		if (!this->customMovementData) 
+		{
+			this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
+			this->movementData = reinterpret_cast<GlobalNamespace::IBladeMovementData*>(this->customMovementData);
+		}
+
+		if (!this->trailRenderer || !this->trailRenderer->meshRenderer->get_material())
+		{
+			UnityEngine::MeshRenderer* renderer = this->GetComponent<UnityEngine::MeshRenderer*>();
+			if (!this->trailMaterial && renderer)
+			{
+				this->trailMaterial = renderer->get_material();
+				this->trailRenderer = NewTrailRenderer(this->trailMaterial);
+			}
+		}
+	
         this->customMovementData->AddNewData(topPos, bottomPos, GlobalNamespace::TimeHelper::get_time());
     }
 
 	GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer(UnityEngine::Material* material)
     {
         // make a new gameobject to house the prefab on
-        UnityEngine::GameObject* newPrefab = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor());
+        UnityEngine::GameObject* newPrefab = UnityEngine::GameObject::New_ctor();
 
         // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
         newPrefab->AddComponent<UnityEngine::MeshFilter*>();
