@@ -15,6 +15,13 @@
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/QuestUI.hpp"
 
+#include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/CampaignFlowCoordinator.hpp"
+#include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
+
 using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -149,9 +156,6 @@ namespace Qosmetics
             SetRightScreenViewController(nullptr, ViewController::AnimationType::Out);
             ActiveViewController = QosmeticsViewController;
         }
-        else 
-        {
-            BeatSaberUI::GetMainFlowCoordinator()->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
-        }
+        else this->parentFlowCoordinator->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
     }
 }

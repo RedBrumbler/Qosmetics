@@ -117,6 +117,17 @@ namespace Qosmetics
 			this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
 			this->movementData = reinterpret_cast<GlobalNamespace::IBladeMovementData*>(this->customMovementData);
 		}
+
+		if (!this->trailRenderer || !this->trailRenderer->meshRenderer->get_material())
+		{
+			UnityEngine::MeshRenderer* renderer = this->GetComponent<UnityEngine::MeshRenderer*>();
+			if (!this->trailMaterial && renderer)
+			{
+				this->trailMaterial = renderer->get_material();
+				this->trailRenderer = NewTrailRenderer(this->trailMaterial);
+			}
+		}
+
         this->customMovementData->AddNewData(topPos, bottomPos, GlobalNamespace::TimeHelper::get_time());
     }
 

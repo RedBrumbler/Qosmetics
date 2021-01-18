@@ -28,14 +28,14 @@ namespace Qosmetics
 
             Descriptor(qosmeticsType theType)
             {
-                if (theType == invalid)
+                if (theType == qosmeticsType::invalid)
                 {
                     valid = false;
                     name = "invalid";
                     author = "invalid";
                     description = "invalid";
                     filePath = "invalid";
-                    type = invalid;
+                    type = qosmeticsType::invalid;
                 }
             }
             
@@ -132,6 +132,6 @@ namespace Qosmetics
             std::string description = "";
             std::string filePath = "";
             UnityEngine::Texture2D* coverImage = nullptr;
-            qosmeticsType type = invalid;
+            qosmeticsType type = qosmeticsType::invalid;
     };
 }

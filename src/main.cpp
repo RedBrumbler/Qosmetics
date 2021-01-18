@@ -68,6 +68,7 @@
 #include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
 #include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
 #include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
 
 #include "HMUI/TextSegmentedControl.hpp"
 #include "HMUI/SegmentedControl_IDataSource.hpp"
@@ -110,7 +111,7 @@
 
 #include "UI/QosmeticsViewController.hpp"
 #include "UI/QosmeticsFlowCoordinator.hpp"
-#include "UI/QosmeticsSongSelectFlowCoordinator.hpp"
+//#include "UI/QosmeticsflowCoordinator.hpp"
 
 #include "questui/shared/QuestUI.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
@@ -373,75 +374,47 @@ MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMe
 }
 
 Qosmetics::QosmeticsFlowCoordinator* flowCoordinator = nullptr;
+Qosmetics::PreviousFlowCoordinatorType returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::settings;
 
-void OnQosmeticsMenuButtonClick(UnityEngine::UI::Button* button) {
-    getLogger().info("QosmeticsMenuButtonClick");
+void OnQosmeticsButtonClick(UnityEngine::UI::Button* button) {
+    getLogger().info("QosmeticsSongSelectButtonClick");
     if(!flowCoordinator)
         flowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>();
     flowCoordinator = UnityEngine::Object::FindObjectOfType<Qosmetics::QosmeticsFlowCoordinator*>();
-    QuestUI::BeatSaberUI::GetMainFlowCoordinator()->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
-}
 
-Qosmetics::QosmeticsSongSelectFlowCoordinator* songSelectFlowCoordinator = nullptr;
-
-bool soloMenu = false;
-bool partyMenu = false;
-bool campaignMenu = false;
-bool multiMenu = false;
-bool client = false;
-bool host = false;
-
-void OnQosmeticsSongSelectButtonClick(UnityEngine::UI::Button* button) {
-    getLogger().info("QosmeticsSongSelectButtonClick");
-    if(!songSelectFlowCoordinator)
-        songSelectFlowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<Qosmetics::QosmeticsSongSelectFlowCoordinator*>();
-    //songSelectFlowCoordinator = UnityEngine::Object::FindObjectOfType<Qosmetics::QosmeticsSongSelectFlowCoordinator*>();
-
-    if (soloMenu)
+    if (!flowCoordinator) return;
+    HMUI::FlowCoordinator* currentCoordinator = nullptr;
+    switch (returnFlowCoordinator)
     {
-        GlobalNamespace::SoloFreePlayFlowCoordinator* solo = UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>();
-        if (solo)
-        {
-            songSelectFlowCoordinator->previousFlowCoordinator = solo;
+        case Qosmetics::PreviousFlowCoordinatorType::settings:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::MainFlowCoordinator*>());
+            getLogger().info("presenting from settings");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::solo:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>());
             getLogger().info("presenting from solo");
-            solo->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
-        }
-    }
-    else if (partyMenu)
-    {
-        GlobalNamespace::PartyFreePlayFlowCoordinator* party = UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>();
-        if (party)
-        {
-            songSelectFlowCoordinator->previousFlowCoordinator = party;
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::party:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>());
             getLogger().info("presenting from party");
-            party->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
-        }
-    }
-    else if (campaignMenu)
-    {
-        GlobalNamespace::CampaignFlowCoordinator* campaign = UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>();
-        if (campaign)
-        {
-            songSelectFlowCoordinator->previousFlowCoordinator = campaign;
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::campaign:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>());
             getLogger().info("presenting from campaign");
-            campaign->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
-        }
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::multiHost:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::HostGameServerLobbyFlowCoordinator*>());
+            getLogger().info("presenting from multiHost");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::multiClient:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::ClientGameServerLobbyFlowCoordinator*>());
+            getLogger().info("presenting from multiClient");
+            break;
+        default:
+            break;
     }
-    else if (multiMenu)
-    {
 
-        HMUI::FlowCoordinator* multi = nullptr; 
-        
-        if (host) multi = UnityEngine::Object::FindObjectOfType<GlobalNamespace::HostGameServerLobbyFlowCoordinator*>();
-        if (client) multi = UnityEngine::Object::FindObjectOfType<GlobalNamespace::ClientGameServerLobbyFlowCoordinator*>();
-
-        if (multi)
-        {
-            songSelectFlowCoordinator->previousFlowCoordinator = multi;
-            getLogger().info("presenting from multi");
-            multi->PresentFlowCoordinator(songSelectFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
-        }
-    }
+    if (currentCoordinator) currentCoordinator->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
 }
 
 MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
@@ -475,7 +448,7 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
         }
         else button->get_transform()->SetAsFirstSibling();
 
-        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsMenuButtonClick));
+        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
         
         UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", 266, 259);
         UnityEngine::Sprite* pressed = highlighted;
@@ -506,11 +479,11 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
         rectTransform->set_anchoredPosition(UnityEngine::Vector2(52.5f, 25.6f));
         rectTransform->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
         UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, +[](Il2CppObject* obj, UnityEngine::UI::Button* button){}));
-        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsSongSelectButtonClick));
+        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
         {
-            UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", 266, 259);
+            UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/GameSetupIconSelected.png", 266, 259);
             UnityEngine::Sprite* pressed = highlighted;
-            UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", 266, 259);
+            UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/GameSetupIcon.png", 266, 259);
             UnityEngine::Sprite* disabled = selected;
             HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
             spriteSwap->normalStateSprite = selected;
@@ -524,61 +497,35 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
 MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
 {
     MainMenuViewController_HandleMenuButton(self, menuButton);
+    getLogger().info("Menu pressed: %d", menuButton.value);
     switch (menuButton.value)
     {
         case 0: // solo
-            soloMenu = true;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::solo;
             break;
         case 1: // party
-            soloMenu = false;
-            partyMenu = true;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::party;
             break;
         case 2: // Editor
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
             break;
         case 3: // campaign
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = true;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::campaign;
             break;
         case 4: // floorAdjust
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
             break;
         case 5: // quit
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
             break;
         case 6: // multi
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = true;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
             break;
         case 7: // options
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::settings;
             break;
         case 8: // howtoplay/tutorial
-            soloMenu = false;
-            partyMenu = false;
-            campaignMenu = false;
-            multiMenu = false;
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
             break;
     }
 }
@@ -589,14 +536,12 @@ MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWi
     if ((void*)newViewController == (void*)self->createServerViewController)
     {
         getLogger().info("User is Host");
-        host = true;
-        client = false;
+        returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::multiHost;
     }
     else if ((void*)newViewController == (void*)self->serverCodeEntryViewController)
     {
         getLogger().info("User is Client");
-        host = false;
-        client = true;
+        returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::multiClient;
     }
 }
 extern "C" void setup(ModInfo& info) 
@@ -621,16 +566,37 @@ void CopyIcons()
     makeFolder("sdcard/Qosmetics/UI");
     makeFolder("sdcard/Qosmetics/UI/Icons");
     
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIconSelected.png")) writefile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png"));
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIcon.png")) writefile("sdcard/Qosmetics/UI/Icons/WallIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png"));
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIcon.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png"));
     
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIcon.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIcon.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIconSelected.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIcon.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/WallIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/GameSetupIconSelected.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/GameSetupIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIconSelected.png"));
+    
+    if (!fileexists("sdcard/Qosmetics/UI/Icons/GameSetupIcon.png"))
+            writefile("sdcard/Qosmetics/UI/Icons/GameSetupIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIcon.png"));
 }
+
 
 extern "C" void load() 
 {
@@ -681,7 +647,7 @@ extern "C" void load()
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsViewController>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsFlowCoordinator>());
-    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsSongSelectFlowCoordinator>());
+    //CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsflowCoordinator>());
     
     //QuestUI::Register::RegisterModSettingsFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>((ModInfo){"Qosmetics Settings", VERSION});
 

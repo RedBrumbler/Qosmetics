@@ -21,4 +21,6 @@ Compress-Archive -Path  "cover.gif",`
                         "./ExtraFiles/UI/Icons/NoteIcon.png",`
                         "./ExtraFiles/UI/Icons/NoteIconSelected.png",`
                         "./ExtraFiles/UI/Icons/WallIcon.png",`
-                        "./ExtraFiles/UI/Icons/WallIconSelected.png" -DestinationPath "./Qosmetics.zip" -Update
+                        "./ExtraFiles/UI/Icons/WallIconSelected.png"`
+                        "./ExtraFiles/UI/Icons/GameSetupIcon.png"`
+                        "./ExtraFiles/UI/Icons/GameSetupIconSelected.png"` -DestinationPath "./Qosmetics.zip" -Update

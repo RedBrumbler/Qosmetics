@@ -19,6 +19,18 @@
 
 #include "custom-types/shared/macros.hpp"
 
+namespace Qosmetics {
+    enum PreviousFlowCoordinatorType {
+        invalid,
+        settings,
+        solo,
+        party,
+        campaign,
+        multiHost,
+        multiClient
+    };
+}
+
 DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
     
     DECLARE_INSTANCE_FIELD_DEFAULT(HMUI::ViewController*, ActiveViewController, nullptr);
@@ -35,10 +47,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsFlowCoordinator, HMUI::FlowCoordinator
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallSwitcherViewController*, WallSwitcherViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallSettingsViewController*, WallSettingsViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallPreviewViewController*, WallPreviewViewController, nullptr);
-    
 
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
 
     REGISTER_FUNCTION(QosmeticsFlowCoordinator,
