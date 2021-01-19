@@ -128,7 +128,17 @@ namespace Qosmetics
     void QuestSaber::SaberStart(GlobalNamespace::Saber* instance)
     {
         SaberUtils::SetSaberSize(instance->get_transform()->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)")));
-        if (!activeSaber) return;
+        if (!activeSaber) 
+        {
+            UnityEngine::Transform* basicSaberModel = instance->get_transform()->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
+            if (config.saberConfig.trailType == TrailType::none)
+            {
+                TrailUtils::RemoveTrail(basicSaberModel);
+            }
+            else TrailUtils::MoveTrail(basicSaberModel, basicSaberModel); 
+            
+            return;
+        }
         SaberData& selected = *activeSaber;
         if (!selected.get_complete())
         {

@@ -40,7 +40,8 @@ using namespace HMUI;
 
 DEFINE_CLASS(Qosmetics::WallSwitcherViewController);
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Wall Switching").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Wall Switching").error(value)
 #define toString = 
 namespace Qosmetics
 {
@@ -69,7 +70,7 @@ namespace Qosmetics
                 QuestWall::SetActiveWall((WallData*)nullptr);
                 WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                 if (previewController) previewController->UpdatePreview();
-                else INFO("Couldn't find preview controller");
+                else ERROR("Couldn't find preview controller");
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
@@ -101,7 +102,7 @@ namespace Qosmetics
             QuestWall::SetActiveWall(descriptor, true);
             WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
             if (previewController) previewController->UpdatePreview();
-            else INFO("Couldn't find preview controller");
+            else ERROR("Couldn't find preview controller");
             DescriptorCache::Write();
             INFO("Selected wall %s", descriptor->get_name().c_str());
         }));
@@ -115,7 +116,6 @@ namespace Qosmetics
             {
                 INFO("Deleting %s", descriptor->get_filePath().c_str());
                 deletefile(descriptor->get_filePath());
-                INFO("Deleted %s", descriptor->get_filePath().c_str());
             }
         }));
     }

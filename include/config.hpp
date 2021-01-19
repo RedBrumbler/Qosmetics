@@ -26,8 +26,11 @@ typedef struct _saberConfig {
     double saberWidth = 1.0f;
     bool overrideTrailLength = false;
     double trailLength = 14.0f;
+    bool whiteTrail = false;
     bool overrideWhiteStep = false;
     double whiteStep = 0.1f;
+    bool overrideTrailWidth = false;
+    double trailWidth = 1.0f;
     bool enableMenuPointer = false;
     double menuPointerSize = 0.4f;
     TrailType trailType = custom;

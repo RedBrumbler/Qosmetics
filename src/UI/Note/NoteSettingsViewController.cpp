@@ -26,7 +26,9 @@
 #include "Logging/UILogger.hpp"
 #include "UI/Note/NotePreviewViewController.hpp"
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Note Settings").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Note Settings").error(value)
+
 extern config_t config;
 
 DEFINE_CLASS(Qosmetics::NoteSettingsViewController);
@@ -41,7 +43,7 @@ namespace Qosmetics
 {
     void NoteSettingsViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
-        
+        SaveConfig();
     }
 
     void NoteSettingsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -50,8 +52,6 @@ namespace Qosmetics
         {
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
-
-            container->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
             
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
@@ -63,7 +63,7 @@ namespace Qosmetics
                     QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.noteConfig.noteSize = value;
@@ -71,7 +71,7 @@ namespace Qosmetics
                     QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::AddHoverHint(noteSizeSetting->get_gameObject(), "The overridden size of the notes compared to default, set to 1.0f for default size");
             UI::Toggle* hitboxSize = BeatSaberUI::CreateToggle(container->get_transform(), "Change Hitbox Sizes", config.noteConfig.alsoChangeHitboxes, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
@@ -85,7 +85,7 @@ namespace Qosmetics
                     QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Debris", config.noteConfig.forceDefaultDebris, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultDebris = value;
@@ -93,7 +93,7 @@ namespace Qosmetics
                     QuestNote::SelectionDefinitive();
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
         }
     }

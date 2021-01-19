@@ -39,7 +39,8 @@ using namespace HMUI;
 
 DEFINE_CLASS(Qosmetics::SaberSwitcherViewController);
 
-#define INFO(value...) Qosmetics::UILogger::GetLogger().info(value)
+#define INFO(value...) Qosmetics::UILogger::GetLogger().WithContext("Saber Switching").info(value)
+#define ERROR(value...) Qosmetics::UILogger::GetLogger().WithContext("Saber Switching").error(value)
 
 
 void OnSelectButtonClick(Il2CppString* fileName, Button* button)
@@ -53,7 +54,7 @@ void OnSelectButtonClick(Il2CppString* fileName, Button* button)
     // update preview
     Qosmetics::SaberPreviewViewController* previewController = Object::FindObjectOfType<Qosmetics::SaberPreviewViewController*>();
     if (previewController) previewController->UpdatePreview();
-    else INFO("Couldn't find preview controller");
+    else ERROR("Couldn't find preview controller");
 
     Qosmetics::DescriptorCache::Write();
     INFO("Selected saber %s", descriptor->get_name().c_str());
@@ -86,7 +87,7 @@ namespace Qosmetics
                 QuestSaber::SetActiveSaber((SaberData*)nullptr);
                 SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                 if (previewController) previewController->UpdatePreview();
-                else INFO("Couldn't find preview controller");
+                else ERROR("Couldn't find preview controller");
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
@@ -121,7 +122,6 @@ namespace Qosmetics
             {
                 INFO("Deleting %s", descriptor->get_filePath().c_str());
                 deletefile(descriptor->get_filePath());
-                INFO("Deleted %s", descriptor->get_filePath().c_str());
             }
         }));
     }
@@ -138,8 +138,8 @@ namespace Qosmetics
             if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
         }
 
-        TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName + " ");
-        TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, descriptor->get_author() + " ");
+        TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName);
+        TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, descriptor->get_author());
 
         QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
         authorText->set_color(UnityEngine::Color(0.8f, 0.8f, 0.8f, 0.8f));

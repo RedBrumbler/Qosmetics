@@ -33,6 +33,8 @@ using namespace UnityEngine::Events;
 using namespace HMUI;
 
 #define getLogger() Qosmetics::GenericLogger::GetLogger() 
+#define getLogger() Qosmetics::GenericLogger::GetLogger()
+
 DEFINE_CLASS(Qosmetics::QosmeticsViewController);
 
 DEFINE_EVENT(Qosmetics::QosmeticsViewController, System::Action_1<QuestUI::CustomDataType*>*, openSubMenu);
@@ -88,63 +90,19 @@ namespace Qosmetics
         {
             get_gameObject()->AddComponent<HMUI::Touchable*>();
             UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(get_transform());
-            
-            //layout->set_childForceExpandWidth(false);
-            //layout->set_childControlWidth(false);
-            //layout->set_constraint(UnityEngine::UI::GridLayoutGroup::Constraint::Flexible);
-            //layout->set_cellSize(UnityEngine::Vector2(48.0f, 10.0f));
+        
             layout->set_spacing(-64.0f);
-            //layout->set_childAlignment(UnityEngine::TextAnchor::MiddleCenter);
-            //layout->set_startAxis(0);
 
             UnityEngine::RectTransform* rectTransform = layout->GetComponent<UnityEngine::RectTransform*>();
             Button* saberButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Sabers", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, saber}), OnSubMenuButtonClick));
             spriteSwapSetup(saberButton, "sdcard/Qosmetics/UI/Icons/SaberIcon.png", "sdcard/Qosmetics/UI/Icons/SaberIconSelected.png");
-            /*
-            {
-                UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", 266, 259);
-                UnityEngine::Sprite* pressed = highlighted;
-                UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", 266, 259);
-                UnityEngine::Sprite* disabled = selected;
-                HMUI::ButtonSpriteSwap* spriteSwap = saberButton->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
-                spriteSwap->normalStateSprite = selected;
-                spriteSwap->highlightStateSprite = highlighted;
-                spriteSwap->pressedStateSprite = pressed;
-                spriteSwap->disabledStateSprite = disabled;
-            }
-            */
+
             Button* noteButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Bloqs", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, note}), OnSubMenuButtonClick));
             spriteSwapSetup(noteButton, "sdcard/Qosmetics/UI/Icons/NoteIcon.png", "sdcard/Qosmetics/UI/Icons/NoteIconSelected.png");
             
-            /*
-            {
-                UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", 266, 259);
-                UnityEngine::Sprite* pressed = highlighted;
-                UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", 266, 259);
-                UnityEngine::Sprite* disabled = selected;
-                HMUI::ButtonSpriteSwap* spriteSwap = noteButton->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
-                spriteSwap->normalStateSprite = selected;
-                spriteSwap->highlightStateSprite = highlighted;
-                spriteSwap->pressedStateSprite = pressed;
-                spriteSwap->disabledStateSprite = disabled;
-            }
-            */
             Button* wallButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Walls", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, wall}), OnSubMenuButtonClick));
             spriteSwapSetup(wallButton, "sdcard/Qosmetics/UI/Icons/WallIcon.png", "sdcard/Qosmetics/UI/Icons/WallIconSelected.png");
             
-            /*
-            {
-                UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", 266, 259);
-                UnityEngine::Sprite* pressed = highlighted;
-                UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::SpriteFromFile("sdcard/Qosmetics/UI/Icons/WallIcon.png", 266, 259);
-                UnityEngine::Sprite* disabled = selected;
-                HMUI::ButtonSpriteSwap* spriteSwap = wallButton->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
-                spriteSwap->normalStateSprite = selected;
-                spriteSwap->highlightStateSprite = highlighted;
-                spriteSwap->pressedStateSprite = pressed;
-                spriteSwap->disabledStateSprite = disabled;
-            }
-            */
         }
     }
 }

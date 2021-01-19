@@ -27,7 +27,8 @@
 #include "Utils/NoteUtils.hpp"
 #include "Qosmetic/QuestNote.hpp"
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Note Preview").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Note Preview").error(value)
 extern config_t config;
 DEFINE_CLASS(Qosmetics::NotePreviewViewController);
 
@@ -94,36 +95,6 @@ namespace Qosmetics
 
     void NotePreviewViewController::UpdatePreview()
     {
-        /*
-        INFO("Found");
-        INFO("%s", to_utf8(csstrtostr(get_gameObject()->get_name())).c_str());
-        for (int i = 0; i < get_transform()->get_childCount(); i++)
-        {
-            Transform* child1 = get_transform()->GetChild(i);
-            std::string name1 = to_utf8(csstrtostr(child1->get_gameObject()->get_name()));
-            INFO("\t%s", name1.c_str());
-            for (int j = 0; child1->get_childCount(); j++)
-            {
-                Transform* child2 = child1->GetChild(j);
-                std::string name2 = to_utf8(csstrtostr(child2->get_gameObject()->get_name()));
-                INFO("\t\t%s", name2.c_str());
-                for (int k = 0; child2->get_childCount(); k++)
-                {
-                    Transform* child3 = child2->GetChild(k);
-                    std::string name3 = to_utf8(csstrtostr(child3->get_gameObject()->get_name()));
-                    INFO("\t\t\t%s", name3.c_str());
-                    for (int q = 0; child2->get_childCount(); q++)
-                    {
-                        Transform* child4 = child3->GetChild(q);
-                        std::string name4 = to_utf8(csstrtostr(child4->get_gameObject()->get_name()));
-                        INFO("\t\t\t\t%s", name4.c_str());
-
-                    }
-                }
-            }
-        }
-        */
-
         if (QuestNote::GetActiveNote())
         {
             if (QuestNote::DidSelectDifferentNote() && previewprefab) 
@@ -149,7 +120,7 @@ namespace Qosmetics
                     }
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 });
                 waitForLoadedPrefab.detach();
                 return;
@@ -173,7 +144,6 @@ namespace Qosmetics
                 previewprefab->SetActive(true);
             }
 
-            //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
             previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
             previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 60.0f, 0.0f));
             previewprefab->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 10.0f);

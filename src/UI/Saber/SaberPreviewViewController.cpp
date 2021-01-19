@@ -35,7 +35,8 @@
 #include "UnityEngine/Shader.hpp"
 #include "UnityEngine/Vector4.hpp"
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Saber Preview").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Saber Preview").error(value)
 extern config_t config;
 DEFINE_CLASS(Qosmetics::SaberPreviewViewController);
 
@@ -96,7 +97,7 @@ namespace Qosmetics
                     }
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 });
                 waitForLoadedPrefab.detach();
                 return;

@@ -22,6 +22,9 @@
 #include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 
+#include "Logging/GenericLogger.hpp"
+#include "Utils/UnityUtils.hpp"
+
 using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -29,10 +32,12 @@ using namespace TMPro;
 using namespace HMUI;
 
 DEFINE_CLASS(Qosmetics::QosmeticsFlowCoordinator);
+void FindViewControllers(Qosmetics::QosmeticsFlowCoordinator* self);
 
 void OnOpenSubMenu(Qosmetics::QosmeticsFlowCoordinator* self, QuestUI::CustomDataType* data) {
     if (!data) return;
     qosmeticsType type = data->GetData<Qosmetics::MenuButtonClickData>().type;
+    FindViewControllers(self);
     switch(type)
     {
         case saber:
@@ -85,19 +90,19 @@ VerticalLayoutGroup* SetupSubTitle(VerticalLayoutGroup* layout, std::string subT
 void FindViewControllers(Qosmetics::QosmeticsFlowCoordinator* self)
 {
     // doesn't actually work at all
-    self->SaberSwitcherViewController = Object::FindObjectOfType<Qosmetics::SaberSwitcherViewController*>();
-    self->SaberSettingsViewController = Object::FindObjectOfType<Qosmetics::SaberSettingsViewController*>();
-    self->SaberPreviewViewController = Object::FindObjectOfType<Qosmetics::SaberPreviewViewController*>();
+    self->SaberSwitcherViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::SaberSwitcherViewController*>();
+    self->SaberSettingsViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::SaberSettingsViewController*>();
+    self->SaberPreviewViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::SaberPreviewViewController*>();
 
-    self->NoteSwitcherViewController = Object::FindObjectOfType<Qosmetics::NoteSwitcherViewController*>();
-    self->NoteSettingsViewController = Object::FindObjectOfType<Qosmetics::NoteSettingsViewController*>();
-    self->NotePreviewViewController = Object::FindObjectOfType<Qosmetics::NotePreviewViewController*>();
+    self->NoteSwitcherViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::NoteSwitcherViewController*>();
+    self->NoteSettingsViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::NoteSettingsViewController*>();
+    self->NotePreviewViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::NotePreviewViewController*>();
 
-    self->WallSwitcherViewController = Object::FindObjectOfType<Qosmetics::WallSwitcherViewController*>();
-    self->WallSettingsViewController = Object::FindObjectOfType<Qosmetics::WallSettingsViewController*>();
-    self->WallPreviewViewController = Object::FindObjectOfType<Qosmetics::WallPreviewViewController*>();
+    self->WallSwitcherViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::WallSwitcherViewController*>();
+    self->WallSettingsViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::WallSettingsViewController*>();
+    self->WallPreviewViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::WallPreviewViewController*>();
 
-    self->QosmeticsViewController = Object::FindObjectOfType<Qosmetics::QosmeticsViewController*>();
+    self->QosmeticsViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::QosmeticsViewController*>();
 }
 
 namespace Qosmetics

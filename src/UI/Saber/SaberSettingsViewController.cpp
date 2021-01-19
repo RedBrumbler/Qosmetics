@@ -25,7 +25,8 @@
 #include "Qosmetic/QuestSaber.hpp"
 
 #include "Logging/UILogger.hpp"
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Saber Settings").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Saber Settings").error(value)
 extern config_t config;
 DEFINE_CLASS(Qosmetics::SaberSettingsViewController);
 
@@ -45,18 +46,15 @@ namespace Qosmetics
 {
     void SaberSettingsViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
-        
+        SaveConfig();
     }
 
     void SaberSettingsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         if (firstActivation)
         {
-            INFO("Saber settings View Controller first activation!");
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
-
-            container->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
             
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
@@ -68,7 +66,7 @@ namespace Qosmetics
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::AddHoverHint(saberWidthSetting->get_gameObject(), "Makes the saber more or less thick");
             BeatSaberUI::CreateToggle(container->get_transform(), "Override Trail Length", config.saberConfig.overrideTrailLength, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](SaberSettingsViewController* view, bool value) { 
@@ -77,7 +75,7 @@ namespace Qosmetics
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             QuestUI::IncrementSetting* trailLengthSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Length", 0, 1.0f, config.saberConfig.trailLength, 0.0f, 1000.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](SaberSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.saberConfig.trailLength = value;
@@ -85,27 +83,57 @@ namespace Qosmetics
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
 
-            BeatSaberUI::AddHoverHint(trailLengthSetting->get_gameObject(), "The overridden length of the trail, values below 0 get ignored");
+            BeatSaberUI::AddHoverHint(trailLengthSetting->get_gameObject(), "The overridden length of the trail");
+
+            UnityEngine::UI::Toggle* whiteTrailToggle = BeatSaberUI::CreateToggle(container->get_transform(), "White Trail", config.saberConfig.whiteTrail, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](SaberSettingsViewController* view, bool value) { 
+                    config.saberConfig.whiteTrail = value;
+                    SaveConfig();
+                    QuestSaber::SelectionDefinitive();
+                    SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else ERROR("Couldn't find preview controller");
+                }));
+            BeatSaberUI::AddHoverHint(whiteTrailToggle->get_gameObject(), "Makes the Trail completely white, if you turn it back off the next menu/song load the color will be correct again");
+
             UnityEngine::UI::Toggle* whiteStepToggle = BeatSaberUI::CreateToggle(container->get_transform(), "Override White Step Value", config.saberConfig.overrideWhiteStep, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](SaberSettingsViewController* view, bool value) { 
                     config.saberConfig.overrideWhiteStep = value;
                     SaveConfig();
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
-            QuestUI::IncrementSetting* whiteStepSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "White Step Amount", 2, 0.05f, config.saberConfig.whiteStep, 0.0f, 1.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](SaberSettingsViewController* view, float value) {
-                    if (value >= 0.0f && value <= 1.0f) config.saberConfig.whiteStep = value;
+            QuestUI::IncrementSetting* whiteStepSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "White Step Amount", 2, 0.05f, config.saberConfig.whiteStep, 0.0f, 1.00f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](SaberSettingsViewController* view, float value) {
+                    config.saberConfig.whiteStep = value;
                     SaveConfig();
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::AddHoverHint(whiteStepSetting->get_gameObject(), "Override the duration of the \"white\" part of the saber trail, set to 0 for off");
+            UnityEngine::UI::Toggle* trailWidthToggle = BeatSaberUI::CreateToggle(container->get_transform(), "Override Trail Width Value", config.saberConfig.overrideTrailWidth, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](SaberSettingsViewController* view, bool value) { 
+                    config.saberConfig.overrideTrailWidth = value;
+                    SaveConfig();
+                    QuestSaber::SelectionDefinitive();
+                    SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else ERROR("Couldn't find preview controller");
+                }));
+
+            QuestUI::IncrementSetting* trailWidthSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Width", 2, 0.05f, config.saberConfig.trailWidth, 0.0f, 1.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](SaberSettingsViewController* view, float value) {
+                    config.saberConfig.trailWidth = value;
+                    SaveConfig();
+                    QuestSaber::SelectionDefinitive();
+                    SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
+                    if (previewController) previewController->UpdatePreview();
+                    else ERROR("Couldn't find preview controller");
+                }));
+
+            BeatSaberUI::AddHoverHint(trailWidthSetting->get_gameObject(), "Shrinks each trail towards it's top");
 
             BeatSaberUI::CreateToggle(container->get_transform(), "Enable Menu Pointer", config.saberConfig.enableMenuPointer, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](SaberSettingsViewController* view, bool value) { 
                     config.saberConfig.enableMenuPointer = value;
@@ -113,7 +141,7 @@ namespace Qosmetics
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             QuestUI::IncrementSetting* menuPointerSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Menu Pointer Size", 2, 0.05f, config.saberConfig.menuPointerSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](SaberSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.saberConfig.menuPointerSize = value;
@@ -121,7 +149,7 @@ namespace Qosmetics
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::AddHoverHint(menuPointerSizeSetting->get_gameObject(), "Size of the menu pointer");
 
@@ -146,11 +174,11 @@ namespace Qosmetics
                     QuestSaber::SelectionDefinitive();
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 });
             trailTypeSetting->Text->SetText(il2cpp_utils::createcsstr(trailText[(int)config.saberConfig.trailType]));
 
-            BeatSaberUI::AddHoverHint(trailTypeSetting->get_gameObject(), "Sets the trail type, 0 means the attached trails, 1 means base game, 2 means no trails");
+            BeatSaberUI::AddHoverHint(trailTypeSetting->get_gameObject(), "Sets the trail type you want to use");
         }
     }
 }

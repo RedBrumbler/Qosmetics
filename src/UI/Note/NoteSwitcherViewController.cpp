@@ -37,7 +37,9 @@ using namespace HMUI;
 
 DEFINE_CLASS(Qosmetics::NoteSwitcherViewController);
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Note Switching").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Note Switching").error(value)
+
 namespace Qosmetics
 {
     void NoteSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
@@ -64,7 +66,7 @@ namespace Qosmetics
                 QuestNote::SetActiveNote((NoteData*)nullptr);
                 NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
                 if (previewController) previewController->UpdatePreview();
-                else INFO("Couldn't find preview controller");
+                else ERROR("Couldn't find preview controller");
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
@@ -101,8 +103,6 @@ namespace Qosmetics
             else INFO("Couldn't find preview controller");
             DescriptorCache::Write();
             INFO("Selected note %s", descriptor->get_name().c_str());
-            INFO("filePath %s", descriptor->get_filePath().c_str());
-
         }));
 
         selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
@@ -114,7 +114,6 @@ namespace Qosmetics
             {
                 INFO("Deleting %s", descriptor->get_filePath().c_str());
                 deletefile(descriptor->get_filePath());
-                INFO("Deleted %s", descriptor->get_filePath().c_str());
             }
         }));
 

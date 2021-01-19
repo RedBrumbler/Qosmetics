@@ -104,7 +104,18 @@ namespace Qosmetics
             return;
         }
 
-        GlobalNamespace::SaberTrail* trailComponent = basicSaberModel->get_gameObject()->GetComponent<GlobalNamespace::SaberTrail*>();
+        Array<GlobalNamespace::SaberTrail*>* trailComponents = basicSaberModel->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
+        Qosmetics::QosmeticsTrail* qosmTrail = basicSaberModel->get_gameObject()->GetComponent<Qosmetics::QosmeticsTrail*>();
+
+        GlobalNamespace::SaberTrail* trailComponent = nullptr;
+        for (int i = 0; i < trailComponents->Length(); i++)
+        {
+            if (trailComponents->values[i] != qosmTrail) 
+            {
+                trailComponent = trailComponents->values[i];
+                break;
+            }
+        }
         
         if (trailComponent == nullptr)
         {

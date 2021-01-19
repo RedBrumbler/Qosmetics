@@ -32,7 +32,8 @@
 #include "UnityEngine/Shader.hpp"
 #include "UnityEngine/Vector4.hpp"
 
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Wall Preview").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Wall Preview").error(value)
 extern config_t config;
 DEFINE_CLASS(Qosmetics::WallPreviewViewController);
 
@@ -93,7 +94,7 @@ namespace Qosmetics
                     }
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 });
                 waitForLoadedPrefab.detach();
                 return;

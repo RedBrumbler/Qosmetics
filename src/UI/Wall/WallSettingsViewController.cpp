@@ -24,7 +24,8 @@
 #include "Qosmetic/QuestWall.hpp"
 
 #include "Logging/UILogger.hpp"
-#define INFO(value...) UILogger::GetLogger().info(value)
+#define INFO(value...) UILogger::GetLogger().WithContext("Wall Settings").info(value)
+#define ERROR(value...) UILogger::GetLogger().WithContext("Wall Settings").error(value)
 extern config_t config;
 DEFINE_CLASS(Qosmetics::WallSettingsViewController);
 
@@ -47,8 +48,6 @@ namespace Qosmetics
         {
             get_gameObject()->AddComponent<Touchable*>();
             GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
-
-            container->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
             
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
@@ -60,7 +59,7 @@ namespace Qosmetics
                     QuestWall::SelectionDefinitive();
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Core Off", config.wallConfig.forceCoreOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
                     config.wallConfig.forceCoreOff = value;
@@ -68,7 +67,7 @@ namespace Qosmetics
                     QuestWall::SelectionDefinitive();
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::CreateToggle(container->get_transform(), "Force Frame Off", config.wallConfig.forceFrameOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
                     config.wallConfig.forceFrameOff = value;
@@ -76,7 +75,7 @@ namespace Qosmetics
                     QuestWall::SelectionDefinitive();
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
                     if (previewController) previewController->UpdatePreview();
-                    else INFO("Couldn't find preview controller");
+                    else ERROR("Couldn't find preview controller");
                 }));
         }
     }

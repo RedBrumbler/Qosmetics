@@ -19,8 +19,11 @@ void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocume
     saberConfigObject.AddMember("saberWidth", saberConfig.saberWidth, allocator);
     saberConfigObject.AddMember("overrideTrailLength", saberConfig.overrideTrailLength, allocator);
     saberConfigObject.AddMember("trailLength", saberConfig.trailLength, allocator);
+    saberConfigObject.AddMember("whiteTrail", saberConfig.whiteTrail, allocator);
     saberConfigObject.AddMember("overrideWhiteStep", saberConfig.overrideWhiteStep, allocator);
     saberConfigObject.AddMember("whiteStep", saberConfig.whiteStep, allocator);
+    saberConfigObject.AddMember("overrideTrailWidth", saberConfig.overrideTrailWidth, allocator);
+    saberConfigObject.AddMember("trailWidth", saberConfig.trailWidth, allocator);
     saberConfigObject.AddMember("enableMenuPointer", saberConfig.enableMenuPointer, allocator);
     saberConfigObject.AddMember("menuPointerSize", saberConfig.menuPointerSize, allocator);
     saberConfigObject.AddMember("trailType", (int)saberConfig.trailType, allocator);
@@ -95,7 +98,12 @@ bool LoadSaberConfig(rapidjson::Value& configValue)
         config.saberConfig.trailLength = configValue["trailLength"].GetDouble();    
     }else{
         foundEverything = false;
-    } 
+    }
+    if(configValue.HasMember("whiteTrail") && configValue["whiteTrail"].IsBool()){
+        config.saberConfig.whiteTrail = configValue["whiteTrail"].GetBool();    
+    }else{
+        foundEverything = false;
+    }
     if(configValue.HasMember("overrideWhiteStep") && configValue["overrideWhiteStep"].IsBool()){
         config.saberConfig.overrideWhiteStep = configValue["overrideWhiteStep"].GetBool();    
     }else{
@@ -103,6 +111,16 @@ bool LoadSaberConfig(rapidjson::Value& configValue)
     } 
     if(configValue.HasMember("whiteStep") && configValue["whiteStep"].IsDouble()){
         config.saberConfig.whiteStep = configValue["whiteStep"].GetDouble();    
+    }else{
+        foundEverything = false;
+    } 
+    if(configValue.HasMember("overrideTrailWidth") && configValue["overrideTrailWidth"].IsBool()){
+        config.saberConfig.overrideTrailWidth = configValue["overrideTrailWidth"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
+    if(configValue.HasMember("trailWidth") && configValue["trailWidth"].IsDouble()){
+        config.saberConfig.trailWidth = configValue["trailWidth"].GetDouble();    
     }else{
         foundEverything = false;
     } 
@@ -211,5 +229,6 @@ bool LoadConfig()
         getLogger().info("Loaded Configuration!");
         return true;
     }
+    else getLogger().error("Some parts of the configuration could not be loaded, returning false!");
     return false;
 }

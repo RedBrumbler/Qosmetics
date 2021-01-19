@@ -15,6 +15,11 @@ float Qosmetics::QosmeticsTrail::trailIntensity = 1.0f;
 
 extern config_t config;
 
+float lerp (float a, float b, float T)
+{
+	return (a * (1.0f - T) + b * T);
+}
+
 namespace Qosmetics
 {
 	Qosmetics::QosmeticsTrail* QosmeticsTrail::CopyFromBase(GlobalNamespace::SaberTrail* base)
@@ -51,10 +56,10 @@ namespace Qosmetics
 		// sets all the different values
 		this->length = config.saberConfig.overrideTrailLength ? (int)config.saberConfig.trailLength : length;
 		this->granularity = config.saberConfig.overrideTrailLength ? (int)(60 * (config.saberConfig.trailLength > 10.0f ? (config.saberConfig.trailLength / 10.0f) : 1.0f)): granularity;
-		this->colorType = colorType;
+		this->colorType = config.saberConfig.whiteTrail ? 2 : colorType;
 		this->whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep * this->length : whiteStep;
-		if (trailMaterial) this->trailMaterial = trailMaterial;
-		this->trailColor = trailColor;
+		this->trailMaterial = trailMaterial ? trailMaterial : nullptr;
+		this->trailColor = config.saberConfig.whiteTrail ? UnityEngine::Color::get_white() : trailColor;
 		this->multiplierColor = multiplierColor;
 	}
 
@@ -87,6 +92,21 @@ namespace Qosmetics
 		{
 			this->bottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailStart"));
 		}
+		if (!this->customBottomTransform)
+		{
+			this->customBottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("CustomTrailStart"));
+			if (!this->customBottomTransform && this->bottomTransform)
+			{
+				this->customBottomTransform = UnityEngine::Object::Instantiate(this->bottomTransform, this->get_transform());
+				this->customBottomTransform->get_gameObject()->set_name(il2cpp_utils::createcsstr("CustomTrailStart"));
+			}
+		}
+
+		if (config.saberConfig.overrideTrailWidth && this->customBottomTransform)
+		{
+			UnityEngine::Vector3 newPos = UnityEngine::Vector3::Lerp(this->topTransform->get_localPosition(), this->bottomTransform->get_localPosition(), config.saberConfig.trailWidth);
+			this->customBottomTransform->set_localPosition(newPos);
+		}
 
 		// get color set
 		UpdateColors();
@@ -97,21 +117,37 @@ namespace Qosmetics
 
     void QosmeticsTrail::Update()
     {
-		if (!this->topTransform || !this->bottomTransform) 
+		if (!this->topTransform || !this->bottomTransform || !this->customBottomTransform) 
 		{
-			if (this->topTransform == nullptr)
+			if (!this->topTransform)
 			{
 				this->topTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailEnd"));
 			}
-			if (this->bottomTransform == nullptr)
+			if (!this->bottomTransform)
 			{
 				this->bottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("TrailStart"));
 			}
 			if (!this->topTransform || !this->bottomTransform) return;
+
+			if (!this->customBottomTransform && this->bottomTransform)
+			{
+				this->customBottomTransform = this->get_transform()->Find(il2cpp_utils::createcsstr("CustomTrailStart"));
+				if (!this->customBottomTransform)
+				{
+					this->customBottomTransform = UnityEngine::Object::Instantiate(this->bottomTransform, get_transform());
+					this->customBottomTransform->set_name(il2cpp_utils::createcsstr("CustomTrailStart"));
+				}
+			}
+
+			if (config.saberConfig.overrideTrailWidth && this->customBottomTransform)
+			{
+				UnityEngine::Vector3 newPos = UnityEngine::Vector3::Lerp(this->topTransform->get_localPosition(), this->bottomTransform->get_localPosition(), config.saberConfig.trailWidth);
+				this->customBottomTransform->set_localPosition(newPos);
+			}
 		}
 		// this method just makes sure that the trail gets updated positions through it's custom movementData
         UnityEngine::Vector3 topPos = this->topTransform->get_position();
-		UnityEngine::Vector3 bottomPos = this->bottomTransform->get_position();
+		UnityEngine::Vector3 bottomPos = (config.saberConfig.overrideTrailWidth && this->customBottomTransform) ? this->customBottomTransform->get_position() : this->bottomTransform->get_position();
 		if (!this->customMovementData) 
 		{
 			this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
@@ -128,6 +164,13 @@ namespace Qosmetics
 			}
 		}
 
+		if (framesPassed == 5 && false)
+		{
+			float widthMultiplier = config.saberConfig.overrideTrailLength ? config.saberConfig.trailWidth : 1.0f;
+			float width = this->GetTrailWidth(this->movementData->get_lastAddedData());
+			this->trailRenderer->SetTrailWidth(widthMultiplier * width);
+			framesPassed++;
+		}
         this->customMovementData->AddNewData(topPos, bottomPos, GlobalNamespace::TimeHelper::get_time());
     }
 
