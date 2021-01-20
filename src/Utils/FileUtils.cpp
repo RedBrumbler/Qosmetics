@@ -9,8 +9,13 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <fstream>
-
+//#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include "httplib.h"
+#include "UnityEngine/UnityWeb"
+#include "Logging/GenericLogger.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+
+#define INFO(value...) Qosmetics::GenericLogger::GetLogger().WithContext("File Utils").info(value)
 
 std::string GetFileExtension(const std::string& FileName)
 {
@@ -47,6 +52,30 @@ std::string FileUtils::GetFileName(const std::string& FilePath)
         return true;
     } else return false;
 
+}
+
+void FileUtils::DownloadFileToPath(const std::string& url, std::string& filePath, bool overWrite)
+{  
+    std::string mainURL = url.substr(0, url.find_last_of('/'));
+    std::string fileName = url.substr(url.find_last_of('/'));
+    
+    INFO("Main: %s, fileName: %s", mainURL.c_str(), fileName.c_str());
+
+    httplib::Client client(mainURL.c_str());
+
+    //if (fileexists(filePath) && overWrite) deletefile(filePath);
+    std::ofstream outstream(filePath, std::ofstream::out | std::ofstream::binary | (overWrite ? std::ofstream::trunc : 0));
+    auto res = client.Get(fileName.c_str(), [&](const char* data, size_t data_length){
+        if (!data) 
+        {
+            return false;
+        }
+        INFO("Got: %s", data);
+        outstream.write(data, data_length);
+        return true;
+    });
+
+    outstream.close();
 }
 
 UnityEngine::Sprite* FileUtils::SpriteFromFile(const std::string& filePath, int width, int height)

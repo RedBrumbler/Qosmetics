@@ -18,4 +18,6 @@ class FileUtils
         static std::string GetFileName(const std::string& FilePath);
 
         static UnityEngine::Sprite* SpriteFromFile(const std::string& filePath, int width, int height);
+
+        static void DownloadFileToPath(const std::string& url, std::string& filePath, bool overWrite = false);
 };

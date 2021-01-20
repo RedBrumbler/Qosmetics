@@ -91,6 +91,7 @@
 #include "Data/Descriptor.hpp"
 #include "Data/QosmeticsTrail.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
+#include "Data/CreatorCache.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 
@@ -601,7 +602,8 @@ void CopyIcons()
 extern "C" void load() 
 {
     if (!LoadConfig()) SaveConfig();
-
+    if (!Qosmetics::CreatorCache::Load()) Qosmetics::CreatorCache::Save();
+    Qosmetics::CreatorCache::Download();
     if (!Qosmetics::DescriptorCache::Load()) Qosmetics::DescriptorCache::Write();
 
     CopyIcons();

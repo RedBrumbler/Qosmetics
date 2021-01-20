@@ -28,6 +28,7 @@
 #include "Qosmetic/QuestSaber.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
+#include "Data/CreatorCache.hpp"
 
 #include "UI/Saber/SaberPreviewViewController.hpp"
 
@@ -142,7 +143,7 @@ namespace Qosmetics
         TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, descriptor->get_author());
 
         QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
-        authorText->set_color(UnityEngine::Color(0.8f, 0.8f, 0.8f, 0.8f));
+        authorText->set_color(CreatorCache::GetCreatorColor(descriptor->get_author()));
         authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
     }
 }
