@@ -135,11 +135,18 @@ namespace Qosmetics
             if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
         }
 
-        TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName + " ");
-        TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, descriptor->get_author() + " ");
+        std::string authorName = descriptor->get_author();
+
+        if (authorName == "")
+        {
+            authorName = "---";
+        }
+
+        TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName);
+        TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, authorName);
 
         QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
-        authorText->set_color(CreatorCache::GetCreatorColor(descriptor->get_author()));
+        authorText->set_color(CreatorCache::GetCreatorColor(authorName));
         authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
     }
 }
