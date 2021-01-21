@@ -30,7 +30,12 @@
     },
     {
       "id": "questui",
-      "versionRange": "=0.3.0",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "custom-types",
+      "versionRange": "*",
       "additionalData": {}
     }
   ],

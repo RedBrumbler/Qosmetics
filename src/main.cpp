@@ -215,6 +215,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, UnityEngine::SceneMa
 
     if(sceneLoadedName == shaderWarmup && shaderWarmupFirst)
     {
+        Qosmetics::CreatorCache::Download();
         Qosmetics::QuestSaber::ShaderWarmup();
         Qosmetics::QuestWall::ShaderWarmup();
         Qosmetics::QuestNote::ShaderWarmup();
@@ -603,7 +604,6 @@ extern "C" void load()
 {
     if (!LoadConfig()) SaveConfig();
     if (!Qosmetics::CreatorCache::Load()) Qosmetics::CreatorCache::Save();
-    Qosmetics::CreatorCache::Download();
     if (!Qosmetics::DescriptorCache::Load()) Qosmetics::DescriptorCache::Write();
 
     CopyIcons();

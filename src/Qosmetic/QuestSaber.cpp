@@ -107,7 +107,7 @@ namespace Qosmetics
                 pair.second->LoadAssets();
             }
         }  
-        */ 
+        */
     }
 
     void QuestSaber::GameCore()

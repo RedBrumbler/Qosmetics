@@ -4,6 +4,7 @@
 #include <map>
 
 #include "UnityEngine/Color.hpp"
+#include "Utils/FileDownloader.hpp"
 
 namespace Qosmetics
 {
@@ -18,6 +19,7 @@ namespace Qosmetics
             static void Save();
 
         private:
+            static inline FileDownloader* dl = nullptr;
             static inline UnityEngine::Color defaultColor = UnityEngine::Color(0.8f, 0.8f, 0.8f, 1.0f);
             static inline std::map<std::string, UnityEngine::Color> creatorMap = {};
     };

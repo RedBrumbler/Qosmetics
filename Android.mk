@@ -26,7 +26,7 @@ LOCAL_SRC_FILES := extern/libbeatsaber-hook_1_0_9.so
 LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -DNEED_UNSAFE_CSHARP -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: bs-utils - version: 0.5.4
+# Creating prebuilt for dependency: bs-utils - version: 0.5.5
 include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
@@ -42,14 +42,14 @@ LOCAL_SRC_FILES := extern/libcodegen_0_5_3.so
 LOCAL_CPP_FEATURES += rtti exceptions
 LOCAL_EXPORT_C_FLAGS := -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: custom-types - version: 0.3.5
+# Creating prebuilt for dependency: custom-types - version: 0.4.2
 include $(CLEAR_VARS)
 LOCAL_MODULE := custom-types
 LOCAL_EXPORT_C_INCLUDES := extern/custom-types
 LOCAL_SRC_FILES := extern/libcustom-types.so
 LOCAL_CPP_FEATURES += rtti exceptions
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: questui - version: 0.3.0
+# Creating prebuilt for dependency: questui - version: 0.3.2
 include $(CLEAR_VARS)
 LOCAL_MODULE := questui
 LOCAL_EXPORT_C_INCLUDES := extern/questui

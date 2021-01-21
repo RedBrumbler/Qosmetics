@@ -11,7 +11,8 @@
 #include <fstream>
 //#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "httplib.h"
-#include "UnityEngine/UnityWeb"
+#include "UnityEngine/Networking/UnityWebRequest.hpp"
+#include "UnityEngine/Networking/UnityWebRequestAsyncOperation.hpp"
 #include "Logging/GenericLogger.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
@@ -54,8 +55,24 @@ std::string FileUtils::GetFileName(const std::string& FilePath)
 
 }
 
+void CompletedWebRequest(Il2CppObject* obj)
+{
+
+}
+
 void FileUtils::DownloadFileToPath(const std::string& url, std::string& filePath, bool overWrite)
 {  
+    /*
+    Il2CppString* urlPath = il2cpp_utils::createcsstr(url);
+    UnityEngine::Networking::UnityWebRequest* request = UnityEngine::Networking::UnityWebRequest::Get(urlPath);
+
+    request->SetRequestHeader(il2cpp_utils::createcsstr("User-Agent"), il2cpp_utils::createcsstr("Qosmetics/"));
+    UnityEngine::Networking::UnityWebRequestAsyncOperation* asyncOP = request->SendWebRequest();
+
+    asyncOP->add_completed(il2cpp_utils::MakeDelegate(classof(System::Action_1<UnityEngine::AsyncOperation*>*), request, CompletedWebRequest));
+    
+    */
+    /*
     std::string mainURL = url.substr(0, url.find_last_of('/'));
     std::string fileName = url.substr(url.find_last_of('/'));
     
@@ -76,6 +93,7 @@ void FileUtils::DownloadFileToPath(const std::string& url, std::string& filePath
     });
 
     outstream.close();
+    */
 }
 
 UnityEngine::Sprite* FileUtils::SpriteFromFile(const std::string& filePath, int width, int height)

@@ -9,4 +9,5 @@ if (-not ($PSVersionTable.PSEdition -eq "Core")) {
 & adb push libs/arm64-v8a/libquestcosmetics.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libquestcosmetics.so
 & adb shell am force-stop com.beatgames.beatsaber
 & adb shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity
+& adb logcat -c
 & adb logcat | Select-String "Qosmetics"

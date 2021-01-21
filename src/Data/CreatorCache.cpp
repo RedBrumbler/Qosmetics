@@ -4,10 +4,12 @@
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/PrettyWriter.h"
 #include "Logging/GenericLogger.hpp"
 #include "Utils/FileUtils.hpp"
+#include "Utils/FileDownloader.hpp"
 
 #define FILEPATH "sdcard/Qosmetics/CreatorCache.json"
 #define INFO(value...) GenericLogger::GetLogger().WithContext("Creator cache").info(value);
 #define ERROR(value...) GenericLogger::GetLogger().WithContext("Creator cache").error(value);
+
 
 namespace Qosmetics
 {
@@ -16,8 +18,13 @@ namespace Qosmetics
         // web request or something to download the json from the repo ig
         INFO("Downloading File");
         std::string path = FILEPATH;
-        FileUtils::DownloadFileToPath("https://cdn.discordapp.com/attachments/698265739227824190/801217201314988042/CreatorCache.json", path, true);
-        Load();
+        std::string url = "https://cdn.discordapp.com/attachments/698265739227824190/801217201314988042/CreatorCache.json";
+
+        dl = new FileDownloader(url, path, +[](const FileDownloader& downloader){
+            INFO("Downloader Callback");
+            INFO("%s", downloader.get_result().c_str());
+            CreatorCache::Load();
+        });
     }
 
     bool CreatorCache::Load()
