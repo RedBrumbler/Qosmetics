@@ -10,7 +10,7 @@ if (-not ($PSVersionTable.PSEdition -eq "Core")) {
 Compress-Archive -Path  "cover.gif",`
                         "./libs/arm64-v8a/libquestcosmetics.so",`
                         "./bmbfmod.json",`
-                        "./extern/libbeatsaber-hook_1_0_9.so",`
+                        "./extern/libbeatsaber-hook_1_0_10.so",`
                         "./extern/libbs-utils.so",`
                         "./extern/libquestui.so",`
                         "./extern/libcustom-types.so",`

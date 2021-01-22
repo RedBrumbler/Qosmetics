@@ -34,33 +34,36 @@ void FileDownloader::SetCallback(FileDownloaderCallback callback)
 
 void FileDownloader::WebRequestComplete(QuestUI::CustomDataType* data, UnityWebRequestAsyncOperation* asyncOP)
 {
-    FileDownloader& instance = data->GetData<FileDownloader>();
-    INFO("Request to URL %s complete!", instance.url.c_str());
+    FileDownloader* instance = (FileDownloader*)data->data;
+    data->data = nullptr;
+    free(data);
 
-    if (!instance.request)
+    INFO("Request to URL %s complete!", instance->url.c_str());
+
+    if (!instance->request)
     {
-        ERROR("Request on downloader to URL %s was nullptr", instance.url.c_str());
+        ERROR("Request on downloader to URL %s was nullptr", instance->url.c_str());
         return;
     }
 
     DownloadHandler* handler = asyncOP->webRequest->get_downloadHandler();
     if (!handler)
     {
-        ERROR("Download handler for URL %s was nulltptr", instance.url.c_str());
+        ERROR("Download handler for URL %s was nulltptr", instance->url.c_str());
         return;
     }
 
     Il2CppString* resultptr = handler->GetText();
 
-    instance.result = to_utf8(csstrtostr(resultptr));
+    instance->result = to_utf8(csstrtostr(resultptr));
     
-    if (instance.filePath != "" && instance.result != "")
+    if (instance->filePath != "" && instance->result != "")
     {
-        if (fileexists(instance.filePath)) deletefile(instance.filePath);
-        writefile(instance.filePath, instance.result);
+        if (fileexists(instance->filePath)) deletefile(instance->filePath);
+        writefile(instance->filePath, instance->result);
     }
 
-    if (instance.hasCallback) instance.callback(instance);
-    instance.isDone = true;
-    free(data);
+    instance->isDone = true;
+    if (instance->hasCallback) instance->callback(*instance);
+    delete(instance);
 }

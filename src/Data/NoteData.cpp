@@ -141,6 +141,12 @@ namespace Qosmetics
         getLogger().info("loaded texture");
     }
 
+    void NoteData::UnloadBundle()
+    {
+        getLogger().info("Unloading bundle for wall %s", this->noteDescriptor->get_name());
+        il2cpp_utils::RunMethod(this->bundle, "Unload", false);
+    }
+
     std::vector<UnityEngine::Material*>& NoteData::get_leftNoteCCmaterials()
     {
         if (leftNoteCCmats.size() > 0) return leftNoteCCmats;

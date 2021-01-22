@@ -17,7 +17,21 @@ class FileUtils
         /// @returns File name
         static std::string GetFileName(const std::string& FilePath);
 
-        static UnityEngine::Sprite* SpriteFromFile(const std::string& filePath, int width, int height);
-
-        static void DownloadFileToPath(const std::string& url, std::string& filePath, bool overWrite = false);
+        static std::string rainbowIfy(std::string input);
+    private:
+        static inline int rainbowIndex = rand() % 12;
+        static inline const std::string colors[12] = {
+            "#ff6060",
+            "#ffa060",
+            "#ffff60",
+            "#a0ff60",
+            "#60ff60",
+            "#60ffa0",
+            "#60ffff",
+            "#60a0ff",
+            "#6060ff",
+            "#a060ff",
+            "#ff60ff",
+            "#ff60a0"
+        };
 };

@@ -10,9 +10,9 @@ namespace Qosmetics
 {
     void QuestWall::makeFolder()
     {
-        if (!direxists(fileDir.c_str()))
+        if (!direxists(WALLPATH.c_str()))
         {
-            int makePath = mkpath(fileDir.data());
+            int makePath = mkpath(WALLPATH.data());
             if (makePath == -1)
             {
                 getLogger().debug("Failed to make path!");
@@ -22,14 +22,14 @@ namespace Qosmetics
 
     bool QuestWall::ShaderWarmup()
     {
-        if (!direxists(fileDir)) 
+        if (!direxists(WALLPATH)) 
         {
-            getLogger().info("Wall Directory did not exist, creating directory at %s", fileDir.c_str());
+            getLogger().info("Wall Directory did not exist, creating directory at %s", WALLPATH.c_str());
             makeFolder();
         }
         else getLogger().info("Wall Directory Exists");
         // get all file names in the wall directory
-        FileUtils::getFileNamesInDir("qwall", fileDir, fileNames);
+        FileUtils::getFileNamesInDir(WALLEXT, WALLPATH, fileNames);
 
         // if no files were found, just return
         if (fileNames.size() == 0) return false;
@@ -41,7 +41,7 @@ namespace Qosmetics
             if (!descriptor->valid) 
             {
                 getLogger().info("Wall Descriptor was invalid, making a new one");
-                descriptor = new Descriptor("", "", "", fileDir + fileNames[i], wall, nullptr);
+                descriptor = new Descriptor("", "", "", WALLPATH + fileNames[i], wall, nullptr);
             }
             
             // make a new wall
@@ -211,6 +211,7 @@ namespace Qosmetics
 
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
         if (!activeWall->get_complete() && !activeWall->get_isLoading()) activeWall->LoadBundle(ifLoadAlsoAssets); 
+        //if (previousActiveWall && previousActiveWall != activeWall && previousActiveWall->get_complete()) previousActiveWall->UnloadBundle();
     }
 
     void QuestWall::CheckScoreDisabling()

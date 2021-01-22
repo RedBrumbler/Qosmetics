@@ -3,6 +3,7 @@
 #include "Config/NoteConfig.hpp"
 #include "Data/Descriptor.hpp"
 
+#include "UnityEngine/Color.hpp"
 #include "UnityEngine/RectOffset.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Rect.hpp"
@@ -121,6 +122,8 @@ namespace Qosmetics
 
     }
 
+    extern bool shouldRainbow(UnityEngine::Color color);
+
     void NoteSwitcherViewController::AddTextForDescriptor(Transform* layout, Descriptor* descriptor)
     {
         if (!layout || !descriptor) return; // if either is nullptr, early return
@@ -135,6 +138,8 @@ namespace Qosmetics
             if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
         }
 
+        if (buttonName.find("rainbow") != std::string::npos || buttonName.find("Rainbow") != std::string::npos) buttonName = FileUtils::rainbowIfy(buttonName);
+
         std::string authorName = descriptor->get_author();
 
         if (authorName == "")
@@ -142,11 +147,16 @@ namespace Qosmetics
             authorName = "---";
         }
 
+        UnityEngine::Color textColor = CreatorCache::GetCreatorColor(authorName);
+
+        if (shouldRainbow(textColor))
+            authorName = FileUtils::rainbowIfy(authorName);
+
         TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName);
         TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, authorName);
 
         QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
-        authorText->set_color(CreatorCache::GetCreatorColor(authorName));
+        authorText->set_color(textColor);
         authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
     }
 }

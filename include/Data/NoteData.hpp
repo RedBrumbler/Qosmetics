@@ -87,6 +87,8 @@ namespace Qosmetics
                 LoadBundle();
             }
 
+            void UnloadBundle();
+
             UnityEngine::GameObject* get_leftArrow()
             {
                 if (leftArrow != nullptr) return leftArrow;

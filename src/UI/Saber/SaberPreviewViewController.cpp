@@ -70,6 +70,15 @@ namespace Qosmetics
         UpdatePreview();
     }
 
+    void SaberPreviewViewController::Update()
+    {
+        if (updateView)
+        {
+            updateView = false;
+            UpdatePreview();
+        }
+    }
+
     void SaberPreviewViewController::UpdatePreview()
     {
         if (QuestSaber::GetActiveSaber())
@@ -96,7 +105,7 @@ namespace Qosmetics
                         usleep(1000);
                     }
                     SaberPreviewViewController* previewController = Object::FindObjectOfType<SaberPreviewViewController*>();//
-                    if (previewController) previewController->UpdatePreview();
+                    if (previewController) previewController->updateView = true;
                     else ERROR("Couldn't find preview controller");
                 });
                 waitForLoadedPrefab.detach();

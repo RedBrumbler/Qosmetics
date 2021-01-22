@@ -67,6 +67,15 @@ namespace Qosmetics
         UpdatePreview();
     }
 
+    void WallPreviewViewController::Update()
+    {
+        if (updateView)
+        {
+            updateView = false;
+            UpdatePreview();
+        }
+    }
+
     void WallPreviewViewController::UpdatePreview()
     {
         if (QuestWall::GetActiveWall())
@@ -93,7 +102,7 @@ namespace Qosmetics
                         usleep(1000);
                     }
                     WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
-                    if (previewController) previewController->UpdatePreview();
+                    if (previewController) previewController->updateView = true;
                     else ERROR("Couldn't find preview controller");
                 });
                 waitForLoadedPrefab.detach();
@@ -125,8 +134,8 @@ namespace Qosmetics
 
             //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
             previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
-            previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 60.0f, 0.0f));
-            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3(1.5f, 1.0f, 0.5f) * 50.0f);
+            previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 150.0f, 0.0f));
+            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3(0.5f, 1.0f, 1.5f) * 50.0f);
             if (wasInstantiated)
             {
                 Array<MeshRenderer*>* meshrenderers = previewprefab->GetComponentsInChildren<MeshRenderer*>(true);

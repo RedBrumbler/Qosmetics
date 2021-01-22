@@ -139,6 +139,12 @@ namespace Qosmetics
         getLogger().info("loaded texture");
     }
 
+    void WallData::UnloadBundle()
+    {
+        getLogger().info("Unloading bundle for wall %s", this->wallDescriptor->get_name());
+        il2cpp_utils::RunMethod(this->bundle, "Unload", false);
+    }
+
     UnityEngine::Mesh* WallData::get_coreMesh()
     {   
         if (get_core() == nullptr) 

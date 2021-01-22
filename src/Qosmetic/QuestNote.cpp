@@ -10,9 +10,9 @@ namespace Qosmetics
 {   
     void QuestNote::makeFolder()
     {
-        if (!direxists(fileDir.c_str()))
+        if (!direxists(NOTEPATH.c_str()))
         {
-            int makePath = mkpath(fileDir.data());
+            int makePath = mkpath(NOTEPATH.data());
             if (makePath == -1)
             {
                 getLogger().debug("Failed to make path!");
@@ -22,15 +22,15 @@ namespace Qosmetics
 
     bool QuestNote::ShaderWarmup()
     {
-        if (!direxists(fileDir)) 
+        if (!direxists(NOTEPATH)) 
         {
-            getLogger().info("Bloq Directory did not exist, creating directory at %s", fileDir.c_str());
+            getLogger().info("Bloq Directory did not exist, creating directory at %s", NOTEPATH.c_str());
             makeFolder();
         }
         else getLogger().info("Bloq Directory Exists");
 
         // get all file names in the bloq directory
-        FileUtils::getFileNamesInDir("qbloq", fileDir, fileNames);
+        FileUtils::getFileNamesInDir(NOTEEXT, NOTEPATH, fileNames);
 
         // if no files were found, just return
         if (fileNames.size() == 0) 
@@ -46,7 +46,7 @@ namespace Qosmetics
             if (!descriptor->valid) 
             {
                 getLogger().info("Note Descriptor was invalid, making a new one");
-                descriptor = new Descriptor("", "", "", fileDir + fileNames[i], note, nullptr);
+                descriptor = new Descriptor("", "", "", NOTEPATH + fileNames[i], note, nullptr);
             }
             
             // make a new saber
@@ -201,6 +201,7 @@ namespace Qosmetics
         getLogger().info("Last active note is now %s, should be %s", config.lastActiveNote.c_str(), activeNote->get_descriptor()->get_filePath().c_str());
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
         if (!activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadBundle(ifLoadAlsoAssets); 
+        //if (previousActiveNote && previousActiveNote != activeNote && previousActiveNote->get_complete()) previousActiveNote->UnloadBundle();
     }
 
     void QuestNote::ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers)

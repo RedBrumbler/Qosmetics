@@ -1,4 +1,7 @@
 #include "config.hpp"
+#include "Qosmetic/QuestWall.hpp"
+#include "Qosmetic/QuestSaber.hpp"
+#include "Qosmetic/QuestNote.hpp"
 
 static ModInfo modInfo = {ID, VERSION};
 extern Logger& getLogger();
@@ -8,6 +11,17 @@ Configuration& getConfig() {
     static Configuration config(modInfo);
     config.Load();
     return config;
+}
+
+bool GetScoresDisabled()
+{
+    bool disabled = false;
+
+    if (config.wallConfig.forceCoreOff) disabled = true;
+    if (config.noteConfig.alsoChangeHitboxes) disabled = true;
+    if (Qosmetics::QuestWall::get_scoreDisabled()) disabled = true;
+
+    return disabled;
 }
 
 void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)

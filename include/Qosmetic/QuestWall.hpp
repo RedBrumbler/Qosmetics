@@ -15,6 +15,9 @@
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/WallUtils.hpp"
 #include "Utils/FileUtils.hpp"
+
+#include "static-defines.hpp"
+
 #include "Logging/WallLogger.hpp"
 #include <map>
 
@@ -29,7 +32,6 @@ namespace Qosmetics
                 return WallLogger::GetLogger();
             };
 
-            static inline std::string fileDir = "/sdcard/Qosmetics/walls/";
             static inline std::vector<std::string> fileNames = {};
 
             /// @brief called at shader warmup scene
@@ -108,7 +110,12 @@ namespace Qosmetics
             {
                 previousActiveWall = activeWall;
             }
-            
+
+            static bool get_scoreDisabled()
+            {
+                if (activeWall && activeWall->get_config()->get_scoreSubmissionDisabled()) return true;
+                return false;
+            }
         private:
             static inline std::map<Descriptor*, WallData*> wallMap = {};
             static inline WallData* activeWall = nullptr;

@@ -7,6 +7,7 @@
 Configuration& getConfig();
 void SaveConfig();
 bool LoadConfig();
+bool GetScoresDisabled();
 
 typedef struct _noteConfig {
     bool overrideNoteSize;

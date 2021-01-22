@@ -68,7 +68,6 @@ class FileDownloader
 
     private:
         static void WebRequestComplete(QuestUI::CustomDataType* data, UnityEngine::Networking::UnityWebRequestAsyncOperation* asyncOP);
-        //static void WebRequestComplete(UnityEngine::Networking::UnityWebRequest* request, UnityEngine::Networking::UnityWebRequestAsyncOperation* asyncOP);
 
         void SetCallback(FileDownloaderCallback callback);
 

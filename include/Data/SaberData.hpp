@@ -136,6 +136,8 @@ namespace Qosmetics
             /// @brief 
             void LoadBundle(bool alsoLoadAssets = false);
 
+            void UnloadBundle();
+
             void LoadAssets();
 
             void ClearActive()

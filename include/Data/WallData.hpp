@@ -69,6 +69,8 @@ namespace Qosmetics
                 LoadBundle();
             }
 
+            void UnloadBundle();
+
             bool get_finishedWallLoad()
             {
                 return finishedWallLoad;

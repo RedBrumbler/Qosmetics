@@ -170,6 +170,12 @@ namespace Qosmetics
         getLogger().info("loaded texture");
     }
 
+    void SaberData::UnloadBundle()
+    {
+        getLogger().info("Unloading bundle for saber %s", this->saberDescriptor->get_name());
+        il2cpp_utils::RunMethod(this->bundle, "Unload", false);
+    }
+
     std::vector<UnityEngine::Material*>& SaberData::get_leftSaberCCmaterials()
     {
         if (leftSaberCCmats.size() > 0) return leftSaberCCmats;

@@ -1,8 +1,7 @@
 #pragma once
 #include "Data/Descriptor.hpp"
 #include <string>
-
-#define DESCRIPTOR_FILEPATH "/sdcard/Qosmetics/Descriptors.json"
+#include "static-defines.hpp"
 
 namespace Qosmetics
 {

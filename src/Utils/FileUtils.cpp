@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <fstream>
 //#define CPPHTTPLIB_OPENSSL_SUPPORT
-#include "httplib.h"
 #include "UnityEngine/Networking/UnityWebRequest.hpp"
 #include "UnityEngine/Networking/UnityWebRequestAsyncOperation.hpp"
 #include "Logging/GenericLogger.hpp"
@@ -55,54 +54,16 @@ std::string FileUtils::GetFileName(const std::string& FilePath)
 
 }
 
-void CompletedWebRequest(Il2CppObject* obj)
+std::string FileUtils::rainbowIfy(std::string input)
 {
+    std::string result = "";
 
-}
+    for (auto c : input)
+    {
+        result += string_format("<color=%s>%c</color>", colors[rainbowIndex].c_str(), c);
+        rainbowIndex++;
+        rainbowIndex %= 12;
+    }
 
-void FileUtils::DownloadFileToPath(const std::string& url, std::string& filePath, bool overWrite)
-{  
-    /*
-    Il2CppString* urlPath = il2cpp_utils::createcsstr(url);
-    UnityEngine::Networking::UnityWebRequest* request = UnityEngine::Networking::UnityWebRequest::Get(urlPath);
-
-    request->SetRequestHeader(il2cpp_utils::createcsstr("User-Agent"), il2cpp_utils::createcsstr("Qosmetics/"));
-    UnityEngine::Networking::UnityWebRequestAsyncOperation* asyncOP = request->SendWebRequest();
-
-    asyncOP->add_completed(il2cpp_utils::MakeDelegate(classof(System::Action_1<UnityEngine::AsyncOperation*>*), request, CompletedWebRequest));
-    
-    */
-    /*
-    std::string mainURL = url.substr(0, url.find_last_of('/'));
-    std::string fileName = url.substr(url.find_last_of('/'));
-    
-    INFO("Main: %s, fileName: %s", mainURL.c_str(), fileName.c_str());
-
-    httplib::Client client(mainURL.c_str());
-
-    //if (fileexists(filePath) && overWrite) deletefile(filePath);
-    std::ofstream outstream(filePath, std::ofstream::out | std::ofstream::binary | (overWrite ? std::ofstream::trunc : 0));
-    auto res = client.Get(fileName.c_str(), [&](const char* data, size_t data_length){
-        if (!data) 
-        {
-            return false;
-        }
-        INFO("Got: %s", data);
-        outstream.write(data, data_length);
-        return true;
-    });
-
-    outstream.close();
-    */
-}
-
-UnityEngine::Sprite* FileUtils::SpriteFromFile(const std::string& filePath, int width, int height)
-{
-    std::ifstream instream(filePath, std::ios::in | std::ios::binary);
-    std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
-    Array<uint8_t>* bytes = il2cpp_utils::vectorToArray(data);
-    UnityEngine::Texture2D* texture = UnityEngine::Texture2D::New_ctor(width, height, UnityEngine::TextureFormat::RGBA32, false, false);
-    if (UnityEngine::ImageConversion::LoadImage(texture, bytes, false))
-        return UnityEngine::Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)width, (float)height), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false);
-    return nullptr;
+    return result;
 }

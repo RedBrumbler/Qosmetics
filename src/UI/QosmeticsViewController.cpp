@@ -26,6 +26,8 @@
 #include "UI/MenuButtonClickData.hpp"
 #include "Logging/GenericLogger.hpp"
 
+#include "static-defines.hpp"
+
 using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -89,20 +91,26 @@ namespace Qosmetics
         if(addedToHierarchy && firstActivation) 
         {
             get_gameObject()->AddComponent<HMUI::Touchable*>();
+            UnityEngine::UI::VerticalLayoutGroup* vertical = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
             UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(get_transform());
-        
+
+            title = BeatSaberUI::CreateText(vertical->get_transform(), GetScoresDisabled() ? "Scores are: Disabled" : "Scores are: Enabled");
+
             layout->set_spacing(-64.0f);
 
             UnityEngine::RectTransform* rectTransform = layout->GetComponent<UnityEngine::RectTransform*>();
-            Button* saberButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Sabers", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, saber}), OnSubMenuButtonClick));
-            spriteSwapSetup(saberButton, "sdcard/Qosmetics/UI/Icons/SaberIcon.png", "sdcard/Qosmetics/UI/Icons/SaberIconSelected.png");
+            std::string mainpath = UIPATH;
+            Button* saberButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Sabers", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, saber}), OnSubMenuButtonClick));            
+            spriteSwapSetup(saberButton, string_format("%s%s", mainpath.c_str(), "Icons/SaberIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/SaberIconSelected.png"));
 
             Button* noteButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Bloqs", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, note}), OnSubMenuButtonClick));
-            spriteSwapSetup(noteButton, "sdcard/Qosmetics/UI/Icons/NoteIcon.png", "sdcard/Qosmetics/UI/Icons/NoteIconSelected.png");
+            spriteSwapSetup(noteButton, string_format("%s%s", mainpath.c_str(), "Icons/NoteIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/NoteIconSelected.png"));
             
             Button* wallButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Walls", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>(classof(QuestUI::CustomDataType*)))->SetData(MenuButtonClickData{this, wall}), OnSubMenuButtonClick));
-            spriteSwapSetup(wallButton, "sdcard/Qosmetics/UI/Icons/WallIcon.png", "sdcard/Qosmetics/UI/Icons/WallIconSelected.png");
+            spriteSwapSetup(wallButton, string_format("%s%s", mainpath.c_str(), "Icons/WallIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/WallIconSelected.png"));
             
         }
+        title = get_transform()->Find(il2cpp_utils::createcsstr("QuestUIVerticalLayoutGroup/QuestUIText"))->get_gameObject()->GetComponent<TMPro::TextMeshProUGUI*>();
+        title->SetText(il2cpp_utils::createcsstr(string_format("Scores are: %s", GetScoresDisabled() ? "<color=\"red\">Disabled</color>" : "<color=\"green\">Enabled</color>")));
     }
 }

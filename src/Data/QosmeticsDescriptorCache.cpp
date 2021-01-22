@@ -21,10 +21,10 @@ namespace Qosmetics
         getLogger().info("Loading Qosmetics Descriptor Cache");
         CreateCacheIfNeeded(false);
         // if file doesn't exist return false
-        if (!fileexists(DESCRIPTOR_FILEPATH)) return false;
+        if (!fileexists(DESCRIPTORCACHE)) return false;
 
         // read data, if data empty return false
-        std::string dataString = readfile(DESCRIPTOR_FILEPATH);
+        std::string dataString = readfile(DESCRIPTORCACHE);
         if (dataString == "") return false;
         cache->cacheDocument.Parse(dataString.c_str());
 
@@ -88,7 +88,7 @@ namespace Qosmetics
         std::string json(buffer.GetString(), buffer.GetSize());
 
         // write to file
-        writefile(DESCRIPTOR_FILEPATH, json);
+        writefile(DESCRIPTORCACHE, json);
     }
 
     void DescriptorCache::AddDescriptorVectorToCache(std::vector<Descriptor*>& descriptorVector, rapidjson::Document::AllocatorType& allocator, std::string name)

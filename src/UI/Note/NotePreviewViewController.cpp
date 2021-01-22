@@ -93,6 +93,15 @@ namespace Qosmetics
         UpdatePreview();
     }
 
+    void NotePreviewViewController::Update()
+    {
+        if (updateView)
+        {
+            updateView = false;
+            UpdatePreview();
+        }
+    }
+
     void NotePreviewViewController::UpdatePreview()
     {
         if (QuestNote::GetActiveNote())
@@ -119,7 +128,7 @@ namespace Qosmetics
                         usleep(1000);
                     }
                     NotePreviewViewController* previewController = Object::FindObjectOfType<NotePreviewViewController*>();//
-                    if (previewController) previewController->UpdatePreview();
+                    if (previewController) previewController->updateView = true;
                     else ERROR("Couldn't find preview controller");
                 });
                 waitForLoadedPrefab.detach();

@@ -36,6 +36,8 @@
 #include "Logging/SaberLogger.hpp"
 #include "Utils/MaterialUtils.hpp"
 
+#include "static-defines.hpp"
+
 namespace Qosmetics
 {
     class QuestSaber
@@ -47,7 +49,6 @@ namespace Qosmetics
                 return SaberLogger::GetLogger();
             };
             
-            static inline std::string fileDir = "/sdcard/Qosmetics/sabers/";
             static inline std::string legacyFileDir = "/sdcard/Android/data/com.beatgames.beatsaber/files/sabers/";
             static inline std::vector<std::string> fileNames = {};
             static inline std::vector<std::string> legacyFileNames = {};

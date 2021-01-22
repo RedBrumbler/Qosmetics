@@ -94,6 +94,7 @@
 #include "Data/CreatorCache.hpp"
 
 #include "Utils/MaterialUtils.hpp"
+#include "static-defines.hpp"
 
 #include "custom-types/shared/register.hpp"
 
@@ -451,10 +452,12 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
         else button->get_transform()->SetAsFirstSibling();
 
         button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
-        
-        UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", 266, 259);
+            std::string mainPath = UIPATH;
+        std::string highlightedpath = string_format("%s%s", mainPath.c_str(), "Icons/MenuIconSelected.png");
+        std::string disabledpath = string_format("%s%s", mainPath.c_str(), "Icons/MenuIcon.png");
+        UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::FileToSprite(highlightedpath, 266, 259);
         UnityEngine::Sprite* pressed = highlighted;
-        UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", 266, 259);
+        UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::FileToSprite(disabledpath, 266, 259);
         UnityEngine::Sprite* disabled = selected;
 
         HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
@@ -483,9 +486,12 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
         UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, +[](Il2CppObject* obj, UnityEngine::UI::Button* button){}));
         button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
         {
-            UnityEngine::Sprite* highlighted = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/GameSetupIconSelected.png", 266, 259);
+            std::string mainPath = UIPATH;
+            std::string highlightedpath = string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIconSelected.png");
+            std::string disabledpath = string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIcon.png");
+            UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::FileToSprite(highlightedpath, 266, 259);
             UnityEngine::Sprite* pressed = highlighted;
-            UnityEngine::Sprite* selected = FileUtils::SpriteFromFile("sdcard/Qosmetics/UI/Icons/GameSetupIcon.png", 266, 259);
+            UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::FileToSprite(disabledpath, 266, 259);
             UnityEngine::Sprite* disabled = selected;
             HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
             spriteSwap->normalStateSprite = selected;
@@ -562,41 +568,35 @@ void WipeAllDefinedPointers()
     Qosmetics::QuestNote::ClearAllInternalPointers();
 }
 
+#define copyFile(in, out) \
+{ \
+    std::string inPath = in; \
+    std::string outPath = out;\
+    if (!fileexists(outPath.c_str()))\
+        writefile(outPath.c_str(), readfile(inPath.c_str()));\
+}
+
 void CopyIcons()
 {
-    makeFolder("sdcard/Qosmetics");
-    makeFolder("sdcard/Qosmetics/UI");
-    makeFolder("sdcard/Qosmetics/UI/Icons");
+    makeFolder(BASEPATH);
+    std::string mainPath = UIPATH;
+    makeFolder(mainPath.c_str());
+    makeFolder(string_format("%s%s", mainPath.c_str(), "Icons"));
     
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIcon.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/MenuIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/MenuIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/SaberIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/SaberIcon.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/SaberIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/NoteIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/NoteIcon.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/NoteIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIconSelected.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/WallIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/WallIcon.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/WallIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/GameSetupIconSelected.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/GameSetupIconSelected.png", readfile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIconSelected.png"));
-    
-    if (!fileexists("sdcard/Qosmetics/UI/Icons/GameSetupIcon.png"))
-            writefile("sdcard/Qosmetics/UI/Icons/GameSetupIcon.png", readfile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/MenuIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/MenuIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/SaberIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/SaberIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/NoteIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/NoteIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/WallIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/WallIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIconSelected.png"));
 }
 
 
@@ -605,6 +605,9 @@ extern "C" void load()
     if (!LoadConfig()) SaveConfig();
     if (!Qosmetics::CreatorCache::Load()) Qosmetics::CreatorCache::Save();
     if (!Qosmetics::DescriptorCache::Load()) Qosmetics::DescriptorCache::Write();
+    std::string datapath = bs_utils::getDataDir(modInfo);
+    makeFolder(datapath.c_str());
+    getLogger().info("Persistent data path for qosmetics: %s", datapath.c_str());
 
     CopyIcons();
     

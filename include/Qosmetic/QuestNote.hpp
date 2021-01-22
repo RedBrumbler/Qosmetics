@@ -25,6 +25,8 @@
 #include "Utils/FileUtils.hpp"
 #include "Utils/NoteUtils.hpp"
 
+#include "static-defines.hpp"
+
 #include "Logging/NoteLogger.hpp"
 
 namespace Qosmetics
@@ -38,7 +40,6 @@ namespace Qosmetics
                 return NoteLogger::GetLogger();
             };
 
-            static inline std::string fileDir = "/sdcard/Qosmetics/notes/";
             static inline std::vector<std::string> fileNames = {};
 
             /// @brief called at shader warmup scene

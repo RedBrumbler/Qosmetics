@@ -22,18 +22,18 @@ namespace Qosmetics
 
     bool QuestSaber::ShaderWarmup()
     {
-        if (!direxists(fileDir)) 
+        if (!direxists(SABERPATH)) 
         {
-            getLogger().info("Saber Directory did not exist, creating directory at %s", fileDir.c_str());
-            makeFolder(fileDir);
+            getLogger().info("Saber Directory did not exist, creating directory at %s", SABERPATH.c_str());
+            makeFolder(SABERPATH);
         }
         else getLogger().info("Saber Directory Exists");
 
         // get all file names in the saber directory, if none found check the legacy saber directory for sabers (for compatibility with old sabers)
-        bool foundFilesNewDir = FileUtils::getFileNamesInDir("qsaber", fileDir, fileNames);
+        bool foundFilesNewDir = FileUtils::getFileNamesInDir(SABEREXT, SABERPATH, fileNames);
         for (auto fileName : fileNames)
         {
-            filePaths.push_back(fileDir + fileName);
+            filePaths.push_back(SABERPATH + fileName);
         }
 
         if (!foundFilesNewDir) 
@@ -327,7 +327,8 @@ namespace Qosmetics
         config.lastActiveSaber = activeSaber->saberDescriptor->get_fileName();
 
         // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
-        if (!activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadBundle(ifLoadAlsoAssets); 
+        if (!activeSaber->get_complete() && !activeSaber->get_isLoading()) activeSaber->LoadBundle(ifLoadAlsoAssets);
+        //if (previousActiveSaber && previousActiveSaber != activeSaber && previousActiveSaber->get_complete()) previousActiveSaber->UnloadBundle();
     }
 }
 

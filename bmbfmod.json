@@ -10,7 +10,7 @@
     "Massive thanks to Sc2ad and Rugtveit for all the help with making this mod"
   ],
   "category": "Gameplay",
-  "gameVersion": "1.13.0",
+  "gameVersion": "1.13.2",
   "platform": "Quest",
   "components": [
     {
@@ -25,7 +25,7 @@
     {
       "type": "HookModLibrary",
       "installAction": {
-        "installLibraryFile": "libbeatsaber-hook_1_0_9.so"
+        "installLibraryFile": "libbeatsaber-hook_1_0_10.so"
       }
     },
     {

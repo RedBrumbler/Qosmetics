@@ -5,8 +5,8 @@
 #include "Logging/GenericLogger.hpp"
 #include "Utils/FileUtils.hpp"
 #include "Utils/FileDownloader.hpp"
+#include "static-defines.hpp"
 
-#define FILEPATH "sdcard/Qosmetics/CreatorCache.json"
 #define INFO(value...) GenericLogger::GetLogger().WithContext("Creator cache").info(value);
 #define ERROR(value...) GenericLogger::GetLogger().WithContext("Creator cache").error(value);
 
@@ -17,25 +17,27 @@ namespace Qosmetics
     {
         // web request or something to download the json from the repo ig
         INFO("Downloading File");
-        std::string path = FILEPATH;
-        std::string url = "https://cdn.discordapp.com/attachments/698265739227824190/801217201314988042/CreatorCache.json";
+        std::string path = CREATORCACHE;
 
-        dl = new FileDownloader(url, path, +[](const FileDownloader& downloader){
+        // temporary URL till I get a json file on the Github
+        std::string url = "https://pastebin.com/raw/CbdRZa1G";
+
+        dl = new FileDownloader(url, path, [&](const FileDownloader& downloader){
             INFO("Downloader Callback");
             INFO("%s", downloader.get_result().c_str());
             CreatorCache::Load();
-        });
+        }, true);
     }
 
     bool CreatorCache::Load()
     {
         INFO("Loading Creator Cache")
-        if (!fileexists(FILEPATH)) 
+        if (!fileexists(CREATORCACHE)) 
         {
             ERROR("File didn't exist!");
             return false;
         }
-        std::string json = readfile(FILEPATH);
+        std::string json = readfile(CREATORCACHE);
         if (json == "null")
         {
             ERROR("json was literally \"null\"");
@@ -83,7 +85,7 @@ namespace Qosmetics
         std::string json(buffer.GetString(), buffer.GetSize());
 
         // write to file
-        writefile(FILEPATH, json);
+        writefile(CREATORCACHE, json);
     }
 
     UnityEngine::Color CreatorCache::GetCreatorColor(const std::string& creator)
