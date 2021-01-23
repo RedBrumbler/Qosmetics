@@ -3,17 +3,22 @@
 #include "Config/WallConfig.hpp"
 #include "Data/Descriptor.hpp"
 
-#include "UnityEngine/Color.hpp"
 #include "UnityEngine/RectOffset.hpp"
+#include "UnityEngine/WaitUntil.hpp"
+#include "UnityEngine/Coroutine.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/UI/Image.hpp"
 #include "UnityEngine/UI/Toggle.hpp"
 #include "UnityEngine/UI/Toggle_ToggleEvent.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "UnityEngine/Events/UnityAction_1.hpp"
+#include "System/Collections/IEnumerator.hpp"
+#include "System/Func_1.hpp"
+
 #include "HMUI/ScrollView.hpp"
 #include "HMUI/ModalView.hpp"
 #include "HMUI/Touchable.hpp"
@@ -44,7 +49,15 @@ DEFINE_CLASS(Qosmetics::WallSwitcherViewController);
 
 #define INFO(value...) UILogger::GetLogger().WithContext("Wall Switching").info(value)
 #define ERROR(value...) UILogger::GetLogger().WithContext("Wall Switching").error(value)
-#define toString = 
+
+static int wallCount = 0;
+static int wallIndex = 0;
+static int programIndex = 0;
+static VerticalLayoutGroup* buttonList = nullptr;
+static VerticalLayoutGroup* infoLayout = nullptr;
+static HorizontalLayoutGroup* buttonLayout = nullptr;
+static inline std::vector<Qosmetics::Descriptor*> descriptors = {};
+
 namespace Qosmetics
 {
     void WallSwitcherViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
@@ -76,17 +89,38 @@ namespace Qosmetics
             }));
 
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
-            VerticalLayoutGroup* infoLayout = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
-            VerticalLayoutGroup* buttonList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
+            infoLayout = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
+            buttonList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
+            
+            descriptors = DescriptorCache::GetWallDescriptors();
+            wallCount = descriptors.size();
 
-            std::vector<Descriptor*>& descriptors = DescriptorCache::GetWallDescriptors();
-            for (int i = 0; i < descriptors.size(); i++)
-            {
-                HorizontalLayoutGroup* buttonLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(buttonList->get_transform());
-
-                AddButtonsForDescriptor(buttonLayout->get_transform(), descriptors[i]);
-                AddTextForDescriptor(infoLayout->get_transform(), descriptors[i]);
-            }
+            auto coroutine = WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), this, 
+            +[](Qosmetics::WallSwitcherViewController* self){ 
+                switch (programIndex)
+                {
+                    case 0:
+                        if (!buttonLayout) buttonLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(buttonList->get_transform());
+                    case 1:
+                        self->AddButtonsForDescriptor(buttonLayout->get_transform(), descriptors[wallIndex]);
+                        programIndex++;
+                        return false;
+                    case 2:
+                        buttonLayout = nullptr;
+                    case 3:
+                        self->AddTextForDescriptor(infoLayout->get_transform(), descriptors[wallIndex]);
+                        programIndex++;
+                        return false;
+                    default:
+                        programIndex = 0;
+                        wallIndex++; 
+                        if(wallIndex < wallCount) 
+                            return false; 
+                        return true; 
+                }
+                return true;
+            }));
+            StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(coroutine));
         }
     }
 
@@ -95,31 +129,35 @@ namespace Qosmetics
         if (!layout || !descriptor) return;
 
         std::string stringName = descriptor->get_fileName();
-
-        Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
-            if (!fileName) return;
-            if (QuestWall::GetActiveWall() && QuestWall::GetActiveWall()->get_isLoading()) return;
-            std::string name = to_utf8(csstrtostr(fileName));
-            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
-            QuestWall::SetActiveWall(descriptor, true);
-            WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
-            if (previewController) previewController->UpdatePreview();
-            else ERROR("Couldn't find preview controller");
-            DescriptorCache::Write();
-            INFO("Selected wall %s", descriptor->get_name().c_str());
-        }));
-
-        selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
-        Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
-            if (!fileName) return;
-            std::string name = to_utf8(csstrtostr(fileName));
-            Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
-            if (fileexists(descriptor->get_filePath())) 
-            {
-                INFO("Deleting %s", descriptor->get_filePath().c_str());
-                deletefile(descriptor->get_filePath());
-            }
-        }));
+        if (programIndex == 0)
+        {
+            Button* selectButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "select", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
+                if (!fileName) return;
+                if (QuestWall::GetActiveWall() && QuestWall::GetActiveWall()->get_isLoading()) return;
+                std::string name = to_utf8(csstrtostr(fileName));
+                Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
+                QuestWall::SetActiveWall(descriptor, true);
+                WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
+                if (previewController) previewController->UpdatePreview();
+                else ERROR("Couldn't find preview controller");
+                DescriptorCache::Write();
+                INFO("Selected wall %s", descriptor->get_name().c_str());
+            }));
+            selectButton->get_gameObject()->set_name(il2cpp_utils::createcsstr(stringName));
+        }
+        else if (programIndex == 1)
+        {
+            Button* eraseButton = QuestUI::BeatSaberUI::CreateUIButton(layout, "delete", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), il2cpp_utils::createcsstr(stringName, il2cpp_utils::StringType::Manual), +[](Il2CppString* fileName, Button* button){
+                if (!fileName) return;
+                std::string name = to_utf8(csstrtostr(fileName));
+                Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
+                if (fileexists(descriptor->get_filePath())) 
+                {
+                    INFO("Deleting %s", descriptor->get_filePath().c_str());
+                    deletefile(descriptor->get_filePath());
+                }
+            }));
+        }
     }
 
     extern bool shouldRainbow(UnityEngine::Color color);
@@ -127,34 +165,38 @@ namespace Qosmetics
     void WallSwitcherViewController::AddTextForDescriptor(Transform* layout, Descriptor* descriptor)
     {
         if (!layout || !descriptor) return; // if either is nullptr, early return
-        
-        std::string buttonName = descriptor->get_name();
-        
-        if (buttonName == "") // if the name is empty, use the filename instead
+        if (programIndex == 2)
         {
-            buttonName = descriptor->get_fileName();
-            if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
+            std::string buttonName = descriptor->get_name();
+            INFO("%s", buttonName.c_str());
+            if (buttonName == "") // if the name is empty, use the filename instead
+            {
+                buttonName = descriptor->get_fileName();
+                if (buttonName != "" && buttonName.find(".") != std::string::npos) buttonName.erase(buttonName.find_last_of("."));
+            }
+
+            if (buttonName.find("rainbow") != std::string::npos || buttonName.find("Rainbow") != std::string::npos) buttonName = FileUtils::rainbowIfy(buttonName);
+
+            TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName);
+            QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
         }
-
-        if (buttonName.find("rainbow") != std::string::npos || buttonName.find("Rainbow") != std::string::npos) buttonName = FileUtils::rainbowIfy(buttonName);
-
-        std::string authorName = descriptor->get_author();
-
-        if (authorName == "")
+        else if (programIndex == 3)
         {
-            authorName = "---";
+            std::string authorName = descriptor->get_author();
+
+            if (authorName == "")
+            {
+                authorName = "---";
+            }
+
+            UnityEngine::Color textColor = CreatorCache::GetCreatorColor(authorName);
+
+            if (shouldRainbow(textColor))
+                authorName = FileUtils::rainbowIfy(authorName);
+            TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, authorName);
+
+            authorText->set_color(textColor);
+            authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
         }
-
-        UnityEngine::Color textColor = CreatorCache::GetCreatorColor(authorName);
-
-        if (shouldRainbow(textColor))
-            authorName = FileUtils::rainbowIfy(authorName);
-
-        TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName);
-        TMPro::TextMeshProUGUI* authorText = QuestUI::BeatSaberUI::CreateText(layout, authorName);
-
-        QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
-        authorText->set_color(textColor);
-        authorText->set_fontSize(authorText->get_fontSize() * 0.5f);
     }
 }

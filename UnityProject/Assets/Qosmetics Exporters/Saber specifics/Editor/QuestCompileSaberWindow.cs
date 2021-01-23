@@ -18,12 +18,12 @@ public class QuestCompileSaberWindow : EditorWindow
     private SaberReferences[] questsabers;
     private string extension = "qsaber";
     private string prefabName = "_CustomSaber";
-    private string questPath = "/sdcard/Qosmetics/sabers/";
+    private string questPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/sabers/";
     private ExportersConfig exporterConfig;
     private string exporterConfigPath = "Assets/Qosmetics Exporters/exportersConfig.json";
     private Camera cam;
     private bool debug = false;
-
+    private bool upload = false;
     private GameObject trail;
     private GameObject saberTemplate;
     private GameObject wallParticles;
@@ -58,6 +58,10 @@ public class QuestCompileSaberWindow : EditorWindow
         {
             ExportAll();
         }
+        if (GUILayout.Button("Export and Upload all Active sabers"))
+        {
+            ExportAllAndUpload();
+        }
 
         GUILayout.Space(10);
 
@@ -65,13 +69,12 @@ public class QuestCompileSaberWindow : EditorWindow
         {
             if (saber == null) continue;
             GUILayout.Label("GameObject : " + saber.gameObject.name, EditorStyles.boldLabel);
-            saber.bmbfFolded = EditorGUILayout.BeginFoldoutHeaderGroup(saber.bmbfFolded, "BMBF mod info");
+            saber.descriptorFolded = EditorGUILayout.BeginFoldoutHeaderGroup(saber.descriptorFolded, "Saber Descriptor");
 
-            if (saber.bmbfFolded)
+            if (saber.descriptorFolded)
             {
-                saber.advancedInfo = EditorGUILayout.ToggleLeft("Advanced BMBF mod info", saber.advancedInfo);
                 GUILayout.Space(5);
-                BMBFConfigDisplay(saber);
+                DescriptorDisplay(saber);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
@@ -89,14 +92,14 @@ public class QuestCompileSaberWindow : EditorWindow
 
             if (disableExport && exporterConfig.forceAllowExport) GUILayout.Label("WARNING! force allow export is set to true so this saber file is unlikely to work correctly in game!", EditorStyles.boldLabel);
             EditorGUI.BeginDisabledGroup(disableExport && !exporterConfig.forceAllowExport);
-            if (GUILayout.Button("Export " + saber.bmbfmod.name + "." + extension))
+            if (GUILayout.Button("Export " + saber.descriptor.objectName + "." + extension))
             {
                 ExportSaberFile(saber);
             }
 
-            if (GUILayout.Button("Export " + saber.bmbfmod.name + "." + extension + " BMBF mod zip"))
+            if (GUILayout.Button("Export and Upload " + saber.descriptor.objectName + "." + extension + " To Quest"))
             {
-                ExportSaberZip(saber);
+                ExportAndUpload(saber);
             }
             EditorGUI.EndDisabledGroup();
 
@@ -127,6 +130,7 @@ public class QuestCompileSaberWindow : EditorWindow
 
         }
     }
+
     /// <summary>
     /// sets the hasCustomTrails bool on the saber
     /// </summary>
@@ -137,7 +141,7 @@ public class QuestCompileSaberWindow : EditorWindow
 
     void ExportAll()
     {
-        string path = EditorUtility.SaveFolderPanel("Select folder to export all zips", "", "");
+        string path = EditorUtility.SaveFolderPanel("Select folder to export all ." + extension + " files", "", "");
         if (path == "")
         {
             EditorUtility.DisplayDialog("Export Failed", "Path was invalid", "OK");
@@ -154,12 +158,12 @@ public class QuestCompileSaberWindow : EditorWindow
             if (!disableExport)
             {
                 atLeastOneSuccessful = true;
-                ExportSaberZip(saber, path);
+                ExportSaberFile(saber, path);
             }
             else
             {
                 sabersWereSkipped = true;
-                skippedSabers.Add(saber.bmbfmod.name);
+                skippedSabers.Add(saber.descriptor.objectName);
             }
         }
 
@@ -174,10 +178,67 @@ public class QuestCompileSaberWindow : EditorWindow
         }
         else
         {
-            EditorUtility.DisplayDialog("Saber exports successful!", "Exported all sabers succesfully'!", "OK");
+            EditorUtility.DisplayDialog("Saber exports successful!", "Exported all sabers successfully!", "OK");
 
         }
         if (atLeastOneSuccessful) EditorUtility.RevealInFinder(path);
+    }
+
+    /// <summary>
+    /// Exports all sabers and uploads them all to the quest
+    /// </summary>
+    void ExportAllAndUpload()
+    {
+        string path = EditorUtility.SaveFolderPanel("Select folder to export all " + extension + " files", "", "");
+        if (path == "")
+        {
+            EditorUtility.DisplayDialog("Export Failed", "Path was invalid", "OK");
+            return;
+        }
+        path += "/";
+        List<string> skippedSabers = new List<string>();
+        bool sabersWereSkipped = false;
+        bool atLeastOneSuccessful = false;
+
+        if (exporterConfig.ipAddress != "") QosmeticUtils.adb("connect " + exporterConfig.ipAddress + ":5555");
+        QosmeticUtils.adb("shell am force-stop com.beatgames.beatsaber");
+
+        foreach (var saber in questsabers)
+        {
+            bool disableExport = shouldDisableExport(saber);
+
+            if (!disableExport)
+            {
+                atLeastOneSuccessful = true;
+                ExportSaberFile(saber, path);
+                string saberName = saber.descriptor.objectName + "." + extension;
+                QosmeticUtils.adb("push\"" + path + saberName + "\" \""+ questPath + saberName + "\"");
+            }
+            else
+            {
+                sabersWereSkipped = true;
+                skippedSabers.Add(saber.descriptor.objectName);
+            }
+        }
+
+        if (sabersWereSkipped)
+        {
+            string message = "These Sabers were skipped due to exporter issues: \n";
+            foreach (var saberName in skippedSabers)
+            {
+                message += saberName + "\n";
+            }
+            EditorUtility.DisplayDialog("Sabers Were skipped...", message, "OK");
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Saber exports successful!", "Exported all sabers successfully!", "OK");
+        }
+        if (atLeastOneSuccessful)
+        {
+            QosmeticUtils.adb("shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity");
+            EditorUtility.RevealInFinder(path);
+        }
     }
 
     bool shouldDisableExport(SaberReferences saber)
@@ -303,6 +364,17 @@ public class QuestCompileSaberWindow : EditorWindow
 
             renderer.sharedMaterial = trail.trailMaterial;
         }
+    }
+
+    /// <summary>
+    /// Runs the code to display the descriptor settings in the GUI
+    /// </summary>
+    /// <param name="saber"></param>
+    void DescriptorDisplay(SaberReferences saber)
+    {
+        saber.descriptor.objectName = EditorGUILayout.TextField("Saber name", saber.descriptor.objectName);
+        saber.descriptor.authorName = EditorGUILayout.TextField("Author name", saber.descriptor.authorName);
+        saber.descriptor.description = EditorGUILayout.TextField("Description", saber.descriptor.description);
     }
 
     /// <summary>
@@ -434,7 +506,7 @@ public class QuestCompileSaberWindow : EditorWindow
     /// Exports just a qsaber file
     /// </summary>
     /// <param name="saber"></param>
-    void ExportSaberFile(SaberReferences saber)
+    void ExportSaberFile(SaberReferences saber, string path = "")
     {
         /*
         if (EditorUserBuildSettings.activeBuildTarget.ToString() != "Android")
@@ -443,17 +515,19 @@ public class QuestCompileSaberWindow : EditorWindow
             return;
         }
         */
-
+        bool batch = path != "";
         GameObject saberObject = saber.gameObject;
         TextAsset config = new TextAsset(JsonUtility.ToJson(saber.config, true));
 
-        string bmbfmodJson = JsonUtility.ToJson(saber.bmbfmod, true);
-        TextAsset bmbfmod = new TextAsset(bmbfmodJson);
+        //string bmbfmodJson = JsonUtility.ToJson(saber.bmbfmod, true);
+        //TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
         string descriptorString = JsonUtility.ToJson(new Descriptor(saber.bmbfmod.author, saber.bmbfmod.name, saber.bmbfmod.description[0]), true);
         TextAsset descriptor = new TextAsset(descriptorString);
 
-        string path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", saber.bmbfmod.name + "." + extension, extension);
+        string saberName = saber.descriptor.objectName + "." + extension;
+        if (!batch) path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", saberName, extension);
+        else path += saberName;
 
         if (path == "")
         {
@@ -478,7 +552,8 @@ public class QuestCompileSaberWindow : EditorWindow
         EditorSceneManager.SaveScene(saberObject.scene);
 
         GameObject camObject;
-        Camera exportCam;
+        Camera exportCam = null;
+
 
         if (exporterConfig.allowOwnCamera) // manual cam
         {
@@ -503,23 +578,22 @@ public class QuestCompileSaberWindow : EditorWindow
         int newMask = 31;
         int newCamMask = 1 << 31;
 
-        // moved prefab forward so that the layermask isnt fucked up on the actual exported file
-        PrefabUtility.SaveAsPrefabAsset(Selection.activeGameObject as GameObject, "Assets/" + prefabName + ".prefab");
-
         if (exporterConfig.setCamLayerOnExport)
         {
             exportCam.cullingMask = newCamMask;
             QosmeticUtils.SetLayerRecursively(exportCam.gameObject, newMask);
             QosmeticUtils.SetLayerRecursively(saber.gameObject, newMask);
         }
+        // moved prefab forward so that the layermask isnt fucked up on the actual exported file
+        PrefabUtility.SaveAsPrefabAsset(Selection.activeGameObject as GameObject, "Assets/" + prefabName + ".prefab");
 
-        Texture2D thumbnail = QosmeticUtils.getTexture2D(exportCam, 1024, 1024);
+        Texture2D thumbnail = saber.thumbnail;
 
-        
+        if (!thumbnail) thumbnail = QosmeticUtils.getTexture2D(exportCam, 1024, 1024);
         //Start actually constructing the bundle
 
         AssetDatabase.CreateAsset(config, "Assets/config.asset");
-        AssetDatabase.CreateAsset(bmbfmod, "Assets/BMBFmod.asset");
+        //AssetDatabase.CreateAsset(bmbfmod, "Assets/BMBFmod.asset");
         AssetDatabase.CreateAsset(thumbnail, "Assets/thumbnail.asset");
         AssetDatabase.CreateAsset(descriptor, "Assets/descriptor.asset");
 
@@ -529,7 +603,7 @@ public class QuestCompileSaberWindow : EditorWindow
         {
             "Assets/" + prefabName + ".prefab",
             "Assets/config.asset",
-            "Assets/BMBFmod.asset",
+            //"Assets/BMBFmod.asset",
             "Assets/thumbnail.asset",
             "Assets/descriptor.asset"
         };
@@ -547,7 +621,7 @@ public class QuestCompileSaberWindow : EditorWindow
         //Asset cleanup
         AssetDatabase.DeleteAsset("Assets/" + prefabName + ".prefab");
         AssetDatabase.DeleteAsset("Assets/config.asset");
-        AssetDatabase.DeleteAsset("Assets/BMBFmod.asset");
+        //AssetDatabase.DeleteAsset("Assets/BMBFmod.asset");
         AssetDatabase.DeleteAsset("Assets/thumbnail.asset");
         AssetDatabase.DeleteAsset("Assets/descriptor.asset");
 
@@ -566,8 +640,40 @@ public class QuestCompileSaberWindow : EditorWindow
             QosmeticUtils.SetLayerRecursively(saber.gameObject, oldObjectMask);
         }
 
-        EditorUtility.DisplayDialog("Exportation Successful!", "Exportation Successful!", "OK");
-        EditorUtility.RevealInFinder(path);
+        if (!batch)
+        {
+            EditorUtility.DisplayDialog("Exportation Successful!", "Exportation Successful!", "OK");
+            EditorUtility.RevealInFinder(path);
+        }
+    }
+
+    /// <summary>
+    /// Exports and uploads the saber via adb
+    /// </summary>
+    /// <param name="saber"></param>
+    void ExportAndUpload(SaberReferences saber)
+    {
+        string saberName = saber.descriptor.objectName + "." + extension;
+        string path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", saberName, extension);
+        if (path == "")
+        {
+            EditorUtility.DisplayDialog("Exportation Failed!", "Invalid path", "OK");
+            return;
+        }
+
+        string folderPath = Path.GetDirectoryName(path) + "/";
+
+        if (exporterConfig.ipAddress != "") QosmeticUtils.adb("connect " + exporterConfig.ipAddress + ":5555");
+
+        QosmeticUtils.adb("shell am force-stop com.beatgames.beatsaber");
+
+        ExportSaberFile(saber, folderPath);
+
+        QosmeticUtils.adb("push \"" + folderPath + saberName + "\" \"" + questPath + saberName + "\"");
+        QosmeticUtils.adb("shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity");
+
+        EditorUtility.DisplayDialog("Exportation Successful!", "If the game did not turn off or the saber is not showing up, make sure your quest is connected through adb", "OK");
+        EditorUtility.RevealInFinder(folderPath + saberName);
     }
 
     /// <summary>

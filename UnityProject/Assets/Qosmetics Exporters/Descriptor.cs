@@ -4,6 +4,7 @@ using UnityEngine;
 // Written By RedBrumbler
 namespace Qosmetics
 {
+    [System.Serializable]
     public class Descriptor
     {
         public Descriptor(string author, string objectName, string description)

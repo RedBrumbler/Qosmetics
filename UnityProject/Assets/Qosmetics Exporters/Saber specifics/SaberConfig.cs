@@ -7,10 +7,15 @@ namespace Qosmetics
     [System.Serializable]
     public class SaberConfig
     {
-        public bool enableFakeGlow;
-        [HideInInspector] public bool hasCustomTrails;
-        [HideInInspector] public bool hasCustomWallParticles;
-        [HideInInspector] public bool hasCustomSliceParticles;
+        public SaberConfig()
+        {
+
+        }
+
+        public bool enableFakeGlow = false;
+        [HideInInspector] public bool hasCustomTrails = false;
+        [HideInInspector] public bool hasCustomWallParticles = false;
+        [HideInInspector] public bool hasCustomSliceParticles = false;
 
         [HideInInspector] public List<TrailConfig> leftTrails;
         [HideInInspector] public List<TrailConfig> rightTrails;

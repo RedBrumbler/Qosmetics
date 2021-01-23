@@ -4,6 +4,7 @@
     "defaultVersion": "1.0.0",
     "defaultPageLink": "",
     "defaultCoverImageFileName": "cover.png",
+    "ipAddress": "quest2",
     "forceAllowExport": false,
     "allowOwnCamera": false,
     "setCamLayerOnExport": true

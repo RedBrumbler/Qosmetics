@@ -15,7 +15,7 @@ public class QuestCompileBloqWindow : EditorWindow
     private BloqReferences[] questbloqs;
     private string extension = "qbloq";
     private string prefabName = "_CustomBloq";
-    private string questPath = "/sdcard/Qosmetics/notes/";
+    private string questPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/notes/";
     private ExportersConfig exporterConfig;
     private string exporterConfigPath = "Assets/Qosmetics Exporters/exportersConfig.json";
     private Camera cam;
@@ -51,19 +51,23 @@ public class QuestCompileBloqWindow : EditorWindow
         {
             ExportAll();
         }
+        if (GUILayout.Button("Export and Upload all Active bloqs"))
+        {
+            ExportAllAndUpload();
+        }
 
         GUILayout.Space(10);
         foreach (var bloq in questbloqs)
         {
             if (bloq == null) continue;
             GUILayout.Label("GameObject : " + bloq.gameObject.name, EditorStyles.boldLabel);
-            bloq.bmbfFolded = EditorGUILayout.BeginFoldoutHeaderGroup(bloq.bmbfFolded, "BMBF mod info");
+            bloq.descriptorFolded = EditorGUILayout.BeginFoldoutHeaderGroup(bloq.descriptorFolded, "Bloq Descriptor");
 
-            if (bloq.bmbfFolded)
+            if (bloq.descriptorFolded)
             {
-                bloq.advancedInfo = EditorGUILayout.ToggleLeft("Advanced BMBF mod info", bloq.advancedInfo);
+                //bloq.advancedInfo = EditorGUILayout.ToggleLeft("Advanced BMBF mod info", bloq.advancedInfo);
                 GUILayout.Space(5);
-                BMBFConfigDisplay(bloq);
+                DescriptorDisplay(bloq);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
@@ -81,18 +85,18 @@ public class QuestCompileBloqWindow : EditorWindow
             bool disableExport = shouldDisableExport(bloq);
             if (disableExport && exporterConfig.forceAllowExport) GUILayout.Label("WARNING! force allow export is set to true so this bloq file is unlikely to work correctly in game!", EditorStyles.boldLabel);
             EditorGUI.BeginDisabledGroup(disableExport && !exporterConfig.forceAllowExport);
-            if (GUILayout.Button("Export " + bloq.bmbfmod.name + "." + extension))
+            if (GUILayout.Button("Export " + bloq.descriptor.objectName + "." + extension))
             {
                 GetHasBomb(bloq);
                 GetHasDebris(bloq);
                 ExportBloqFile(bloq);
             }
 
-            if (GUILayout.Button("Export " + bloq.bmbfmod.name + "." + extension + " BMBF mod zip"))
+            if (GUILayout.Button("Export and Upload " + bloq.descriptor.objectName + "." + extension))
             {
                 GetHasBomb(bloq);
                 GetHasDebris(bloq);
-                ExportBloqZip(bloq);
+                ExportAndUpload(bloq);
             }
             EditorGUI.EndDisabledGroup();
 
@@ -136,7 +140,7 @@ public class QuestCompileBloqWindow : EditorWindow
 
     void ExportAll()
     {
-        string path = EditorUtility.SaveFolderPanel("Select folder to export all zips", "", "");
+        string path = EditorUtility.SaveFolderPanel("Select folder to export all ." + extension + " files", "", "");
         if (path == "")
         {
             EditorUtility.DisplayDialog("Export Failed", "Path was invalid", "OK");
@@ -153,12 +157,12 @@ public class QuestCompileBloqWindow : EditorWindow
             if (!disableExport)
             {
                 atLeastOneSuccessful = true;
-                ExportBloqZip(bloq, path);
+                ExportBloqFile(bloq, path);
             }
             else
             {
                 bloqsWereSkipped = true;
-                skippedBloqs.Add(bloq.bmbfmod.name);
+                skippedBloqs.Add(bloq.descriptor.objectName);
             }
         }
 
@@ -173,10 +177,65 @@ public class QuestCompileBloqWindow : EditorWindow
         }
         else
         {
-            EditorUtility.DisplayDialog("Bloq exports successful!", "Exported all bloqs succesfully'!", "OK");
+            EditorUtility.DisplayDialog("Bloq exports successful!", "Exported all bloqs successfully!", "OK");
 
         }
         if (atLeastOneSuccessful) EditorUtility.RevealInFinder(path);
+    }
+
+    void ExportAllAndUpload()
+    {
+        string path = EditorUtility.SaveFolderPanel("Select folder to export all ." + extension + " files", "", "");
+        if (path == "")
+        {
+            EditorUtility.DisplayDialog("Export Failed", "Path was invalid", "OK");
+            return;
+        }
+
+        path += "/";
+        List<string> skippedBloqs = new List<string>();
+        bool bloqsWereSkipped = false;
+        bool atLeastOneSuccessful = false;
+
+        if (exporterConfig.ipAddress != "") QosmeticUtils.adb("connect " + exporterConfig.ipAddress + ":5555");
+        QosmeticUtils.adb("shell am force-stop com.beatgames.beatsaber");
+
+        foreach (var bloq in questbloqs)
+        {
+            bool disableExport = shouldDisableExport(bloq);
+
+            if (!disableExport)
+            {
+                atLeastOneSuccessful = true;
+                ExportBloqFile(bloq, path);
+                string bloqName = bloq.descriptor.objectName + "." + extension;
+                QosmeticUtils.adb("push\"" + path + bloqName + "\" \"" + questPath + bloqName + "\"");
+            }
+            else
+            {
+                bloqsWereSkipped = true;
+                skippedBloqs.Add(bloq.descriptor.objectName);
+            }
+        }
+
+        if (bloqsWereSkipped)
+        {
+            string message = "These Bloqs were skipped due to exporter issues: \n";
+            foreach (var bloqName in skippedBloqs)
+            {
+                message += bloqName + "\n";
+            }
+            EditorUtility.DisplayDialog("Bloqs Were skipped...", message, "OK");
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Bloq exports successful!", "Exported all bloqs successfully!", "OK");
+        }
+        if (atLeastOneSuccessful)
+        {
+            QosmeticUtils.adb("shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity");
+            EditorUtility.RevealInFinder(path);
+        }
     }
 
     bool shouldDisableExport(BloqReferences bloq)
@@ -184,7 +243,16 @@ public class QuestCompileBloqWindow : EditorWindow
         bool disableExport = bloq.transform.Find("LeftArrow") == null || bloq.transform.Find("RightArrow") == null || bloq.transform.Find("LeftDot") == null || bloq.transform.Find("RightDot") == null;
         return disableExport;
     }
-
+    /// <summary>
+    /// Runs the code to display the descriptor settings in the GUI
+    /// </summary>
+    /// <param name="bloq"></param>
+    void DescriptorDisplay(BloqReferences bloq)
+    {
+        bloq.descriptor.objectName = EditorGUILayout.TextField("Bloq name", bloq.descriptor.objectName);
+        bloq.descriptor.authorName = EditorGUILayout.TextField("Author name", bloq.descriptor.authorName);
+        bloq.descriptor.description = EditorGUILayout.TextField("Description", bloq.descriptor.description);
+    }
     /// <summary>
     /// Runs the code to display the bmbf input options in the GUI
     /// </summary>
@@ -249,19 +317,23 @@ public class QuestCompileBloqWindow : EditorWindow
     /// Exports just a qbloq file
     /// </summary>
     /// <param name="bloq"></param>
-    void ExportBloqFile(BloqReferences bloq)
+    void ExportBloqFile(BloqReferences bloq, string path = "")
     {
+
+        bool batch = path != "";
 
         GameObject bloqObject = bloq.gameObject;
         TextAsset config = new TextAsset(JsonUtility.ToJson(bloq.config, true));
 
-        string bmbfmodJson = JsonUtility.ToJson(bloq.bmbfmod, true);
-        TextAsset bmbfmod = new TextAsset(bmbfmodJson);
+        //string bmbfmodJson = JsonUtility.ToJson(bloq.bmbfmod, true);
+        //TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
         string descriptorString = JsonUtility.ToJson(new Descriptor(bloq.bmbfmod.author, bloq.bmbfmod.name, bloq.bmbfmod.description[0]), true);
         TextAsset descriptor = new TextAsset(descriptorString);
 
-        string path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", bloq.bmbfmod.name + "." + extension, extension);
+        string bloqName = bloq.descriptor.objectName + "." + extension;
+        if (!batch) path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", bloqName, extension);
+        else path += bloqName;
 
         if (path == "")
         {
@@ -320,13 +392,15 @@ public class QuestCompileBloqWindow : EditorWindow
             QosmeticUtils.SetLayerRecursively(bloq.gameObject, newMask);
         }
 
-        Texture2D thumbnail = QosmeticUtils.getTexture2D(exportCam, 1024, 1024);
 
-        
+        Texture2D thumbnail = bloq.thumbnail;
+        if (!thumbnail) thumbnail = QosmeticUtils.getTexture2D(exportCam, 1024, 1024);
+
+
         //Start actually constructing the bundle
 
         AssetDatabase.CreateAsset(config, "Assets/config.asset");
-        AssetDatabase.CreateAsset(bmbfmod, "Assets/BMBFmod.asset");
+        //AssetDatabase.CreateAsset(bmbfmod, "Assets/BMBFmod.asset");
         AssetDatabase.CreateAsset(thumbnail, "Assets/thumbnail.asset");
         AssetDatabase.CreateAsset(descriptor, "Assets/descriptor.asset");
 
@@ -336,7 +410,7 @@ public class QuestCompileBloqWindow : EditorWindow
         {
             "Assets/" + prefabName + ".prefab",
             "Assets/config.asset",
-            "Assets/BMBFmod.asset",
+            //"Assets/BMBFmod.asset",
             "Assets/thumbnail.asset",
             "Assets/descriptor.asset"
         };
@@ -354,7 +428,7 @@ public class QuestCompileBloqWindow : EditorWindow
         //Asset cleanup
         AssetDatabase.DeleteAsset("Assets/" + prefabName + ".prefab");
         AssetDatabase.DeleteAsset("Assets/config.asset");
-        AssetDatabase.DeleteAsset("Assets/BMBFmod.asset");
+        //AssetDatabase.DeleteAsset("Assets/BMBFmod.asset");
         AssetDatabase.DeleteAsset("Assets/thumbnail.asset");
         AssetDatabase.DeleteAsset("Assets/descriptor.asset");
         if (!exporterConfig.allowOwnCamera) DestroyImmediate(camObject);
@@ -370,9 +444,43 @@ public class QuestCompileBloqWindow : EditorWindow
             if (exporterConfig.allowOwnCamera) QosmeticUtils.SetLayerRecursively(exportCam.gameObject, oldObjectMask);
             QosmeticUtils.SetLayerRecursively(bloq.gameObject, oldObjectMask);
         }
-        EditorUtility.DisplayDialog("Exportation Successful!", "Exportation Successful!", "OK");
-        EditorUtility.RevealInFinder(path);
+
+        if (!batch)
+        {
+            EditorUtility.DisplayDialog("Exportation Successful!", "Exportation Successful!", "OK");
+            EditorUtility.RevealInFinder(path);
+        }
     }
+
+    /// <summary>
+    /// Exports and uploads the saber via adb
+    /// </summary>
+    /// <param name="bloq"></param>
+    void ExportAndUpload(BloqReferences bloq)
+    {
+        string bloqName = bloq.descriptor.objectName + "." + extension;
+        string path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", bloqName, extension);
+        if (path == "")
+        {
+            EditorUtility.DisplayDialog("Exportation Failed!", "Invalid path", "OK");
+            return;
+        }
+
+        string folderPath = Path.GetDirectoryName(path) + "/";
+
+        if (exporterConfig.ipAddress != "") QosmeticUtils.adb("connect " + exporterConfig.ipAddress + ":5555");
+
+        QosmeticUtils.adb("shell am force-stop com.beatgames.beatsaber");
+
+        ExportBloqFile(bloq, folderPath);
+
+        QosmeticUtils.adb("push \"" + folderPath + bloqName + "\" \"" + questPath + bloqName + "\"");
+        QosmeticUtils.adb("shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity");
+
+        EditorUtility.DisplayDialog("Exportation Successful!", "If the game did not turn off or the bloq is not showing up, make sure your quest is connected through adb", "OK");
+        EditorUtility.RevealInFinder(folderPath + bloqName);
+    }
+
 
     /// <summary>
     /// Exports a complete Zip package ready to be loaded into bmbf

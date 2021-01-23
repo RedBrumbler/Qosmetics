@@ -57,7 +57,7 @@ namespace Qosmetics
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
             
-            BeatSaberUI::CreateToggle(container->get_transform(), "Override Note Size", config.noteConfig.overrideNoteSize, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
+            UI::Toggle* noteSizeToggle = BeatSaberUI::CreateToggle(container->get_transform(), "Override Note Size", config.noteConfig.overrideNoteSize, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.overrideNoteSize = value;
                     SaveConfig();
                     QuestNote::SelectionDefinitive();
@@ -65,7 +65,7 @@ namespace Qosmetics
                     if (previewController) previewController->UpdatePreview();
                     else ERROR("Couldn't find preview controller");
                 }));
-            BeatSaberUI::AddHoverHint(noteSizeToggle->get_gameObject(), "The overridden size of the notes compared to default, set to 1.00 for default size");
+            BeatSaberUI::AddHoverHint(noteSizeToggle->get_gameObject(), "Whether to override the note zsize");
             QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.noteConfig.noteSize = value;
                     SaveConfig();
@@ -80,7 +80,7 @@ namespace Qosmetics
                     SaveConfig();
                 }));
             BeatSaberUI::AddHoverHint(hitboxSize->get_gameObject(), "Whether or not to let the hitbox size change along with the note size, turning this on will disable scores");
-            BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Bombs", config.noteConfig.forceDefaultBombs, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
+            UI::Toggle* bombToggle = BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Bombs", config.noteConfig.forceDefaultBombs, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultBombs = value;
                     SaveConfig();
                     QuestNote::SelectionDefinitive();
@@ -88,7 +88,8 @@ namespace Qosmetics
                     if (previewController) previewController->UpdatePreview();
                     else ERROR("Couldn't find preview controller");
                 }));
-            BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Debris", config.noteConfig.forceDefaultDebris, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
+            BeatSaberUI::AddHoverHint(bombToggle->get_gameObject(), "Force default bombs with this turned on");
+            UI::Toggle* debrisToggle = BeatSaberUI::CreateToggle(container->get_transform(), "Force Default Debris", config.noteConfig.forceDefaultDebris, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](NoteSettingsViewController* view, bool value) { 
                     config.noteConfig.forceDefaultDebris = value;
                     SaveConfig();
                     QuestNote::SelectionDefinitive();
@@ -96,6 +97,8 @@ namespace Qosmetics
                     if (previewController) previewController->UpdatePreview();
                     else ERROR("Couldn't find preview controller");
                 }));
+            BeatSaberUI::AddHoverHint(debrisToggle->get_gameObject(), "Force default debris with this turned on");
+            
         }
     }
 }

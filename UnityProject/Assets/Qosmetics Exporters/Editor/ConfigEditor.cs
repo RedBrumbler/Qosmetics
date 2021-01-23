@@ -28,13 +28,19 @@ public class ConfigEditor : EditorWindow
         exporterConfig.removeCamerasAtExport = EditorGUILayout.ToggleLeft("Remove Cameras at export", exporterConfig.removeCamerasAtExport);
         GUILayout.Space(5);
 
-
+        /*
         GUILayout.Label("Default information config", EditorStyles.boldLabel);
         exporterConfig.defaultVersion = EditorGUILayout.TextField("Default Version", exporterConfig.defaultVersion);
         exporterConfig.defaultPageLink = EditorGUILayout.TextField("Default Page Link", exporterConfig.defaultPageLink);
         exporterConfig.defaultCoverImageFileName = EditorGUILayout.TextField("Default Cover Image File Name", exporterConfig.defaultCoverImageFileName);
         GUILayout.Space(5);
+        */
 
+        GUILayout.Label("Quest IP Address for file upload", EditorStyles.boldLabel);
+        
+        exporterConfig.ipAddress = EditorGUILayout.TextField("IP address", exporterConfig.ipAddress);
+
+        GUILayout.Space(5);
         GUILayout.Label("Misc.", EditorStyles.boldLabel);
 
         exporterConfig.forceAllowExport = EditorGUILayout.ToggleLeft("Force Allow Export", exporterConfig.forceAllowExport);
@@ -50,7 +56,12 @@ public class ConfigEditor : EditorWindow
             File.WriteAllText(exporterConfigPath, json);
             EditorUtility.DisplayDialog("Config Saved", "For changes to show up in your exports, close and reopen the exporter unity window (not the entire unity project)", "OK");
             OnFocus();
-
+        }
+        GUILayout.Label("If you want to upload files wirelessly, press this button every time you reboot your quest:", EditorStyles.boldLabel);
+        GUILayout.Label("Make sure that when you click this button, your quest is connected with a usb cable", EditorStyles.boldLabel);
+        if (GUILayout.Button("Connect quest wirelessly"))
+        {
+            QosmeticUtils.adb("adb tcpip 5555");
         }
     }
 

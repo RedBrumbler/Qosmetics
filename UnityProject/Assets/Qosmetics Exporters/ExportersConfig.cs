@@ -15,7 +15,7 @@ namespace Qosmetics
             defaultVersion = "1.0.0";
             defaultPageLink = "";
             defaultCoverImageFileName = "cover.png";
-
+            ipAddress = "";
             forceAllowExport = false;
 
             allowOwnCamera = false;
@@ -30,6 +30,7 @@ namespace Qosmetics
         public string defaultVersion;
         public string defaultPageLink;
         public string defaultCoverImageFileName;
+        public string ipAddress;
 
         //recommend keeping off
         public bool forceAllowExport;
