@@ -93,6 +93,7 @@ namespace Qosmetics
 
             auto coroutine = WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), this, 
             +[](Qosmetics::NoteSwitcherViewController* self){ 
+                if (noteIndex >= noteCount) return true;
                 switch (programIndex)
                 {
                     case 0:

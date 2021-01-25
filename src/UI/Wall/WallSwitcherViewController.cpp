@@ -97,6 +97,7 @@ namespace Qosmetics
 
             auto coroutine = WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), this, 
             +[](Qosmetics::WallSwitcherViewController* self){ 
+                if (wallIndex >= wallCount) return true;
                 switch (programIndex)
                 {
                     case 0:
