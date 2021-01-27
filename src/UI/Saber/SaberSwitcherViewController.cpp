@@ -51,7 +51,8 @@ DEFINE_CLASS(Qosmetics::SaberSwitcherViewController);
 static int saberCount = 0;
 static int saberIndex = 0;
 static int programIndex = 0;
-static VerticalLayoutGroup* buttonList = nullptr;
+static VerticalLayoutGroup* selectList = nullptr;
+static VerticalLayoutGroup* deleteList = nullptr;
 static VerticalLayoutGroup* infoLayout = nullptr;
 static HorizontalLayoutGroup* buttonLayout = nullptr;
 static inline std::vector<Qosmetics::Descriptor*> descriptors = {};
@@ -105,7 +106,8 @@ namespace Qosmetics
             
             HorizontalLayoutGroup* selectionLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(settingsLayout->get_transform());
             infoLayout = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
-            buttonList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
+            selectList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
+            deleteList = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(selectionLayout->get_transform());
             
             descriptors = DescriptorCache::GetSaberDescriptors();
             saberCount = descriptors.size();
@@ -116,9 +118,11 @@ namespace Qosmetics
                 switch (programIndex)
                 {
                     case 0:
-                        if (!buttonLayout) buttonLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(buttonList->get_transform());
+                        self->AddButtonsForDescriptor(selectList->get_transform(), descriptors[saberIndex]);
+                        programIndex++;
+                        return false;
                     case 1:
-                        self->AddButtonsForDescriptor(buttonLayout->get_transform(), descriptors[saberIndex]);
+                        self->AddButtonsForDescriptor(deleteList->get_transform(), descriptors[saberIndex]);
                         programIndex++;
                         return false;
                     case 2:

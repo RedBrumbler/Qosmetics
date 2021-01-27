@@ -35,6 +35,7 @@
 #include "UnityEngine/Shader.hpp"
 #include "UnityEngine/Vector4.hpp"
 
+#include <map>
 #define INFO(value...) UILogger::GetLogger().WithContext("Saber Preview").info(value)
 #define ERROR(value...) UILogger::GetLogger().WithContext("Saber Preview").error(value)
 extern config_t config;
@@ -45,6 +46,18 @@ using namespace UnityEngine;
 using namespace UnityEngine::UI;
 using namespace UnityEngine::Events;
 using namespace HMUI;
+
+std::map<std::string, int> saberNameToNumber = {
+    {
+        "LeftSaber",
+        0
+    },
+    {
+        "RightSaber",
+        1
+    }
+};
+
 
 namespace Qosmetics
 {
@@ -131,25 +144,35 @@ namespace Qosmetics
                 previewprefab->SetActive(true);
             }
 
-            //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
             previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
             previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 150.0f, 0.0f));
             previewprefab->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 50.0f);
-            
-            Transform* leftSaber = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("LeftSaber"));
-            Transform* rightSaber = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("RightSaber"));
+        
+            for (int i = 0; i < previewprefab->get_transform()->get_childCount(); i++)
+            {
+                Transform* child = previewprefab->get_transform()->GetChild(i);
+                std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
 
-            leftSaber->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
-            rightSaber->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
-            
-            leftSaber->set_localPosition(UnityEngine::Vector3(0.0f, 0.25f, 0.4f));
-            rightSaber->set_localPosition(UnityEngine::Vector3(0.0f, -0.25f, 0.4f));
-
-            leftSaber->set_localEulerAngles(UnityEngine::Vector3::get_up() * 180.0f);
-            rightSaber->set_localEulerAngles(UnityEngine::Vector3::get_up() * 180.0f);
-
-            SaberUtils::SetCustomColor(leftSaber, 0);
-            SaberUtils::SetCustomColor(rightSaber, 1);
+                if (saberNameToNumber.find(name) == saberNameToNumber.end()) continue;
+                switch(saberNameToNumber[name])
+                {
+                    case 0: // left saber
+                        child->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
+                        child->set_localPosition(UnityEngine::Vector3(0.0f, 0.25f, 0.4f));
+                        child->set_localEulerAngles(UnityEngine::Vector3::get_up() * 180.0f);
+                        SaberUtils::SetCustomColor(child, 0);
+                        break;
+                    case 1: // right saber
+                        child->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
+                        child->set_localPosition(UnityEngine::Vector3(0.0f, -0.25f, 0.4f));
+                        child->set_localEulerAngles(UnityEngine::Vector3::get_up() * 180.0f);
+                        SaberUtils::SetCustomColor(child, 1);
+                        break;
+                    default:
+                        Object::Destroy(child->get_gameObject());
+                        break;
+                }
+            }
 
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -163,16 +186,6 @@ namespace Qosmetics
                     int node = VRControllers->values[i]->node;
 
                     if (!(node == 4 || node == 5)) continue;
-                    if (config.saberConfig.enableMenuPointer)
-                    {
-                        if (QuestSaber::DidSelectDifferentSaber()) 
-                        {
-                            SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
-                            Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
-                        }
-                        else Qosmetics::QuestSaber::UpdateMenuPointers(VRControllers->values[i]->get_transform(), node);
-                    } 
-                    continue;
                     UnityEngine::Transform* parent1 = VRControllers->values[i]->get_transform()->get_parent();
                     UnityEngine::Transform* parent2 = parent1 ? parent1->get_parent() : nullptr;
                     UnityEngine::Transform* parent3 = parent2 ? parent2->get_parent() : nullptr;
@@ -182,7 +195,16 @@ namespace Qosmetics
                         //distantParentName.find("LocalPlayerGameCore") != std::string::npos ||
                         distantParentName.find("IsActive") != std::string::npos) continue;
                         SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
-                        if (config.saberConfig.enableMenuPointer) Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                        if (config.saberConfig.enableMenuPointer)
+                        {
+                            if (QuestSaber::DidSelectDifferentSaber()) 
+                            {
+                                SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
+                                Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
+                            }
+                            else Qosmetics::QuestSaber::UpdateMenuPointers(VRControllers->values[i]->get_transform(), node);
+                        }
+                        //else SaberUtils::RevertMenuPointer(VRControllers->values[i]->get_transform(), node);
                 }
             }
         }

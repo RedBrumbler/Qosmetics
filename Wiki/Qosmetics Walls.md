@@ -1,5 +1,3 @@
-# Qosmetics Wall Exporter
-
 ![QosmeticsGif](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/Qosmetics.gif)
 
 If you haven't already, check out the [General Setup Guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup)
@@ -18,15 +16,20 @@ After opening the exporter if it's not already opened, you'll find the options t
 
 ### Top line
 
-At the top you will find the name of the exporter (QuestWall), and 3 buttons, the first one will load the scene with name questwalls from Assets/Scenes, just like the scene changer mentioned in the [Generic guide]().
+At the top you will find the name of the exporter (QuestWall), and 3 buttons, the first one will load the scene with name questwalls from Assets/Scenes, just like the scene changer mentioned in the [Generic guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup).
 
 The second button will spawn in a new wall template so that all neccesary data is already added to it. (Adding scripts to an object is not really supported due to some issues I was having with that) This is the intended way of making more than 1 wall in the same scene!
 
-The last button will export all currently active walls to a directory you select, this is ideal for making lots of models in one go! I recommend to enable the set layer mask option in the exporter config menu, as this will make the images correct.
+The 3rd button will export all currently active walls to a directory you select, this is ideal for making lots of models in one go! I recommend to enable the set layer mask option in the exporter config menu, as this will make the thumbnails correct.
 
-### BMBF mod info
+The last button will not only export all currently active walls in the same manner as the third, but it will also upload them all to the correct folder on your quest, that way you do not have to do so manually!
 
-The BMBF mod Info is what you will want to fill out with your own info. The Advanced bmbf mod info has some extra information you *can* fill out, but this is not neccesary to make a functioning wall and thus I will not go into more detail on this.
+### Wall Descriptor
+
+The Descriptor is what you will need to fill out so people in game can see who made these awesome models! The 3 fields are used as follows:
+ - `Wall name` Put the name of the wall here, this can be the same as other walls, but is recommended to not be obviously.
+ - `Author name` Put your name here! If you are a modeler in the [Qosmetics discord](discord.gg/qosmetics), or someone who's helped develop the mod, you can even request a colored name
+ - `Description` Put a small description here, and people who hover over your qosmetic item will get a small piece of text to read 
 
 ### Wall Config
 
@@ -56,7 +59,7 @@ The same goes for the frame materials, and the mesh, make sure they are on the o
 
 *To select the objects and have their information show up on the right, just click on them in the hierarchy on the left**
 
-After applying the materials, meshes and config, you can export by clicking the export button in the wall exporter! that's it! that's how to export a custom wall! you can export the wall by itself, but you can also have the project export a full bmbf zip for you, including the cover image and the bmbfmod.json.
+After applying the materials, meshes and config, you can export by clicking the export button in the wall exporter! The project will automatically make a file ready for upload, but you can also let the project upload the file for you! if you press the export and upload button the project will, if your quest is connected through adb, close your game, upload the wall to the correct place, and start the game again!
 
 
 ### Custom Shaders/Materials

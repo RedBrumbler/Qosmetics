@@ -1,5 +1,3 @@
-# Qosmetics Bloq Exporter
-
 ![QosmeticsGif](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/Qosmetics.gif)
 
 If you haven't already, check out the [General Setup Guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup)
@@ -18,15 +16,20 @@ After opening the exporter if it's not already opened, you'll find the options t
 
 ### Top line
 
-At the top you will find the name of the exporter (QuestBloq), and 3 buttons, the first one will load the scene with name questnotes from Assets/Scenes, just like the scene changer mentioned in the [Generic guide]().
+At the top you will find the name of the exporter (QuestBloq), and 4 buttons, the first one will load the scene with name questnotes from Assets/Scenes, just like the scene changer mentioned in the [Generic guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup).
 
 The second button will spawn in a new bloq template so that all neccesary data is already added to it. (Adding scripts to an object is not really supported due to some issues I was having with that) This is the intended way of making more than 1 bloq in the same scene!
 
-The last button will export all currently active bloqs to a directory you select, this is ideal for making lots of models in one go! I recommend to enable the set layer mask option in the exporter config menu, as this will make the images correct.
+The 3rd button will export all currently active bloqs to a directory you select, this is ideal for making lots of models in one go! I recommend to enable the set layer mask option in the exporter config menu, as this will make the thumbnails correct.
 
-### BMBF mod info
+The last button will not only export all currently active bloqs in the same manner as the third, but it will also upload them all to the correct folder on your quest, that way you do not have to do so manually!
 
-The BMBF mod Info is what you will want to fill out with your own info. The Advanced bmbf mod info has some extra information you *can* fill out, but this is not neccesary to make a functioning bloq and thus I will not go into more detail on this.
+### Bloq Descriptor
+
+The Descriptor is what you will need to fill out so people in game can see who made these awesome models! The 3 fields are used as follows:
+ - `Bloq name` Put the name of the bloq here, this can be the same as other bloqs, but is recommended to not be obviously.
+ - `Author name` Put your name here! If you are a modeler in the [Qosmetics discord](discord.gg/qosmetics), or someone who's helped develop the mod, you can even request a colored name
+ - `Description` Put a small description here, and people who hover over your qosmetic item will get a small piece of text to read 
 
 ### Bloq Config
 
@@ -56,7 +59,7 @@ Now that you have materials on the bloq, you probably also want some custom colo
 
 The same applies here as with sabers, if you want to use the same material on left and right and it needs custom colors, make sure that you make 2 seperate versions of the same material because otherwise you will end up with the same color on both bloqs.
 
-Now that the materials have been applied, and the models added, you can export from the bloq exporter! you can export the bloq by itself, but you can also have the project export a full bmbf zip for you, including the cover image and the bmbfmod.json.
+Now that the materials have been applied, and the models added, you can export from the bloq exporter! The project will automatically make a file ready for upload, but you can also let the project upload the file for you! if you press the export and upload button the project will, if your quest is connected through adb, close your game, upload the bloq to the correct place, and start the game again!
 
 ### Custom Shaders/Materials
 Normal Bloqs can use any normal shaders, this also goes for Bombs. An issue arises however when dealing with debris. The debris in beat saber has a slice effect to it, so it looks like you cut it in half, this effect is achieved with a special shader which, luckily for us, had it's effect recreated by Bobbie and Ikeiwa (I was told mostly Ikeiwa). This effect is easily added to an existing shader if you add the following things to your shader:

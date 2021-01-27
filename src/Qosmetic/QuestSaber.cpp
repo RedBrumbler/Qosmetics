@@ -312,6 +312,7 @@ namespace Qosmetics
                 }
             }
         }
+        else ReplaceMenuPointers(controller, node);
     }
 
     void QuestSaber::OnActiveSaberSet(bool ifLoadAlsoAssets)

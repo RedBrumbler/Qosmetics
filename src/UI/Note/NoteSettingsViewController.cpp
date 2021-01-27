@@ -66,7 +66,7 @@ namespace Qosmetics
                     else ERROR("Couldn't find preview controller");
                 }));
             BeatSaberUI::AddHoverHint(noteSizeToggle->get_gameObject(), "Whether to override the note zsize");
-            QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
+            QuestUI::IncrementSetting* noteSizeSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Note Size", 2, 0.05f, config.noteConfig.noteSize, 0.05f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), this, +[](NoteSettingsViewController* view, float value) {
                     if (value >= 0.0f) config.noteConfig.noteSize = value;
                     SaveConfig();
                     QuestNote::SelectionDefinitive();

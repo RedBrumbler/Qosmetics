@@ -22,6 +22,7 @@
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
 #include "Logging/UILogger.hpp"
+#include <map>
 
 #include "Data/WallData.hpp"
 #include "Qosmetic/QuestWall.hpp"
@@ -42,6 +43,17 @@ using namespace UnityEngine;
 using namespace UnityEngine::UI;
 using namespace UnityEngine::Events;
 using namespace HMUI;
+
+std::map<std::string, int> wallNameToNumber = {
+    {
+        "Core",
+        0
+    },
+    {
+        "Frame",
+        1
+    }
+};
 
 namespace Qosmetics
 {
@@ -158,14 +170,25 @@ namespace Qosmetics
                     }
                 }
             }
-            if (Transform* core = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("Core")))
-            {
-                WallUtils::HideRenderer(core->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceCoreOff);
-            }
 
-            if (Transform* frame = previewprefab->get_transform()->Find(il2cpp_utils::createcsstr("Frame")))
+            for (int i = 0; i < previewprefab->get_transform()->get_childCount(); i++)
             {
-                WallUtils::HideRenderer(frame->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceFrameOff);
+                Transform* child = previewprefab->get_transform()->GetChild(i);
+                std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
+
+                if (wallNameToNumber.find(name) == wallNameToNumber.end()) continue;
+                switch(wallNameToNumber[name])
+                {
+                    case 0: // Core
+                        WallUtils::HideRenderer(child->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceCoreOff);
+                        break;
+                    case 1: // Frame
+                        WallUtils::HideRenderer(child->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceFrameOff);
+                        break;
+                    default:
+                        Object::Destroy(child->get_gameObject());
+                        break;
+                }
             }
         }
         else 

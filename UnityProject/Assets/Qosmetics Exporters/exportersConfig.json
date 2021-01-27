@@ -1,6 +1,6 @@
 {
-    "removeLightsAtExport": false,
-    "removeCamerasAtExport": false,
+    "removeLightsAtExport": true,
+    "removeCamerasAtExport": true,
     "defaultVersion": "1.0.0",
     "defaultPageLink": "",
     "defaultCoverImageFileName": "cover.png",
