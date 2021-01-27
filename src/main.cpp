@@ -477,12 +477,15 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
     GameplaySetupViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     if (firstActivation)
     {
+        getLogger().info("GameplaySetupViewController");
         QuestUI::BeatSaberUI::ClearCache();
         UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(self->get_transform());
         UnityEngine::RectTransform* rectTransform = layout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>();
 
         rectTransform->set_anchoredPosition(UnityEngine::Vector2(52.5f, 25.6f));
         rectTransform->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
+        getLogger().info("GameplaySetupViewController making button");
+
         UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, +[](Il2CppObject* obj, UnityEngine::UI::Button* button){}));
         button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
         {
@@ -499,6 +502,7 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
             spriteSwap->pressedStateSprite = pressed;
             spriteSwap->disabledStateSprite = disabled;
         }
+        getLogger().info("endof GameplaySetupViewController");
     }
 }
 

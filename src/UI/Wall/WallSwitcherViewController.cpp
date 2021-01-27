@@ -152,6 +152,7 @@ namespace Qosmetics
                 if (!fileName) return;
                 std::string name = to_utf8(csstrtostr(fileName));
                 Descriptor* descriptor = DescriptorCache::GetDescriptor(name, wall);
+                if (!descriptor) return;
                 if (fileexists(descriptor->get_filePath())) 
                 {
                     INFO("Deleting %s", descriptor->get_filePath().c_str());

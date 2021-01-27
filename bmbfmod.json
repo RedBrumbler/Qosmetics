@@ -25,7 +25,7 @@
     {
       "type": "HookModLibrary",
       "installAction": {
-        "installLibraryFile": "libbeatsaber-hook_1_0_10.so"
+        "installLibraryFile": "libbeatsaber-hook_1_0_12.so"
       }
     },
     {
