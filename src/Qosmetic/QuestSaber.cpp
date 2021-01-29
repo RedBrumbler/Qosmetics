@@ -267,6 +267,7 @@ namespace Qosmetics
         if (UnityEngine::Transform* oldPointer = controller->Find(il2cpp_utils::createcsstr(name)))
         {
             SaberUtils::SetCustomColor(oldPointer, isLeft ? 0 : 1);
+            UpdateMenuPointers(controller, node);
         }
         else
         {
@@ -274,7 +275,6 @@ namespace Qosmetics
             SaberUtils::AddMenuPointerSaber(controller->Find(il2cpp_utils::createcsstr(menuHandle)), isLeft, selected);
         }
 
-        UpdateMenuPointers(controller, node);
     }
 
     void QuestSaber::UpdateMenuPointers(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node)
