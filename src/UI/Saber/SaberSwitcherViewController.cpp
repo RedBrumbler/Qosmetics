@@ -194,9 +194,6 @@ namespace Qosmetics
 
             if (buttonName.find("rainbow") != std::string::npos || buttonName.find("Rainbow") != std::string::npos) buttonName = FileUtils::rainbowIfy(buttonName);
 
-
-
-
             TMPro::TextMeshProUGUI* name = QuestUI::BeatSaberUI::CreateText(layout, buttonName);
             QuestUI::BeatSaberUI::AddHoverHint(name->get_gameObject(), descriptor->get_description());
         }

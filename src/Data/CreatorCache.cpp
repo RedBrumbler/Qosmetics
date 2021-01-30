@@ -10,21 +10,21 @@
 #define INFO(value...) GenericLogger::GetLogger().WithContext("Creator cache").info(value);
 #define ERROR(value...) GenericLogger::GetLogger().WithContext("Creator cache").error(value);
 
+#warning Don't forget to remove the early return for the Download method in CreatorCache!
 
 namespace Qosmetics
 {
     void CreatorCache::Download()
     {
+        return;
         // web request or something to download the json from the repo ig
         INFO("Downloading File");
         std::string path = CREATORCACHE;
 
-        // temporary URL till I get a json file on the Github
-        std::string url = "https://pastebin.com/raw/CbdRZa1G";
+        std::string url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/CreatorCache.json";
 
         dl = new FileDownloader(url, path, [&](const FileDownloader& downloader){
-            INFO("Downloader Callback");
-            INFO("%s", downloader.get_result().c_str());
+            INFO("Downloaded Creator Cache");
             CreatorCache::Load();
         }, true);
     }
@@ -37,6 +37,7 @@ namespace Qosmetics
             ERROR("File didn't exist!");
             return false;
         }
+
         std::string json = readfile(CREATORCACHE);
         if (json == "null")
         {
@@ -44,6 +45,7 @@ namespace Qosmetics
             return false;
         } 
 
+        creatorMap.clear();
         rapidjson::Document d;
         d.Parse(json.c_str());
         for (rapidjson::Value::ConstMemberIterator i = d.MemberBegin(); i != d.MemberEnd(); ++i)
@@ -51,7 +53,6 @@ namespace Qosmetics
             const rapidjson::Value& val = i->value;
             UnityEngine::Color creatorColor = UnityEngine::Color(val["R"].GetFloat(), val["G"].GetFloat(), val["B"].GetFloat(), 1.0f);
             creatorMap[i->name.GetString()] = creatorColor;
-            INFO("Found %s", i->name.GetString());
         }
         return true;
     }

@@ -210,7 +210,6 @@ namespace Qosmetics
         }
         else 
         {
-            INFO("there is no active saber configured");
             if (previewprefab) 
             {
                 Object::Destroy(previewprefab);

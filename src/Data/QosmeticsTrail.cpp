@@ -68,7 +68,7 @@ namespace Qosmetics
 		// get the material to use for the trail renderer
 		if (this->trailMaterial == nullptr)
 		{
-			SaberLogger::GetLogger().info("trailMaterial from trail reference was nullptr, redefining the trailmaterial from local object");
+			SaberLogger::GetLogger().error("trailMaterial from trail reference was nullptr, redefining the trailmaterial from local object");
 			UnityEngine::MeshRenderer* renderer = this->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
 			if (renderer != nullptr) this->trailMaterial = renderer->get_material();
 		}

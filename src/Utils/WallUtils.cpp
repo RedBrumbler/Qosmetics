@@ -3,10 +3,10 @@
 
 void WallUtils::SetObstacleColors(Qosmetics::WallData &customWall)
 {
+    getLogger().info("Setting obstacle colors");
     auto config = *customWall.get_config();
     if (config.get_moreThan1CoreMat()) // if true, array is used
     {
-        getLogger().info("Setting color on core material array!");
         auto array = customWall.get_coreSharedMaterials();
 
         for (int i = 0; i < array->Length(); i++) // for each material in the array
@@ -16,14 +16,12 @@ void WallUtils::SetObstacleColors(Qosmetics::WallData &customWall)
     }
     else // if only 1 material
     {
-        getLogger().info("Setting color on core material");
         auto coreMat = customWall.get_coreMaterial();
         SetObstacleColor(coreMat);
     }
 
     if (config.get_moreThan1FrameMat()) // if true, array is used
     {
-        getLogger().info("Setting color on frame material array!");
         auto array = customWall.get_frameSharedMaterials();
 
         for (int i = 0; i < array->Length(); i++) // for each material in the array
@@ -33,7 +31,6 @@ void WallUtils::SetObstacleColors(Qosmetics::WallData &customWall)
     }
     else // if only 1 material
     {
-        getLogger().info("Setting color on frame material");
         auto frameMat = customWall.get_frameMaterial();
         SetObstacleColor(frameMat);
     }
@@ -52,7 +49,7 @@ void WallUtils::SetObstacleColor(UnityEngine::Material* material)
         bool hasColorProperty = MaterialUtils::MatHasProperty(material, "_Color");
         if (!hasColorProperty) 
         {
-            getLogger().info("Material did not have a \'_Color\' property, skipping...");
+            getLogger().error("Material did not have a \'_Color\' property, skipping...");
             return;
         }
 
@@ -71,7 +68,6 @@ void WallUtils::SetObstacleColor(UnityEngine::Material* material)
         
         if (hasCustomColor)
         {
-            getLogger().info("Material had \'_CustomColors\' property, checking value...");
             float customColor = MaterialUtils::GetMaterialFloat(material, "_CustomColors");
             if (customColor > 0.0f) setColor = true;
         }
@@ -81,7 +77,6 @@ void WallUtils::SetObstacleColor(UnityEngine::Material* material)
 
             if (hasGlow)
             {
-                getLogger().info("Material had \'_Glow property, checking value...\'");
                 float customColor = MaterialUtils::GetMaterialFloat(material, "_Glow");
                 if (customColor > 0.0f) setColor = true;
             }
@@ -91,7 +86,6 @@ void WallUtils::SetObstacleColor(UnityEngine::Material* material)
 
                 if (hasBloom)
                 {
-                    getLogger().info("Material had \'_Bloom property, checking value...\'");
                     float customColor = MaterialUtils::GetMaterialFloat(material, "_Bloom");
                     if (customColor > 0.0f) setColor = true;
                 }
@@ -130,7 +124,7 @@ void WallUtils::DisableDefaults(UnityEngine::Transform* obstacle)
     UnityEngine::Transform* obstacleDepthWrite = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore/DepthWrite"));
     UnityEngine::Transform* obstacleCore = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore"));
 
-    if (obstacleDepthWrite == nullptr)
+    if (!obstacleDepthWrite)
     {
         getLogger().error("trying to find the obstacle depth write returned nullptr, skipping depth write disable");
     }
@@ -140,7 +134,7 @@ void WallUtils::DisableDefaults(UnityEngine::Transform* obstacle)
         HideRenderer(obstacleDepthWriteRenderer);
     }
     
-    if (obstacleCore == nullptr)
+    if (!obstacleCore)
     {
         getLogger().error("trying to find the obstacle Core returned nullptr, skipping Core disable");
     }
@@ -153,7 +147,7 @@ void WallUtils::DisableDefaults(UnityEngine::Transform* obstacle)
 
 void WallUtils::ReplaceFrameMaterial(UnityEngine::Transform* obstacle, UnityEngine::Material* material)
 {
-    if (material == nullptr) 
+    if (!material) 
     {
         getLogger().error("Tried setting frame material with a nullptr material, skipping...");
         return;
@@ -161,7 +155,7 @@ void WallUtils::ReplaceFrameMaterial(UnityEngine::Transform* obstacle, UnityEngi
 
     UnityEngine::Transform* obstacleFrame = obstacle->Find(il2cpp_utils::createcsstr("ObstacleFrame"));
 
-    if (obstacleFrame == nullptr) 
+    if (!obstacleFrame) 
     {
         getLogger().error("Tried setting frame material on nullptr obstacleFrame, skipping...");
         return;
@@ -169,7 +163,7 @@ void WallUtils::ReplaceFrameMaterial(UnityEngine::Transform* obstacle, UnityEngi
 
     UnityEngine::MeshRenderer* obstacleFrameRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleFrame->get_gameObject(), "MeshRenderer");
 
-    if (obstacleFrameRenderer == nullptr)
+    if (!obstacleFrameRenderer)
     {
         getLogger().error("couldn't find obstacle frame mesh renderer, skipping...");
         return;

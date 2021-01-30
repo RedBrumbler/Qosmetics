@@ -9,7 +9,7 @@ namespace Qosmetics
 {
     void SaberUtils::ReplaceSaber(GlobalNamespace::Saber* gameSaber, UnityEngine::GameObject* customSaber)
     {
-        getLogger().info("ReplaceSaber");
+        getLogger().info("Replacing Saber");
         UnityEngine::GameObject* gameSaberGO = gameSaber->get_gameObject();
         UnityEngine::Transform* customSaberTransform = customSaber->get_transform();
         
@@ -40,7 +40,7 @@ namespace Qosmetics
 
     void SaberUtils::AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
     {
-        getLogger().info("AddSaber");
+        getLogger().info("Adding Saber");
         if (saberScript == nullptr)
         {
             getLogger().error("given saberscript was nullptr, not adding saber");
@@ -261,7 +261,7 @@ namespace Qosmetics
     {
         if (!parent) 
         {
-            getLogger().info("Tried adding menu pointer to nullptr parent");
+            getLogger().error("Tried adding menu pointer to nullptr parent");
             return;
         }
         UnityEngine::GameObject* prefab = isLeft ? saberData.get_leftSaber() : saberData.get_rightSaber();

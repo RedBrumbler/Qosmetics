@@ -89,7 +89,6 @@ VerticalLayoutGroup* SetupSubTitle(VerticalLayoutGroup* layout, std::string subT
 
 void FindViewControllers(Qosmetics::QosmeticsFlowCoordinator* self)
 {
-    // doesn't actually work at all
     self->SaberSwitcherViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::SaberSwitcherViewController*>();
     self->SaberSettingsViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::SaberSettingsViewController*>();
     self->SaberPreviewViewController = UnityUtils::GetFirstObjectOfType<Qosmetics::SaberPreviewViewController*>();

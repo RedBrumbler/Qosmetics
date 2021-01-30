@@ -66,7 +66,6 @@ namespace Qosmetics
         DescriptorCache::Write();
         SaveConfig();
         QuestWall::SelectionDefinitive();
-
     }
 
     void WallSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -174,7 +173,6 @@ namespace Qosmetics
         if (programIndex == 2)
         {
             std::string buttonName = descriptor->get_name();
-            INFO("%s", buttonName.c_str());
             if (buttonName == "") // if the name is empty, use the filename instead
             {
                 buttonName = descriptor->get_fileName();

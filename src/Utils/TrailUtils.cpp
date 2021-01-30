@@ -122,10 +122,6 @@ namespace Qosmetics
             getLogger().error("Finding weapontrail failed, skipping remove trail...");
             return;
         }
-        else
-        {
-            getLogger().info("Removing original trail");
-        }
         
         // disabled component
         if (trailComponent->trailRenderer == nullptr)

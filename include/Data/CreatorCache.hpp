@@ -21,6 +21,15 @@ namespace Qosmetics
         private:
             static inline FileDownloader* dl = nullptr;
             static inline UnityEngine::Color defaultColor = UnityEngine::Color(0.8f, 0.8f, 0.8f, 1.0f);
-            static inline std::map<std::string, UnityEngine::Color> creatorMap = {};
+            static inline std::map<std::string, UnityEngine::Color> creatorMap = {
+                {
+                    "RedBrumbler",
+                    UnityEngine::Color(1.0f, 1.0f, 1.0f, 1.0f)
+                },
+                {
+                    "Bobbie",
+                    UnityEngine::Color(1.0f, 1.0f, 1.0f, 1.0f)
+                }
+            };
     };
 }

@@ -11,9 +11,11 @@ Compress-Archive -Path  "cover.gif",`
                         "./libs/arm64-v8a/libquestcosmetics.so",`
                         "./bmbfmod.json",`
                         "./extern/libbeatsaber-hook_1_0_12.so",`
-                        "./extern/libbs-utils.so",`
-                        "./extern/libquestui.so",`
-                        "./extern/libcustom-types.so",`
+                        "./ExtraFiles/IncludedItems/Plasma Katana.qsaber",`
+                        "./ExtraFiles/IncludedItems/PC recreation.qwall",`
+                        "./ExtraFiles/IncludedItems/PC recreation + Rainbow Frames.qwall",`
+                        "./ExtraFiles/IncludedItems/UWU Notes.qbloq",`
+                        "./ExtraFiles/IncludedItems/DDR Arrows.qbloq",`
                         "./ExtraFiles/UI/Icons/MenuIcon.png",`
                         "./ExtraFiles/UI/Icons/MenuIconSelected.png",`
                         "./ExtraFiles/UI/Icons/SaberIcon.png",`

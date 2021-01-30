@@ -23,7 +23,6 @@ void FileDownloader::Download()
     data->SetDataPointer(this);
 
     asyncOP->add_completed(il2cpp_utils::MakeDelegate<System::Action_1<UnityEngine::AsyncOperation*>*>(classof(System::Action_1<UnityEngine::AsyncOperation*>*), data, WebRequestComplete));
-    INFO("Dispatched downloader for URL %s, downloading to local file %s", url.c_str(), filePath.c_str());
 }
 
 void FileDownloader::SetCallback(FileDownloaderCallback callback)

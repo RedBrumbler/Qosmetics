@@ -140,7 +140,7 @@ void makeFolder(std::string directory)
             int makePath = mkpath(directory.data());
             if (makePath == -1)
             {
-                getLogger().debug("Failed to make path %s", directory.c_str());
+                getLogger().error("Failed to make path %s", directory.c_str());
             }
         }
     }
@@ -165,6 +165,8 @@ MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, Global
     Qosmetics::QuestSaber::SetTrailIntensity(playerSpecificSettings->saberTrailIntensity);
 }
 
+UnityEngine::Transform* initTransform = nullptr;
+
 MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, GlobalNamespace::ColorType colorType, UnityEngine::Vector3 notePos, UnityEngine::Quaternion noteRot, UnityEngine::Vector3 positionOffset, UnityEngine::Quaternion rotationOffset, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, UnityEngine::Vector3 force, UnityEngine::Vector3 torque, float lifeTime)
 {
     NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
@@ -174,10 +176,13 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, 
     }
     if (Qosmetics::QuestNote::GetActiveNote())
     {
-        UnityEngine::Transform* initTransform = UnityEngine::GameObject::New_ctor()->get_transform();//UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
+        if (!initTransform)
+        {
+            initTransform = UnityEngine::GameObject::New_ctor()->get_transform();
+            UnityEngine::Object::DontDestroyOnLoad(initTransform->get_gameObject());
+        } //UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
         initTransform->set_localPosition(notePos);
         Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
-        UnityEngine::Object::Destroy(initTransform->get_gameObject());
     }
 }
 
@@ -367,8 +372,8 @@ MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMe
                         parent3Name.find("Multiplayer") == std::string::npos &&
                         distantParentName.find("Clone") != std::string::npos)
                     {
-                        getLogger().info("Found MP Tree %s/%s/%s/%s", distantParentName.c_str(), parent3Name.c_str(), parent2Name.c_str(), parent1Name.c_str());
-                        getLogger().info("Found %d vrcontroller node", node);
+                        //getLogger().info("Found MP Tree %s/%s/%s/%s", distantParentName.c_str(), parent3Name.c_str(), parent2Name.c_str(), parent1Name.c_str());
+                        //getLogger().info("Found %d vrcontroller node", node);
                         Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
                     }
                 }

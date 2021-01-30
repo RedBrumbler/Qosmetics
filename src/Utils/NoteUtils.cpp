@@ -30,7 +30,6 @@ namespace Qosmetics
             noteCube = noteTransform->Find(il2cpp_utils::createcsstr("Cube"));
 
             if (noteCube == nullptr) return; // we are not logging this error, because bombs also call this function and then we'd constantly get error logs which, no...
-            getLogger().info("Found tutorial note!");
             DisableBaseGameTutorialNotes(noteCube, customNoteData.get_config()->get_disableBaseGameArrows());
             
         }
@@ -85,9 +84,9 @@ namespace Qosmetics
             UnityEngine::Transform* noteArrowGlow = noteCube->Find(il2cpp_utils::createcsstr("ArrowGlow"));
             UnityEngine::Transform* noteCircleGlow = noteCube->Find(il2cpp_utils::createcsstr("Circle"));
 
-            if (noteCircleGlow != nullptr) noteCircleGlow->get_gameObject()->SetActive(false);
-            if (noteArrow != nullptr) noteArrow->get_gameObject()->SetActive(false);
-            if (noteArrowGlow != nullptr) noteArrowGlow->get_gameObject()->SetActive(false);
+            if (noteCircleGlow) noteCircleGlow->get_gameObject()->SetActive(false);
+            if (noteArrow) noteArrow->get_gameObject()->SetActive(false);
+            if (noteArrowGlow) noteArrowGlow->get_gameObject()->SetActive(false);
         }
 
         UnityEngine::MeshRenderer* cubeRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(noteCube, "MeshRenderer");
@@ -152,7 +151,6 @@ namespace Qosmetics
         }
         if (prefab != nullptr)
         {
-            getLogger().info("Spawning custom note, prefab ptr: %p", prefab);
             UnityEngine::GameObject* instantiatedNote = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(prefab);
 
             instantiatedNote->get_transform()->SetParent(note);
@@ -213,7 +211,6 @@ namespace Qosmetics
 
         if (prefab != nullptr)
         {
-            getLogger().info("spawning new custom debris, ptr: %p", prefab);
             UnityEngine::GameObject* instantiatedDebris = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(prefab);
 
             instantiatedDebris->get_transform()->SetParent(noteDebrisMesh);
@@ -460,7 +457,6 @@ namespace Qosmetics
 
     void NoteUtils::SetColor(UnityEngine::Transform* object, bool isLeft)
     {
-        getLogger().info("Attempting to set colors on custom Bloqs");
         Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
 
         if (colorManager == nullptr)
@@ -517,7 +513,6 @@ namespace Qosmetics
     void NoteUtils::SetColor(std::vector<UnityEngine::Material*>& vector, bool isLeft)
     {
         if (vector.size() == 0) return;
-        getLogger().info("Attempting to set colors on custom Bloqs");
         Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
 
         if (colorManager == nullptr)
@@ -552,9 +547,10 @@ namespace Qosmetics
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
-            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+
+            // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "")             
             {
-                getLogger().info("Skipped replace material for %d: %s", i, materialName.c_str());
                 continue;
             }
             materialName += "_replace";
@@ -586,9 +582,9 @@ namespace Qosmetics
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
-            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") 
             {
-                getLogger().info("Skipped replace material for %d: %s", i, materialName.c_str());
                 continue;
             }
             materialName += "_replace";
@@ -633,9 +629,9 @@ namespace Qosmetics
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
-            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") 
             {
-                getLogger().info("Skipped replace material for %d: %s", i, materialName.c_str());
                 continue;
             }
             materialName += "_replace";
@@ -838,7 +834,6 @@ namespace Qosmetics
                 materialList.push_back(switcher->material1);
             }
         }
-        getLogger().info("note materials list should have been made now");
         listDefined = true;
         definingList = false;
     }
@@ -927,9 +922,7 @@ namespace Qosmetics
     }
 
     void NoteUtils::HandleColorsDidChangeEvent(Qosmetics::NoteData& noteData)
-    {
-        getLogger().info("Handling colorsDidChangeEvent");
-        
+    {        
         if (noteData.get_config()->get_hasDebris()) // if there is debris, set the color
         {
             NoteUtils::SetSharedColor(noteData.get_leftDebris()->get_transform(), true);
@@ -939,7 +932,6 @@ namespace Qosmetics
         NoteUtils::SetSharedColor(noteData.get_rightArrow()->get_transform(), false);
         NoteUtils::SetSharedColor(noteData.get_leftDot()->get_transform(), true);
         NoteUtils::SetSharedColor(noteData.get_rightDot()->get_transform(), false);
-        getLogger().info("it do be handled");
     }
 
     void NoteUtils::SetNoteSize(UnityEngine::Transform* note)
@@ -966,8 +958,6 @@ namespace Qosmetics
         if (!mesh) return;
         UnityEngine::SphereCollider* collider = mesh->get_gameObject()->GetComponent<UnityEngine::SphereCollider*>();
         if (!collider) return;
-
-        getLogger().info("Original size %f", collider->get_radius());
 
         auto setRadius = reinterpret_cast<function_ptr_t<void, Il2CppObject*, float>>(il2cpp_functions::resolve_icall("UnityEngine.SphereCollider::set_radius"));
         //il2cpp_utils::RunMethod(collider, "set_radius", 0.18f / config.noteConfig.noteSize); // not in codegen so this should work ig

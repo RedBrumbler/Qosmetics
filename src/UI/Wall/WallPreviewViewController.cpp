@@ -193,7 +193,6 @@ namespace Qosmetics
         }
         else 
         {
-            INFO("there is no active wall configured");
             if (previewprefab) 
             {
                 Object::Destroy(previewprefab);

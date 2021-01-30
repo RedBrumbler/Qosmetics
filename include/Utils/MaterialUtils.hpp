@@ -127,7 +127,6 @@ class MaterialUtils
                 // ex. matname = GameNote_replace_doCC and materialToReplaceName = GameNote_replace, it will replace it
                 if ((matName.find(materialToReplaceName) != std::string::npos) || materialToReplaceName == "")
                 {
-                    getLogger().info("Replacing material %s with %s", matName.c_str(), materialToReplaceName.c_str());
                     UnityEngine::Color oldColor = materialsCopy->values[i]->GetColor(il2cpp_utils::createcsstr("_Color"));
                     
                     matName += "_done";
@@ -162,7 +161,6 @@ class MaterialUtils
         
             if (hasCustomColor)
             {
-                getLogger().info("Material had \'_CustomColors\' property, checking value...");
                 float customColor = MaterialUtils::GetMaterialFloat(material, "_CustomColors");
                 if (customColor > 0.0f) setColor = true;
             }
@@ -172,7 +170,6 @@ class MaterialUtils
 
                 if (hasGlow)
                 {
-                    getLogger().info("Material had \'_Glow property, checking value...\'");
                     float customColor = MaterialUtils::GetMaterialFloat(material, "_Glow");
                     if (customColor > 0.0f) setColor = true;
                 }
@@ -182,7 +179,6 @@ class MaterialUtils
 
                     if (hasBloom)
                     {
-                        getLogger().info("Material had \'_Bloom property, checking value...\'");
                         float customColor = MaterialUtils::GetMaterialFloat(material, "_Bloom");
                         if (customColor > 0.0f) setColor = true;
                     }              

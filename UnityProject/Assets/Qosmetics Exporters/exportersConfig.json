@@ -7,5 +7,5 @@
     "ipAddress": "quest2",
     "forceAllowExport": false,
     "allowOwnCamera": false,
-    "setCamLayerOnExport": true
+    "setCamLayerOnExport": false
 }

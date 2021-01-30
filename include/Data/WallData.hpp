@@ -167,11 +167,9 @@ namespace Qosmetics
                 return finishedWallLoad;
             }
 
-
             void SetReferences()
             {
                 if (wallPrefab == nullptr) return;
-                getLogger().info("Settign references to wall objects...");
                 UnityEngine::Transform* prefab = wallPrefab->get_transform();
 
                 UnityEngine::Transform* core = prefab->Find(il2cpp_utils::createcsstr("Core"));
@@ -179,13 +177,10 @@ namespace Qosmetics
 
                 if (core != nullptr) this->core = core->get_gameObject();
                 if (frame != nullptr) this->frame = frame->get_gameObject();
-
-                getLogger().info("References to wall objects set!");
             }
 
             void ClearActive()
             {
-                //getLogger().info("Clearing active wall pointers");
                 activeFrameMat = nullptr;
                 activeCoreMat = nullptr;
                 activeFrameMesh = nullptr;

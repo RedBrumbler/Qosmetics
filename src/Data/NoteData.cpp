@@ -143,7 +143,7 @@ namespace Qosmetics
 
     void NoteData::UnloadBundle()
     {
-        getLogger().info("Unloading bundle for wall %s", this->noteDescriptor->get_name());
+        getLogger().info("Unloading bundle for note %s", this->noteDescriptor->get_name());
         il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
 
