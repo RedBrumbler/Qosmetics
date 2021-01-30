@@ -39,6 +39,12 @@ namespace Qosmetics
                 this->filePath = filePath;
             }
 
+            SaberData(Descriptor* descriptor)
+            {
+                this->saberDescriptor = descriptor;
+                this->filePath = descriptor->get_filePath();
+            }
+
             const UnityEngine::GameObject* get_saber()
             {
                 return saberPrefab;
@@ -51,7 +57,8 @@ namespace Qosmetics
 
             bool get_isLoading()
             {
-                return isLoading;
+                if (finishedSaberLoad) isLoading = false;
+                return isLoading || bundleLoading;
             }
 
             bool get_complete()
@@ -116,12 +123,20 @@ namespace Qosmetics
                 return rightSaber;
             }
 
+            std::string get_filePath()
+            {
+                return filePath;
+            }
+
             /// @brief loads asset bundle using bs utils
             /// @param filePath path to load the bundle from
             void LoadBundle(std::string filePath);
 
             /// @brief loads asset bundle using bs utils, only use if filePath is already given
-            void LoadBundle();
+            /// @brief 
+            void LoadBundle(bool alsoLoadAssets = false);
+
+            void UnloadBundle();
 
             void LoadAssets();
 
@@ -140,6 +155,8 @@ namespace Qosmetics
 
             std::vector<UnityEngine::Material*>& get_leftSaberCCmaterials();
             std::vector<UnityEngine::Material*>& get_rightSaberCCmaterials();
+
+            void FindPrefab();
 
         private:
             
@@ -170,6 +187,8 @@ namespace Qosmetics
             bool bundleLoading = false;
             bool trailsAdded = false;
             bs_utils::AssetBundle* bundle = nullptr;
+
+            void OnComplete();
     };
 }
 

@@ -1,4 +1,8 @@
 #include "Data/CustomTrail.hpp"
+#include "UnityEngine/MeshFilter.hpp"
+#include "UnityEngine/Mesh.hpp"
+#include "UnityEngine/Shader.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
 namespace Qosmetics
 {
@@ -18,11 +22,12 @@ namespace Qosmetics
         UnityEngine::MeshRenderer* renderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(trailObject->get_gameObject(), "UnityEngine", "Renderer");
 
         // if the renderer is not found then we can't get a material so just return
-        if (renderer == nullptr)
+        if (!renderer)
         {
             getLogger().error("trail object renderer was not found, skipping FindMaterial...");
             return;
         }       
+
         // set the locally stored material pointer
         set_material(renderer->get_sharedMaterial());
     }

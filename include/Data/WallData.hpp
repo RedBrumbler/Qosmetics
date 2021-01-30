@@ -43,6 +43,12 @@ namespace Qosmetics
                 this->filePath = filePath;
             }
 
+            WallData(Descriptor* descriptor)
+            {
+                this->wallDescriptor = descriptor;
+                this->filePath = descriptor->get_filePath();
+            }
+
             WallData(std::string filePath, bool alsoLoadBundle)
             {
                 this->filePath = filePath;
@@ -50,7 +56,7 @@ namespace Qosmetics
             }
 
             /// @brief loads asset bundle using bs utils, only use if filePath is already given
-            void LoadBundle();
+            void LoadBundle(bool alsoLoadAssets = false);
 
             /// @brief loads all assets from the bundle
             void LoadAssets();
@@ -62,6 +68,8 @@ namespace Qosmetics
                 this->filePath = filePath;
                 LoadBundle();
             }
+
+            void UnloadBundle();
 
             bool get_finishedWallLoad()
             {
@@ -136,7 +144,8 @@ namespace Qosmetics
 
             bool get_isLoading()
             {
-                return isLoading;
+                if (finishedWallLoad) isLoading = false;
+                return isLoading || bundleLoading;
             }
 
             bool get_replacedMaterials()
@@ -158,11 +167,9 @@ namespace Qosmetics
                 return finishedWallLoad;
             }
 
-
             void SetReferences()
             {
                 if (wallPrefab == nullptr) return;
-                getLogger().info("Settign references to wall objects...");
                 UnityEngine::Transform* prefab = wallPrefab->get_transform();
 
                 UnityEngine::Transform* core = prefab->Find(il2cpp_utils::createcsstr("Core"));
@@ -170,13 +177,10 @@ namespace Qosmetics
 
                 if (core != nullptr) this->core = core->get_gameObject();
                 if (frame != nullptr) this->frame = frame->get_gameObject();
-
-                getLogger().info("References to wall objects set!");
             }
 
             void ClearActive()
             {
-                //getLogger().info("Clearing active wall pointers");
                 activeFrameMat = nullptr;
                 activeCoreMat = nullptr;
                 activeFrameMesh = nullptr;
@@ -185,6 +189,8 @@ namespace Qosmetics
                 frameSharedMats = nullptr;
             }
 
+            void FindPrefab();
+        
         private:
             Qosmetics::Descriptor* wallDescriptor = nullptr;
             Qosmetics::WallConfig* wallConfig = nullptr;
@@ -228,5 +234,7 @@ namespace Qosmetics
             void OnDescriptorLoadComplete(UnityEngine::TextAsset* descriptorAsset);
 
             void OnTextureLoadComplete(UnityEngine::Texture2D* texture);
+
+            void OnComplete();
     };
 }

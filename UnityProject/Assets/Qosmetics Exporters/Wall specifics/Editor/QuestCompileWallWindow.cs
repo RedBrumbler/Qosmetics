@@ -18,7 +18,7 @@ public class QuestCompileWallWindow : EditorWindow
     private WallReferences[] questwalls;
     private string extension = "qwall";
     private string prefabName = "_CustomWall";
-    private string questPath = "/sdcard/Qosmetics/walls/";
+    private string questPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/walls/";
     private ExportersConfig exporterConfig;
     private string exporterConfigPath = "Assets/Qosmetics Exporters/exportersConfig.json";
     private Camera cam;
@@ -55,6 +55,10 @@ public class QuestCompileWallWindow : EditorWindow
         {
             ExportAll();
         }
+        if (GUILayout.Button("Export and Upload all Active walls"))
+        {
+            ExportAllAndUpload();
+        }
 
         GUILayout.Space(10);
 
@@ -62,13 +66,13 @@ public class QuestCompileWallWindow : EditorWindow
         {
             if (wall == null) continue;
             GUILayout.Label("GameObject : " + wall.gameObject.name, EditorStyles.boldLabel);
-            wall.bmbfFolded = EditorGUILayout.BeginFoldoutHeaderGroup(wall.bmbfFolded, "BMBF mod info");
+            wall.descriptorFolded = EditorGUILayout.BeginFoldoutHeaderGroup(wall.descriptorFolded, "Wall Descriptor");
 
-            if (wall.bmbfFolded)
+            if (wall.descriptorFolded)
             {
-                wall.advancedInfo = EditorGUILayout.ToggleLeft("Advanced BMBF mod info", wall.advancedInfo);
+                //wall.advancedInfo = EditorGUILayout.ToggleLeft("Advanced BMBF mod info", wall.advancedInfo);
                 GUILayout.Space(5);
-                BMBFConfigDisplay(wall);
+                DescriptorDisplay(wall);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
@@ -87,16 +91,16 @@ public class QuestCompileWallWindow : EditorWindow
 
             if (disableExport && exporterConfig.forceAllowExport) GUILayout.Label("WARNING! force allow export is set to true so this wall file is unlikely to work correctly in game!", EditorStyles.boldLabel);
             EditorGUI.BeginDisabledGroup(disableExport && !exporterConfig.forceAllowExport);
-            if (GUILayout.Button("Export " + wall.bmbfmod.name + "." + extension))
+            if (GUILayout.Button("Export " + wall.descriptor.objectName + "." + extension))
             {
                 SetRendererLengthBools(wall);
                 ExportWallFile(wall);
             }
 
-            if (GUILayout.Button("Export " + wall.bmbfmod.name + "." + extension + " BMBF mod zip"))
+            if (GUILayout.Button("Export and Upload " + wall.descriptor.objectName + "." + extension))
             {
                 SetRendererLengthBools(wall);
-                ExportWallZip(wall);
+                ExportAndUpload(wall);
             }
             EditorGUI.EndDisabledGroup();
         }
@@ -110,7 +114,7 @@ public class QuestCompileWallWindow : EditorWindow
 
     void ExportAll()
     {
-        string path = EditorUtility.SaveFolderPanel("Select folder to export all zips", "", "");
+        string path = EditorUtility.SaveFolderPanel("Select folder to export all " + extension + " files", "", "");
         if (path == "")
         {
             EditorUtility.DisplayDialog("Export Failed", "Path was invalid", "OK");
@@ -127,12 +131,12 @@ public class QuestCompileWallWindow : EditorWindow
             if (!disableExport)
             {
                 atLeastOneSuccessful = true;
-                ExportWallZip(wall, path);
+                ExportWallFile(wall, path);
             }
             else
             {
                 wallsWereSkipped = true;
-                skippedWalls.Add(wall.bmbfmod.name);
+                skippedWalls.Add(wall.descriptor.objectName);
             }
         }
 
@@ -147,10 +151,65 @@ public class QuestCompileWallWindow : EditorWindow
         }
         else
         {
-            EditorUtility.DisplayDialog("Wall exports successful!", "Exported all walls succesfully'!", "OK");
+            EditorUtility.DisplayDialog("Wall exports successful!", "Exported all walls successfully!", "OK");
 
         }
         if (atLeastOneSuccessful) EditorUtility.RevealInFinder(path);
+    }
+
+    void ExportAllAndUpload()
+    {
+        string path = EditorUtility.SaveFolderPanel("Select folder to export all ." + extension + " files", "", "");
+        if (path == "")
+        {
+            EditorUtility.DisplayDialog("Export Failed", "Path was invalid", "OK");
+            return;
+        }
+
+        path += "/";
+        List<string> skippedWalls = new List<string>();
+        bool wallsWereSkipped = false;
+        bool atLeastOneSuccessful = false;
+
+        if (exporterConfig.ipAddress != "") QosmeticUtils.adb("connect " + exporterConfig.ipAddress + ":5555");
+        QosmeticUtils.adb("shell am force-stop com.beatgames.beatsaber");
+
+        foreach (var wall in questwalls)
+        {
+            bool disableExport = shouldDisableExport(wall);
+
+            if (!disableExport)
+            {
+                atLeastOneSuccessful = true;
+                ExportWallFile(wall, path);
+                string wallName = wall.descriptor.objectName + "." + extension;
+                QosmeticUtils.adb("push\"" + path + wallName + "\" \"" + questPath + wallName + "\"");
+            }
+            else
+            {
+                wallsWereSkipped = true;
+                skippedWalls.Add(wall.descriptor.objectName);
+            }
+        }
+
+        if (wallsWereSkipped)
+        {
+            string message = "These Walls were skipped due to exporter issues: \n";
+            foreach (var wallName in skippedWalls)
+            {
+                message += wallName + "\n";
+            }
+            EditorUtility.DisplayDialog("Sabers Were skipped...", message, "OK");
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Wall exports successful!", "Exported all walls successfully!", "OK");
+        }
+        if (atLeastOneSuccessful)
+        {
+            QosmeticUtils.adb("shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity");
+            EditorUtility.RevealInFinder(path);
+        }
     }
 
     bool GetMoreThan1Material(Renderer renderer)
@@ -179,6 +238,18 @@ public class QuestCompileWallWindow : EditorWindow
             Debug.LogError("Wall template was null!");
         }
     }
+
+    /// <summary>
+    /// Runs the code to display the descriptor settings in the GUI
+    /// </summary>
+    /// <param name="wall"></param>
+    void DescriptorDisplay(WallReferences wall)
+    {
+        wall.descriptor.objectName = EditorGUILayout.TextField("Wall name", wall.descriptor.objectName);
+        wall.descriptor.authorName = EditorGUILayout.TextField("Author name", wall.descriptor.authorName);
+        wall.descriptor.description = EditorGUILayout.TextField("Description", wall.descriptor.description);
+    }
+
     /// <summary>
     /// Runs the code to display the bmbf input options in the GUI
     /// </summary>
@@ -296,7 +367,7 @@ public class QuestCompileWallWindow : EditorWindow
     /// Exports just a qwall file
     /// </summary>
     /// <param name="wall"></param>
-    void ExportWallFile(WallReferences wall)
+    void ExportWallFile(WallReferences wall, string path = "")
     {
         /*
         if(EditorUserBuildSettings.activeBuildTarget.ToString() != "Android")
@@ -305,17 +376,20 @@ public class QuestCompileWallWindow : EditorWindow
             return;
         }
         */
+
+        bool batch = path != "";
         GameObject wallObject = wall.gameObject;
         TextAsset config = new TextAsset(JsonUtility.ToJson(wall.config, true));
 
-        string bmbfmodJson = JsonUtility.ToJson(wall.bmbfmod, true);
-        TextAsset bmbfmod = new TextAsset(bmbfmodJson);
+        //string bmbfmodJson = JsonUtility.ToJson(wall.bmbfmod, true);
+        //TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
         string descriptorString = JsonUtility.ToJson(new Descriptor(wall.bmbfmod.author, wall.bmbfmod.name, wall.bmbfmod.description[0]), true); ;
         TextAsset descriptor = new TextAsset(descriptorString);
+        string wallName = wall.descriptor.objectName + "." + extension;
+        if (!batch) path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", wallName, extension);
+        else path += wallName;
 
-        string path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", wall.bmbfmod.name + "." + extension, extension);
-        
         if (path == "")
         {
             EditorUtility.DisplayDialog("Exportation Failed!", "Invalid path", "OK");
@@ -373,14 +447,15 @@ public class QuestCompileWallWindow : EditorWindow
             QosmeticUtils.SetLayerRecursively(wall.gameObject, newMask);
         }
 
-        Texture2D thumbnail = QosmeticUtils.getTexture2D(exportCam, 1024, 1024);
+        Texture2D thumbnail = wall.thumbnail;
+        if (!thumbnail) thumbnail = QosmeticUtils.getTexture2D(exportCam, 1024, 1024);
 
 
         //Start actually constructing the bundle
 
 
         AssetDatabase.CreateAsset(config, "Assets/config.asset");
-        AssetDatabase.CreateAsset(bmbfmod, "Assets/BMBFmod.asset");
+        //AssetDatabase.CreateAsset(bmbfmod, "Assets/BMBFmod.asset");
         AssetDatabase.CreateAsset(thumbnail, "Assets/thumbnail.asset");
         AssetDatabase.CreateAsset(descriptor, "Assets/descriptor.asset");
 
@@ -390,7 +465,7 @@ public class QuestCompileWallWindow : EditorWindow
         {
             "Assets/" + prefabName + ".prefab",
             "Assets/config.asset",
-            "Assets/BMBFmod.asset",
+            //"Assets/BMBFmod.asset",
             "Assets/thumbnail.asset",
             "Assets/descriptor.asset"
         };
@@ -408,7 +483,7 @@ public class QuestCompileWallWindow : EditorWindow
         //Asset cleanup
         AssetDatabase.DeleteAsset("Assets/" + prefabName + ".prefab");
         AssetDatabase.DeleteAsset("Assets/config.asset");
-        AssetDatabase.DeleteAsset("Assets/BMBFmod.asset");
+        //AssetDatabase.DeleteAsset("Assets/BMBFmod.asset");
         AssetDatabase.DeleteAsset("Assets/thumbnail.asset");
         AssetDatabase.DeleteAsset("Assets/descriptor.asset");
         if (!exporterConfig.allowOwnCamera) DestroyImmediate(camObject);
@@ -425,9 +500,36 @@ public class QuestCompileWallWindow : EditorWindow
             if (exporterConfig.allowOwnCamera) QosmeticUtils.SetLayerRecursively(exportCam.gameObject, oldObjectMask);
             QosmeticUtils.SetLayerRecursively(wall.gameObject, oldObjectMask);
         }
+        if (!batch)
+        {
+            EditorUtility.DisplayDialog("Exportation Successful!", "Exportation Successful!", "OK");
+            EditorUtility.RevealInFinder(path);
+        }
+    }
 
-        EditorUtility.DisplayDialog("Exportation Successful!", "Exportation Successful!", "OK");
-        EditorUtility.RevealInFinder(path);
+    void ExportAndUpload(WallReferences wall)
+    {
+        string wallName = wall.descriptor.objectName + "." + extension;
+        string path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", wallName, extension);
+        if (path == "")
+        {
+            EditorUtility.DisplayDialog("Exportation Failed!", "Invalid path", "OK");
+            return;
+        }
+
+        string folderPath = Path.GetDirectoryName(path) + "/";
+
+        if (exporterConfig.ipAddress != "") QosmeticUtils.adb("connect " + exporterConfig.ipAddress + ":5555");
+
+        QosmeticUtils.adb("shell am force-stop com.beatgames.beatsaber");
+
+        ExportWallFile(wall, folderPath);
+
+        QosmeticUtils.adb("push \"" + folderPath + wallName + "\" \"" + questPath + wallName + "\"");
+        QosmeticUtils.adb("shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity");
+
+        EditorUtility.DisplayDialog("Exportation Successful!", "If the game did not turn off or the wall is not showing up, make sure your quest is connected through adb", "OK");
+        EditorUtility.RevealInFinder(folderPath + wallName);
     }
 
     /// <summary>

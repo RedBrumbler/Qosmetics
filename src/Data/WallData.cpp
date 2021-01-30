@@ -1,24 +1,43 @@
 #include "Data/WallData.hpp"
+#include "Data/QosmeticsDescriptorCache.hpp"
+#include "Utils/MaterialUtils.hpp"
 
 namespace Qosmetics
 {
-    void WallData::LoadBundle()
+    void WallData::LoadBundle(bool alsoLoadAssets)
     {
-        bundleLoading = true;
+        if (this->bundleLoading || this->bundle) 
+        {
+            getLogger().info("Was already loading bundle, not loading again");
+            if (this->bundle && alsoLoadAssets) LoadAssets();
+            return;
+        }
+        this->bundleLoading = true;
         getLogger().info("Loading Bundle");
-        bs_utils::AssetBundle::LoadFromFileAsync(filePath, [&](bs_utils::AssetBundle* bundle){ 
+        bs_utils::AssetBundle::LoadFromFileAsync(wallDescriptor->get_filePath(), [&](bs_utils::AssetBundle* bundle){ 
             this->bundle = bundle;
             if (bundle != nullptr) getLogger().info("Bundle loaded");
             this->bundleLoading = false;
             });
+        if (alsoLoadAssets) 
+        {
+            std::thread assetLoad([this]{
+                while(!this->bundle) usleep(1000);
+                getLogger().info("Loading assets directly from the bundle load");
+                this->LoadAssets();
+            });
+
+            assetLoad.detach();
+        }
     }
 
     void WallData::LoadAssets()
     {
-        if (bundle == nullptr) 
+        if (isLoading) return;
+        if (!this->bundle) 
         {
-            getLogger().error("bundle %s was null, not loading assets", filePath.c_str());
-            if (!bundleLoading && filePath != "") LoadBundle();
+            getLogger().info("bundle %s was null, not loading assets", wallDescriptor->get_filePath().c_str());
+            if (!get_isLoading() && wallDescriptor->get_filePath() != "") LoadBundle();
             return;
         }
         isLoading = true;
@@ -26,14 +45,17 @@ namespace Qosmetics
 
         bundle->LoadAssetAsync("_CustomWall", [this](bs_utils::Asset* asset){
             this->OnWallLoadComplete((UnityEngine::GameObject*)asset, true);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "GameObject"));
 
         bundle->LoadAssetAsync("config", [this](bs_utils::Asset* asset){
             this->OnConfigLoadComplete((UnityEngine::TextAsset* )asset);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
         bundle->LoadAssetAsync("descriptor", [this](bs_utils::Asset* asset){
             this->OnDescriptorLoadComplete((UnityEngine::TextAsset* )asset);
+            this->OnComplete();
         }, il2cpp_utils::GetSystemType("UnityEngine", "TextAsset"));
 
         bundle->LoadAssetAsync("thumbnail", [this](bs_utils::Asset* asset){
@@ -57,6 +79,8 @@ namespace Qosmetics
 
         this->wallPrefab = instantiated;
         objectComplete = true;
+
+        MaterialUtils::PreWarmAllShadersOnObj(this->wallPrefab);
         getLogger().info("Loaded Wall prefab");
     }
 
@@ -95,7 +119,10 @@ namespace Qosmetics
 
         d.Parse(json.c_str());
 
-        this->wallDescriptor = new Qosmetics::Descriptor(d);
+        if (this->wallDescriptor) this->wallDescriptor->Copy(Descriptor(d, this->filePath, wall));
+        else this->wallDescriptor = new Qosmetics::Descriptor(d, this->filePath, wall);
+        DescriptorCache::AddToWallCache(this->wallDescriptor);
+
         descriptorComplete = true;
         getLogger().info("succesfully loaded descriptor");
     }
@@ -110,6 +137,12 @@ namespace Qosmetics
         while (this->wallDescriptor == nullptr){sleep(1);}
         this->wallDescriptor->SetCoverImage(texture);
         getLogger().info("loaded texture");
+    }
+
+    void WallData::UnloadBundle()
+    {
+        getLogger().info("Unloading bundle for wall %s", this->wallDescriptor->get_name());
+        il2cpp_utils::RunMethod(this->bundle, "Unload", false);
     }
 
     UnityEngine::Mesh* WallData::get_coreMesh()
@@ -262,5 +295,21 @@ namespace Qosmetics
         frameRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(frame, "MeshRenderer");
 
         return frameRenderer;
+    }
+
+    void WallData::OnComplete()
+    {
+        if (!get_complete()) return;
+        std::string name = string_format("%s%s", this->wallDescriptor->get_name().c_str(), this->wallDescriptor->get_author().c_str());
+        this->wallPrefab->set_name(il2cpp_utils::createcsstr(name));
+    }
+
+    void WallData::FindPrefab()
+    {
+        if (!get_complete()) return;
+        std::string name = string_format("%s%s", this->wallDescriptor->get_name().c_str(), this->wallDescriptor->get_author().c_str());
+        UnityEngine::GameObject* prefab = UnityEngine::GameObject::Find(il2cpp_utils::createcsstr(name));
+
+        if (prefab) this->wallPrefab = prefab; 
     }
 }

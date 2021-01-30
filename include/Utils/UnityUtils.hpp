@@ -81,9 +81,9 @@ class UnityUtils
 
     /// @brief returns first object of the specified type as the given type in the template arguments
     template <class Type>
-    static Type GetFirstObjectOfType(Il2CppClass *klass) 
+    static Type GetFirstObjectOfType() 
     {
-        Il2CppReflectionType* klassType = il2cpp_utils::GetSystemType(klass);
+        Il2CppReflectionType* klassType = il2cpp_utils::GetSystemType(classof(Type));
         Array<Type>* objects = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<Type>*>(il2cpp_utils::GetClassFromName("UnityEngine", "Resources"), "FindObjectsOfTypeAll", klassType));
         if(objects == nullptr || objects->Length() == 0) return nullptr;
         return objects->values[0];

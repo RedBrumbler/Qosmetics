@@ -1,12 +1,15 @@
+#include "config.hpp"
 #include "include/Utils/SaberUtils.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include "Data/SaberData.hpp"
+#include "Utils/TrailUtils.hpp"
+extern config_t config;
 
 namespace Qosmetics
 {
     void SaberUtils::ReplaceSaber(GlobalNamespace::Saber* gameSaber, UnityEngine::GameObject* customSaber)
     {
-        getLogger().info("ReplaceSaber");
+        getLogger().info("Replacing Saber");
         UnityEngine::GameObject* gameSaberGO = gameSaber->get_gameObject();
         UnityEngine::Transform* customSaberTransform = customSaber->get_transform();
         
@@ -37,7 +40,7 @@ namespace Qosmetics
 
     void SaberUtils::AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
     {
-        getLogger().info("AddSaber");
+        getLogger().info("Adding Saber");
         if (saberScript == nullptr)
         {
             getLogger().error("given saberscript was nullptr, not adding saber");
@@ -84,7 +87,7 @@ namespace Qosmetics
             customGO->set_name(il2cpp_utils::createcsstr(name));
             SetCustomColor(customGO->get_transform(), saberType);
 
-            customGO->get_transform()->set_localScale(UnityEngine::Vector3::get_one());
+            customGO->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
             customGO->get_transform()->set_rotation(gameSaber->get_transform()->get_rotation());
             customGO->get_transform()->set_position(gameSaber->get_transform()->get_position());
             customGO->SetActive(true);
@@ -258,7 +261,7 @@ namespace Qosmetics
     {
         if (!parent) 
         {
-            getLogger().info("Tried adding menu pointer to nullptr parent");
+            getLogger().error("Tried adding menu pointer to nullptr parent");
             return;
         }
         UnityEngine::GameObject* prefab = isLeft ? saberData.get_leftSaber() : saberData.get_rightSaber();
@@ -275,11 +278,56 @@ namespace Qosmetics
 
             UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate(prefab, parent);
             instantiated->set_name(il2cpp_utils::createcsstr(name));
-            instantiated->get_transform()->set_localScale(UnityEngine::Vector3::get_one() * 0.4f);
-            instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.05f));
+            instantiated->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f) * config.saberConfig.menuPointerSize);
+            instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.1f * (1.0f - config.saberConfig.menuPointerSize)));
             instantiated->get_transform()->set_localEulerAngles(UnityEngine::Vector3::get_zero());
 
             SetCustomColor(instantiated->get_transform(), isLeft ? 0 : 1);
+
+            if (saberData.saberConfig->get_hasCustomTrails())
+            {
+                if (isLeft)
+                {
+                    for (auto& trail : *saberData.saberConfig->get_leftTrails())
+                    {
+                        TrailUtils::AddTrail(trail, instantiated->get_transform());
+                    }
+                }
+                else
+                {
+                    for (auto& trail : *saberData.saberConfig->get_rightTrails())
+                    {
+                        TrailUtils::AddTrail(trail, instantiated->get_transform());
+                    }
+                }
+            }
         }
+    }
+
+    void SaberUtils::RevertMenuPointer(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node)
+    {
+        bool isLeft = node.value == 4;
+        std::string menuHandle = "MenuHandle";
+        std::string name = isLeft ? "MenuHandle/CustomLeftPointer" : "MenuHandle/CustomRightPointer";
+
+        if (UnityEngine::Transform* oldPointer = controller->Find(il2cpp_utils::createcsstr(name)))
+        {
+            UnityEngine::Object::DestroyImmediate(oldPointer->get_gameObject());
+        }
+
+        UnityEngine::Transform* handle = controller->Find(il2cpp_utils::createcsstr(menuHandle));
+        if (!handle) return;
+        Array<UnityEngine::MeshFilter*>* meshFilters = handle->get_gameObject()->GetComponentsInChildren<UnityEngine::MeshFilter*>(true);
+
+        for (int i = 0; i < meshFilters->Length(); i++)
+        {
+            meshFilters->values[i]->get_gameObject()->SetActive(true);
+        } 
+    }
+
+    void SaberUtils::SetSaberSize(UnityEngine::Transform* object)
+    {
+        if (!object) return;
+        object->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
     }
 }

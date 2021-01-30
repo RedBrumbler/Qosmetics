@@ -132,6 +132,11 @@ namespace Qosmetics
             /// @brief handles if the colors got changed during a map, sets colors on all sharedmaterials
             /// @param noteData active notedata to use
             static void HandleColorsDidChangeEvent(Qosmetics::NoteData& noteData);
+
+            static void SetNoteSize(UnityEngine::Transform* note);
+            
+            static void SetBombSize(UnityEngine::Transform* bomb);
+
         private:
 
             static inline std::vector<UnityEngine::Material*> materialList = std::vector<UnityEngine::Material*>();

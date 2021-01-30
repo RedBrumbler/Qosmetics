@@ -1,7 +1,13 @@
+#include "config.hpp"
 #include "Utils/NoteUtils.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include "UnityEngine/Object.hpp"
 #include "Data/NoteData.hpp"
+#include "UnityEngine/SphereCollider.hpp"
+#include "GlobalNamespace/MaterialPropertyBlockController.hpp"
+#include "UnityEngine/MaterialPropertyBlock.hpp"
+
+extern config_t config;
 
 namespace Qosmetics
 {
@@ -24,7 +30,6 @@ namespace Qosmetics
             noteCube = noteTransform->Find(il2cpp_utils::createcsstr("Cube"));
 
             if (noteCube == nullptr) return; // we are not logging this error, because bombs also call this function and then we'd constantly get error logs which, no...
-            getLogger().info("Found tutorial note!");
             DisableBaseGameTutorialNotes(noteCube, customNoteData.get_config()->get_disableBaseGameArrows());
             
         }
@@ -79,9 +84,9 @@ namespace Qosmetics
             UnityEngine::Transform* noteArrowGlow = noteCube->Find(il2cpp_utils::createcsstr("ArrowGlow"));
             UnityEngine::Transform* noteCircleGlow = noteCube->Find(il2cpp_utils::createcsstr("Circle"));
 
-            if (noteCircleGlow != nullptr) noteCircleGlow->get_gameObject()->SetActive(false);
-            if (noteArrow != nullptr) noteArrow->get_gameObject()->SetActive(false);
-            if (noteArrowGlow != nullptr) noteArrowGlow->get_gameObject()->SetActive(false);
+            if (noteCircleGlow) noteCircleGlow->get_gameObject()->SetActive(false);
+            if (noteArrow) noteArrow->get_gameObject()->SetActive(false);
+            if (noteArrowGlow) noteArrowGlow->get_gameObject()->SetActive(false);
         }
 
         UnityEngine::MeshRenderer* cubeRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(noteCube, "MeshRenderer");
@@ -96,6 +101,7 @@ namespace Qosmetics
             getLogger().error("Note transform was nullptr, skipping add note...");
             return;
         }
+
         else if (noteController == nullptr)
         {
             getLogger().error("Note controller was nullptr, skipping add note...");
@@ -145,7 +151,6 @@ namespace Qosmetics
         }
         if (prefab != nullptr)
         {
-            getLogger().info("Spawning custom note, prefab ptr: %p", prefab);
             UnityEngine::GameObject* instantiatedNote = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(prefab);
 
             instantiatedNote->get_transform()->SetParent(note);
@@ -206,7 +211,6 @@ namespace Qosmetics
 
         if (prefab != nullptr)
         {
-            getLogger().info("spawning new custom debris, ptr: %p", prefab);
             UnityEngine::GameObject* instantiatedDebris = UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(prefab);
 
             instantiatedDebris->get_transform()->SetParent(noteDebrisMesh);
@@ -285,6 +289,7 @@ namespace Qosmetics
 
     void NoteUtils::ReplaceDebris(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, Qosmetics::NoteData &customNoteData)
     {
+        if (config.noteConfig.forceDefaultDebris) return;
         UnityEngine::Transform* note = noteDebris->get_transform();
 
         ReplaceDebrisMaterials(note, customNoteData);
@@ -302,6 +307,7 @@ namespace Qosmetics
 
     void NoteUtils::ReplaceBomb(GlobalNamespace::BombNoteController* noteController, Qosmetics::NoteData &customNoteData)
     {
+        if (config.noteConfig.forceDefaultBombs) return;
         // the bomb method is much more straight forward so no need to make seperate methods for finding old bombs and such
         UnityEngine::Transform* bomb = noteController->get_transform();
 
@@ -451,7 +457,6 @@ namespace Qosmetics
 
     void NoteUtils::SetColor(UnityEngine::Transform* object, bool isLeft)
     {
-        getLogger().info("Attempting to set colors on custom Bloqs");
         Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
 
         if (colorManager == nullptr)
@@ -494,12 +499,20 @@ namespace Qosmetics
             }
         }
         
+        if (GlobalNamespace::MaterialPropertyBlockController* matController = object->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>())
+        {
+            UnityEngine::MaterialPropertyBlock* block = matController->get_materialPropertyBlock();
+
+            block->SetColor(colorString, thisColor);
+            block->SetColor(otherColorString, otherColor);
+
+            matController->ApplyChanges();
+        }
     }
 
     void NoteUtils::SetColor(std::vector<UnityEngine::Material*>& vector, bool isLeft)
     {
         if (vector.size() == 0) return;
-        getLogger().info("Attempting to set colors on custom Bloqs");
         Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
 
         if (colorManager == nullptr)
@@ -529,19 +542,31 @@ namespace Qosmetics
         if (!customNoteData.get_config()->get_hasBomb() || customNoteData.get_replacedBombMaterials()) return;
         customNoteData.set_replacedBombMaterials(true);
         int i = 0;
+        bool replacedAny = false;
+        std::vector<UnityEngine::Renderer*> renderers = {};
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
-            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+
+            // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "")             
             {
-                getLogger().info("Skipped replace material for %d: %s", i, materialName.c_str());
                 continue;
             }
             materialName += "_replace";
             materialName = toLowerCase(materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_bomb(), currentMaterial, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_bomb(), currentMaterial, renderers, materialName);
             
             i++;
+        }
+
+        if (renderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_bomb()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_bomb()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(renderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = bomb->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->materialPropertyBlock = origController->materialPropertyBlock;
         }
     }
 
@@ -552,20 +577,40 @@ namespace Qosmetics
         if (!customNoteData.get_config()->get_hasDebris() || customNoteData.get_replacedDebrisMaterials()) return;
         customNoteData.set_replacedDebrisMaterials(true);
         int i = 0;
+        std::vector<UnityEngine::Renderer*> leftrenderers = {};
+        std::vector<UnityEngine::Renderer*> rightrenderers = {};
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
-            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") 
             {
-                getLogger().info("Skipped replace material for %d: %s", i, materialName.c_str());
                 continue;
             }
             materialName += "_replace";
             materialName = toLowerCase(materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftDebris(), currentMaterial, materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightDebris(), currentMaterial, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftDebris(), currentMaterial, leftrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightDebris(), currentMaterial, rightrenderers, materialName);
             
             i++;
+        }
+
+        if (leftrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_leftDebris()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_leftDebris()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(leftrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = debris->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+
+        if (rightrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_rightDebris()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_rightDebris()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(rightrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = debris->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->materialPropertyBlock = origController->materialPropertyBlock;
         }
     }
 
@@ -576,19 +621,63 @@ namespace Qosmetics
         if (customNoteData.get_replacedMaterials()) return;
         customNoteData.set_replacedMaterials(true);
         int i = 0;
+        std::vector<UnityEngine::Renderer*> leftarrowrenderers = {};
+        std::vector<UnityEngine::Renderer*> leftdotrenderers = {};
+        std::vector<UnityEngine::Renderer*> rightarrowrenderers = {};
+        std::vector<UnityEngine::Renderer*> rightdotrenderers = {};
+
         for (auto currentMaterial : materialList)
         {
             std::string materialName = to_utf8(csstrtostr(currentMaterial->get_name()));
-            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            // if material has _replace in it, it obviously is a material that came in with the bundles, and should not be used to replace
+            if ((materialName.find("_replace") != std::string::npos) || (materialName.find("_done") != std::string::npos) || materialName == "") 
             {
-                getLogger().info("Skipped replace material for %d: %s", i, materialName.c_str());
                 continue;
             }
             materialName += "_replace";
             materialName = toLowerCase(materialName);
-            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_notePrefab(), currentMaterial, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftArrow(), currentMaterial, leftarrowrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_leftDot(), currentMaterial, leftdotrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightArrow(), currentMaterial, rightarrowrenderers, materialName);
+            MaterialUtils::ReplaceAllMaterialsForGameObjectChildren(customNoteData.get_rightDot(), currentMaterial, rightdotrenderers, materialName);
             
             i++;
+        }
+
+        if (leftarrowrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_leftArrow()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_leftArrow()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(leftarrowrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+
+        if (leftdotrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_leftDot()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_leftDot()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(leftdotrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+
+        if (rightarrowrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_rightArrow()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_rightArrow()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(rightarrowrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
+        }
+        
+        if (rightdotrenderers.size() > 0)
+        {
+            GlobalNamespace::MaterialPropertyBlockController* matController = customNoteData.get_rightDot()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (!matController) matController = customNoteData.get_rightDot()->AddComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            matController->renderers = il2cpp_utils::vectorToArray(rightdotrenderers);
+            GlobalNamespace::MaterialPropertyBlockController* origController = note->Find(il2cpp_utils::createcsstr("NoteCube"))->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            if (origController) matController->materialPropertyBlock = origController->materialPropertyBlock;
         }
     }
 
@@ -745,7 +834,6 @@ namespace Qosmetics
                 materialList.push_back(switcher->material1);
             }
         }
-        getLogger().info("note materials list should have been made now");
         listDefined = true;
         definingList = false;
     }
@@ -834,9 +922,7 @@ namespace Qosmetics
     }
 
     void NoteUtils::HandleColorsDidChangeEvent(Qosmetics::NoteData& noteData)
-    {
-        getLogger().info("Handling colorsDidChangeEvent");
-        
+    {        
         if (noteData.get_config()->get_hasDebris()) // if there is debris, set the color
         {
             NoteUtils::SetSharedColor(noteData.get_leftDebris()->get_transform(), true);
@@ -846,6 +932,36 @@ namespace Qosmetics
         NoteUtils::SetSharedColor(noteData.get_rightArrow()->get_transform(), false);
         NoteUtils::SetSharedColor(noteData.get_leftDot()->get_transform(), true);
         NoteUtils::SetSharedColor(noteData.get_rightDot()->get_transform(), false);
-        getLogger().info("it do be handled");
+    }
+
+    void NoteUtils::SetNoteSize(UnityEngine::Transform* note)
+    {
+        if (!note || !config.noteConfig.overrideNoteSize) return;
+        UnityEngine::Vector3 size = UnityEngine::Vector3::get_one() * (float)config.noteConfig.noteSize;
+        note->set_localScale(size);
+
+        if (!config.noteConfig.alsoChangeHitboxes)
+        {
+            UnityEngine::Transform* bigCuttable = note->Find(il2cpp_utils::createcsstr("BigCuttable"));
+            UnityEngine::Transform* smallCuttable = note->Find(il2cpp_utils::createcsstr("SmallCuttable"));
+
+            UnityEngine::Vector3 othersize = UnityEngine::Vector3::get_one() / (float)config.noteConfig.noteSize;
+            if (bigCuttable) bigCuttable->set_localScale(othersize);
+            if (smallCuttable) smallCuttable->set_localScale(othersize);
+        }
+    }
+
+    void NoteUtils::SetBombSize(UnityEngine::Transform* bomb)
+    {
+        if (!bomb || !config.noteConfig.overrideNoteSize) return;
+        UnityEngine::Transform* mesh = bomb->Find(il2cpp_utils::createcsstr("Mesh"));
+        if (!mesh) return;
+        UnityEngine::SphereCollider* collider = mesh->get_gameObject()->GetComponent<UnityEngine::SphereCollider*>();
+        if (!collider) return;
+
+        auto setRadius = reinterpret_cast<function_ptr_t<void, Il2CppObject*, float>>(il2cpp_functions::resolve_icall("UnityEngine.SphereCollider::set_radius"));
+        //il2cpp_utils::RunMethod(collider, "set_radius", 0.18f / config.noteConfig.noteSize); // not in codegen so this should work ig
+        setRadius(collider, 0.18f / config.noteConfig.noteSize);
+        mesh->set_localScale(UnityEngine::Vector3::get_one() * config.noteConfig.noteSize);
     }
 }

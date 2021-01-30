@@ -6,7 +6,7 @@ namespace Qosmetics
     class WallLogger
     {
         public:
-            static inline ModInfo modInfo = ModInfo();
+            static inline ModInfo modInfo = {string_format("%s Walls", ID), VERSION};
             static Logger& GetLogger()
             {
                 static Logger* log = new Logger(modInfo, LoggerOptions(false, true));

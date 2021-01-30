@@ -22,13 +22,14 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
 
     DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Transform*, topTransform, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Transform*, bottomTransform, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Transform*, customBottomTransform, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Material*, trailMaterial, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(int, length, 20);
     DECLARE_INSTANCE_FIELD_DEFAULT(int, whitestep, 0);
     DECLARE_INSTANCE_FIELD_DEFAULT(int, colorType, 2);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, trailColor);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, multiplierColor);
-    DECLARE_INSTANCE_FIELD(GlobalNamespace::SaberMovementData*, customMovementData);
+    DECLARE_INSTANCE_FIELD_DEFAULT(GlobalNamespace::SaberMovementData*, customMovementData, nullptr);
     DECLARE_STATIC_FIELD(float, trailIntensity);
 
     DECLARE_METHOD(void, Update);
@@ -61,6 +62,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
         
         REGISTER_FIELD(topTransform);
         REGISTER_FIELD(bottomTransform);
+        REGISTER_FIELD(customBottomTransform);
         REGISTER_FIELD(trailMaterial);
         REGISTER_FIELD(length);
         REGISTER_FIELD(whitestep);

@@ -1,19 +1,18 @@
+#include "config.hpp"
 #include "Qosmetic/QuestNote.hpp"
 #include "Qosmetic/QosmeticsColorManager.hpp"
 #include <thread>
+#include "Data/QosmeticsDescriptorCache.hpp"
 
-ModInfo Qosmetics::QuestNote::modInfo;
-
-std::vector<std::string> Qosmetics::QuestNote::fileNames;
-std::vector<Qosmetics::NoteData> Qosmetics::QuestNote::loadedNotes;
+extern config_t config;
 
 namespace Qosmetics
 {   
     void QuestNote::makeFolder()
     {
-        if (!direxists(fileDir.c_str()))
+        if (!direxists(NOTEPATH.c_str()))
         {
-            int makePath = mkpath(fileDir.data());
+            int makePath = mkpath(NOTEPATH.data());
             if (makePath == -1)
             {
                 getLogger().debug("Failed to make path!");
@@ -23,15 +22,15 @@ namespace Qosmetics
 
     bool QuestNote::ShaderWarmup()
     {
-        if (!direxists(fileDir)) 
+        if (!direxists(NOTEPATH)) 
         {
-            getLogger().info("Bloq Directory did not exist, creating directory at %s", fileDir.c_str());
+            getLogger().info("Bloq Directory did not exist, creating directory at %s", NOTEPATH.c_str());
             makeFolder();
         }
         else getLogger().info("Bloq Directory Exists");
 
         // get all file names in the bloq directory
-        FileUtils::getFileNamesInDir("qbloq", fileDir, fileNames);
+        FileUtils::getFileNamesInDir(NOTEEXT, NOTEPATH, fileNames);
 
         // if no files were found, just return
         if (fileNames.size() == 0) 
@@ -40,57 +39,61 @@ namespace Qosmetics
             return false;
         }
 
-        // each file is a saber, so for each file
+        // each file is a note, so for each file
         for (int i = 0; i < fileNames.size(); i++)
         {
+            Descriptor* descriptor = DescriptorCache::GetDescriptor(fileNames[i], note);
+            if (!descriptor->valid) 
+            {
+                getLogger().info("Note Descriptor was invalid, making a new one");
+                descriptor = new Descriptor("", "", "", NOTEPATH + fileNames[i], note, nullptr);
+            }
+            
             // make a new saber
-            NoteData newNote;
+            NoteData* newNote = new NoteData(descriptor);
 
-            // add it to the list
-            loadedNotes.emplace_back(newNote);
+            noteMap[descriptor] = newNote;
+            //noteMap[descriptor]->LoadBundle();
 
-            // load bundle of filename
-            loadedNotes[i].LoadBundle(fileDir + fileNames[i]);
+            DescriptorCache::AddToNoteCache(descriptor);
         }
-
+        Descriptor* descriptor = DescriptorCache::GetDescriptor(config.lastActiveNote, note);
+        SetActiveNote(descriptor);
+        SelectionDefinitive();
+        
+        //if (activeNote) activeNote->LoadBundle();
         return true;
     };
 
     void QuestNote::HealthWarning()
     {
         // for all loaded note files, load the assets in them (if there are none loaded it won't actually do anything)
-        for (auto& note : loadedNotes)
+        if (activeNote && !activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadAssets();
+        /*
+        for (auto& pair : noteMap)
         {
-            note.LoadAssets();
+            pair.second->LoadAssets();
         }
+        */
     };
 
     void QuestNote::MenuViewControllers()
     {
-        if (loadedNotes.size() == 0)
+        if (activeNote && !activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadAssets();
+        /*
+        for (auto& pair : noteMap)
         {
-            getLogger().error("Tried using bloq mod while no bloqs were loaded");
-            return;
+            if (!pair.second->get_complete() && !pair.second->get_isLoading()) pair.second->LoadAssets();
         }
-
-        for (auto& note : loadedNotes)
-        {
-            if (!note.get_complete() && !note.get_isLoading()) note.LoadAssets();
-        }
+        */
     }
 
     void QuestNote::GameCore()
     {
         // if no notes loaded, skip this code
-        if (loadedNotes.size() == 0)
-        {
-            getLogger().error("Tried using bloq mod while no bloqs were loaded");
-            return;
-        }
+        if (!activeNote) return;
 
-        // selected note from the loadednotes vector, in the future this may be selectable
-        selectedNote = 0; 
-        Qosmetics::NoteData& selected = loadedNotes[selectedNote];
+        Qosmetics::NoteData& selected = *activeNote;
         selected.ClearActive();
         NoteUtils::clearMaterialList();
 
@@ -102,13 +105,15 @@ namespace Qosmetics
 
         //auto action = il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, []{});
         selected.ClearMatVectors();
+        selected.FindPrefab();
         setColors = false;
     };
 
     void QuestNote::NoteController_Init_Post(GlobalNamespace::NoteController* noteController)
     {
-        if (loadedNotes.size() == 0) return;
-        auto& selected = loadedNotes[selectedNote];
+        NoteUtils::SetNoteSize(noteController->get_transform()->Find(il2cpp_utils::createcsstr("NoteCube")));
+        if (!activeNote) return;
+        NoteData& selected = *activeNote;
         
         if (!selected.get_complete())
         {
@@ -136,9 +141,10 @@ namespace Qosmetics
 
     void QuestNote::NoteDebris_Init_Post(GlobalNamespace::NoteDebris* noteDebris, GlobalNamespace::BeatmapSaveData::NoteType noteType, UnityEngine::Transform* initTransform, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal)
     {
-        if (loadedNotes.size() == 0) return;
+        NoteUtils::SetNoteSize(noteDebris->get_transform());
+        if (!activeNote) return;
         if (disableDebris) return;
-        NoteData &selected = loadedNotes[selectedNote];
+        NoteData &selected = *activeNote;
 
         if (!selected.get_complete())
         {
@@ -146,13 +152,13 @@ namespace Qosmetics
             return;
         }
         if (!selected.get_config()->get_hasDebris() || !selected.get_complete()) return;
-        NoteUtils::ReplaceDebris(noteDebris, noteType, initTransform, cutPoint, cutNormal, loadedNotes[selectedNote]);
+        NoteUtils::ReplaceDebris(noteDebris, noteType, initTransform, cutPoint, cutNormal, *activeNote);
     }
 
     void QuestNote::HandleColorsDidChangeEvent()
     {
-        if (loadedNotes.size() == 0) return;
-        NoteData &selected = loadedNotes[selectedNote];
+        if (!activeNote) return;
+        NoteData &selected = *activeNote;
         if (!selected.get_complete())
         {
             getLogger().error("Attempted to use bloq that was not finished loading");
@@ -163,11 +169,9 @@ namespace Qosmetics
 
     void QuestNote::BombController_Init_Post(GlobalNamespace::BombNoteController* noteController)
     {
-        getLogger().info("BombNoteController Init post");
-        if (loadedNotes.size() == 0) return;
-        getLogger().info("Getting selected");
-        NoteData &selected = loadedNotes[selectedNote];
-
+        NoteUtils::SetBombSize(noteController->get_transform());
+        if (!activeNote) return;
+        NoteData &selected = *activeNote;
         if (!selected.get_complete())
         {
             getLogger().error("Attempted to use bloq that was not finished loading");
@@ -180,7 +184,43 @@ namespace Qosmetics
             if (!selected.get_config()->get_hasBomb()) getLogger().error("Attempted to use bomb that doesn't exist");
             return;
         } 
-        getLogger().info("Replacing Bomb");
-        NoteUtils::ReplaceBomb(noteController, loadedNotes[selectedNote]);
+        NoteUtils::ReplaceBomb(noteController, selected);
+    }
+
+    void QuestNote::OnActiveNoteSet(bool ifLoadAlsoAssets)
+    {
+        if (!activeNote) 
+        {
+            config.lastActiveNote = "";
+            unsetenv("qbloqsenabled");
+            getLogger().info("activeNote was nullptr, clearing last active note");
+            return;
+        }
+        setenv("qbloqsenabled", "1", 1);
+        config.lastActiveNote = activeNote->get_descriptor()->get_fileName(); 
+        getLogger().info("Last active note is now %s, should be %s", config.lastActiveNote.c_str(), activeNote->get_descriptor()->get_filePath().c_str());
+        // if not already loaded, and not loading right now, load the bundle and also assets in one go if requested
+        if (!activeNote->get_complete() && !activeNote->get_isLoading()) activeNote->LoadBundle(ifLoadAlsoAssets); 
+        //if (previousActiveNote && previousActiveNote != activeNote && previousActiveNote->get_complete()) previousActiveNote->UnloadBundle();
+    }
+
+    void QuestNote::ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers)
+    {
+        getLogger().info("Checking game modifiers in order to disable scores if needed...");
+        if((modifiers->get_ghostNotes() || modifiers->get_disappearingArrows()) && activeNote)
+        {
+            getLogger().info("Ghost notes or disappearing arrows active!");
+            bs_utils::Submission::disable(modInfo);
+        }
+        else if (config.noteConfig.alsoChangeHitboxes)
+        {
+            getLogger().info("Hitboxes Getting changed, disabling score submission!");
+            bs_utils::Submission::disable(modInfo);
+        }
+        else
+        {
+            getLogger().info("No reason to disable Submission from Notes!");
+            bs_utils::Submission::enable(modInfo);
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace Qosmetics
     class SaberLogger
     {
         public:
-            static inline ModInfo modInfo = ModInfo();
+            static inline ModInfo modInfo = {string_format("%s Sabers", ID), VERSION};
             static Logger& GetLogger()
             {
                 static Logger* log = new Logger(modInfo, LoggerOptions(false, true));

@@ -20,30 +20,27 @@
 #include "UnityEngine/Object.hpp"
 
 #include <vector>
+#include <map>
 
 #include "Utils/FileUtils.hpp"
 #include "Utils/NoteUtils.hpp"
 
+#include "static-defines.hpp"
+
 #include "Logging/NoteLogger.hpp"
-
-
 
 namespace Qosmetics
 {
     class QuestNote
     {
         public:
-            static ModInfo modInfo;
+            static inline ModInfo modInfo = {string_format("%s Notes", ID), VERSION};
             static Logger& getLogger() 
             {
                 return NoteLogger::GetLogger();
             };
 
-            static inline std::string fileDir = "/sdcard/Qosmetics/notes/";
-            static std::vector<std::string> fileNames;
-            static std::vector<NoteData> loadedNotes;
-            
-            static inline int selectedNote = 0; 
+            static inline std::vector<std::string> fileNames = {};
 
             /// @brief called at shader warmup scene
             /// @return false if 0 files found, thus making this part of the mod disabled in main
@@ -60,20 +57,7 @@ namespace Qosmetics
 
             /// @brief disables score submission for scoresaber if ghost notes or disappearing arrows is selected as a modifier since these are not compatible with custom notes
             /// @param modifiers the modifier class used in this level
-            static void ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers)
-            {
-                getLogger().info("Checking game modifiers in order to disable scores if needed...");
-                if(modifiers->get_ghostNotes() || modifiers->get_disappearingArrows())
-                {
-                    getLogger().info("Ghost notes or disappearing arrows active!");
-                    bs_utils::Submission::disable(modInfo);
-                }
-                else
-                {
-                    getLogger().info("Ghost notes or disappearing arrows not active!");
-                    bs_utils::Submission::enable(modInfo);
-                }
-            }
+            static void ModifierScoreDisableCheck(GlobalNamespace::GameplayModifiers* modifiers);
 
             /// @brief sets the debris disable bool based on what reduce debris is
             /// @param playerSpecificSettings the currently active player settings
@@ -104,15 +88,66 @@ namespace Qosmetics
 
             static void ClearAllInternalPointers()
             {
-                for (auto &note : loadedNotes)
+                for (auto &pair : noteMap)
                 {
-                    note.ClearActive();
+                    pair.second->ClearActive();
                 }
             }
+
             /// @brief handles the colors did change event for notes
             static void HandleColorsDidChangeEvent();
+
+            /// @brief Sets the activeNote pointer to point to the note that should be active, or handles setting to nulltr (default)
+            static void SetActiveNote(Descriptor* noteDescriptor, bool ifLoadAlsoAssets = false)
+            {
+                previousActiveNote = activeNote;
+                if (noteDescriptor->get_type() == qosmeticsType::invalid)
+                {
+                    activeNote = nullptr;
+                    OnActiveNoteSet(false);
+                    return;
+                }
+                
+                activeNote = noteMap[noteDescriptor];
+                OnActiveNoteSet(ifLoadAlsoAssets);
+            }
             
+            /// @brief Sets the activeNote pointer to point to the note that should be active, or handles setting to nulltr (default)
+            static void SetActiveNote(NoteData* note, bool ifLoadAlsoAssets = false)
+            {
+                previousActiveNote = activeNote;
+                activeNote = note;
+                OnActiveNoteSet(ifLoadAlsoAssets);
+            }
+            /// @brief gets called when the active note is set
+            static void OnActiveNoteSet(bool ifLoadAlsoAssets);
+            
+            /// @brief gives the currently active note if needed
+            static NoteData* GetActiveNote()
+            {
+                return activeNote;
+            }
+
+            static std::map<Descriptor*, NoteData*>& get_noteMap()
+            {
+                return noteMap;
+            }
+
+            /// @return true for different, false for same
+            static bool DidSelectDifferentNote()
+            {
+                return activeNote != previousActiveNote;
+            }
+
+            static void SelectionDefinitive()
+            {
+                previousActiveNote = activeNote;
+            }
+
         private:
+            static inline std::map<Descriptor*, NoteData*> noteMap = {};
+            static inline NoteData* activeNote = nullptr;
+            static inline NoteData* previousActiveNote = nullptr;
             static inline bool setColors = false;
             static inline bool disableDebris = false;
 

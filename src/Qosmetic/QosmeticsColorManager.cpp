@@ -11,9 +11,6 @@
 
 DEFINE_CLASS(Qosmetics::ColorManager);
 
-extern bool sabersEnabled;
-extern bool notesEnabled;
-extern bool wallsEnabled;
 static bool setColors = true;
 
 namespace Qosmetics
@@ -25,72 +22,65 @@ namespace Qosmetics
 
     void ColorManager::SetLeftSaberColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!sabersEnabled) return;
         this->colorScheme->saberAColor = colorSO->get_color();
         QuestSaber::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetRightSaberColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!sabersEnabled) return;
         this->colorScheme->saberBColor = colorSO->get_color();
         QuestSaber::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetLeftTrailColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!sabersEnabled) return;
         this->colorScheme->trailBColor = colorSO->get_color();
         QuestSaber::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetRightTrailColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!sabersEnabled) return;
         this->colorScheme->trailAColor = colorSO->get_color();
         QuestSaber::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetLeftNoteColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!notesEnabled) return;
         this->colorScheme->noteAColor = colorSO->get_color();
         QuestNote::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetRightNoteColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!notesEnabled) return;
         this->colorScheme->noteBColor = colorSO->get_color();
         QuestNote::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetObstacleColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
-        if (!notesEnabled) return;
         this->colorScheme->obstaclesColor = colorSO->get_color();
         QuestWall::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::UpdateAllColors()
     {
-        if (sabersEnabled) QuestSaber::HandleColorsDidChangeEvent();
-        if (notesEnabled) QuestNote::HandleColorsDidChangeEvent();
-        if (wallsEnabled) QuestWall::HandleColorsDidChangeEvent();
+        QuestSaber::HandleColorsDidChangeEvent();
+        QuestNote::HandleColorsDidChangeEvent();
+        QuestWall::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetLeftColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
         this->colorScheme->SetLeftColor(colorSO->get_color());
-        if (sabersEnabled) QuestSaber::HandleColorsDidChangeEvent();
-        if (notesEnabled) QuestNote::HandleColorsDidChangeEvent();
+        QuestSaber::HandleColorsDidChangeEvent();
+        QuestNote::HandleColorsDidChangeEvent();
     }
 
     void ColorManager::SetRightColor(GlobalNamespace::SimpleColorSO* colorSO)
     {
         this->colorScheme->SetRightColor(colorSO->get_color());
-        if (sabersEnabled) QuestSaber::HandleColorsDidChangeEvent();
-        if (notesEnabled) QuestNote::HandleColorsDidChangeEvent();
+        QuestSaber::HandleColorsDidChangeEvent();
+        QuestNote::HandleColorsDidChangeEvent();
     }
 
 

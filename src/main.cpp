@@ -17,6 +17,11 @@
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/SendMessageOptions.hpp"
+#include "UnityEngine/Events/UnityAction.hpp"
+#include "UnityEngine/SpriteMeshType.hpp"
+#include "UnityEngine/Rect.hpp"
+#include "UnityEngine/TextureFormat.hpp"
+#include "UnityEngine/ImageConversion.hpp"
 
 #include "System/Action.hpp"
 
@@ -49,6 +54,27 @@
 #include "GlobalNamespace/MultiplayerPlayersManager.hpp"
 #include "GlobalNamespace/PauseMenuManager.hpp"
 #include "GlobalNamespace/MultiplayerLocalActivePlayerInGameMenuViewController.hpp"
+#include "GlobalNamespace/OptionsViewController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController_Panel.hpp"
+#include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/CampaignFlowCoordinator.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
+#include "GlobalNamespace/MenuDestination.hpp"
+#include "GlobalNamespace/MainMenuViewController.hpp"
+#include "GlobalNamespace/SelectSubMenuDestination.hpp"
+#include "GlobalNamespace/GameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
+
+#include "HMUI/TextSegmentedControl.hpp"
+#include "HMUI/SegmentedControl_IDataSource.hpp"
+#include "HMUI/SegmentedControl.hpp"
+#include "HMUI/SegmentedControlCell.hpp"
+#include "HMUI/ButtonSpriteSwap.hpp"
 
 #include "Qosmetic/QuestSaber.hpp"
 #include "Qosmetic/QuestNote.hpp"
@@ -62,12 +88,39 @@
 #include "Logging/GenericLogger.hpp"
 
 #include "Data/CustomTrail.hpp"
+#include "Data/Descriptor.hpp"
 #include "Data/QosmeticsTrail.hpp"
+#include "Data/QosmeticsDescriptorCache.hpp"
+#include "Data/CreatorCache.hpp"
 
 #include "Utils/MaterialUtils.hpp"
+#include "static-defines.hpp"
 
 #include "custom-types/shared/register.hpp"
 
+
+#include "UI/Saber/SaberSwitcherViewController.hpp"
+#include "UI/Saber/SaberPreviewViewController.hpp"
+#include "UI/Saber/SaberSettingsViewController.hpp"
+
+#include "UI/Wall/WallSwitcherViewController.hpp"
+#include "UI/Wall/WallPreviewViewController.hpp"
+#include "UI/Wall/WallSettingsViewController.hpp"
+
+#include "UI/Note/NoteSwitcherViewController.hpp"
+#include "UI/Note/NotePreviewViewController.hpp"
+#include "UI/Note/NoteSettingsViewController.hpp"
+
+#include "UI/QosmeticsViewController.hpp"
+#include "UI/QosmeticsFlowCoordinator.hpp"
+//#include "UI/QosmeticsflowCoordinator.hpp"
+
+#include "questui/shared/QuestUI.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
+#include "HMUI/ViewController_AnimationDirection.hpp"
+#include "HMUI/ViewController_AnimationType.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
+#include "Polyglot/LocalizedTextMeshProUGUI.hpp"
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output);
 
@@ -80,16 +133,26 @@ Logger& getLogger() {
   return *logger;
 }
 
-bool wallsEnabled = true;
-bool notesEnabled = true;
-bool sabersEnabled = true;
+void makeFolder(std::string directory)
+    {
+        if (!direxists(directory.c_str()))
+        {
+            int makePath = mkpath(directory.data());
+            if (makePath == -1)
+            {
+                getLogger().error("Failed to make path %s", directory.c_str());
+            }
+        }
+    }
+
+
 bool shaderWarmupFirst = true;
 
-std::string shaderWarmup = "ShaderWarmup";
-std::string healthWarning = "HealthWarning";
-std::string gameCore = "GameCore";
-std::string menuViewControllers = "MenuViewControllers";
-std::string emptyTransition = "EmptyTransition";
+static inline std::string shaderWarmup = "ShaderWarmup";
+static inline std::string healthWarning = "HealthWarning";
+static inline std::string gameCore = "GameCore";
+static inline std::string menuViewControllers = "MenuViewControllers";
+static inline std::string emptyTransition = "EmptyTransition";
 
 extern config_t config;
 
@@ -97,23 +160,29 @@ MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, Global
 {
     StandardLevelScenesTransitionSetupDataSO_Init(self, gameMode, difficultyBeatmap, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects);
     
-    if (notesEnabled) 
-    {
-        Qosmetics::QuestNote::ModifierScoreDisableCheck(gameplayModifiers);
-        Qosmetics::QuestNote::ReducedDebrisDisableCheck(playerSpecificSettings);
-    }
-    if (sabersEnabled) Qosmetics::QuestSaber::SetTrailIntensity(playerSpecificSettings->saberTrailIntensity);
+    Qosmetics::QuestNote::ModifierScoreDisableCheck(gameplayModifiers);
+    Qosmetics::QuestNote::ReducedDebrisDisableCheck(playerSpecificSettings);
+    Qosmetics::QuestSaber::SetTrailIntensity(playerSpecificSettings->saberTrailIntensity);
 }
+
+UnityEngine::Transform* initTransform = nullptr;
 
 MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris * self, GlobalNamespace::ColorType colorType, UnityEngine::Vector3 notePos, UnityEngine::Quaternion noteRot, UnityEngine::Vector3 positionOffset, UnityEngine::Quaternion rotationOffset, UnityEngine::Vector3 cutPoint, UnityEngine::Vector3 cutNormal, UnityEngine::Vector3 force, UnityEngine::Vector3 torque, float lifeTime)
 {
     NoteDebris_Init(self, colorType, notePos, noteRot, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
-    if (notesEnabled) 
+    if (config.noteConfig.overrideNoteSize) // apply custom size
     {
-        UnityEngine::Transform* initTransform = UnityEngine::GameObject::New_ctor()->get_transform();//UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
+        self->get_transform()->Find(il2cpp_utils::createcsstr("NoteDebrisMesh"))->set_localScale(UnityEngine::Vector3::get_one() * (float)config.noteConfig.noteSize);
+    }
+    if (Qosmetics::QuestNote::GetActiveNote())
+    {
+        if (!initTransform)
+        {
+            initTransform = UnityEngine::GameObject::New_ctor()->get_transform();
+            UnityEngine::Object::DontDestroyOnLoad(initTransform->get_gameObject());
+        } //UnityEngine::Object::Instantiate<UnityEngine::GameObject*>(UnityEngine::GameObject::New_ctor())->get_transform();
         initTransform->set_localPosition(notePos);
         Qosmetics::QuestNote::NoteDebris_Init_Post(self, colorType.value, initTransform, cutPoint, cutNormal);
-        UnityEngine::Object::Destroy(initTransform->get_gameObject());
     }
 }
 
@@ -121,24 +190,24 @@ MAKE_HOOK_OFFSETLESS(BombNoteController_Init, void, GlobalNamespace::BombNoteCon
 {
     noteData->cutDirection = GlobalNamespace::NoteCutDirection::_get_Down();
     BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity);
-    if (notesEnabled) Qosmetics::QuestNote::BombController_Init_Post(self);
+    Qosmetics::QuestNote::BombController_Init_Post(self);
 }
 
 MAKE_HOOK_OFFSETLESS(NoteController_Init, void, GlobalNamespace::NoteController* self, GlobalNamespace::BeatmapSaveData::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float endRotation)
 {
     NoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, endRotation);
-    if (notesEnabled) Qosmetics::QuestNote::NoteController_Init_Post(self);
+    Qosmetics::QuestNote::NoteController_Init_Post(self);
 }
 
 MAKE_HOOK_OFFSETLESS(ObstacleController_set_hide, void, GlobalNamespace::ObstacleController* self, bool value)
 {
     ObstacleController_set_hide(self, value);
-    if (wallsEnabled) Qosmetics::QuestWall::ObstacleController_Set_Hide(self, value);
+    Qosmetics::QuestWall::ObstacleController_Set_Hide(self, value);
 }
 
 MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleController* self, Il2CppObject* obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
 {
-    if (wallsEnabled) Qosmetics::QuestWall::ObstacleController_Init_Pre(self);
+    Qosmetics::QuestWall::ObstacleController_Init_Pre(self);
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
 }
 bool afterHealthWarning = false;
@@ -152,44 +221,40 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, UnityEngine::SceneMa
 
     if(sceneLoadedName == shaderWarmup && shaderWarmupFirst)
     {
-        if (sabersEnabled) sabersEnabled = Qosmetics::QuestSaber::ShaderWarmup();
-        if (wallsEnabled) wallsEnabled = Qosmetics::QuestWall::ShaderWarmup();
-        if (notesEnabled) notesEnabled = Qosmetics::QuestNote::ShaderWarmup();
-
-        if (!sabersEnabled) unsetenv("qsabersenabled");
-        if (!notesEnabled) unsetenv("qbloqsenabled");
-        if (!wallsEnabled) unsetenv("qwallsenabled");
-        
+        Qosmetics::CreatorCache::Download();
+        Qosmetics::QuestSaber::ShaderWarmup();
+        Qosmetics::QuestWall::ShaderWarmup();
+        Qosmetics::QuestNote::ShaderWarmup();
         shaderWarmupFirst = false;
     }
 
     if(sceneLoadedName == healthWarning)
     {
-        if (sabersEnabled) Qosmetics::QuestSaber::HealthWarning();
-        if (wallsEnabled) Qosmetics::QuestWall::HealthWarning();
-        if (notesEnabled) Qosmetics::QuestNote::HealthWarning();
+        Qosmetics::QuestSaber::HealthWarning();
+        Qosmetics::QuestWall::HealthWarning();
+        Qosmetics::QuestNote::HealthWarning();
         afterHealthWarning = true;
     }
 
     if(sceneLoadedName == gameCore)
     {
-        if (sabersEnabled) Qosmetics::QuestSaber::GameCore();
-        if (wallsEnabled) Qosmetics::QuestWall::GameCore();
-        if (notesEnabled) Qosmetics::QuestNote::GameCore();
+        Qosmetics::QuestSaber::GameCore();
+        Qosmetics::QuestWall::GameCore();
+        Qosmetics::QuestNote::GameCore();
     }
 
     if (sceneLoadedName == menuViewControllers)
     {
-        if (sabersEnabled) Qosmetics::QuestSaber::MenuViewControllers();
-        if (wallsEnabled) Qosmetics::QuestWall::MenuViewControllers();
-        if (notesEnabled) Qosmetics::QuestNote::MenuViewControllers();
+        Qosmetics::QuestSaber::MenuViewControllers();
+        Qosmetics::QuestWall::MenuViewControllers();
+        Qosmetics::QuestNote::MenuViewControllers();
 
-        if(sabersEnabled || wallsEnabled || notesEnabled) Qosmetics::ColorManager::Menu();
+        Qosmetics::ColorManager::Menu();
     }
 
     if (afterHealthWarning)
     {
-        if (sabersEnabled && config.enableMenuPointer) 
+        if (config.saberConfig.enableMenuPointer) 
         {
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -236,7 +301,7 @@ MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTr
 MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberModelContainer* self)
 {
     SaberModelContainer_Start(self);
-    if (sabersEnabled) Qosmetics::QuestSaber::SaberStart(self->saber);
+    Qosmetics::QuestSaber::SaberStart(self->saber);
 }
 
 MAKE_HOOK_OFFSETLESS(GamePause_Pause, void, GlobalNamespace::GamePause* self)
@@ -244,7 +309,7 @@ MAKE_HOOK_OFFSETLESS(GamePause_Pause, void, GlobalNamespace::GamePause* self)
     GamePause_Pause(self);
     if (afterHealthWarning)
     {
-        if (sabersEnabled && config.enableMenuPointer) 
+        if (config.saberConfig.enableMenuPointer) 
         {
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -279,7 +344,7 @@ MAKE_HOOK_OFFSETLESS(MultiplayerPlayersManager_SwitchLocalPlayerToInactive, void
 MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, void, GlobalNamespace::MultiplayerLocalActivePlayerInGameMenuViewController* self)
 {
     MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu(self);
-    if (sabersEnabled && config.enableMenuPointer) 
+    if (config.saberConfig.enableMenuPointer) 
         {
             Array<GlobalNamespace::VRController*>* VRControllers = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
             if (VRControllers)
@@ -307,8 +372,8 @@ MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMe
                         parent3Name.find("Multiplayer") == std::string::npos &&
                         distantParentName.find("Clone") != std::string::npos)
                     {
-                        getLogger().info("Found MP Tree %s/%s/%s/%s", distantParentName.c_str(), parent3Name.c_str(), parent2Name.c_str(), parent1Name.c_str());
-                        getLogger().info("Found %d vrcontroller node", node);
+                        //getLogger().info("Found MP Tree %s/%s/%s/%s", distantParentName.c_str(), parent3Name.c_str(), parent2Name.c_str(), parent1Name.c_str());
+                        //getLogger().info("Found %d vrcontroller node", node);
                         Qosmetics::QuestSaber::ReplaceMenuPointers(VRControllers->values[i]->get_transform(), node);
                     }
                 }
@@ -316,46 +381,251 @@ MAKE_HOOK_OFFSETLESS(MultiplayerLocalActivePlayerInGameMenuViewController_ShowMe
         }
 }
 
+Qosmetics::QosmeticsFlowCoordinator* flowCoordinator = nullptr;
+Qosmetics::PreviousFlowCoordinatorType returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::settings;
+
+void OnQosmeticsButtonClick(UnityEngine::UI::Button* button) {
+    getLogger().info("QosmeticsSongSelectButtonClick");
+    if(!flowCoordinator)
+        flowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>();
+    flowCoordinator = UnityEngine::Object::FindObjectOfType<Qosmetics::QosmeticsFlowCoordinator*>();
+
+    if (!flowCoordinator) return;
+    HMUI::FlowCoordinator* currentCoordinator = nullptr;
+    switch (returnFlowCoordinator)
+    {
+        case Qosmetics::PreviousFlowCoordinatorType::settings:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::MainFlowCoordinator*>());
+            getLogger().info("presenting from settings");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::solo:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>());
+            getLogger().info("presenting from solo");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::party:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>());
+            getLogger().info("presenting from party");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::campaign:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>());
+            getLogger().info("presenting from campaign");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::multiHost:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::HostGameServerLobbyFlowCoordinator*>());
+            getLogger().info("presenting from multiHost");
+            break;
+        case Qosmetics::PreviousFlowCoordinatorType::multiClient:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::ClientGameServerLobbyFlowCoordinator*>());
+            getLogger().info("presenting from multiClient");
+            break;
+        default:
+            break;
+    }
+
+    if (currentCoordinator) currentCoordinator->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+}
+
+MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+    OptionsViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+    if(firstActivation) {
+        flowCoordinator = nullptr;
+        bool questUIExists = QuestUI::GetModsCount() > 0;
+        QuestUI::BeatSaberUI::ClearCache();
+        
+        UnityEngine::UI::Button* avatarButton = self->settingsButton;
+        UnityEngine::UI::Button* button = UnityEngine::Object::Instantiate(avatarButton);
+        button->set_name(il2cpp_utils::createcsstr("Qosmetics Settings"));
+        UnityEngine::Transform* AvatarParent = self->get_transform()->Find(il2cpp_utils::createcsstr("Wrapper"));
+        button->get_transform()->SetParent(AvatarParent, false);
+
+        if (questUIExists) // if questui has a menu button, make the base game stuff fuck off to another layout
+        {
+            UnityEngine::UI::HorizontalLayoutGroup* newLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(self->get_transform());
+
+            self->editAvatarButton->get_transform()->SetParent(newLayout->get_transform());
+            self->playerOptionsButton->get_transform()->SetParent(newLayout->get_transform());
+            self->settingsButton->get_transform()->SetParent(newLayout->get_transform());
+
+            newLayout->get_transform()->SetAsFirstSibling();
+            newLayout->set_spacing(-64.0f);
+            newLayout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>()->set_anchoredPosition(UnityEngine::Vector2(0.0f, -7.5f));
+
+            UnityEngine::UI::HorizontalLayoutGroup* oldLayout = AvatarParent->get_gameObject()->GetComponent<UnityEngine::UI::HorizontalLayoutGroup*>();
+            oldLayout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>()->set_anchoredPosition(UnityEngine::Vector2(0.0f, 0.0f));
+            button->get_transform()->SetAsLastSibling();
+        }
+        else button->get_transform()->SetAsFirstSibling();
+
+        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
+            std::string mainPath = UIPATH;
+        std::string highlightedpath = string_format("%s%s", mainPath.c_str(), "Icons/MenuIconSelected.png");
+        std::string disabledpath = string_format("%s%s", mainPath.c_str(), "Icons/MenuIcon.png");
+        UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::FileToSprite(highlightedpath, 266, 259);
+        UnityEngine::Sprite* pressed = highlighted;
+        UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::FileToSprite(disabledpath, 266, 259);
+        UnityEngine::Sprite* disabled = selected;
+
+        HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
+        spriteSwap->normalStateSprite = selected;
+        spriteSwap->highlightStateSprite = highlighted;
+        spriteSwap->pressedStateSprite = pressed;
+        spriteSwap->disabledStateSprite = disabled;
+        
+        UnityEngine::Object::Destroy(button->GetComponentInChildren<Polyglot::LocalizedTextMeshProUGUI*>());
+
+        button->GetComponentInChildren<TMPro::TextMeshProUGUI*>()->SetText(il2cpp_utils::createcsstr("Qosmetics Settings"));
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamespace::GameplaySetupViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+{
+    GameplaySetupViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+    if (firstActivation)
+    {
+        getLogger().info("GameplaySetupViewController");
+        QuestUI::BeatSaberUI::ClearCache();
+        UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(self->get_transform());
+        UnityEngine::RectTransform* rectTransform = layout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>();
+
+        rectTransform->set_anchoredPosition(UnityEngine::Vector2(52.5f, 25.6f));
+        rectTransform->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
+        getLogger().info("GameplaySetupViewController making button");
+
+        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, +[](Il2CppObject* obj, UnityEngine::UI::Button* button){}));
+        button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsButtonClick));
+        {
+            std::string mainPath = UIPATH;
+            std::string highlightedpath = string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIconSelected.png");
+            std::string disabledpath = string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIcon.png");
+            UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::FileToSprite(highlightedpath, 266, 259);
+            UnityEngine::Sprite* pressed = highlighted;
+            UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::FileToSprite(disabledpath, 266, 259);
+            UnityEngine::Sprite* disabled = selected;
+            HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
+            spriteSwap->normalStateSprite = selected;
+            spriteSwap->highlightStateSprite = highlighted;
+            spriteSwap->pressedStateSprite = pressed;
+            spriteSwap->disabledStateSprite = disabled;
+        }
+        getLogger().info("endof GameplaySetupViewController");
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
+{
+    MainMenuViewController_HandleMenuButton(self, menuButton);
+    getLogger().info("Menu pressed: %d", menuButton.value);
+    switch (menuButton.value)
+    {
+        case 0: // solo
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::solo;
+            break;
+        case 1: // party
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::party;
+            break;
+        case 2: // Editor
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
+            break;
+        case 3: // campaign
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::campaign;
+            break;
+        case 4: // floorAdjust
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
+            break;
+        case 5: // quit
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
+            break;
+        case 6: // multi
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
+            break;
+        case 7: // options
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::settings;
+            break;
+        case 8: // howtoplay/tutorial
+            returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::invalid;
+            break;
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, void, GlobalNamespace::MultiplayerModeSelectionFlowCoordinator* self, HMUI::ViewController* oldViewController, HMUI::ViewController* newViewController, HMUI::ViewController::AnimationType animationType)
+{
+    MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange(self, oldViewController, newViewController, animationType);
+    if ((void*)newViewController == (void*)self->createServerViewController)
+    {
+        getLogger().info("User is Host");
+        returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::multiHost;
+    }
+    else if ((void*)newViewController == (void*)self->serverCodeEntryViewController)
+    {
+        getLogger().info("User is Client");
+        returnFlowCoordinator = Qosmetics::PreviousFlowCoordinatorType::multiClient;
+    }
+}
 extern "C" void setup(ModInfo& info) 
 {
     info.id = ID;
     info.version = VERSION;
     modInfo = info;
-    Qosmetics::GenericLogger::modInfo = info;
-
-    Qosmetics::QuestSaber::modInfo.id = string_format("%s Sabers", ID);
-    Qosmetics::QuestSaber::modInfo.version = info.version;
-    Qosmetics::SaberLogger::modInfo.id = string_format("%s Sabers", ID);
-    Qosmetics::SaberLogger::modInfo.version = info.version;
-
-    Qosmetics::QuestNote::modInfo.id = string_format("%s Notes", ID);
-    Qosmetics::QuestNote::modInfo.version = info.version;
-    Qosmetics::NoteLogger::modInfo.id = string_format("%s Notes", ID);
-    Qosmetics::NoteLogger::modInfo.version = info.version;
-
-    Qosmetics::QuestWall::modInfo.id = string_format("%s Walls", ID);
-    Qosmetics::QuestWall::modInfo.version = info.version;
-    Qosmetics::WallLogger::modInfo.id = string_format("%s Walls", ID);
-    Qosmetics::WallLogger::modInfo.version = info.version;
+    
     getLogger().info("If you are reading this then idk what you're doing, go play the game, don't read logs");
-    getLogger().info(info.version);
-    getLogger().info(info.id);
 }
 
 void WipeAllDefinedPointers()
 {
-    if (sabersEnabled) Qosmetics::QuestSaber::ClearAllInternalPointers();
-    if (wallsEnabled) Qosmetics::QuestWall::ClearAllInternalPointers();
-    if (notesEnabled) Qosmetics::QuestNote::ClearAllInternalPointers();
+    Qosmetics::QuestSaber::ClearAllInternalPointers();
+    Qosmetics::QuestWall::ClearAllInternalPointers();
+    Qosmetics::QuestNote::ClearAllInternalPointers();
 }
+
+#define copyFile(in, out) \
+{ \
+    std::string inPath = in; \
+    std::string outPath = out;\
+    if (!fileexists(outPath.c_str()))\
+        writefile(outPath.c_str(), readfile(inPath.c_str()));\
+}
+
+void CopyIcons()
+{
+    makeFolder(BASEPATH);
+    std::string mainPath = UIPATH;
+    makeFolder(mainPath.c_str());
+    makeFolder(string_format("%s%s", mainPath.c_str(), "Icons"));
+    
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/MenuIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/MenuIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/SaberIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/SaberIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/NoteIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/NoteIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/WallIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/WallIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIconSelected.png"));
+}
+
 
 extern "C" void load() 
 {
     if (!LoadConfig()) SaveConfig();
+    if (!Qosmetics::CreatorCache::Load()) Qosmetics::CreatorCache::Save();
+    if (!Qosmetics::DescriptorCache::Load()) Qosmetics::DescriptorCache::Write();
+    std::string datapath = bs_utils::getDataDir(modInfo);
+    makeFolder(datapath.c_str());
+    getLogger().info("Persistent data path for qosmetics: %s", datapath.c_str());
+
+    CopyIcons();
+    
+    QuestUI::Init();
     il2cpp_functions::Init();
     getLogger().info("Installing hooks");
 
     LoggerContextObject logger = getLogger().WithContext("load");
+
     INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
     INSTALL_HOOK_OFFSETLESS(logger, ObstacleController_Init, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "Init", 9));
@@ -368,11 +638,38 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(logger, StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 9));
     INSTALL_HOOK_OFFSETLESS(logger, GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
     INSTALL_HOOK_OFFSETLESS(logger, MultiplayerLocalActivePlayerInGameMenuViewController_ShowMenu, il2cpp_utils::FindMethodUnsafe("", "MultiplayerLocalActivePlayerInGameMenuViewController", "ShowMenu", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(logger, GameplaySetupViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "GameplaySetupViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
+    INSTALL_HOOK_OFFSETLESS(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());
 
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberPreviewViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSettingsViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSwitcherViewController>());
+
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NotePreviewViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NoteSettingsViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::NoteSwitcherViewController>());
+
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallPreviewViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallSettingsViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::WallSwitcherViewController>());
+
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsViewController>());
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsFlowCoordinator>());
+    //CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsflowCoordinator>());
+    
+    //QuestUI::Register::RegisterModSettingsFlowCoordinator<Qosmetics::QosmeticsFlowCoordinator*>((ModInfo){"Qosmetics Settings", VERSION});
+
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::WallSettingsViewController*>((ModInfo){"Qosmetics Wall Settings", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::SaberSettingsViewController*>((ModInfo){"Qosmetics Saber Settings", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::NoteSettingsViewController*>((ModInfo){"Qosmetics Bloq Settings", VERSION});
+    
+    
     std::thread WipeRoutine(
         [&]{
             int timer = 0;

@@ -1,5 +1,3 @@
-# Qosmetics Saber Exporter
-
 ![QosmeticsGif](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Generic/Qosmetics.gif)
 
 If you haven't already, check out the [General Setup Guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup)
@@ -18,15 +16,20 @@ After opening the exporter if it's not already opened, you'll find the options t
 
 ### Top line
 
-At the top you will find the name of the exporter (QuestSaber), and 3 buttons, the first one will load the scene with name questsabers from Assets/Scenes, just like the scene changer mentioned in the [Generic guide]().
+At the top you will find the name of the exporter (QuestSaber), and 3 buttons, the first one will load the scene with name questsabers from Assets/Scenes, just like the scene changer mentioned in the [Generic guide](https://github.com/RedBrumbler/Qosmetics/wiki/Qosmetics-General-Setup).
 
 The second button will spawn in a new saber template so that all neccesary data is already added to it. (Adding scripts to an object is not really supported due to some issues I was having with that) This is the intended way of making more than 1 saber in the same scene!
 
-The last button will export all currently active saberss to a directory you select, this is ideal for making lots of models in one go! I recommend to enable the set layer mask option in the exporter config menu, as this will make the images correct.
+The 3rd button will export all currently active sabers to a directory you select, this is ideal for making lots of models in one go! I recommend to enable the set layer mask option in the exporter config menu, as this will make the thumbnails correct.
 
-### BMBF mod info
+The last button will not only export all currently active sabers in the same manner as the third, but it will also upload them all to the correct folder on your quest, that way you do not have to do so manually!
 
-The BMBF mod Info is what you will want to fill out with your own info. The Advanced bmbf mod info has some extra information you *can* fill out, but this is not neccesary to make a functioning saber and thus I will not go into more detail on this.
+### Saber Descriptor
+
+The Descriptor is what you will need to fill out so people in game can see who made these awesome models! The 3 fields are used as follows:
+ - `Saber name` Put the name of the saber here, this can be the same as other sabers, but is recommended to not be obviously.
+ - `Author name` Put your name here! If you are a modeler in the [Qosmetics discord](discord.gg/qosmetics), or someone who's helped develop the mod, you can even request a colored name
+ - `Description` Put a small description here, and people who hover over your qosmetic item will get a small piece of text to read 
 
 ### Saber Config
 
@@ -57,11 +60,10 @@ Now that you have materials on the saber, you probably also want some custom col
 
 now that you know how to put in the model and put materials on the model, you can repeat the same process for the other saber. Make sure that materials that need custom colors are specific to one saber type! putting the same material on 2 sabers will apply the color of one saber to both sabers.
 
-Next is the exporting of the qsaber, this is as simple as having the info filled out, the config set, and pressing a button! The project will automatically generate the bmbfmod.json with your info, it will generate the cover image, and put it all in a zip for you, and proceed to open the export location after you press ok on the dialog box!
-
-That's it! that's how to make a saber with the qosmetics exporter!
+Next is the exporting of the qsaber, this is as simple as having the info filled out, the config set, and pressing a button! The project will automatically make a file ready for upload, but you can also let the project upload the file for you! if you press the export and upload button the project will, if your quest is connected through adb, close your game, upload the saber to the correct place, and start the game again!
 
 ### Custom Trails
+If you are unsure how to get a trail object, go to the saber config in the exporter, and press the `has custom trails` toggle, this should create trail objects in both sabers.
 Now we will have a look at how to configure a trail:
 
 ![TrailReferences](https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/Wiki/Images/Sabers/TrailReferences.png)
@@ -75,6 +77,12 @@ As you can see, there are some options here, let's go through them one by one:
  - **Whitestep** this is the "motion blur" people complain about so often, I prefer to leave it at 0
 
 To make the game start the trail at the place you want, make sure that the object with the TrailReferences has 2 children called `TrailStart` and `TrailEnd`!
+
+#### A few tips on custom trails
+
+Trails use what's known as vertex color to get their color set. This means that if you wanna use the custom colors you will have to add this property to your shaders. Google has many tutorials on how to make shaders, so I'll let you figure out how to exactly add vertex colors to your trails.
+
+If you don't know any shaders that would work with this, the unity shader for particles/unlit is perfect for simple trails that just use a texture!
 
 ### Special Shader Properties
 

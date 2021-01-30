@@ -1,7 +1,7 @@
 {
   "id": "Qosmetics",
   "name": "Qosmetics",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "icon": "cover.gif",
   "coverImageFilename": "cover.gif",
   "author": "RedBrumbler",
@@ -10,7 +10,7 @@
     "Massive thanks to Sc2ad and Rugtveit for all the help with making this mod"
   ],
   "category": "Gameplay",
-  "gameVersion": "1.13.0",
+  "gameVersion": "1.13.2",
   "platform": "Quest",
   "components": [
     {
@@ -25,20 +25,33 @@
     {
       "type": "HookModLibrary",
       "installAction": {
-        "installLibraryFile": "libbeatsaber-hook_1_0_9.so"
+        "installLibraryFile": "libbeatsaber-hook_1_0_12.so"
       }
     },
     {
-      "type": "HookModLibrary",
-      "installAction": {
-        "installLibraryFile": "libbs-utils.so"
-      }
+      "type": "FileCopyMod",
+      "sourceFileName": "Plasma Katana.qsaber",
+      "targetRootedPathAndFileName": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/sabers/Plasma Katana.qsaber"
     },
     {
-      "type": "HookModLibrary",
-      "installAction": {
-        "installLibraryFile": "libcustom-types.so"
-      }
+      "type": "FileCopyMod",
+      "sourceFileName": "PC recreation.qwall",
+      "targetRootedPathAndFileName": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/walls/PC recreation.qwall"
+    },
+    {
+      "type": "FileCopyMod",
+      "sourceFileName": "PC recreation + Rainbow Frames.qwall",
+      "targetRootedPathAndFileName": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/walls/PC recreation + Rainbow Frames.qwall"
+    },
+    {
+      "type": "FileCopyMod",
+      "sourceFileName": "UWU Notes.qbloq",
+      "targetRootedPathAndFileName": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/notes/UWU Notes.qbloq"
+    },
+    {
+      "type": "FileCopyMod",
+      "sourceFileName": "DDR Arrows.qbloq",
+      "targetRootedPathAndFileName": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/notes/DDR Arrows.qbloq"
     }
   ]
 }

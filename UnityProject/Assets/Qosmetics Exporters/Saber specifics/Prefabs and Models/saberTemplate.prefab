@@ -254,6 +254,10 @@ MonoBehaviour:
     name: SaberName
     author: YourName
     category: Saber
+  descriptor:
+    authorName: YourName
+    objectName: SaberName
+    description: Description
   config:
     enableFakeGlow: 0
     hasCustomTrails: 0
@@ -261,8 +265,10 @@ MonoBehaviour:
     hasCustomSliceParticles: 0
     leftTrails: []
     rightTrails: []
+  thumbnail: {fileID: 0}
   advancedInfo: 0
   bmbfFolded: 1
+  descriptorFolded: 0
   configFolded: 1
   addedTrails: 0
   addedWallParticles: 0

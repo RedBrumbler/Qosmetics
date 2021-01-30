@@ -77,16 +77,18 @@ class MaterialUtils
             material->SetColor(PropertyNameToShaderID(propertyName), color);
         };
 
-        static void ReplaceAllMaterialsForGameObjectChildren(UnityEngine::GameObject* gameObject, UnityEngine::Material* material, std::string materialToReplaceName = "")
+        static void ReplaceAllMaterialsForGameObjectChildren(UnityEngine::GameObject* gameObject, UnityEngine::Material* material, std::vector<UnityEngine::Renderer*>& renderers, std::string materialToReplaceName = "")
         {
-            Array<UnityEngine::Renderer*>* renderers = gameObject->GetComponentsInChildren<UnityEngine::Renderer*>(true);
-            for (int i = 0; i < renderers->Length(); i++)
+            Array<UnityEngine::Renderer*>* objrenderers = gameObject->GetComponentsInChildren<UnityEngine::Renderer*>(true);
+
+            for (int i = 0; i < objrenderers->Length(); i++)
             {
-                ReplaceAllMaterialsForRenderer(renderers->values[i], material, materialToReplaceName);
+                if (!objrenderers->values[i]) continue;
+                if (ReplaceAllMaterialsForRenderer(objrenderers->values[i], material, materialToReplaceName)) renderers.push_back(objrenderers->values[i]);
             }
         };
 
-        static void ReplaceAllMaterialsForRenderer(UnityEngine::Renderer* renderer, UnityEngine::Material* material, std::string materialToReplaceName = "")
+        static bool ReplaceAllMaterialsForRenderer(UnityEngine::Renderer* renderer, UnityEngine::Material* material, std::string materialToReplaceName = "")
         {
             if (renderer == nullptr)
             {
@@ -100,10 +102,11 @@ class MaterialUtils
             if (materialsCopy == nullptr) 
             {
                 getLogger().error("Could not find material array");
-                return;
+                return false;
             }
             //Array<UnityEngine::Material*>* materialsCopy = renderer->get_sharedMaterials(); // not actually a copy, wish it was tho as it would make this a whole lot easier
             bool materialsDidChange = false;
+            bool hasCC = false;
             for (int i = 0; i < materialsCopy->Length(); i++) // for each material
             {
                 if (materialsCopy->values[i] == nullptr)
@@ -124,13 +127,12 @@ class MaterialUtils
                 // ex. matname = GameNote_replace_doCC and materialToReplaceName = GameNote_replace, it will replace it
                 if ((matName.find(materialToReplaceName) != std::string::npos) || materialToReplaceName == "")
                 {
-                    getLogger().info("Replacing material %s with %s", matName.c_str(), materialToReplaceName.c_str());
                     UnityEngine::Color oldColor = materialsCopy->values[i]->GetColor(il2cpp_utils::createcsstr("_Color"));
                     
                     matName += "_done";
 
                     if (!shouldCC(materialsCopy->values[i])) matName += "_noCC"; // if the material should not have CC, add that to the name
-
+                    else hasCC = true;
                     materialsCopy->values[i] = (UnityEngine::Material*)UnityEngine::Object::Instantiate((UnityEngine::Object*)material); // make new material, else we mess up the materials in the menu for no reason
                     materialsCopy->values[i]->set_name(il2cpp_utils::createcsstr(matName));
                     materialsCopy->values[i]->SetColor(il2cpp_utils::createcsstr("_Color"), oldColor);
@@ -142,6 +144,8 @@ class MaterialUtils
             {
                 renderer->SetMaterialArray(materialsCopy);
             }
+            if (hasCC) return true;
+            return false;
         }
 
         /// @brief finds wether or not this material should have CC applied, excluding the special shader _replace and _noCC parts
@@ -157,7 +161,6 @@ class MaterialUtils
         
             if (hasCustomColor)
             {
-                getLogger().info("Material had \'_CustomColors\' property, checking value...");
                 float customColor = MaterialUtils::GetMaterialFloat(material, "_CustomColors");
                 if (customColor > 0.0f) setColor = true;
             }
@@ -167,7 +170,6 @@ class MaterialUtils
 
                 if (hasGlow)
                 {
-                    getLogger().info("Material had \'_Glow property, checking value...\'");
                     float customColor = MaterialUtils::GetMaterialFloat(material, "_Glow");
                     if (customColor > 0.0f) setColor = true;
                 }
@@ -177,13 +179,40 @@ class MaterialUtils
 
                     if (hasBloom)
                     {
-                        getLogger().info("Material had \'_Bloom property, checking value...\'");
                         float customColor = MaterialUtils::GetMaterialFloat(material, "_Bloom");
                         if (customColor > 0.0f) setColor = true;
                     }              
                 }
             }
             return setColor;
+        }
+
+        static void PreWarmAllShadersOnObj(UnityEngine::GameObject* gameObject)
+        {
+            Array<UnityEngine::Renderer*>* renderers = gameObject->GetComponentsInChildren<UnityEngine::Renderer*>(true);
+
+            typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
+            auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
+
+            auto createFunc = reinterpret_cast<function_ptr_t<void, Il2CppObject*>>(il2cpp_functions::resolve_icall("UnityEngine.ShaderVariantCollection::Internal_Create")); // or something similar
+            auto addFunc = reinterpret_cast<function_ptr_t<bool, Il2CppObject*, Il2CppObject*, int, Array<Il2CppString*>*>>(il2cpp_functions::resolve_icall("UnityEngine.ShaderVariantCollection::AddVariant")); // or something similar
+            auto warmupFunc = reinterpret_cast<function_ptr_t<void, Il2CppObject*>>(il2cpp_functions::resolve_icall("UnityEngine.ShaderVariantCollection::WarmUp")); // or something similar
+
+            Il2CppObject* obj = UnityEngine::Object::New_ctor();
+            createFunc(obj);
+            std::vector<Il2CppString*> temp;
+            Array<Il2CppString*>* stringArr = il2cpp_utils::vectorToArray(temp);
+
+            for (int i = 0; i < renderers->Length(); i++)
+            {
+                Array<UnityEngine::Material*>* materials = GetMaterialArray(renderers->values[i]);
+                for (int j = 0; j < materials->Length(); j++)
+                {
+                    addFunc(obj, materials->values[j]->get_shader(), 0, stringArr);
+                }
+            }
+            
+            warmupFunc(obj);
         }
 
     private:

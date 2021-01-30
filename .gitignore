@@ -68,6 +68,8 @@ UnityProject/Assets/SABER/PlasmaKatana.meta
 UnityProject/Assets/WALL/PCrecreation/
 UnityProject/Assets/WALL/PCrecreation.meta
 addr2line.bat
+*.psd
+PhotoshopFiles/
 # =============== #
 # Unity generated #
 # =============== #

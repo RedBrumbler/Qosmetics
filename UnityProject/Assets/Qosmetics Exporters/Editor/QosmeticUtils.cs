@@ -9,6 +9,12 @@ namespace Qosmetics
 {
     public class QosmeticUtils
     {
+        public static void adb(string command)
+        {
+            Debug.Log("Executing command: " + command);
+            System.Diagnostics.Process.Start("adb.exe", command);
+        }
+
         // credit for SetLayerRecursively function goes to @Bobbie#0001
         public static void SetLayerRecursively(GameObject obj, int newLayer)
         {

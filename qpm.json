@@ -29,6 +29,11 @@
       }
     },
     {
+      "id": "questui",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
       "id": "custom-types",
       "versionRange": "*",
       "additionalData": {}
