@@ -6,12 +6,13 @@ void GetEnthusiastic(rapidjson::Value& val);
 void GetAmazing(rapidjson::Value& val);
 void GetLegendary(rapidjson::Value& val);
 void GetPaypal(rapidjson::Value& val);
-    
+
+extern Logger& getLogger();
 namespace Qosmetics
 {
     void PatreonStorage::Download()
     {
-        std::string url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patreons.json";
+        std::string url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json";
         new FileDownloader(url, "", [&](const FileDownloader& downloader){
             std::thread loadpatreons([](std::string json){
                 if (json == "") return;

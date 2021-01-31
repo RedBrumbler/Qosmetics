@@ -42,10 +42,10 @@ namespace Qosmetics
 
             static bool get_atLeastOne()
             {
-                if (paypal.size()) return true;
-                if (enthusiastic.size()) return true;
-                if (amazing.size()) return true;
-                if (legendary.size()) return true;
+                if (paypal.size() > 0) return true;
+                if (enthusiastic.size() > 0) return true;
+                if (amazing.size() > 0) return true;
+                if (legendary.size() > 0) return true;
                 return false;
             }
         private:

@@ -26,8 +26,9 @@
 #include "Data/PatreonStorage.hpp"
 
 #include "Logging/UILogger.hpp"
-#define INFO(value...) UILogger::GetLogger().WithContext("Patreon Credits").info(value)
-#define ERROR(value...) UILogger::GetLogger().WithContext("Patreon Credits").error(value)
+
+#define INFO(value...) Qosmetics::UILogger::GetLogger().WithContext("Patreon Credits").info(value)
+#define ERROR(value...) Qosmetics::UILogger::GetLogger().WithContext("Patreon Credits").error(value)
 extern config_t config;
 DEFINE_CLASS(Qosmetics::CreditsViewController);
 
@@ -36,25 +37,83 @@ using namespace UnityEngine;
 using namespace UnityEngine::UI;
 using namespace UnityEngine::Events;
 using namespace HMUI;
+
+static int list = 0;
+
+static Qosmetics::CreditsViewController* self;
+static GameObject* container;
+
 struct donatorInfo {
         Transform* layout;
+        VerticalLayoutGroup* group;
         std::string header;
         const std::vector<std::string>& names;
         int index;
         int size;
+        Qosmetics::CreditsViewController* self;
 
-        donatorInfo(const std::vector<std::string>& names, std::string header, Transform* layout) : names(names)
+        donatorInfo(const std::vector<std::string>& names, std::string header, VerticalLayoutGroup* layout, Qosmetics::CreditsViewController* self) : names(names)
         {
             this->header = header;
             index = 0;
             size = names.size();
-            this->layout = layout;
+            this->group = layout;
+            this->layout = layout->get_transform();
+            this->self = self;
         }
     };
 
+void AddDonators(donatorInfo* info);
+void DoNext();
+
+void DoNext()
+{
+    HorizontalLayoutGroup* hor = nullptr;
+    VerticalLayoutGroup* layout = nullptr;
+    donatorInfo* info = nullptr;
+    list++;
+    switch (list)
+    {
+        case 1:
+            hor = BeatSaberUI::CreateHorizontalLayoutGroup(container->get_transform());
+            layout = BeatSaberUI::CreateVerticalLayoutGroup(hor->get_transform());
+            info = new donatorInfo(Qosmetics::PatreonStorage::get_legendary(), "<color=#e4c13c>== Legendary Patrons ==</color>", layout, self);
+            if (info->size > 0) AddDonators(info);
+            else  DoNext();
+            break;
+        case 2:
+            hor = BeatSaberUI::CreateHorizontalLayoutGroup(container->get_transform());
+            layout = BeatSaberUI::CreateVerticalLayoutGroup(hor->get_transform());
+            info = new donatorInfo(Qosmetics::PatreonStorage::get_amazing(), "<color=#6573cc>-- Amazing Patrons --</color>", layout, self);
+            if (info->size > 0) AddDonators(info);
+            else  DoNext();
+            break;
+        case 3:
+            hor = BeatSaberUI::CreateHorizontalLayoutGroup(container->get_transform());
+            layout = BeatSaberUI::CreateVerticalLayoutGroup(hor->get_transform());
+            info = new donatorInfo(Qosmetics::PatreonStorage::get_enthusiastic(), "<color=#818de2>-- Enthusiastic Patrons --</color>", layout, self);
+            if (info->size > 0) AddDonators(info);
+            else  DoNext();
+            break;
+        case 4:
+            hor = BeatSaberUI::CreateHorizontalLayoutGroup(container->get_transform());
+            layout = BeatSaberUI::CreateVerticalLayoutGroup(hor->get_transform());
+            info = new donatorInfo(Qosmetics::PatreonStorage::get_paypal(), "<color=#0095d9>-- Paypal Donators --</color>", layout, self);
+            if (info->size > 0) AddDonators(info);
+            else  DoNext();
+            break;
+    }
+}
+
 void AddDonators(donatorInfo* info)
 {
+    info->group->set_childAlignment(TextAnchor::MiddleCenter);
+    //info->group->get_gameObject()
+    //info->group->set_spacing(3.0f);
+    RectTransform* rect = (RectTransform*)info->layout;
+    rect->set_sizeDelta({0.0f, 0.0f});
     BeatSaberUI::CreateText(info->layout, info->header);
+    
     QuestUI::CustomDataType* wrapper = CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*, il2cpp_utils::CreationType::Manual>(classof(QuestUI::CustomDataType*)));
     wrapper->data = info;
     auto coroutine = UnityEngine::WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), wrapper,
@@ -65,12 +124,14 @@ void AddDonators(donatorInfo* info)
                     // we are now done, we can free the structs and custom datatype
                     free(info);
                     free(wrapper);
+                    DoNext();
                     return true;
                 }
                 BeatSaberUI::CreateText(info->layout, info->names[info->index]);
                 info->index++;
                 return false;
         }));
+    info->self->StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(coroutine));
 }
 
 namespace Qosmetics
@@ -80,36 +141,26 @@ namespace Qosmetics
     {
         if (firstActivation)
         {
-            GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
+            self = this;
+            get_gameObject()->AddComponent<Touchable*>();
+            container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
+            ExternalComponents* components = container->GetComponent<ExternalComponents*>();
+            RectTransform* rect = components->Get<RectTransform*>();
+            rect->set_sizeDelta({0.0f, 0.0f});
+
+            //VerticalLayoutGroup* main = BeatSaberUI::CreateVerticalLayoutGroup(container->get_transform());
             if (PatreonStorage::get_loaded() && PatreonStorage::get_atLeastOne())
             {
-                container->GetComponent<VerticalLayoutGroup*>()->set_childAlignment(TextAnchor::MiddleCenter);
-                BeatSaberUI::CreateText(container->get_transform(), "This mod was made possible by all these amazing patreons and donators!");
-                // legendary tier
-                VerticalLayoutGroup* layout = BeatSaberUI::CreateVerticalLayoutGroup(container->get_transform());
-                layout->set_childAlignment(TextAnchor::MiddleCenter);
-                donatorInfo* info = new donatorInfo(PatreonStorage::get_legendary(), "<color=#e4c13c>== Legendary Patrons ==</color>", layout->get_transform());
-                if (info->size > 0) AddDonators(info);
-                // amazing tier
-                layout = BeatSaberUI::CreateVerticalLayoutGroup(container->get_transform());
-                layout->set_childAlignment(TextAnchor::MiddleCenter);
-                info = new donatorInfo(PatreonStorage::get_amazing(), "<color=#6573cc>-- Amazing Patrons --</color>", layout->get_transform());
-                if (info->size > 0) AddDonators(info);
-                // enthusiastic tier
-                layout = BeatSaberUI::CreateVerticalLayoutGroup(container->get_transform());
-                layout->set_childAlignment(TextAnchor::MiddleCenter);
-                info = new donatorInfo(PatreonStorage::get_enthusiastic(), "<color=#818de2>-- Enthusiastic Patrons --</color>", layout->get_transform());
-                if (info->size > 0) AddDonators(info);
-                // paypal donators
-                layout = BeatSaberUI::CreateVerticalLayoutGroup(container->get_transform());
-                layout->set_childAlignment(TextAnchor::MiddleCenter);
-                info = new donatorInfo(PatreonStorage::get_paypal(), "<color=#0095d9>-- Paypal Donators --</color>", layout->get_transform());
-                if (info->size > 0) AddDonators(info);
+                VerticalLayoutGroup* main = container->GetComponent<VerticalLayoutGroup*>();
+                main->set_childAlignment(TextAnchor::MiddleCenter);
+                BeatSaberUI::CreateText(main->get_transform(), "This mod was made possible by all these amazing patrons and donators!");
+                DoNext();
             }
             else if (!PatreonStorage::get_loaded())
             {
                 BeatSaberUI::CreateText(container->get_transform(), "Sorry, but the list of donators and patreons could not be loaded");
             }
+            else ERROR("No patreons loaded");
         }
     }
 }
