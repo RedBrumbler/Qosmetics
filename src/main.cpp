@@ -92,6 +92,7 @@
 #include "Data/QosmeticsTrail.hpp"
 #include "Data/QosmeticsDescriptorCache.hpp"
 #include "Data/CreatorCache.hpp"
+#include "Data/PatreonStorage.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 #include "static-defines.hpp"
@@ -113,6 +114,7 @@
 
 #include "UI/QosmeticsViewController.hpp"
 #include "UI/QosmeticsFlowCoordinator.hpp"
+#include "UI/CreditsViewController.hpp"
 //#include "UI/QosmeticsflowCoordinator.hpp"
 
 #include "questui/shared/QuestUI.hpp"
@@ -222,6 +224,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, UnityEngine::SceneMa
     if(sceneLoadedName == shaderWarmup && shaderWarmupFirst)
     {
         Qosmetics::CreatorCache::Download();
+        Qosmetics::PatreonStorage::Download();
         Qosmetics::QuestSaber::ShaderWarmup();
         Qosmetics::QuestWall::ShaderWarmup();
         Qosmetics::QuestNote::ShaderWarmup();
@@ -646,6 +649,8 @@ extern "C" void load()
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::QosmeticsTrail>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorScheme>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::ColorManager>());
+
+    CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::CreditsViewController>());
 
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberPreviewViewController>());
     CRASH_UNLESS(custom_types::Register::RegisterType<::Qosmetics::SaberSettingsViewController>());

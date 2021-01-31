@@ -10,13 +10,10 @@
 #define INFO(value...) GenericLogger::GetLogger().WithContext("Creator cache").info(value);
 #define ERROR(value...) GenericLogger::GetLogger().WithContext("Creator cache").error(value);
 
-#warning Don't forget to remove the early return for the Download method in CreatorCache!
-
 namespace Qosmetics
 {
     void CreatorCache::Download()
     {
-        return;
         // web request or something to download the json from the repo ig
         INFO("Downloading File");
         std::string path = CREATORCACHE;

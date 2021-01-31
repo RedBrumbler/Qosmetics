@@ -17,6 +17,8 @@
 #include "UI/Wall/WallPreviewViewController.hpp"
 #include "UI/Wall/WallSettingsViewController.hpp"
 
+#include "UI/CreditsViewController.hpp"
+
 #include "custom-types/shared/macros.hpp"
 
 namespace Qosmetics {
@@ -48,6 +50,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsFlowCoordinator, HMUI::FlowCoordinator
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallSettingsViewController*, WallSettingsViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallPreviewViewController*, WallPreviewViewController, nullptr);
 
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::CreditsViewController*, CreditsViewController, nullptr);
+
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
 
@@ -66,6 +70,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsFlowCoordinator, HMUI::FlowCoordinator
         REGISTER_FIELD(WallSwitcherViewController);
         REGISTER_FIELD(WallSettingsViewController);
         REGISTER_FIELD(WallPreviewViewController);
+
+        REGISTER_FIELD(CreditsViewController);
 
         REGISTER_METHOD(DidActivate);
         REGISTER_METHOD(BackButtonWasPressed);

@@ -29,6 +29,12 @@
       }
     },
     {
+      "type": "HookModLibrary",
+      "installAction": {
+        "installLibraryFile": "libbs-utils.so"
+      }
+    },
+    {
       "type": "FileCopyMod",
       "sourceFileName": "Plasma Katana.qsaber",
       "targetRootedPathAndFileName": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/sabers/Plasma Katana.qsaber"

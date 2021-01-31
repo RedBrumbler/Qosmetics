@@ -139,13 +139,15 @@ namespace Qosmetics
                 WallPreviewViewController = BeatSaberUI::CreateViewController<Qosmetics::WallPreviewViewController*>();
                 //SetupSubTitle(BeatSaberUI::CreateVerticalLayoutGroup(SaberSwitcherViewController->get_rectTransform()));
             }
+
+            CreditsViewController = BeatSaberUI::CreateViewController<Qosmetics::CreditsViewController*>();
             
             if(!QosmeticsViewController)
             {
                 QosmeticsViewController = BeatSaberUI::CreateViewController<Qosmetics::QosmeticsViewController*>();
             }
             QosmeticsViewController->add_openSubMenu(il2cpp_utils::MakeDelegate<System::Action_1<QuestUI::CustomDataType*>*>(classof(System::Action_1<QuestUI::CustomDataType*>*), this, OnOpenSubMenu));
-            ProvideInitialViewControllers(QosmeticsViewController, nullptr, nullptr, nullptr, nullptr);
+            ProvideInitialViewControllers(QosmeticsViewController, nullptr, CreditsViewController, nullptr, nullptr);
             ActiveViewController = QosmeticsViewController;
         }
     }
@@ -157,7 +159,7 @@ namespace Qosmetics
             SetTitle(il2cpp_utils::createcsstr("Qosmetics Settings"), ViewController::AnimationType::Out);
             ReplaceTopViewController(QosmeticsViewController, this, this, nullptr, ViewController::AnimationType::Out, ViewController::AnimationDirection::Horizontal);
             SetLeftScreenViewController(nullptr, ViewController::AnimationType::Out);
-            SetRightScreenViewController(nullptr, ViewController::AnimationType::Out);
+            SetRightScreenViewController(CreditsViewController, ViewController::AnimationType::Out);
             ActiveViewController = QosmeticsViewController;
         }
         else this->parentFlowCoordinator->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
