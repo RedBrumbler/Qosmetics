@@ -6,14 +6,15 @@
 #include <thread>
 #include "Logging.hpp"
 
-#define INFO(...) QosmeticsLogger::GetContextLogger("Descriptor Cache").info(...)
-#define ERROR(...) QosmeticsLogger::GetContextLogger("Descriptor Cache").error(...)
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Descriptor Cache").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Descriptor Cache").error(value)
 
 namespace Qosmetics
 {
     void DescriptorCache::Save()
     {
         std::thread SaveToFile([]{
+            INFO("Saving Descriptor Cache...");
             rapidjson::Document d;
             d.SetObject();
             rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
@@ -25,6 +26,7 @@ namespace Qosmetics
             d.AddMember("platforms", MapToValue(platformDescriptors, allocator), allocator);
 
             Write(d);
+            INFO("Saved Descriptor Cache!");
         });
 
         SaveToFile.detach();
@@ -48,17 +50,19 @@ namespace Qosmetics
 
     bool DescriptorCache::Load()
     {
+        INFO("Loading Descriptor Cache...");
         if (!fileexists(DESCRIPTORCACHE)) return false;
         std::thread LoadFromFile([]{
             std::string json = readfile(DESCRIPTORCACHE);
             rapidjson::Document d;
             d.Parse(json.c_str());
 
-            LoadDescriptorsIntoMap(d["sabers"], saberDescriptors);
-            LoadDescriptorsIntoMap(d["walls"], wallDescriptors);
-            LoadDescriptorsIntoMap(d["notes"], noteDescriptors);
-            LoadDescriptorsIntoMap(d["pointers"], pointerDescriptors);
-            LoadDescriptorsIntoMap(d["platforms"], platformDescriptors);
+            if (d.HasMember("sabers")) LoadDescriptorsIntoMap(d["sabers"], saberDescriptors);
+            if (d.HasMember("walls")) LoadDescriptorsIntoMap(d["walls"], wallDescriptors);
+            if (d.HasMember("notes")) LoadDescriptorsIntoMap(d["notes"], noteDescriptors);
+            if (d.HasMember("pointers")) LoadDescriptorsIntoMap(d["pointers"], pointerDescriptors);
+            if (d.HasMember("platforms")) LoadDescriptorsIntoMap(d["platforms"], platformDescriptors);
+            INFO("Loaded Descriptor Cache!");
         });
         LoadFromFile.detach();
         return true;

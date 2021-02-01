@@ -1,7 +1,10 @@
 #include "modloader/shared/modloader.hpp"
 #include "Logging.hpp"
+#include "Data/DescriptorCache.hpp"
 
 ModInfo modInfo;
+
+using namespace Qosmetics;
 
 extern "C" void setup(ModInfo& info)
 {
@@ -13,7 +16,7 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load()
 {
-    
+    if (!DescriptorCache::Load()) DescriptorCache::Save();
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
 
     logger.info("Installing Hooks...");
