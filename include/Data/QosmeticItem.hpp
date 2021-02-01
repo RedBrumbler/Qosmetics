@@ -18,18 +18,22 @@ namespace Qosmetics
 
             void GameObjectCallback(UnityEngine::GameObject* gameObject);
             virtual void ConfigCallback(UnityEngine::TextAsset* textAsset) {};
-            virtual void DescriptorCallback(UnityEngine::GameObject* textAsset){};
+            virtual void DescriptorCallback(UnityEngine::GameObject* textAsset) {};
             
             ItemType get_type()
             {
                 return descriptor.get_type();
             }
 
-            virtual ItemConfig& get_config();
+            virtual ItemConfig& get_config()
+            {
+                return config;
+            }
 
-        private:
+        protected:
             Descriptor& descriptor;
             ModelProvider modelProvider;
             UnityEngine::GameObject* prefab;
+            ItemConfig config;
     };
 }

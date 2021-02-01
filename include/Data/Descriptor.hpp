@@ -55,6 +55,15 @@ namespace Qosmetics
                 filePath = val["filePath"].GetString();
             }
 
+            Descriptor(rapidjson::Value& val, std::string filePath)
+            {
+                author = val["author"].GetString();
+                name = val["name"].GetString();
+                description = val["description"].GetString();
+                type = GetTypeFromName(filePath);
+                this->filePath = filePath;
+            }
+
             static ItemType GetTypeFromName(std::string name);
             
             std::string GetFileName(bool removeExtension = false);
@@ -92,6 +101,14 @@ namespace Qosmetics
             bool isType(ItemType type)
             {
                 return this->type == type;
+            }
+
+            void CopyFrom(Descriptor& descriptor)
+            {
+                author = descriptor.author;
+                name = descriptor.name;
+                description = descriptor.description;
+                filePath = descriptor.filePath;
             }
     
             rapidjson::Value ToVal(rapidjson::Document::AllocatorType& allocator);

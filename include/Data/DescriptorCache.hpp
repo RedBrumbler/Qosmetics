@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include "Data/Descriptor.hpp"
@@ -8,6 +8,7 @@ namespace Qosmetics
 {
     class DescriptorCache
     {
+        using Cache = std::unordered_map<std::string, Descriptor>;
         public:
             /// @brief saves the cache to file
             static void Save();
@@ -41,31 +42,39 @@ namespace Qosmetics
             /// @param descriptor the descriptor copied into the map
             /// @param map the map to add to
             /// @return reference to the newly added descriptor (it's NOT the same as the input)
-            static Descriptor& AddDescriptorToMap(Descriptor& descriptor, std::map<std::string, Descriptor>& map);
+            static Descriptor& AddDescriptorToMap(Descriptor& descriptor, Cache& map);
 
             /// @brief gets the specified descriptor reference
             /// @param fileName The key for the descriptor maps
             /// @param map
             /// @return reference to teh found descriptor, or invalid
-            static Descriptor& GetDescriptorFromMap(std::string& fileName, std::map<std::string, Descriptor>& map);
+            static Descriptor& GetDescriptorFromMap(std::string& fileName, Cache& map);
             
             /// @brief adds the descriptors from val into the map
             /// @param val the rapidjson value that has the array of descriptors
             /// @param out the map where the output will go
-            static void LoadDescriptorsIntoMap(rapidjson::Value& val, std::map<std::string, Descriptor>& out);
+            static void LoadDescriptorsIntoMap(rapidjson::Value& val, Cache& out);
             
             /// @brief turns a given map into a value
             /// @param map the map to turn into value
             /// @param allocator the allocator to use
             /// @return value that can be added to a document
-            static rapidjson::Value MapToValue(std::map<std::string, Descriptor>& map, rapidjson::Document::AllocatorType& allocator);
+            static rapidjson::Value MapToValue(Cache& map, rapidjson::Document::AllocatorType& allocator);
 
-            static inline std::map<std::string, Descriptor> saberDescriptors = {};
-            static inline std::map<std::string, Descriptor> wallDescriptors = {};
-            static inline std::map<std::string, Descriptor> noteDescriptors = {};
-            static inline std::map<std::string, Descriptor> pointerDescriptors = {};
-            static inline std::map<std::string, Descriptor> platformDescriptors = {};
-
+            static inline std::unordered_map<ItemType, Cache> descriptors = {
+                { ItemType::saber, {} }, 
+                { ItemType::note, {} }, 
+                { ItemType::wall, {} }, 
+                { ItemType::pointer, {} }, 
+                { ItemType::platform, {} }
+            };
+            /*
+                static inline Cache saberDescriptors = {};
+                static inline Cache wallDescriptors = {};
+                static inline Cache noteDescriptors = {};
+                static inline Cache pointerDescriptors = {};
+                static inline Cache platformDescriptors = {};
+            */
             static inline Descriptor invalid = Descriptor(ItemType::invalid);
     };
 }

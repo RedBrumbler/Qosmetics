@@ -7,12 +7,13 @@ namespace Qosmetics
     class SaberItem : public QosmeticItem
     {
         public:
-            ItemConfig& get_config()
+            SaberConfig& get_config()
             {
                 return config;
             }
-            void ConfigCallback(TextAsset* textAsset);
-            void DescriptorCallback(UnityEngine::GameObject* textAsset);
+
+            void ConfigCallback(UnityEngine::TextAsset* textAsset);
+            void DescriptorCallback(UnityEngine::TextAsset* textAsset);
 
         private:
             SaberConfig config;

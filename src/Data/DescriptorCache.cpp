@@ -19,11 +19,11 @@ namespace Qosmetics
             d.SetObject();
             rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
 
-            d.AddMember("sabers", MapToValue(saberDescriptors, allocator), allocator);
-            d.AddMember("notes", MapToValue(noteDescriptors, allocator), allocator);
-            d.AddMember("walls", MapToValue(wallDescriptors, allocator), allocator);
-            d.AddMember("pointers", MapToValue(pointerDescriptors, allocator), allocator);
-            d.AddMember("platforms", MapToValue(platformDescriptors, allocator), allocator);
+            d.AddMember("sabers", MapToValue(descriptors[ItemType::saber], allocator), allocator);
+            d.AddMember("notes", MapToValue(descriptors[ItemType::note], allocator), allocator);
+            d.AddMember("walls", MapToValue(descriptors[ItemType::wall], allocator), allocator);
+            d.AddMember("pointers", MapToValue(descriptors[ItemType::pointer], allocator), allocator);
+            d.AddMember("platforms", MapToValue(descriptors[ItemType::platform], allocator), allocator);
 
             Write(d);
             INFO("Saved Descriptor Cache!");
@@ -57,11 +57,11 @@ namespace Qosmetics
             rapidjson::Document d;
             d.Parse(json.c_str());
 
-            if (d.HasMember("sabers")) LoadDescriptorsIntoMap(d["sabers"], saberDescriptors);
-            if (d.HasMember("walls")) LoadDescriptorsIntoMap(d["walls"], wallDescriptors);
-            if (d.HasMember("notes")) LoadDescriptorsIntoMap(d["notes"], noteDescriptors);
-            if (d.HasMember("pointers")) LoadDescriptorsIntoMap(d["pointers"], pointerDescriptors);
-            if (d.HasMember("platforms")) LoadDescriptorsIntoMap(d["platforms"], platformDescriptors);
+            if (d.HasMember("sabers")) LoadDescriptorsIntoMap(d["sabers"], descriptors[ItemType::saber]);
+            if (d.HasMember("walls")) LoadDescriptorsIntoMap(d["walls"], descriptors[ItemType::wall]);
+            if (d.HasMember("notes")) LoadDescriptorsIntoMap(d["notes"], descriptors[ItemType::note]);
+            if (d.HasMember("pointers")) LoadDescriptorsIntoMap(d["pointers"], descriptors[ItemType::pointer]);
+            if (d.HasMember("platforms")) LoadDescriptorsIntoMap(d["platforms"], descriptors[ItemType::platform]);
             INFO("Loaded Descriptor Cache!");
         });
         LoadFromFile.detach();
@@ -70,6 +70,8 @@ namespace Qosmetics
 
     Descriptor& DescriptorCache::AddDescriptorToCache(Descriptor& descriptor)
     {
+        return AddDescriptorToMap(descriptor, descriptors[descriptor.get_type()]);
+        /*
         switch(descriptor.get_type())
         {
             case saber:
@@ -85,9 +87,10 @@ namespace Qosmetics
             default:
                 return invalid;
         }
+        */
     }
 
-    Descriptor& DescriptorCache::AddDescriptorToMap(Descriptor& descriptor, std::map<std::string, Descriptor>& map)
+    Descriptor& DescriptorCache::AddDescriptorToMap(Descriptor& descriptor, Cache& map)
     {
         std::string fileName = descriptor.GetFileName();
         map[fileName] = descriptor;
@@ -97,6 +100,10 @@ namespace Qosmetics
     Descriptor& DescriptorCache::GetDescriptor(std::string fileName)
     {
         ItemType type = Descriptor::GetTypeFromName(fileName);
+        if (type == ItemType::invalid) return invalid;
+        return GetDescriptorFromMap(fileName, descriptors[type]);
+
+        /*
         switch (type)
         {
             case saber:
@@ -112,12 +119,13 @@ namespace Qosmetics
             default:
                 return invalid;
         }
+        */
     }
 
-    Descriptor& DescriptorCache::GetDescriptorFromMap(std::string& fileName, std::map<std::string, Descriptor>& map)
+    Descriptor& DescriptorCache::GetDescriptorFromMap(std::string& fileName, Cache& map)
     {
         std::string key = FileUtils::GetFileName(fileName);
-        std::map<std::string, Descriptor>::iterator it = map.find(key);
+        Cache::iterator it = map.find(key);
         if (it != map.end())
         {
             return it->second;
@@ -125,7 +133,7 @@ namespace Qosmetics
         return invalid;
     }
 
-    void DescriptorCache::LoadDescriptorsIntoMap(rapidjson::Value& val, std::map<std::string, Descriptor>& out)
+    void DescriptorCache::LoadDescriptorsIntoMap(rapidjson::Value& val, Cache& out)
     {
         for (auto& descriptor : val.GetArray())
         {
@@ -134,7 +142,7 @@ namespace Qosmetics
         }
     }
 
-    rapidjson::Value DescriptorCache::MapToValue(std::map<std::string, Descriptor>& map, rapidjson::Document::AllocatorType& allocator)
+    rapidjson::Value DescriptorCache::MapToValue(Cache& map, rapidjson::Document::AllocatorType& allocator)
     {
         rapidjson::Value array(rapidjson::kArrayType);
         array.SetArray();
