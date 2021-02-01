@@ -18,6 +18,19 @@ namespace Qosmetics
         public:
             Descriptor() {};
 
+            Descriptor (ItemType type)
+            {
+                if (type == ItemType::invalid)
+                {
+                    author = "invalid";
+                    name = "invalid";
+                    filePath = "invalid";
+                    description = "invalid";
+                }
+
+                this->type = type;
+            }
+
             Descriptor(std::string filePath, ItemType type)
             {
                 this->filePath = filePath;
@@ -33,9 +46,18 @@ namespace Qosmetics
                 this->type = GetTypeFromName(filePath);
             }
 
+            Descriptor(rapidjson::Value& val)
+            {
+                author = val["author"].GetString();
+                name = val["name"].GetString();
+                description = val["description"].GetString();
+                type = (ItemType)val["type"].GetInt();
+                filePath = val["filePath"].GetString();
+            }
+
             static ItemType GetTypeFromName(std::string name);
             
-            std::string GetFileName();
+            std::string GetFileName(bool removeExtension = false);
 
             bool isValid() 
             {
@@ -62,17 +84,22 @@ namespace Qosmetics
                 return filePath;
             }
 
+            ItemType get_type()
+            {
+                return type;
+            }
+
             bool isType(ItemType type)
             {
                 return this->type == type;
             }
     
-            rapidjson::Value toVal(rapidjson::Document::AllocatorType& allocator);
+            rapidjson::Value ToVal(rapidjson::Document::AllocatorType& allocator);
 
         private:
-            std::string author = "";
+            std::string author = "---";
             std::string name = "";
-            std::string description = "";
+            std::string description = "legacy saber";
             std::string filePath = "";
             ItemType type = invalid;
     };

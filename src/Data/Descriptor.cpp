@@ -1,4 +1,4 @@
-#include "Descriptor.hpp"
+#include "Data/Descriptor.hpp"
 #include "Utils/FileUtils.hpp"
 #include <map>
 
@@ -24,21 +24,21 @@ namespace Qosmetics
         return invalid;
     }
 
-    std::string Descriptor::GetFileName()
+    std::string Descriptor::GetFileName(bool removeExtension)
     {
-        return FileUtils::GetFileName(filePath, true);
+        return FileUtils::GetFileName(filePath, removeExtension);
     }
 
-    rapidjson::Value Descriptor::toVal(rapidjson::Document::AllocatorType& allocator)
+    rapidjson::Value Descriptor::ToVal(rapidjson::Document::AllocatorType& allocator)
     {
         rapidjson::Value val;
-        assert(val.IsObject());
+        val.SetObject();
 
-        val.AddMember("name", name, allocator);
-        val.AddMember("author", author, allocator);
-        val.AddMember("description", description, allocator);
-        val.AddMember("type", type, allocator);
-        val.AddMember("filePath", filePath, allocator);
+        val.AddMember("name", rapidjson::Value(name.c_str(), name.size(), allocator), allocator);
+        val.AddMember("author", rapidjson::Value(author.c_str(), author.size(), allocator), allocator);
+        val.AddMember("description", rapidjson::Value(description.c_str(), description.size(), allocator), allocator);
+        val.AddMember("type", (int)type, allocator);
+        val.AddMember("filePath", rapidjson::Value(filePath.c_str(), filePath.size(), allocator), allocator);
         return val;
     }
 }
