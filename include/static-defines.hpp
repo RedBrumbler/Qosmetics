@@ -1,5 +1,5 @@
 #pragma once
-
+#include "beatsaber-hook/shared/utils/utils-functions.h"
 #define BASEPATH            "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/"
 
 #define SABERPATH           string_format("%s%s", BASEPATH, "sabers/")

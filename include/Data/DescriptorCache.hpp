@@ -4,7 +4,6 @@
 #include <string>
 #include "Data/Descriptor.hpp"
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
-
 namespace Qosmetics
 {
     class DescriptorCache
@@ -31,8 +30,9 @@ namespace Qosmetics
             static Descriptor& AddDescriptorToCache(Descriptor& descriptor);
         private:
 
-            /// @brief writes the cache to file
-            static void Write();
+            /// @brief writes a doc to file
+            /// @param d document to write
+            static void Write(rapidjson::Document& d);
 
             /// @brief Clears all the maps
             static void Clear();

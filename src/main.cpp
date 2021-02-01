@@ -13,6 +13,7 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load()
 {
+    
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
 
     logger.info("Installing Hooks...");
