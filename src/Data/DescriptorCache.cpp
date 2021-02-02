@@ -163,9 +163,15 @@ namespace Qosmetics
         for (auto& name : fileNames)
         {
             Descriptor& gotten = GetDescriptor(name);
-            if (gotten.isValid()) continue;
+            if (gotten.isValid()) 
+            {
+                INFO("Descriptor for %s was valid", name.c_str());
+                continue;
+            }
             ItemType type = Descriptor::GetTypeFromName(name);
-            Descriptor newDescriptor = Descriptor(folderPath + name, type);
+            std::string filePath = folderPath + name;
+            Descriptor newDescriptor = Descriptor(filePath, type);
+            INFO("Created descriptor with file path %s, and type %d", filePath.c_str(), (int)type);
             AddDescriptorToCache(newDescriptor);
         }
     }

@@ -27,6 +27,11 @@ namespace Qosmetics
             virtual void ConfigCallback(UnityEngine::TextAsset* textAsset) {};
             virtual void DescriptorCallback(UnityEngine::TextAsset* textAsset);
             
+            UnityEngine::GameObject* get_prefab()
+            {
+                return prefab;
+            }
+
             ItemType get_type()
             {
                 return descriptor.get_type();

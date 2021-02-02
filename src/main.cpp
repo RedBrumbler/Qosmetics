@@ -1,9 +1,12 @@
 #include "modloader/shared/modloader.hpp"
 #include "QosmeticsLogger.hpp"
 #include "Data/DescriptorCache.hpp"
+#include "static-defines.hpp"
 
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "Saber/SaberItem.hpp"
+#include "Note/NoteItem.hpp"
+#include "Wall/WallItem.hpp"
 
 ModInfo modInfo = {ID, VERSION};
 
@@ -18,9 +21,9 @@ using namespace GlobalNamespace;
 MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-    Descriptor& descriptor = DescriptorCache::GetDescriptor("Plasma Katana.qsaber");
+    Descriptor& descriptor = DescriptorCache::GetDescriptor("Scoresaber Notes.qbloq");
     if (descriptor.isValid())
-        new SaberItem(descriptor, true);
+        new NoteItem(descriptor, true);
     else ERROR("Invalid Descriptor!");
 }
 
@@ -35,6 +38,10 @@ extern "C" void setup(ModInfo& info)
 extern "C" void load()
 {
     if (!DescriptorCache::Load()) DescriptorCache::Save();
+    DescriptorCache::DescriptorsFromFolder(SABERPATH);
+    DescriptorCache::DescriptorsFromFolder(WALLPATH);
+    DescriptorCache::DescriptorsFromFolder(NOTEPATH);
+    
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
 
     logger.info("Installing Hooks...");
