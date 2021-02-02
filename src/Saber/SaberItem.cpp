@@ -14,6 +14,15 @@ namespace Qosmetics
         {
             return;
         }
+
+        Il2CppString* descriptorstring = textAsset->get_text();
+        
+        std::string json = to_utf8(csstrtostr(descriptorstring));
+
+        rapidjson::Document d;
+        d.Parse(json.c_str());
+
+        config = SaberConfig(d);
     }
 
     void SaberItem::DescriptorCallback(TextAsset* textAsset)
