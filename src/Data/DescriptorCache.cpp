@@ -154,4 +154,19 @@ namespace Qosmetics
 
         return array;
     }
+
+    void DescriptorCache::DescriptorsFromFolder(std::string folderPath)
+    {
+        std::vector<std::string> fileNames = {};
+        FileUtils::GetFilesInFolderPath("", folderPath, fileNames);
+
+        for (auto& name : fileNames)
+        {
+            Descriptor& gotten = GetDescriptor(name);
+            if (gotten.isValid()) continue;
+            ItemType type = Descriptor::GetTypeFromName(name);
+            Descriptor newDescriptor = Descriptor(folderPath + name, type);
+            AddDescriptorToCache(newDescriptor);
+        }
+    }
 }

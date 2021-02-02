@@ -3,6 +3,7 @@
 #include "Data/ModelProvider.hpp"
 #include "Data/ItemConfig.hpp"
 
+#include "UnityEngine/Object.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/TextAsset.hpp"
 
@@ -24,7 +25,7 @@ namespace Qosmetics
 
             void GameObjectCallback(UnityEngine::GameObject* gameObject);
             virtual void ConfigCallback(UnityEngine::TextAsset* textAsset) {};
-            virtual void DescriptorCallback(UnityEngine::TextAsset* textAsset) {};
+            virtual void DescriptorCallback(UnityEngine::TextAsset* textAsset);
             
             ItemType get_type()
             {
@@ -39,6 +40,11 @@ namespace Qosmetics
             Descriptor& get_descriptor()
             {
                 return descriptor;
+            }
+
+            ~QosmeticItem()
+            {
+                UnityEngine::Object::Destroy(prefab);
             }
 
         protected:

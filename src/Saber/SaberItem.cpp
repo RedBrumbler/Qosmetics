@@ -12,6 +12,7 @@ namespace Qosmetics
     {
         if (!textAsset)
         {
+            ERROR("Config was nullptr! did someone fuck with the exporter, or is the read broken? regardless keeping Default config");
             return;
         }
 
@@ -29,6 +30,7 @@ namespace Qosmetics
     {
         if (!textAsset)
         {
+            ERROR("Descriptor was nullptr! did someone fuck with the exporter, or is the read broken? regardless setting legacy descriptor");
             Descriptor temp = Descriptor("---", descriptor.GetFileName(true), "Legacy Saber", descriptor.get_filePath());
             descriptor.CopyFrom(temp);
             return;

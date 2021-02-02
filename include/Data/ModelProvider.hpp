@@ -23,6 +23,11 @@ namespace Qosmetics
                 return objectLoaded && descriptorLoaded && configLoaded;
             }
 
+            ~ModelProvider()
+            {
+                if (bundle) UnloadBundle();
+            }
+
         private:
             QosmeticItem* item = nullptr;
             bs_utils::AssetBundle* bundle = nullptr;

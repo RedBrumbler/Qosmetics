@@ -29,6 +29,10 @@ namespace Qosmetics
             /// @param descriptor the descriptor to add
             /// @return Descriptor reference to the newly added descriptor
             static Descriptor& AddDescriptorToCache(Descriptor& descriptor);
+            
+            /// @brief Creates all descriptors from the given folder
+            /// @param folderPath the folder in which to look
+            static void DescriptorsFromFolder(std::string folderPath);
         private:
 
             /// @brief writes a doc to file
