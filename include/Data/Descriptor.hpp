@@ -57,8 +57,8 @@ namespace Qosmetics
 
             Descriptor(rapidjson::Value& val, std::string filePath)
             {
-                author = val["author"].GetString();
-                name = val["name"].GetString();
+                author = val["authorName"].GetString();
+                name = val["objectName"].GetString();
                 description = val["description"].GetString();
                 type = GetTypeFromName(filePath);
                 this->filePath = filePath;

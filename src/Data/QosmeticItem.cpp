@@ -1,5 +1,5 @@
 #include "Data/QosmeticItem.hpp"
-#include "Logging.hpp"
+#include "QosmeticsLogger.hpp"
 #include "UnityEngine/Object.hpp"
 #include "Utils/MaterialUtils.hpp"
 

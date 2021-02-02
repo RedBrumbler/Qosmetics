@@ -5,7 +5,7 @@
 
 #include "custom-types/shared/macros.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, QosmetcsTrail, GlobalNamespace::SaberTrail,
+DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     
 
     public:

@@ -4,9 +4,11 @@
 
 namespace Qosmetics
 {
-    class SaberItem : public QosmeticItem
+    class SaberItem : public virtual QosmeticItem
     {
         public:
+            SaberItem(Descriptor& descriptor, bool load = false) : QosmeticItem(descriptor, load) {};
+            
             SaberConfig& get_config()
             {
                 return config;
@@ -16,6 +18,6 @@ namespace Qosmetics
             void DescriptorCallback(UnityEngine::TextAsset* textAsset);
 
         private:
-            SaberConfig config;
+            SaberConfig config = SaberConfig();
     };
 }

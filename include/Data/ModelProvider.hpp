@@ -1,4 +1,6 @@
 #pragma once
+#include "UnityEngine/AssetBundle.hpp"
+#include "bs-utils/shared/AssetBundle.hpp"
 
 namespace Qosmetics
 {
@@ -15,7 +17,23 @@ namespace Qosmetics
 
             void LoadBundle(bool alsoLoadAssets = false);
             void LoadAssets();
+            
+            bool get_complete()
+            {
+                return objectLoaded && descriptorLoaded && configLoaded;
+            }
+
         private:
-            QosmeticItem* item;
+            QosmeticItem* item = nullptr;
+            bs_utils::AssetBundle* bundle = nullptr;
+            void OnComplete();
+            void UnloadBundle();
+
+            static inline Il2CppReflectionType* GameObjectType = nullptr;
+            static inline Il2CppReflectionType* TextAssetType = nullptr;
+
+            bool objectLoaded = false;
+            bool descriptorLoaded = false;
+            bool configLoaded = false;
     };
 }

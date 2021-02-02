@@ -1,4 +1,8 @@
 #include "Saber/SaberItem.hpp"
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Item").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber Item").error(value)
 
 using namespace UnityEngine;
 
@@ -22,7 +26,7 @@ namespace Qosmetics
         }
 
         Il2CppString* descriptorstring = textAsset->get_text();
-
+        
         std::string json = to_utf8(csstrtostr(descriptorstring));
 
         rapidjson::Document d;

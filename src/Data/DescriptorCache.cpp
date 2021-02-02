@@ -4,7 +4,7 @@
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/prettywriter.h"
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/stringbuffer.h"
 #include <thread>
-#include "Logging.hpp"
+#include "QosmeticsLogger.hpp"
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Descriptor Cache").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Descriptor Cache").error(value)

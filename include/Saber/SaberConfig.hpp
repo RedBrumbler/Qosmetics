@@ -8,6 +8,8 @@ namespace Qosmetics
     class SaberConfig : public ItemConfig
     {
         public:
+            SaberConfig() {};
+            
             SaberConfig(rapidjson::Document& d)
             {
                 enableFakeGlow = d["enableFakeGlow"].GetBool();
@@ -63,12 +65,12 @@ namespace Qosmetics
             }
 
         private:
-            bool enableFakeGlow;
-            bool hasCustomTrails;
-            bool hasCustomWallParticles;
-            bool hasCustomSliceParticles;
+            bool enableFakeGlow = false;
+            bool hasCustomTrails = false;
+            bool hasCustomWallParticles = false;
+            bool hasCustomSliceParticles = false;
 
-            std::vector<TrailConfig> leftTrails;
-            std::vector<TrailConfig> rightTrails;
+            std::vector<TrailConfig> leftTrails = {};
+            std::vector<TrailConfig> rightTrails = {};
     };
 }

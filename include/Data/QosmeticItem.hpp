@@ -11,14 +11,20 @@ namespace Qosmetics
     class QosmeticItem
     {   
         public:
-            QosmeticItem(Descriptor& descriptor) : descriptor(descriptor)
+            QosmeticItem(Descriptor& descriptor, bool load = false) : descriptor(descriptor)
             {
-                
+                if (load) Load();
+            }
+
+            void Load()
+            {
+                if (!fileexists(descriptor.get_filePath())) return;
+                modelProvider.LoadBundle(true);
             }
 
             void GameObjectCallback(UnityEngine::GameObject* gameObject);
             virtual void ConfigCallback(UnityEngine::TextAsset* textAsset) {};
-            virtual void DescriptorCallback(UnityEngine::GameObject* textAsset) {};
+            virtual void DescriptorCallback(UnityEngine::TextAsset* textAsset) {};
             
             ItemType get_type()
             {
@@ -30,9 +36,14 @@ namespace Qosmetics
                 return config;
             }
 
+            Descriptor& get_descriptor()
+            {
+                return descriptor;
+            }
+
         protected:
             Descriptor& descriptor;
-            ModelProvider modelProvider;
+            ModelProvider modelProvider = ModelProvider(this);
             UnityEngine::GameObject* prefab;
             ItemConfig config;
     };
