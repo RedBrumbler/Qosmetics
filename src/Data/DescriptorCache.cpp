@@ -62,7 +62,21 @@ namespace Qosmetics
             if (d.HasMember("notes")) LoadDescriptorsIntoMap(d["notes"], descriptors[ItemType::note]);
             if (d.HasMember("pointers")) LoadDescriptorsIntoMap(d["pointers"], descriptors[ItemType::pointer]);
             if (d.HasMember("platforms")) LoadDescriptorsIntoMap(d["platforms"], descriptors[ItemType::platform]);
-            INFO("Loaded Descriptor Cache!");
+            INFO("Loaded Descriptor Cache File!");
+
+            INFO("Checking for any new files");
+            bool anyNew = false;
+            if (DescriptorCache::DescriptorsFromFolder(SABERPATH)) anyNew = true;
+            if (DescriptorCache::DescriptorsFromFolder(WALLPATH)) anyNew = true;
+            if (DescriptorCache::DescriptorsFromFolder(NOTEPATH)) anyNew = true;
+
+            INFO("Done checking for any new files in folder paths");
+
+            if (anyNew)
+            {
+                INFO("New descriptors were found, writing to file");
+                Save();
+            }
         });
         LoadFromFile.detach();
         return true;
@@ -155,24 +169,33 @@ namespace Qosmetics
         return array;
     }
 
-    void DescriptorCache::DescriptorsFromFolder(std::string folderPath)
+    bool DescriptorCache::DescriptorsFromFolder(std::string folderPath)
     {
+        bool gotAny = false;
         std::vector<std::string> fileNames = {};
-        FileUtils::GetFilesInFolderPath("", folderPath, fileNames);
+        INFO("making descriptors for files in folder %s", folderPath.c_str());
+        if (!FileUtils::GetFilesInFolderPath("", folderPath, fileNames)) 
+        {
+            ERROR("No descriptors were found, returning!");
+            return false;
+        }
 
         for (auto& name : fileNames)
         {
             Descriptor& gotten = GetDescriptor(name);
             if (gotten.isValid()) 
             {
-                INFO("Descriptor for %s was valid", name.c_str());
                 continue;
             }
+            // if it was not valid (didn't exist) make a new descriptor and add to cache
             ItemType type = Descriptor::GetTypeFromName(name);
             std::string filePath = folderPath + name;
             Descriptor newDescriptor = Descriptor(filePath, type);
             INFO("Created descriptor with file path %s, and type %d", filePath.c_str(), (int)type);
+            gotAny = true;
             AddDescriptorToCache(newDescriptor);
         }
+
+        return gotAny;
     }
 }

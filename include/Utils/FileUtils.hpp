@@ -28,6 +28,6 @@ class FileUtils
         /// @param filePath the folder to look in
         /// @param out the output vector
         /// @return bool found at least 1
-        static bool GetFilesInFolderPath(std::string extension, std::string filePath, std::vector<std::string> out);        
+        static bool GetFilesInFolderPath(std::string extension, std::string filePath, std::vector<std::string>& out);        
     private:
 };

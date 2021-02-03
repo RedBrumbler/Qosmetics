@@ -32,7 +32,7 @@ namespace Qosmetics
             
             /// @brief Creates all descriptors from the given folder
             /// @param folderPath the folder in which to look
-            static void DescriptorsFromFolder(std::string folderPath);
+            static bool DescriptorsFromFolder(std::string folderPath);
         private:
 
             /// @brief writes a doc to file

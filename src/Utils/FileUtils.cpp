@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <fstream>
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("File Utils").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("File Utils").error(value)
 
 std::string FileUtils::GetFileName(std::string path, bool removeExtension)
 {
@@ -29,7 +33,7 @@ std::string FileUtils::GetExtension(std::string path)
     return "";
 }
 
-bool FileUtils::GetFilesInFolderPath(std::string extension, std::string filePath, std::vector<std::string> out)
+bool FileUtils::GetFilesInFolderPath(std::string extension, std::string filePath, std::vector<std::string>& out)
 {
     bool foundTheExtension = false; 
     struct DIR* fileDir = opendir(filePath.data());
@@ -38,11 +42,12 @@ bool FileUtils::GetFilesInFolderPath(std::string extension, std::string filePath
     {
         while((files = readdir(fileDir)) != NULL)
         {
-            //std::string fileName = ;
-            std::string foundExtension = GetExtension(files->d_name);
-            if(foundExtension == extension)
+            std::string fileName = files->d_name;
+            if (fileName == "." || fileName == "..") continue;
+            std::string foundExtension = GetExtension(fileName);
+            if(foundExtension.find(extension) != std::string::npos)
             {
-                out.push_back(std::string(files->d_name));
+                out.push_back(fileName);
                 foundTheExtension = true; 
             }
         }
