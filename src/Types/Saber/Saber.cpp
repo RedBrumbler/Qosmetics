@@ -42,7 +42,6 @@ namespace Qosmetics
     {
         INFO("Replacing saber");
         if (!modelManager) return;
-        SaberItem& item = modelManager->get_item();
         GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
 
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
