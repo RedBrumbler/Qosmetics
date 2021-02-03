@@ -45,6 +45,8 @@ static Qosmetics::SaberManager* manager = nullptr;
 MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberModelContainer* self)
 {
     SaberModelContainer_Start(self);
+    return;
+
     INFO("SaberModelContainer");
     if (!self->saber) 
     {
@@ -63,14 +65,24 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
     }
 }
 
+MAKE_HOOK_OFFSETLESS(Saber_Start, void, GlobalNamespace::Saber* self)
+{
+    Saber_Start(self);
+    Qosmetics::Saber* saber = UnityUtils::GetAddComponent<Qosmetics::Saber*>(self->get_gameObject());
+    saber->Init(manager);
+    saber->Replace();
+}
+
 MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     atLeastMenu = true;
+    /*
     Descriptor& descriptor = DescriptorCache::GetDescriptor("Scoresaber Notes.qbloq");
     if (descriptor.isValid())
         new NoteItem(descriptor, true);
     else ERROR("Invalid Descriptor!");
+    */
     if (!manager) manager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>();
     if (!manager->prefab) manager->SetActiveSaber("Plasma Katana.qsaber");
 }
@@ -92,6 +104,7 @@ extern "C" void load()
     logger.info("Installing Hooks...");
     INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
     INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, Saber_Start, il2cpp_utils::FindMethodUnsafe("", "Saber", "Start", 0));
     logger.info("Installed Hooks!");
 
     logger.info("Registering Custom types...");

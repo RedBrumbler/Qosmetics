@@ -45,6 +45,7 @@ namespace Qosmetics
         activeItem = new SaberItem(newItem, true);
         activeItem->SetCompleteCallback([&](SaberItem& item){
             this->prefab = Object::Instantiate(item.get_prefab(), get_transform());
+            this->prefab->SetActive(true);
         });
     }
 
@@ -70,5 +71,21 @@ namespace Qosmetics
     {
         if (!rightSaberName) rightSaberName = il2cpp_utils::createcsstr("RightSaber", il2cpp_utils::StringType::Manual);
         return rightSaberName;
+    }
+
+    void SaberManager::SetActiveSaber(std::string name)
+    {
+        internalSetActiveModel(name);
+    }
+
+    ItemType SaberManager::get_type()
+    {
+        return activeItem->get_type();
+    }
+    
+    SaberItem& SaberManager::get_item()
+    {
+        INFO("Item ptr: %p", activeItem);
+        return *this->activeItem;
     }
 }

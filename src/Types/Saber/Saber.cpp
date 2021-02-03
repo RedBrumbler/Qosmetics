@@ -3,6 +3,7 @@
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "Utils/UnityUtils.hpp"
+#include "Utils/SaberUtils.hpp"
 #include "QosmeticsLogger.hpp"
 
 DEFINE_CLASS(Qosmetics::Saber);
@@ -42,15 +43,13 @@ namespace Qosmetics
     {
         INFO("Replacing saber");
         if (!modelManager) return;
-        GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
-
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
         Transform* prefab = (saberType == 0) ? modelManager->get_leftSaber() : modelManager->get_rightSaber();
         if (!prefab) return;
 
         if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
         Transform* basicSaberModel = get_transform()->Find(basicSaberModelName);
-
+        if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), modelManager->get_item().get_config().get_enableFakeGlow());
         //if (basicSaberModel) UnityUtils::HideRenderersOnObject(basicSaberModel->get_gameObject());
         Transform* newSaber = get_transform()->Find(saberName);
         if (!newSaber) prefab->SetParent(get_transform());

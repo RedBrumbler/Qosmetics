@@ -18,25 +18,9 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SaberManager, UnityEngine::MonoBehaviour,
         DECLARE_METHOD(UnityEngine::Transform*, get_rightSaber);
     public:
         void internalSetActiveModel(std::string name);
-        void SetActiveSaber(std::string name)
-        {
-            internalSetActiveModel(name);
-        }
-
-        ItemType get_type()
-        {
-            return activeItem->get_type();
-        }
-        
-        SaberItem& get_item()
-        {
-            INFO("Item ptr: %p", activeItem);
-            return *this->activeItem;
-        }
-        
-        
-        
-        
+        void SetActiveSaber(std::string name);
+        ItemType get_type();
+        SaberItem& get_item();
     protected:
         SaberItem* activeItem = nullptr;
 

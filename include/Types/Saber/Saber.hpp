@@ -13,9 +13,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Saber, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(void, UpdateModel);
     DECLARE_METHOD(void, Restore);
     DECLARE_METHOD(void, Init, SaberManager* modelManager);
-
-    public:    
-
+    
     REGISTER_FUNCTION(Saber,
         REGISTER_FIELD(modelManager);
         REGISTER_FIELD(saberType);
