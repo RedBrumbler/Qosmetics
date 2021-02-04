@@ -10,6 +10,9 @@ class MaterialUtils
         /// @brief prewarms all shaders on the object
         /// @param object object on which to prewarm
         static void PrewarmAllShadersOnObject(UnityEngine::GameObject* object);
-
-        static Array<UnityEngine::Material*>* GetMaterialArray(UnityEngine::Renderer* renderer);
+        
+        /// @brief gets the material array from the passed in renderer
+        /// @param renderer the renderer from which to get the array
+        /// @returns material array
+        static Array<UnityEngine::Material*>* GetMaterials(UnityEngine::Renderer* renderer);
 };

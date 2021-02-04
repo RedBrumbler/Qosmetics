@@ -19,13 +19,13 @@ DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(UnityEngine::GameObject*, get_rightDebris);
     DECLARE_METHOD(UnityEngine::GameObject*, get_bomb);
     
-    DECLARE_METHOD(Il2CppString*, get_leftArrowName);    
-    DECLARE_METHOD(Il2CppString*, get_rightArrowName);    
-    DECLARE_METHOD(Il2CppString*, get_leftDotName);
-    DECLARE_METHOD(Il2CppString*, get_rightDotName);
-    DECLARE_METHOD(Il2CppString*, get_leftDebrisName);
-    DECLARE_METHOD(Il2CppString*, get_rightDebrisName);
-    DECLARE_METHOD(Il2CppString*, get_bombName);
+    DECLARE_METHOD(static Il2CppString*, get_leftArrowName);    
+    DECLARE_METHOD(static Il2CppString*, get_rightArrowName);    
+    DECLARE_METHOD(static Il2CppString*, get_leftDotName);
+    DECLARE_METHOD(static Il2CppString*, get_rightDotName);
+    DECLARE_METHOD(static Il2CppString*, get_leftDebrisName);
+    DECLARE_METHOD(static Il2CppString*, get_rightDebrisName);
+    DECLARE_METHOD(static Il2CppString*, get_bombName);
 
     public:
         void internalSetActiveModel(std::string name, bool load = false);

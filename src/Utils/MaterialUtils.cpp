@@ -8,6 +8,13 @@ static inline function_ptr_t<bool, Il2CppObject*, Il2CppObject*, int, Array<Il2C
 static inline function_ptr_t<void, Il2CppObject*> warmupFunc = nullptr;
 static inline function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunc = nullptr;
 
+Array<UnityEngine::Material*>* MaterialUtils::GetMaterials(Renderer* renderer)
+{
+    if (!renderer) return nullptr;
+    if (!GetMaterialArrayFunc) GetMaterialArrayFunc = reinterpret_cast<function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*>>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
+    return GetMaterialArrayFunc(renderer);
+}
+
 void MaterialUtils::PrewarmAllShadersOnObject(GameObject* object)
 {
     Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>(true);

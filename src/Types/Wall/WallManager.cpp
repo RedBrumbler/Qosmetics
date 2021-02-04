@@ -2,6 +2,8 @@
 #include "Types/Wall/WallItem.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
+#include "UnityEngine/Transform.hpp"
+#include "Utils/MaterialUtils.hpp"
 
 DEFINE_CLASS(Qosmetics::WallManager);
 
@@ -9,6 +11,21 @@ DEFINE_CLASS(Qosmetics::WallManager);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall Manager").error(value)
 
 using namespace UnityEngine;
+
+static Il2CppString* coreName = nullptr;
+static Il2CppString* frameName = nullptr;
+
+#define GetNameInPrefab(name) \
+if (!activeItem) return nullptr; \
+GameObject* prefab = activeItem->get_prefab(); \
+if (!prefab) return nullptr; \
+Transform* object = prefab->get_transform()->Find(name); \
+if (!object) return nullptr; \
+return Object::Instantiate(object)
+
+#define GetName(identifier, content) \
+if (!identifier) identifier = il2cpp_utils::createcsstr(content, il2cpp_utils::StringType::Manual); \
+return identifier
 
 namespace Qosmetics
 {
@@ -59,35 +76,79 @@ namespace Qosmetics
         return ItemType::wall; 
     }
 
-    UnityEngine::Material* WallManager::get_coreMaterial()
+    Material* WallManager::get_coreMaterial()
     {
-
+        Renderer* core = get_coreRenderer();
+        if (!core) return nullptr;
+        return core->get_material();
     }
-    
-    UnityEngine::Material* WallManager::get_frameMaterial()
+
+    Material* WallManager::get_frameMaterial()
     {
-
+        Renderer* frame = get_frameRenderer();
+        if (!frame) return nullptr;
+        return frame->get_material();
     }
-    
-    UnityEngine::Material* WallManager::get_coreMaterialArray()
+
+    Array<Material*>* WallManager::get_coreMaterialArray()
     {
-
+        Renderer* core = get_coreRenderer();
+        if (!core) return nullptr;
+        return MaterialUtils::GetMaterials(core);
     }
-    
-    UnityEngine::Material* WallManager::get_frameMaterialArray()
+
+    Array<Material*>* WallManager::get_frameMaterialArray()
     {
-
+        Renderer* frame = get_frameRenderer();
+        if (!frame) return nullptr;
+        return MaterialUtils::GetMaterials(frame);
     }
-    
-    UnityEngine::Material* WallManager::get_coreSharedMaterials()
+
+    Array<Material*>* WallManager::get_coreSharedMaterials()
     {
-
+        Renderer* core = get_coreRenderer();
+        if (!core) return nullptr;
+        return core->get_sharedMaterials();
     }
-    
-    UnityEngine::Material* WallManager::get_frameSharedMaterials()
+
+    Array<Material*>* WallManager::get_frameSharedMaterials()
     {
-
+        Renderer* frame = get_frameRenderer();
+        if (!frame) return nullptr;
+        return frame->get_sharedMaterials();
     }
-    
 
+    Transform* WallManager::get_core()
+    {
+        GetNameInPrefab(get_coreName());
+    }
+
+    Transform* WallManager::get_frame()
+    {
+        GetNameInPrefab(get_frameName());
+    }
+
+    MeshRenderer* WallManager::get_coreRenderer()
+    {
+        Transform* core = get_core();
+        if (!core) return nullptr;
+        return core->get_gameObject()->GetComponent<MeshRenderer*>();
+    }
+
+    MeshRenderer* WallManager::get_frameRenderer()
+    {
+        Transform* frame = get_frame();
+        if (!frame) return nullptr;
+        return frame->get_gameObject()->GetComponent<MeshRenderer*>();
+    }
+
+    Il2CppString* WallManager::get_coreName()
+    {
+        GetName(coreName, "Core");
+    }
+
+    Il2CppString* WallManager::get_frameName()
+    {
+        GetName(frameName, "Frame");
+    }
 }
