@@ -1,4 +1,6 @@
 #include "Data/ModelLoader.hpp"
+#include "Data/DescriptorCache.hpp"
+
 #include "QosmeticsLogger.hpp"
 #include "Types/Qosmetic/QosmeticItem.hpp"
 #include <thread>
@@ -16,15 +18,14 @@ namespace Qosmetics
         ItemType fromdescriptor = this->item->get_descriptor().get_type();
         
         bs_utils::AssetBundle::LoadFromFileAsync(item->get_descriptor().get_filePath(), [&, alsoLoadAssets](bs_utils::AssetBundle* bundle){
-            INFO("Bundle Loaded!");
             this->bundle = bundle;
-            //if (alsoLoadAssets) this->LoadAssets();
+            if (this->bundle) INFO("Bundle Loaded!");
         });
         if (alsoLoadAssets)
         {
             std::thread assetLoad([&]{
                 while(!this->bundle) usleep(1000);
-
+                INFO("Loading assets directly from bundle load")
                 this->LoadAssets();
             });
 
@@ -40,7 +41,9 @@ namespace Qosmetics
             ERROR("Bundle was nullptr");
             return;
         }
+        
         std::string assetName;
+
         switch (item->get_type())
         {
             case ItemType::saber:
@@ -83,15 +86,18 @@ namespace Qosmetics
             this->OnComplete();
         }, TextAssetType);
     }
+
     void ModelLoader::OnComplete()
     {
-        INFO("On Complete");
         if (!get_complete()) return;
-        //UnloadBundle();
-        item->RunCompleteCallback();
+        INFO("On Complete");
+        DescriptorCache::Save();
+        UnloadBundle();
     }
+
     void ModelLoader::UnloadBundle()
     {
+        INFO("Unloading bundle, while assets will stay loaded");
         ((UnityEngine::AssetBundle*)this->bundle)->Unload(false);
     }
 }

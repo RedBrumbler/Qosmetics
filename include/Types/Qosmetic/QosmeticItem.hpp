@@ -53,21 +53,10 @@ namespace Qosmetics
                 UnityEngine::Object::Destroy(prefab);
             }
 
-            virtual void SetCompleteCallback(std::function<void(QosmeticItem& item)> input)
-            {
-                callback = input;
-            }
-
-            virtual void RunCompleteCallback()
-            {
-                callback(*this);
-            }
-
         protected:
             Descriptor& descriptor;
             ModelLoader modelProvider = ModelLoader(this);
             UnityEngine::GameObject* prefab = nullptr;
             ItemConfig config;
-            std::function<void(QosmeticItem& item)> callback = [](QosmeticItem& item){};
     };
 }

@@ -18,19 +18,7 @@ namespace Qosmetics
             void ConfigCallback(UnityEngine::TextAsset* textAsset);
             void DescriptorCallback(UnityEngine::TextAsset* textAsset);
 
-            void SetCompleteCallback(std::function<void(SaberItem& item)> input)
-            {
-                callback = input;
-            }
-
-            void RunCompleteCallback()
-            {
-                callback(*this);
-            }
-            
-
         private:
             SaberConfig config = SaberConfig();
-            std::function<void(SaberItem& item)> callback = [](SaberItem& item){};
     };
 }

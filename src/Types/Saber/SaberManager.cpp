@@ -2,6 +2,7 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
+#include "UnityEngine/Transform.hpp"
 
 DEFINE_CLASS(Qosmetics::SaberManager);
 
@@ -24,41 +25,53 @@ namespace Qosmetics
     void SaberManager::SetActiveModel(Il2CppString* csname)
     {
         if (!csname) return;
+        if (getenv("saberlocked")) return;
         std::string name = to_utf8(csstrtostr(csname));
-        internalSetActiveModel(name);
+        internalSetActiveModel(name, true);
     }
 
-    void SaberManager::internalSetActiveModel(std::string name)
+    void SaberManager::SetDefault()
+    {
+        if (getenv("saberlocked")) return;
+        if (activeItem) delete (activeItem);
+        activeItem = new SaberItem(DescriptorCache::GetDescriptor(""));
+    }
+
+    void SaberManager::internalSetActiveModel(std::string name, bool load)
     {
         INFO("Setting active Saber %s", name.c_str());
         // if new set is already the active one, ignore
         if (activeItem && activeItem->get_descriptor().GetFileName() == name) return;
         Descriptor& newItem = DescriptorCache::GetDescriptor(name);
         // if descriptor doesn't exist for this thing, ignore the setactive
-        if (!newItem.isValid()) return;
-        delete(activeItem);
-        if (this->prefab) 
+        if (!newItem.isValid())
         {
-            UnityEngine::Object::Destroy(this->prefab);
-            this->prefab = nullptr;
-        }
-        activeItem = new SaberItem(newItem, true);
-        activeItem->SetCompleteCallback([&](SaberItem& item){
-            this->prefab = Object::Instantiate(item.get_prefab(), get_transform());
-            this->prefab->SetActive(true);
-        });
+            ERROR("Item was invalid!");
+            return;  
+        } 
+        if (activeItem) delete(activeItem);
+        activeItem = new SaberItem(newItem, load);
+        INFO("Active Item Set!");
     }
 
-    UnityEngine::Transform* SaberManager::get_rightSaber()
+    UnityEngine::GameObject* SaberManager::get_rightSaber()
     {
-        if (!this->prefab) return nullptr;
-        return get_transform()->GetChild(0)->Find(get_rightSaberName());
+        if (!activeItem) return nullptr;
+        GameObject* prefab = activeItem->get_prefab();
+        if (!prefab) return nullptr;
+        Transform* object = prefab->get_transform()->Find(get_rightSaberName());
+        if (!object) return nullptr;
+        return Object::Instantiate(object)->get_gameObject();
     }
 
-    UnityEngine::Transform* SaberManager::get_leftSaber()
+    UnityEngine::GameObject* SaberManager::get_leftSaber()
     {
-        if (!this->prefab) return nullptr;
-        return get_transform()->GetChild(0)->Find(get_leftSaberName());
+        if (!activeItem) return nullptr;
+        GameObject* prefab = activeItem->get_prefab();
+        if (!prefab) return nullptr;
+        Transform* object = prefab->get_transform()->Find(get_leftSaberName());
+        if (!object) return nullptr;
+        return Object::Instantiate(object)->get_gameObject();
     }
 
     Il2CppString* SaberManager::get_leftSaberName()
@@ -73,9 +86,9 @@ namespace Qosmetics
         return rightSaberName;
     }
 
-    void SaberManager::SetActiveSaber(std::string name)
+    void SaberManager::SetActiveSaber(std::string name, bool load)
     {
-        internalSetActiveModel(name);
+        internalSetActiveModel(name, load);
     }
 
     ItemType SaberManager::get_type()
@@ -85,7 +98,7 @@ namespace Qosmetics
     
     SaberItem& SaberManager::get_item()
     {
-        INFO("Item ptr: %p", activeItem);
+        CRASH_UNLESS(activeItem);
         return *this->activeItem;
     }
 }

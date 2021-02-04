@@ -20,6 +20,12 @@ namespace Qosmetics
         internalSetActiveModel(name);
     }
 
+    void ModelManager::SetDefault()
+    {
+        if (activeItem) delete (activeItem);
+        activeItem = new QosmeticItem(DescriptorCache::GetDescriptor(""));
+    }
+
     void ModelManager::internalSetActiveModel(std::string name)
     {
         // if new set is already the active one, ignore
@@ -27,7 +33,7 @@ namespace Qosmetics
         Descriptor& newItem = DescriptorCache::GetDescriptor(name);
         // if descriptor doesn't exist for this thing, ignore the setactive
         if (!newItem.isValid()) return;
-        delete(activeItem);
+        if (activeItem) delete(activeItem);
         activeItem = new QosmeticItem(newItem, true);
     }
 }

@@ -7,6 +7,7 @@
 DECLARE_CLASS_CODEGEN(Qosmetics, ModelManager, UnityEngine::MonoBehaviour,
         DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
         DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
+        DECLARE_METHOD(void, SetDefault);
         
     public:
         virtual QosmeticItem& get_item()
@@ -14,7 +15,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ModelManager, UnityEngine::MonoBehaviour,
             return *activeItem;
         }
         
-        ItemType get_type()
+        virtual ItemType get_type()
         {
             return activeItem->get_type();
         }
@@ -26,5 +27,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ModelManager, UnityEngine::MonoBehaviour,
     REGISTER_FUNCTION(ModelManager,
         REGISTER_METHOD(GetActivePrefab);
         REGISTER_METHOD(SetActiveModel);
+        REGISTER_METHOD(SetDefault);
     )
 )

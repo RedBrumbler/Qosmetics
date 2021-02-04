@@ -42,17 +42,26 @@ namespace Qosmetics
     void Saber::Replace()
     {
         INFO("Replacing saber");
-        if (!modelManager) return;
+        if (!modelManager || modelManager->get_type() != ItemType::saber)
+        {
+            ERROR("Saber model manager was nullptr or itemtype was invalid");
+            return;
+        }
+        
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-        Transform* prefab = (saberType == 0) ? modelManager->get_leftSaber() : modelManager->get_rightSaber();
-        if (!prefab) return;
-
+        GameObject* prefab = (saberType == 0) ? modelManager->get_leftSaber() : modelManager->get_rightSaber();
+        if (!prefab) 
+        {
+            ERROR("Replacing model was nullptr!");
+            return;
+        }
+        prefab->set_name(saberName);
         if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
         Transform* basicSaberModel = get_transform()->Find(basicSaberModelName);
         if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), modelManager->get_item().get_config().get_enableFakeGlow());
         //if (basicSaberModel) UnityUtils::HideRenderersOnObject(basicSaberModel->get_gameObject());
         Transform* newSaber = get_transform()->Find(saberName);
-        if (!newSaber) prefab->SetParent(get_transform());
+        if (!newSaber) prefab->get_transform()->SetParent(get_transform());
         newSaber = get_transform()->Find(saberName);
 
         newSaber->get_gameObject()->set_name(saberName);
