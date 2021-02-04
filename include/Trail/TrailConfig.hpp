@@ -3,18 +3,17 @@
 #include "UnityEngine/Color.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
-enum trailColorType {
-    leftSaber,
-    rightSaber,
-    custom
-};
-
 #define ValueToColor(val) UnityEngine::Color(val["R"].GetFloat(), val["G"].GetFloat(), val["B"].GetFloat(), val["A"].GetFloat())
 
 namespace Qosmetics
 {
     class TrailConfig
     {
+        enum trailColorType {
+            leftSaber,
+            rightSaber,
+            custom
+        };
         public:
             TrailConfig(const rapidjson::Value& val)
             {

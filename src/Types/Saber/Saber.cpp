@@ -1,9 +1,11 @@
 #include "Types/Saber/Saber.hpp"
 #include "Types/Saber/SaberItem.hpp"
+#include "Trail/QosmeticsTrail.hpp"
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "Utils/UnityUtils.hpp"
 #include "Utils/SaberUtils.hpp"
+#include "Utils/TrailUtils.hpp"
 #include "QosmeticsLogger.hpp"
 
 DEFINE_CLASS(Qosmetics::Saber);
@@ -20,6 +22,7 @@ namespace Qosmetics
     void Saber::Init(SaberManager* modelManager)
     {
         this->modelManager = modelManager;
+        replaced = false;
     }
     
     void Saber::Awake()
@@ -31,12 +34,19 @@ namespace Qosmetics
 
     void Saber::UpdateModel()
     {
-        
+
     }
 
     void Saber::Restore()
     {
-
+        if (!replaced) return;
+        if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
+        Transform* basicSaberModel = get_transform()->Find(basicSaberModelName);
+        if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), false, false);
+        Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
+        Transform* saber = get_transform()->Find(saberName);
+        if (saber) Object::Destroy(saber);
+        replaced = false;
     }
 
     void Saber::Replace()
@@ -59,14 +69,47 @@ namespace Qosmetics
         if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
         Transform* basicSaberModel = get_transform()->Find(basicSaberModelName);
         if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), modelManager->get_item().get_config().get_enableFakeGlow());
-        //if (basicSaberModel) UnityUtils::HideRenderersOnObject(basicSaberModel->get_gameObject());
         Transform* newSaber = get_transform()->Find(saberName);
-        if (!newSaber) prefab->get_transform()->SetParent(get_transform());
-        newSaber = get_transform()->Find(saberName);
+        if (!newSaber) 
+        {
+            prefab->get_transform()->SetParent(get_transform());
+            newSaber = get_transform()->Find(saberName);
+        }
 
         newSaber->get_gameObject()->set_name(saberName);
         newSaber->get_transform()->set_rotation(get_transform()->get_rotation());
         newSaber->get_transform()->set_position(get_transform()->get_position());
+
+        SetupTrails();
         INFO("Done Replacing!");
+    }
+
+    void Saber::SetupTrails()
+    {
+        if (!modelManager || modelManager->get_type() != ItemType::saber) return;
+        SaberItem& item = modelManager->get_item();
+        SaberConfig& itemConfig = item.get_config();
+
+        std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
+        Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
+
+        if (trails.size() > 0)
+        {
+            Transform* customSaber = get_transform()->Find(saberName);
+            for (auto& trail : trails)
+            {
+                Il2CppString* trailPath = trail.get_name();
+                Transform* trailObj = customSaber->Find(trailPath);
+                if (!trailObj) continue;
+                UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject())->SetTrailConfig(&trail);
+            }
+            if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
+            TrailUtils::RemoveTrail(get_transform()->Find(basicSaberModelName));
+        }
+        #warning don't forget to add in no trail support and shit
+        else // there were no trails, or base game was configured
+        {
+
+        }
     }
 }

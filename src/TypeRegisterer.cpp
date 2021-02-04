@@ -1,5 +1,6 @@
 #include "TypeRegisterer.hpp"
 
+#include "Trail/QosmeticsTrail.hpp"
 #include "Types/Qosmetic/ModelManager.hpp"
 #include "Types/Saber/SaberManager.hpp"
 #include "Types/Note/NoteManager.hpp"
@@ -17,6 +18,6 @@ void RegisterTypes()
 {
     custom_types::Register::RegisterType<ModelManager>();
     custom_types::Register::RegisterTypes<SaberManager, NoteManager, WallManager, PointerManager>();
-    custom_types::Register::RegisterType<Qosmetic>();
+    custom_types::Register::RegisterTypes<Qosmetic, QosmeticsTrail>();
     custom_types::Register::RegisterTypes<Saber, Pointer>();
 }

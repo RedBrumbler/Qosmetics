@@ -6,7 +6,10 @@
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/SaberModelContainer.hpp"
 #include "GlobalNamespace/Saber.hpp"
+#include "GlobalNamespace/SaberTrailRenderer.hpp"
 #include "UnityEngine/SceneManagement/Scene.hpp"
+#include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/MeshFilter.hpp"
 
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Note/NoteItem.hpp"
@@ -104,6 +107,13 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator*
     if (!manager) manager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
     manager->SetActiveSaber("Plasma Katana.qsaber", true);
 }
+// fix for trail renderers not getting these set on time
+MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTrailRenderer* self)
+{
+    if (!self->meshRenderer)self->meshRenderer = self->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
+    if (!self->meshFilter) self->meshFilter = self->get_gameObject()->GetComponent<UnityEngine::MeshFilter*>();
+    SaberTrailRenderer_OnEnable(self);
+}
 
 extern "C" void setup(ModInfo& info)
 {
@@ -124,7 +134,8 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
     INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));
-    
+    INSTALL_HOOK_OFFSETLESS(logger, SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
+
     logger.info("Installed Hooks!");
 
     logger.info("Registering Custom types...");
