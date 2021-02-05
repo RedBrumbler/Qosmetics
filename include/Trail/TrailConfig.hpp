@@ -19,7 +19,7 @@ namespace Qosmetics
             {
                 std::string name = val["name"].GetString();
                 this->name = il2cpp_utils::createcsstr(name, il2cpp_utils::StringType::Manual);
-                colorType = (trailColorType)val["type"].GetInt();
+                colorType = (trailColorType)val["colorType"].GetInt();
                 trailColor = ValueToColor(val["trailColor"]);
                 multiplier = ValueToColor(val["multiplierColor"]);
                 length = val["length"].GetInt();
