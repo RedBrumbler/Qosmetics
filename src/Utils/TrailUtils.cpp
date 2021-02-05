@@ -5,9 +5,14 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "QosmeticsLogger.hpp"
+
 using namespace UnityEngine;
 
 static Il2CppString* trailName = nullptr;
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Trail Utils").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Trail Utils").error(value)
 
 GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
 {
@@ -18,8 +23,9 @@ GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
     newPrefab->AddComponent<MeshRenderer*>();
     
     GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = newPrefab->AddComponent<GlobalNamespace::SaberTrailRenderer*>();
-    // if the material is not nullptr set it
-    if (mat) trailRendererPrefab->meshRenderer->set_material(mat);      
+    
+    // set the material
+    trailRendererPrefab->meshRenderer->set_material(mat);      
     // give it a good name, for identification I guess
     if (!trailName) trailName = il2cpp_utils::createcsstr("Trail", il2cpp_utils::StringType::Manual);
     newPrefab->set_name(trailName);

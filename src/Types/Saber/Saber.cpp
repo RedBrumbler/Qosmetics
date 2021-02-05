@@ -103,6 +103,7 @@ namespace Qosmetics
                 if (!trailObj) continue;
                 QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
                 trailComponent->SetTrailConfig(&trail);
+                trailComponent->Reset();
             }
 
             if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);

@@ -221,6 +221,7 @@ namespace Qosmetics
     {
         if (!config) return;
         trailConfig = config;
+        return;
         InitTrail(   trailConfig->get_length(),
                 (int)trailConfig->get_colorType(),
                 trailConfig->get_whiteStep(),
@@ -233,19 +234,20 @@ namespace Qosmetics
 
     void QosmeticsTrail::Reset()
     {
-        InitTrail(   trailConfig->get_length(),
-                (int)trailConfig->get_colorType(),
-                trailConfig->get_whiteStep(),
-                trailMaterial,
-                trailConfig->get_trailColor(),
-                trailConfig->get_multiplierColor(),
-                true
+        InitTrail(  trailConfig->get_length(),
+                    (int)trailConfig->get_colorType(),
+                    trailConfig->get_whiteStep(),
+                    trailMaterial,
+                    trailConfig->get_trailColor(),
+                    trailConfig->get_multiplierColor(),
+                    true
             );
     }
 
     GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer()
     {
-        INFO("Making new Trail Renderer!");
+        INFO("Making new Trail Renderer!"); 
+        INFO("material ptr: %p", trailMaterial);
         GlobalNamespace::SaberTrailRenderer* newRenderer = TrailUtils::NewTrailRenderer(trailMaterial);
         float trailWidth = GetTrailWidth(movementData->get_lastAddedData());
         newRenderer->Init(trailWidth, trailDuration, granularity, whiteSectionMaxDuration);

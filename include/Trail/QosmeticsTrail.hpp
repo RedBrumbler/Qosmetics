@@ -28,13 +28,13 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_METHOD(void, InitTrail, int length, int colorType, int whiteStep, UnityEngine::Material* material, UnityEngine::Color trailColor, UnityEngine::Color multiplierColor, bool ignoreOverrides);
     DECLARE_METHOD(void, InitFromDefault, UnityEngine::Transform* objToCopy);
     DECLARE_METHOD(void, Update);
+    DECLARE_METHOD(void, Reset);
     DECLARE_METHOD(void, UpdateTrail);
     DECLARE_METHOD(void, UpdateColors);
     DECLARE_METHOD(GlobalNamespace::SaberTrailRenderer*, NewTrailRenderer);
 
     public:
         void SetTrailConfig(TrailConfig* config);
-        void Reset();
 
     private: 
         TrailConfig* trailConfig;
@@ -42,9 +42,12 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     REGISTER_FUNCTION(QosmeticsTrail,
         REGISTER_METHOD(Awake);
         REGISTER_METHOD(InitTrail);
+        REGISTER_METHOD(InitFromDefault);
         REGISTER_METHOD(Update);
+        REGISTER_METHOD(Reset);
         REGISTER_METHOD(UpdateTrail);
         REGISTER_METHOD(UpdateColors);
+        REGISTER_METHOD(NewTrailRenderer);
 
         REGISTER_FIELD(topTransform);
         REGISTER_FIELD(bottomTransform);
