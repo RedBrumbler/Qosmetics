@@ -6,6 +6,7 @@
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/SaberModelContainer.hpp"
 #include "GlobalNamespace/Saber.hpp"
+#include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
 #include "UnityEngine/SceneManagement/Scene.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
@@ -115,6 +116,15 @@ MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTr
     SaberTrailRenderer_OnEnable(self);
 }
 
+MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
+{
+    // basically QuestTrailOverlap is forced with this
+    UnityEngine::Transform* trailTransform = self->get_transform();
+    std::string thisName = to_utf8(csstrtostr(trailTransform->get_gameObject()->get_name()));
+    if (thisName == "Trail(Clone)") return;
+    ConditionalMaterialSwitcher_Awake(self);
+}
+
 extern "C" void setup(ModInfo& info)
 {
     info.id = ID;
@@ -130,7 +140,7 @@ extern "C" void load()
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
 
     logger.info("Installing Hooks...");
-    
+    INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
     INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
     INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));

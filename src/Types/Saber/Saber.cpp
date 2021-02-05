@@ -92,17 +92,19 @@ namespace Qosmetics
 
         std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
+        Transform* customSaber = get_transform()->Find(saberName);
 
         if (trails.size() > 0)
         {
-            Transform* customSaber = get_transform()->Find(saberName);
             for (auto& trail : trails)
             {
                 Il2CppString* trailPath = trail.get_name();
                 Transform* trailObj = customSaber->Find(trailPath);
                 if (!trailObj) continue;
-                UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject())->SetTrailConfig(&trail);
+                QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
+                trailComponent->SetTrailConfig(&trail);
             }
+
             if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
             TrailUtils::RemoveTrail(get_transform()->Find(basicSaberModelName));
         }

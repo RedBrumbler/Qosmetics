@@ -60,7 +60,7 @@ namespace Qosmetics
             {
                 return whiteStep;
             }
-
+            
         private:
             Il2CppString* name = nullptr;
             trailColorType colorType = custom;
