@@ -31,7 +31,6 @@ namespace Qosmetics
     {
         if (!trailMaterial)
         {
-            ERROR("Trail material was nullptr, defining from renderer!");
             MeshRenderer* renderer = get_gameObject()->GetComponent<MeshRenderer*>();
             if (renderer) trailMaterial = renderer->get_sharedMaterial();
         }
@@ -93,7 +92,6 @@ namespace Qosmetics
         this->length = (config.saberConfig.overrideTrailLength && !ignoreOverrides) ? overriddenLength : length;
         
         this->granularity = (int)(60.0f * ((this->length > 10.0f) ? this->length / 10.0f : 1.0f));
-		INFO("Color Type: %d", colorType);
         this->colorType = (config.saberConfig.whiteTrail && !ignoreOverrides) ? 2 : colorType;
         
         int overriddenWhitestep = (int)config.saberConfig.whiteStep * this->length;
@@ -105,7 +103,6 @@ namespace Qosmetics
 
         if (!this->trailMaterial)
         {
-            INFO("trailmaterial was null in init");
             MeshRenderer* renderer = get_gameObject()->GetComponent<MeshRenderer*>();
             if (renderer) this->trailMaterial = renderer->get_sharedMaterial();
         }
@@ -121,26 +118,12 @@ namespace Qosmetics
         this->customBottomTransform = get_transform()->Find(customBottomTransformName);
         if (!customBottomTransform)
         {
-            INFO("There was no custom bottom transform in init trail");
             this->customBottomTransform = UnityEngine::Object::Instantiate(this->bottomTransform, get_transform());
 			this->customBottomTransform->set_name(customBottomTransformName);
         }
 
         UpdateTrail();
-
-        /*Awake();
-        framesPassed = 0;
-        inited = false;
-        set_enabled(true);*/
         customInited = true;
-        //this->trailRenderer->set_enabled(true);
-        //this->trailRenderer->get_gameObject()->SetActive(true);
-        get_gameObject()->SetActive(true);
-        INFO("Trail Inited!");
-        INFO("trail has duration %.2f and length %d", this->trailDuration, this->length);
-        INFO("trail movement data pointers: %p, %p", this->movementData, this->customMovementData);
-        INFO("trail renderer and material pointers: %p, %p", this->trailRenderer, this->trailMaterial);
-        INFO("material ptr from renderer %p", this->trailRenderer->meshRenderer->get_sharedMaterial());
     }
 
     void QosmeticsTrail::InitFromDefault(UnityEngine::Transform* objToCopy)
@@ -148,7 +131,6 @@ namespace Qosmetics
         if (!objToCopy) return;
         GlobalNamespace::SaberTrail* orig = objToCopy->GetComponent<GlobalNamespace::SaberTrail*>();
         if (!orig) return;
-        INFO("Creating trail from original trail");
 
         int length = (int)((float)orig->samplingFrequency * orig->trailDuration * 0.5f);
 		int colorType = 2;
@@ -196,8 +178,6 @@ namespace Qosmetics
         // if there is any issue with these objects, they will be remade
         if (!this->trailRenderer || !this->trailRenderer->meshRenderer->get_sharedMaterial())
 		{
-            INFO("trail renderer was %p in UpdateTrail", this->trailRenderer);
-            if (this->trailRenderer) INFO("Material pointer was %p", this->trailRenderer->meshRenderer->get_sharedMaterial());
 			MeshRenderer* renderer = this->get_gameObject()->GetComponent<MeshRenderer*>();
 			if (!this->trailMaterial && renderer)
 			{
@@ -211,75 +191,62 @@ namespace Qosmetics
 
     void QosmeticsTrail::UpdateColors()
     {
-        INFO("Updating Trail Colors");
-        /*
-        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
-        if (colorManager != nullptr) // if colormanager defined, get colors from it, else just get the set color
-		{
-			switch (this->colorType)
-			{
-				case 0: // LeftSaber
-					this->color = colorManager->ColorForTrailType(GlobalNamespace::SaberType::SaberA) * this->multiplierColor;
-					break;
-				case 1:	// RightSaber
-					this->color = colorManager->ColorForTrailType(GlobalNamespace::SaberType::SaberB) * this->multiplierColor;
-					break;
-				default:	// Custom Color
-					this->color = this->trailColor * this->multiplierColor;
-					break;
-			}
-		}
-		else this->color = this->trailColor * this->multiplierColor;
-		
-		// apply trailIntensity with a *= and not a = because it should not overwrite the set color.a, just modify it
-		this->color.a *= trailIntensity;
-        */
-
        switch (this->colorType)
 		{
 			case 0: // LeftSaber
-				this->color = Color::get_red() * this->multiplierColor;
+				this->color = colorManager->ColorForTrailType(0) * this->multiplierColor;
 				break;
 			case 1:	// RightSaber
-				this->color = Color::get_blue() * this->multiplierColor;
+				this->color = colorManager->ColorForTrailType(1) * this->multiplierColor;
 				break;
 			default:	// Custom Color
 				this->color = this->trailColor * this->multiplierColor;
 				break;
 		}
-        this->color.a = 1.0f;
-        //this->color.a *= trailIntensity;
-        INFO("Color is %.2f, %.2f, %.2f, %.2f", color.r, color.g, color.b, color.a);
+        this->color.a *= trailIntensity;
     }
 
     void QosmeticsTrail::SetTrailConfig(TrailConfig* config)
     {
         if (!config) return;
         trailConfig = config;
-        InitTrail(   trailConfig->get_length(),
-                (int)trailConfig->get_colorType(),
-                trailConfig->get_whiteStep(),
-                trailMaterial,
-                trailConfig->get_trailColor(),
-                trailConfig->get_multiplierColor()
-            );
+        Reset();
+    }
+
+    void QosmeticsTrail::SetColorManager(ColorManager* colorManager)
+    {
+        this->colorManager = colorManager;
+        std::function<void()> callback = std::bind( &QosmeticsTrail::UpdateColors, this );
+        this->colorManager->RegisterCallback(callback, callbackType::trail);
+        UpdateColors();
     }
 
     void QosmeticsTrail::Reset()
     {
-        InitTrail(  trailConfig->get_length(),
-                    (int)trailConfig->get_colorType(),
-                    trailConfig->get_whiteStep(),
-                    trailMaterial,
-                    trailConfig->get_trailColor(),
-                    trailConfig->get_multiplierColor()
-            );
+        if (this->trailConfig)
+        {
+            InitTrail(  trailConfig->get_length(),
+                        (int)trailConfig->get_colorType(),
+                        trailConfig->get_whiteStep(),
+                        trailMaterial,
+                        trailConfig->get_trailColor(),
+                        trailConfig->get_multiplierColor()
+                );
+        }
+        else
+        {
+            InitTrail(  length,
+                        colorType,
+                        whitestep,
+                        trailMaterial,
+                        trailColor,
+                        multiplierColor
+                );
+        }
     }
 
     GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer()
     {
-        INFO("Making new Trail Renderer!"); 
-        INFO("material ptr: %p", trailMaterial);
         GlobalNamespace::SaberTrailRenderer* newRenderer = TrailUtils::NewTrailRenderer(trailMaterial);
         float trailWidth = GetTrailWidth(movementData->get_lastAddedData());
         newRenderer->Init(trailWidth, trailDuration, granularity, whiteSectionMaxDuration);

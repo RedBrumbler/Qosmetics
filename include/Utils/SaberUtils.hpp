@@ -1,5 +1,6 @@
 #pragma once
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Color.hpp"
 
 class SaberUtils
@@ -15,4 +16,8 @@ class SaberUtils
         /// @param color the color that gets set on the _Color property
         /// @param otherColor the color that gets set on the _OtherColor property (if present)
         static void SetColors(UnityEngine::GameObject* object, UnityEngine::Color color, UnityEngine::Color otherColor);
+
+        /// @brief Sets the saber Width value on the given transform
+        /// @param saber obj to set on
+        static void SetSaberSize(UnityEngine::Transform* saber);
 };

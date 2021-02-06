@@ -1,5 +1,6 @@
 #include "Utils/TrailUtils.hpp"
 #include "GlobalNamespace/SaberTrail.hpp"
+#include "Trail/QosmeticsTrail.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -8,6 +9,7 @@
 #include "QosmeticsLogger.hpp"
 
 using namespace UnityEngine;
+using namespace Qosmetics;
 
 static Il2CppString* trailName = nullptr;
 
@@ -36,11 +38,21 @@ GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
 void TrailUtils::RemoveTrail(Transform* obj)
 {
     if (!obj) return;
-    GlobalNamespace::SaberTrail* trail = obj->get_gameObject()->GetComponent<GlobalNamespace::SaberTrail*>();
-    if (trail) 
+    GlobalNamespace::SaberTrail* trail = nullptr;
+    Array<GlobalNamespace::SaberTrail*>* trails = obj->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
+
+    if (trails)
     {
-        trail->trailDuration = 0.0f;
-        trail->whiteSectionMaxDuration = 0.0f;
-        trail->set_enabled(false);
-    }
+        QosmeticsTrail* customTrail = obj->get_gameObject()->GetComponent<QosmeticsTrail*>();
+        for (int i = 0; i < trails->Length(); i++)
+        {
+            trail = trails->values[i];
+            if (trail && trail != customTrail)
+            {
+                trail->trailDuration = 0.0f;
+                trail->whiteSectionMaxDuration = 0.0f;
+                trail->set_enabled(false);
+            }
+        }
+    }    
 }

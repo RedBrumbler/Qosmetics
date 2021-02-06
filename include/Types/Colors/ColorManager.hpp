@@ -6,10 +6,19 @@
 #include "GlobalNamespace/ColorManager.hpp"
 #include "Types/Colors/ColorScheme.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, UnityEngine::MonoBehaviour, 
-    DECLARE_METHOD(void, SetColorScheme, GlobalNamespace::ColorScheme*);
-    DECLARE_METHOD(void, SetColorScheme, Qosmetics::ColorScheme*);
-    DECLARE_METHOD(void, Awake);
+#include <functional>
+#include <vector>
+enum callbackType {
+            saber,
+            trail,
+            note,
+            wall,
+            pointer
+        };
+
+DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, Il2CppObject, 
+    DECLARE_METHOD(void, SetColorSchemeFromBase, GlobalNamespace::ColorScheme* base);
+    DECLARE_METHOD(void, SetColorSchemeFromCustom, Qosmetics::ColorScheme* base);
 
     DECLARE_METHOD(void, SetLeftSaberColor, UnityEngine::Color color);
     DECLARE_METHOD(void, SetRightSaberColor, UnityEngine::Color color);
@@ -33,9 +42,25 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, UnityEngine::MonoBehaviour,
 
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorScheme*, colorScheme, nullptr);
 
+    DECLARE_CTOR(ctor);
+    
+    public:
+        void RegisterCallback(std::function<void()> callback, callbackType type);
+        void ClearCallbacks();
+        void RunCallbacks(std::vector<std::function<void()>>& callbacks);
+
+    private:
+        std::vector<std::function<void()>> saberCallbacks;
+        std::vector<std::function<void()>> trailCallbacks;
+        std::vector<std::function<void()>> noteCallbacks;
+        std::vector<std::function<void()>> wallCallbacks;
+        std::vector<std::function<void()>> pointerCallbacks;
+
+
     REGISTER_FUNCTION(ColorManager,
-        REGISTER_METHOD(SetColorScheme);
-        REGISTER_METHOD(Awake);
+        REGISTER_METHOD(SetColorSchemeFromBase);
+        REGISTER_METHOD(SetColorSchemeFromCustom);
+        REGISTER_METHOD(ctor);
 
         REGISTER_METHOD(SetLeftSaberColor);
         REGISTER_METHOD(SetRightSaberColor);

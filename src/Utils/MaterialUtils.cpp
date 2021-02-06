@@ -57,6 +57,7 @@ bool MaterialUtils::ShouldCC(UnityEngine::Material* mat, bool checkName)
     if (!GlowID) Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow"));
     if (!BloomID) Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom"));
 
+    // ew ugly else if ladder, but there is no other way of doing it
     if (mat->HasProperty(CustomColorID))
     {
         return mat->GetFloat(CustomColorID) > 0;
@@ -72,9 +73,10 @@ bool MaterialUtils::ShouldCC(UnityEngine::Material* mat, bool checkName)
     else if (checkName)
     {
         std::string name = to_utf8(csstrtostr(mat->get_name()));
-        if (name.find("_noCC") == std::string::npos) return true;
+        if (name.find("_replace") != std::string::npos && name.find("_noCC") == std::string::npos) return true;
         return false;
     }
+
     return false;
 }
 

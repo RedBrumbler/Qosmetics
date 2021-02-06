@@ -15,6 +15,7 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Note/NoteItem.hpp"
 #include "Types/Wall/WallItem.hpp"
+#include "Types/Colors/ColorManager.hpp"
 
 #include "TypeRegisterer.hpp"
 #include "Types/Saber/SaberManager.hpp"
@@ -22,6 +23,7 @@
 #include "Utils/UnityUtils.hpp"
 #include "Types/Saber/Saber.hpp"
 #include "Types/Qosmetic/Qosmetic.hpp"
+#include "Config.hpp"
 
 ModInfo modInfo = {ID, VERSION};
 
@@ -47,7 +49,8 @@ if (!this->modelManager)
 }
 */
 
-static Qosmetics::SaberManager* manager = nullptr;
+static Qosmetics::SaberManager* saberManager = nullptr;
+static Qosmetics::ColorManager* colorManager = nullptr;
 bool firstWarmup = true;
 MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
 {
@@ -56,13 +59,13 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     if (firstWarmup && activeSceneName == "ShaderWarmup")
     {
         firstWarmup = false;
-        //manager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
-        //manager->SetActiveSaber("Plasma Katana.qsaber");
+        //saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
+        //saberManager->SetActiveSaber("Plasma Katana.qsaber");
     }
 
     if (activeSceneName == "HealthWarning")
     {
-        //manager->get_item().Load();
+        //saberManager->get_item().Load();
     }
 
     if (activeSceneName == "MenuViewControllers" || activeSceneName == "MenuCore")
@@ -75,6 +78,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
 
     }
 
+    if (colorManager) colorManager->ClearCallbacks();
     INFO("Found scene %s", activeSceneName.c_str());
     return SceneManager_SetActiveScene(scene);
 }
@@ -93,8 +97,10 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
     Qosmetics::Saber* saber = atLeastMenu ? UnityUtils::GetAddComponent<Qosmetics::Saber*>(self->saber->get_gameObject()) : nullptr;
     if (saber) 
     {
-        //if (!manager->prefab) manager->SetActiveSaber("Plasma Katana.qsaber");
-        saber->Init(manager);
+        //if (!saberManager->prefab) saberManager->SetActiveSaber("Plasma Katana.qsaber");
+        colorManager->ctor();
+
+        saber->Init(saberManager, colorManager);
         INFO("Replacing...");
         saber->Replace();
     }
@@ -105,8 +111,10 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator*
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     atLeastMenu = true;
 
-    if (!manager) manager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
-    manager->SetActiveSaber("Plasma Katana.qsaber", true);
+    //if (!saberManager) saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
+    if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
+    if (!colorManager) colorManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorManager*, il2cpp_utils::CreationType::Manual>());
+    if (saberManager) saberManager->SetActiveSaber("Plasma Katana.qsaber", true);
 }
 // fix for trail renderers not getting these set on time
 MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTrailRenderer* self)
@@ -135,6 +143,7 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load()
 {
+    if (!LoadConfig()) SaveConfig();
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");

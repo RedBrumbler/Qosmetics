@@ -7,6 +7,9 @@
 #include "Types/Wall/WallManager.hpp"
 #include "Types/Pointer/PointerManager.hpp"
 
+#include "Types/Colors/ColorManager.hpp"
+#include "Types/Colors/ColorScheme.hpp"
+
 #include "Types/Saber/Saber.hpp"
 #include "Types/Pointer/Pointer.hpp"
 
@@ -18,6 +21,7 @@ void RegisterTypes()
 {
     custom_types::Register::RegisterType<ModelManager>();
     custom_types::Register::RegisterTypes<SaberManager, NoteManager, WallManager, PointerManager>();
+    custom_types::Register::RegisterTypes<ColorManager, ColorScheme>();
     custom_types::Register::RegisterTypes<Qosmetic, QosmeticsTrail>();
     custom_types::Register::RegisterTypes<Saber, Pointer>();
 }

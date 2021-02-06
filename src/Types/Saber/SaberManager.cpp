@@ -11,11 +11,17 @@ DEFINE_CLASS(Qosmetics::SaberManager);
 
 using namespace UnityEngine;
 
+static inline Il2CppString* basicSaberModelName = nullptr;
 static inline Il2CppString* leftSaberName = nullptr;
 static inline Il2CppString* rightSaberName = nullptr;
 
 namespace Qosmetics
 {
+    void SaberManager::ctor()
+    {
+        this->activeItem = nullptr;
+    }
+
     GameObject* SaberManager::GetActivePrefab()
     {
         if (!activeItem) return nullptr;
@@ -34,14 +40,16 @@ namespace Qosmetics
     {
         if (getenv("saberlocked")) return;
         if (activeItem) delete (activeItem);
+        INFO("Set Default called");
         activeItem = new SaberItem(DescriptorCache::GetDescriptor(""));
     }
 
     void SaberManager::internalSetActiveModel(std::string name, bool load)
     {
-        INFO("Setting active Saber %s", name.c_str());
+        INFO("Setting active Saber %s, previous ptr: %p", name.c_str(), activeItem);
+
         // if new set is already the active one, ignore
-        if (activeItem && activeItem->get_descriptor().GetFileName() == name) return;
+        if (this->activeItem && this->activeItem->get_descriptor().GetFileName() == name) return;
         Descriptor& newItem = DescriptorCache::GetDescriptor(name);
         // if descriptor doesn't exist for this thing, ignore the setactive
         if (!newItem.isValid())
@@ -49,8 +57,8 @@ namespace Qosmetics
             ERROR("Item was invalid!");
             return;  
         } 
-        if (activeItem) delete(activeItem);
-        activeItem = new SaberItem(newItem, load);
+        if (this->activeItem) delete(this->activeItem);
+        this->activeItem = new SaberItem(newItem, load);
         INFO("Active Item Set!");
     }
 
@@ -61,7 +69,7 @@ namespace Qosmetics
         if (!prefab) return nullptr;
         Transform* object = prefab->get_transform()->Find(get_rightSaberName());
         if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        return UnityEngine::Object::Instantiate(object)->get_gameObject();
     }
 
     UnityEngine::GameObject* SaberManager::get_leftSaber()
@@ -71,7 +79,13 @@ namespace Qosmetics
         if (!prefab) return nullptr;
         Transform* object = prefab->get_transform()->Find(get_leftSaberName());
         if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        return UnityEngine::Object::Instantiate(object)->get_gameObject();
+    }
+
+    Il2CppString* SaberManager::get_basicSaberModelName()
+    {
+        if (!basicSaberModelName) basicSaberModelName = il2cpp_utils::createcsstr("BasicSaberModel(Clone)", il2cpp_utils::StringType::Manual);
+        return basicSaberModelName;
     }
 
     Il2CppString* SaberManager::get_leftSaberName()

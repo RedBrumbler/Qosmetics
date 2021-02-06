@@ -1,5 +1,6 @@
 #pragma once
 #include "Trail/TrailConfig.hpp"
+#include "Types/Colors/ColorManager.hpp"
 
 #include "GlobalNamespace/SaberTrail.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
@@ -21,6 +22,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, trailColor);
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, multiplierColor);
     DECLARE_INSTANCE_FIELD_DEFAULT(GlobalNamespace::SaberMovementData*, customMovementData, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorManager*, colorManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(bool, customInited, false);
     DECLARE_STATIC_FIELD(float, trailIntensity);
     
@@ -38,6 +40,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_METHOD(void, Reset);
     DECLARE_METHOD(void, UpdateTrail);
     DECLARE_METHOD(void, UpdateColors);
+    DECLARE_METHOD(void, SetColorManager, ColorManager* colorManager);
     DECLARE_METHOD(GlobalNamespace::SaberTrailRenderer*, NewTrailRenderer);
 
     public:
@@ -54,6 +57,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
         REGISTER_METHOD(Reset);
         REGISTER_METHOD(UpdateTrail);
         REGISTER_METHOD(UpdateColors);
+        REGISTER_METHOD(SetColorManager);
         REGISTER_METHOD(NewTrailRenderer);
 
         REGISTER_FIELD(topTransform);

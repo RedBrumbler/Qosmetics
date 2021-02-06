@@ -1,8 +1,11 @@
 #include "Utils/SaberUtils.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include "Utils/MaterialUtils.hpp"
+#include "Config.hpp"
 
 using namespace UnityEngine;
+
+extern config_t config;
 
 void DisableMesh(Array<MeshFilter*>* filters, bool enableFakeGlow, bool doHide)
 {
@@ -32,7 +35,13 @@ void SaberUtils::HideObjects(GameObject* object, bool enableFakeGlow, bool doHid
     DisableMesh(filters, enableFakeGlow, doHide);
 }
 
-void SetColors(GameObject* object, Color color, Color otherColor)
+void SaberUtils::SetColors(GameObject* object, Color color, Color otherColor)
 {
     MaterialUtils::SetColors(object, color, otherColor);
+}
+
+void SaberUtils::SetSaberSize(Transform* saber)
+{
+    if (!saber) return;
+    saber->set_localScale(Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
 }
