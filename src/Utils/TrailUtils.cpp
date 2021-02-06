@@ -1,6 +1,6 @@
 #include "Utils/TrailUtils.hpp"
 #include "GlobalNamespace/SaberTrail.hpp"
-#include "Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/QosmeticsTrail.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"

@@ -1,7 +1,7 @@
 #include "Types/Note/NoteManager.hpp"
 #include "Types/Note/NoteItem.hpp"
 #include "Data/DescriptorCache.hpp"
-#include "UnityEngine/Transform.hpp"
+#include "UnityEngine/GameObject.hpp"
 #include "QosmeticsLogger.hpp"
 
 DEFINE_CLASS(Qosmetics::NoteManager);
@@ -18,6 +18,14 @@ static inline Il2CppString* rightDotName = nullptr;
 static inline Il2CppString* leftDebrisName = nullptr;
 static inline Il2CppString* rightDebrisName = nullptr;
 static inline Il2CppString* bombName = nullptr;
+
+#define GetNameInPrefab(name) \
+if (!activeItem) return nullptr; \
+GameObject* prefab = activeItem->get_prefab(); \
+if (!prefab) return nullptr; \
+Transform* object = prefab->get_transform()->Find(name); \
+if (!object) return nullptr; \
+return UnityEngine::Object::Instantiate(object)
 
 namespace Qosmetics
 {
@@ -68,74 +76,39 @@ namespace Qosmetics
         return ItemType::note; 
     }
 
-    GameObject* NoteManager::get_leftArrow()
+    Transform* NoteManager::get_leftArrow()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_leftArrowName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_leftArrowName());
     }
 
-    GameObject* NoteManager::get_rightArrow()
+    Transform* NoteManager::get_rightArrow()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_rightArrowName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_rightArrowName());
     }
 
-    GameObject* NoteManager::get_leftDot()
+    Transform* NoteManager::get_leftDot()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_leftDotName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_leftDotName());
     }
 
-    GameObject* NoteManager::get_rightDot()
+    Transform* NoteManager::get_rightDot()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_rightDotName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_rightDotName());
     }
 
-    GameObject* NoteManager::get_leftDebris()
+    Transform* NoteManager::get_leftDebris()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_leftDebrisName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_leftDebrisName());
     }
 
-    GameObject* NoteManager::get_rightDebris()
+    Transform* NoteManager::get_rightDebris()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_rightDebrisName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_rightDebrisName());
     }
 
-    GameObject* NoteManager::get_bomb()
+    Transform* NoteManager::get_bomb()
     {
-        if (!activeItem) return nullptr;
-        GameObject* prefab = activeItem->get_prefab();
-        if (!prefab) return nullptr;
-        Transform* object = prefab->get_transform()->Find(get_bombName());
-        if (!object) return nullptr;
-        return Object::Instantiate(object)->get_gameObject();
+        GetNameInPrefab(get_bombName());
     }
 
     Il2CppString* NoteManager::get_leftArrowName()

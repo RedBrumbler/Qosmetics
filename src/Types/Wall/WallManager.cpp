@@ -21,7 +21,7 @@ GameObject* prefab = activeItem->get_prefab(); \
 if (!prefab) return nullptr; \
 Transform* object = prefab->get_transform()->Find(name); \
 if (!object) return nullptr; \
-return Object::Instantiate(object)
+return UnityEngine::Object::Instantiate(object)
 
 #define GetName(identifier, content) \
 if (!identifier) identifier = il2cpp_utils::createcsstr(content, il2cpp_utils::StringType::Manual); \

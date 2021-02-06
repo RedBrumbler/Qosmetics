@@ -1,7 +1,6 @@
 #pragma once
 #include "custom-types/shared/macros.hpp"
 #include "Types/Saber/SaberItem.hpp"
-#include "UnityEngine/MonoBehaviour.hpp"
 #include "QosmeticsLogger.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, SaberManager, Il2CppObject, 

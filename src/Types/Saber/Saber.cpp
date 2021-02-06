@@ -1,6 +1,6 @@
 #include "Types/Saber/Saber.hpp"
 #include "Types/Saber/SaberItem.hpp"
-#include "Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/QosmeticsTrail.hpp"
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "Utils/UnityUtils.hpp"

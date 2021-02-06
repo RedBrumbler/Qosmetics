@@ -1,11 +1,10 @@
 #pragma once
 #include "custom-types/shared/macros.hpp"
-#include "UnityEngine/MonoBehaviour.hpp"
 #include "Types/Wall/WallItem.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/Material.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, UnityEngine::MonoBehaviour,     
+DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, Il2CppObject,     
     DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
     DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
     DECLARE_METHOD(void, SetDefault);

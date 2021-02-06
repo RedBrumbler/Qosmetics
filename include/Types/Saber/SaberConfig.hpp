@@ -1,6 +1,6 @@
 #pragma once
 #include "Types/Qosmetic/ItemConfig.hpp"
-#include "Trail/TrailConfig.hpp"
+#include "Types/Trail/TrailConfig.hpp"
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
 
 namespace Qosmetics
