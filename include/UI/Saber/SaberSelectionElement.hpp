@@ -5,18 +5,21 @@
 #include "Data/DescriptorCache.hpp"
 #include "Types/Saber/SaberManager.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
+#include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBehaviour, 
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberPreviewViewController*, previewViewController, nullptr);
 
-    DECLARE_METHOD(void, Init, SaberManager* SaberManager);
+    DECLARE_METHOD(void, Init, SaberManager* saberManager);
     public:
         void Select();
+        void SetupButtons();
         void Delete();
         void UpdateData();
         void SetDescriptor(Descriptor* descriptor);
-
+        Descriptor& get_descriptor();
+        
     protected:
         Descriptor* descriptor;
 

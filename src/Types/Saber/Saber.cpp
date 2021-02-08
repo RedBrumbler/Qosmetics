@@ -1,6 +1,7 @@
 #include "Types/Saber/Saber.hpp"
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
+
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "Utils/UnityUtils.hpp"
@@ -116,6 +117,7 @@ namespace Qosmetics
 
     void Saber::SetupTrails()
     {
+        Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
         if (modelManager && modelManager->get_type() == ItemType::saber)
         {
             SaberItem& item = modelManager->get_item();
@@ -124,7 +126,6 @@ namespace Qosmetics
             std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
             Transform* customSaber = get_transform()->Find(saberName);
-            Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
             if (trails.size() > 0 && config.saberConfig.trailType == TrailType::custom && customSaber)
             {
                 for (auto& trail : trails)
@@ -143,16 +144,14 @@ namespace Qosmetics
                 trailComponent->SetColorManager(colorManager);
                 trailComponent->InitFromDefault(basicSaberModel);
             }
-            TrailUtils::RemoveTrail(basicSaberModel);
         }
-        else if (modelManager)
+        else if (modelManager && config.saberConfig.trailType != TrailType::none)
         {
-            Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(basicSaberModel->get_gameObject());
             trailComponent->SetColorManager(colorManager);
             trailComponent->InitFromDefault(basicSaberModel);
-            TrailUtils::RemoveTrail(basicSaberModel);
         }
+        TrailUtils::RemoveTrail(basicSaberModel);
     }
 
     void Saber::UpdateColors()

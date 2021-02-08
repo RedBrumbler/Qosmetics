@@ -23,7 +23,7 @@ namespace Qosmetics
         this->prefab = instantiated;
         MaterialUtils::PrewarmAllShadersOnObject(this->prefab);
         this->prefab->SetActive(false);
-        
+        GOloaded = true;
         INFO("Prefab Loaded");
     }
 
@@ -44,5 +44,7 @@ namespace Qosmetics
 
         Descriptor temp = Descriptor(d, descriptor.get_filePath());
         descriptor.CopyFrom(temp);
+        INFO("Descriptor loaded!");
+        DescriptorLoaded = true;
     }
 }

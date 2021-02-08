@@ -13,6 +13,7 @@ namespace Qosmetics
         if (!textAsset)
         {
             ERROR("Config was nullptr! did someone fuck with the exporter, or is the read broken? regardless keeping Default config");
+            ConfigLoaded = true;
             return;
         }
 
@@ -24,6 +25,8 @@ namespace Qosmetics
         d.Parse(json.c_str());
 
         config = SaberConfig(d);
+        INFO("Saber Config loaded!");
+        ConfigLoaded = true;
     }
 
     void SaberItem::DescriptorCallback(TextAsset* textAsset)
@@ -33,6 +36,7 @@ namespace Qosmetics
             ERROR("Descriptor was nullptr! did someone fuck with the exporter, or is the read broken? regardless setting legacy descriptor");
             Descriptor temp = Descriptor("---", descriptor.GetFileName(true), "Legacy Saber", descriptor.get_filePath());
             descriptor.CopyFrom(temp);
+            DescriptorLoaded = true;
             return;
         }
 
@@ -45,5 +49,7 @@ namespace Qosmetics
 
         Descriptor temp = Descriptor(d, descriptor.get_filePath());
         descriptor.CopyFrom(temp);
+        INFO("Saber Descriptor loaded!");
+        DescriptorLoaded = true;
     }
 }

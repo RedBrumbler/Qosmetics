@@ -3,7 +3,6 @@
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
 #include "UnityEngine/Transform.hpp"
-
 DEFINE_CLASS(Qosmetics::SaberManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Manager").info(value)
@@ -39,7 +38,8 @@ namespace Qosmetics
     void SaberManager::SetDefault()
     {
         if (getenv("saberlocked")) return;
-        if (activeItem) delete (activeItem);
+        INFO("Active Item ptr: %p", activeItem);
+        if (this->activeItem) delete (this->activeItem);
         INFO("Set Default called");
         activeItem = new SaberItem(DescriptorCache::GetDescriptor(""));
     }
@@ -59,6 +59,7 @@ namespace Qosmetics
         } 
         if (this->activeItem) delete(this->activeItem);
         this->activeItem = new SaberItem(newItem, load);
+        INFO("Active Item ptr: %p", activeItem);
         INFO("Active Item Set!");
     }
 

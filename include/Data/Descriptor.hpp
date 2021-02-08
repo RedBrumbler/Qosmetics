@@ -116,7 +116,7 @@ namespace Qosmetics
         private:
             std::string author = "---";
             std::string name = "";
-            std::string description = "legacy saber";
+            std::string description = "";
             std::string filePath = "";
             ItemType type = invalid;
     };

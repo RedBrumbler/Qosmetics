@@ -92,7 +92,7 @@ namespace Qosmetics
         if (!get_complete()) return;
         INFO("On Complete");
         DescriptorCache::Save();
-        UnloadBundle();
+        //UnloadBundle();
     }
 
     void ModelLoader::UnloadBundle()

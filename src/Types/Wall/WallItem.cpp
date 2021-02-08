@@ -22,5 +22,6 @@ namespace Qosmetics
         d.Parse(json.c_str());
 
         config = WallConfig(d);
+        ConfigLoaded = true;
     }
 }

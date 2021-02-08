@@ -4,11 +4,12 @@
 #include <string>
 #include "Data/Descriptor.hpp"
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
+typedef std::unordered_map<std::string, Qosmetics::Descriptor> Cache;
+
 namespace Qosmetics
 {
     class DescriptorCache
     {
-        using Cache = std::unordered_map<std::string, Descriptor>;
         public:
             /// @brief saves the cache to file
             static void Save();
@@ -33,6 +34,11 @@ namespace Qosmetics
             /// @brief Creates all descriptors from the given folder
             /// @param folderPath the folder in which to look
             static bool DescriptorsFromFolder(std::string folderPath);
+
+            static Cache& GetCache(ItemType cacheType)
+            {
+                return descriptors[cacheType];
+            }
         private:
 
             /// @brief writes a doc to file

@@ -53,7 +53,15 @@ namespace Qosmetics
                 UnityEngine::Object::Destroy(prefab);
             }
 
+            bool get_complete()
+            {
+                return GOloaded && DescriptorLoaded && ConfigLoaded;
+            }
+
         protected:
+            bool GOloaded = false;
+            bool DescriptorLoaded = false;
+            bool ConfigLoaded = false;
             Descriptor& descriptor;
             ModelLoader modelProvider = ModelLoader(this);
             UnityEngine::GameObject* prefab = nullptr;
