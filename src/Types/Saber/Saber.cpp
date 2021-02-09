@@ -37,7 +37,7 @@ namespace Qosmetics
             saberType = gameSaber->get_saberType();
     }
 
-    void Saber::UpdateModel()
+    void Saber::UpdateModel(bool firstUpdate)
     {
         if (modelManager && modelManager->get_type() != ItemType::saber) // if type is not saber, we must be using a default saber
         {
@@ -51,14 +51,17 @@ namespace Qosmetics
             SaberUtils::SetSaberSize(customSaber);
         }
 
-        // whether or not it's custom, reset the trails, config and stuff is automatically handled by the trails themselves
-        Array<QosmeticsTrail*>* trails = GetComponentsInChildren<QosmeticsTrail*>();
-        if (trails)
+        if (!firstUpdate)
         {
-            for (int i = 0; i < trails->Length(); i++)
+            // whether or not it's custom, reset the trails, config and stuff is automatically handled by the trails themselves
+            Array<QosmeticsTrail*>* trails = GetComponentsInChildren<QosmeticsTrail*>();
+            if (trails)
             {
-                QosmeticsTrail* trail = trails->values[i];
-                if (trail) trail->Reset();
+                for (int i = 0; i < trails->Length(); i++)
+                {
+                    QosmeticsTrail* trail = trails->values[i];
+                    if (trail) trail->Reset();
+                }
             }
         }
     }
@@ -111,14 +114,15 @@ namespace Qosmetics
         newSaber->get_transform()->set_position(get_transform()->get_position());
 
         SetupTrails();
-        UpdateModel();
+        UpdateModel(true);
         INFO("Done Replacing!");
     }
 
     void Saber::SetupTrails()
     {
+        if (!modelManager) return;
         Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
-        if (modelManager && modelManager->get_type() == ItemType::saber)
+        if (modelManager->get_type() == ItemType::saber)
         {
             SaberItem& item = modelManager->get_item();
             SaberConfig& itemConfig = item.get_config();
@@ -128,6 +132,7 @@ namespace Qosmetics
             Transform* customSaber = get_transform()->Find(saberName);
             if (trails.size() > 0 && config.saberConfig.trailType == TrailType::custom && customSaber)
             {
+                INFO("Putting custom trails on custom saber");
                 for (auto& trail : trails)
                 {
                     Il2CppString* trailPath = trail.get_name();
@@ -140,13 +145,15 @@ namespace Qosmetics
             }
             else if (config.saberConfig.trailType != TrailType::none && customSaber && basicSaberModel)// there were no trails, or base game was configured
             {
+                INFO("Putting base game trails on custom saber");
                 QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(customSaber->get_gameObject());
                 trailComponent->SetColorManager(colorManager);
                 trailComponent->InitFromDefault(basicSaberModel);
             }
         }
-        else if (modelManager && config.saberConfig.trailType != TrailType::none)
+        else if (config.saberConfig.trailType != TrailType::none && basicSaberModel)
         {
+            INFO("Changing base game trails on base game saber");
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(basicSaberModel->get_gameObject());
             trailComponent->SetColorManager(colorManager);
             trailComponent->InitFromDefault(basicSaberModel);

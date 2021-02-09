@@ -1,10 +1,10 @@
 #pragma once
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
 #include "Data/Descriptor.hpp"
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
-typedef std::unordered_map<std::string, Qosmetics::Descriptor> Cache;
+typedef std::map<std::string, Qosmetics::Descriptor> Cache;
 
 namespace Qosmetics
 {
@@ -71,7 +71,7 @@ namespace Qosmetics
             /// @return value that can be added to a document
             static rapidjson::Value MapToValue(Cache& map, rapidjson::Document::AllocatorType& allocator);
 
-            static inline std::unordered_map<ItemType, Cache> descriptors = {
+            static inline std::map<ItemType, Cache> descriptors = {
                 { ItemType::saber, {} }, 
                 { ItemType::note, {} }, 
                 { ItemType::wall, {} }, 

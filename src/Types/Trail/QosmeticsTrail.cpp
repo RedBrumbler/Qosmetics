@@ -51,20 +51,22 @@ namespace Qosmetics
 
         if (!this->topTransform)
         {
-            Transform* newTop = GameObject::New_ctor()->get_transform();
-            newTop->SetParent(get_transform());
-            newTop->set_localPosition({0.0f, 0.0f, 1.0f});
-            newTop->get_gameObject()->set_name(il2cpp_utils::createcsstr("TrailEnd"));
+            this->topTransform = GameObject::New_ctor()->get_transform();
+            this->topTransform->SetParent(get_transform());
+            this->topTransform->set_localPosition({0.0f, 0.0f, 1.0f});
+            this->topTransform->get_gameObject()->set_name(il2cpp_utils::createcsstr("TrailEnd"));
+            this->topTransform = get_transform()->Find(topTransformName);
         }
 
         this->bottomTransform = get_transform()->Find(bottomTransformName);
 
         if (!this->bottomTransform)
         {
-            Transform* newBottom = GameObject::New_ctor()->get_transform();
-            newBottom->SetParent(get_transform());
-            newBottom->set_localPosition({0.0f, 0.0f, 0.0f});
-            newBottom->get_gameObject()->set_name(bottomTransformName);
+            this->bottomTransform = GameObject::New_ctor()->get_transform();
+            this->bottomTransform->SetParent(get_transform());
+            this->bottomTransform->set_localPosition({0.0f, 0.0f, 0.0f});
+            this->bottomTransform->get_gameObject()->set_name(bottomTransformName);
+            this->bottomTransform = get_transform()->Find(bottomTransformName);
         }
 
         this->customBottomTransform = get_transform()->Find(customBottomTransformName);
@@ -72,12 +74,14 @@ namespace Qosmetics
         
         if (!this->customBottomTransform)
         {
-            this->customBottomTransform = UnityEngine::Object::Instantiate(this->bottomTransform, get_transform());
+            this->customBottomTransform = GameObject::New_ctor()->get_transform();
+            this->customBottomTransform->SetParent(get_transform());
 		    this->customBottomTransform->set_name(customBottomTransformName);
+            this->customBottomTransform = get_transform()->Find(customBottomTransformName);
         }
         
 
-        if (config.saberConfig.overrideTrailWidth && this->customBottomTransform)
+        if (config.saberConfig.overrideTrailWidth && this->customBottomTransform && this->bottomTransform && this->topTransform)
 		{
 			UnityEngine::Vector3 newPos = UnityEngine::Vector3::Lerp(this->topTransform->get_localPosition(), this->bottomTransform->get_localPosition(), config.saberConfig.trailWidth);
 			this->customBottomTransform->set_localPosition(newPos);
@@ -120,6 +124,7 @@ namespace Qosmetics
         {
             this->customBottomTransform = UnityEngine::Object::Instantiate(this->bottomTransform, get_transform());
 			this->customBottomTransform->set_name(customBottomTransformName);
+            this->customBottomTransform = get_transform()->Find(customBottomTransformName);
         }
 
         UpdateTrail();
@@ -136,14 +141,14 @@ namespace Qosmetics
 		int colorType = 2;
 		int whiteStep = (int)((float)orig->samplingFrequency * orig->whiteSectionMaxDuration * 0.5f);
 		UnityEngine::Material* mat = orig->trailRendererPrefab->meshRenderer->get_material();
-		this->trailRenderer = TrailUtils::NewTrailRenderer(mat);
+        get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
 		UnityEngine::Color trailColor = orig->color;
 		UnityEngine::Color multiplier = UnityEngine::Color::get_white();
 
         InitTrail(  length,
                     colorType,
                     whiteStep,
-                    mat,
+                    nullptr,
                     trailColor,
                     multiplier
         );
@@ -152,11 +157,11 @@ namespace Qosmetics
     void QosmeticsTrail::Update()
     {
         if (!customInited) return;
-        if (!this->topTransform || !this->bottomTransform) return;
+        if (!this->topTransform || !this->bottomTransform || !this->customBottomTransform) return;
         if (!this->customMovementData) return;
 
         UnityEngine::Vector3 topPos = this->topTransform->get_position();
-		UnityEngine::Vector3 bottomPos = (config.saberConfig.overrideTrailWidth && this->customBottomTransform && false) ? this->customBottomTransform->get_position() : this->bottomTransform->get_position();
+		UnityEngine::Vector3 bottomPos = (config.saberConfig.overrideTrailWidth && this->customBottomTransform) ? this->customBottomTransform->get_position() : this->bottomTransform->get_position();
 
         this->customMovementData->AddNewData(topPos, bottomPos, GlobalNamespace::TimeHelper::get_time());
     }
@@ -247,6 +252,7 @@ namespace Qosmetics
 
     GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer()
     {
+        if (!trailMaterial) return nullptr;
         GlobalNamespace::SaberTrailRenderer* newRenderer = TrailUtils::NewTrailRenderer(trailMaterial);
         float trailWidth = GetTrailWidth(movementData->get_lastAddedData());
         newRenderer->Init(trailWidth, trailDuration, granularity, whiteSectionMaxDuration);

@@ -1,6 +1,7 @@
 #include "Types/Qosmetic/QosmeticItem.hpp"
 #include "QosmeticsLogger.hpp"
 #include "Utils/MaterialUtils.hpp"
+#include "Types/Utils/FuckYouGC.hpp"
 
 using namespace UnityEngine;
 
@@ -21,6 +22,7 @@ namespace Qosmetics
         Object::DontDestroyOnLoad(instantiated);
         
         this->prefab = instantiated;
+        this->prefab->AddComponent<FuckYouGC*>();
         MaterialUtils::PrewarmAllShadersOnObject(this->prefab);
         this->prefab->SetActive(false);
         GOloaded = true;

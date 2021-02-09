@@ -47,7 +47,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
         void SetTrailConfig(TrailConfig* config);
 
     private: 
-        TrailConfig* trailConfig;
+        TrailConfig* trailConfig = nullptr;
 
     REGISTER_FUNCTION(QosmeticsTrail,
         REGISTER_METHOD(Awake);

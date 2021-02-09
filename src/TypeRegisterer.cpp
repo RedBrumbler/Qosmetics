@@ -17,6 +17,7 @@
 #include "Types/Note/Bomb.hpp"
 #include "Types/Wall/Wall.hpp"
 #include "Types/Pointer/Pointer.hpp"
+#include "Types/Utils/FuckYouGC.hpp"
 
 #include "UI/Saber/SaberPreviewElement.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
@@ -47,6 +48,7 @@ using namespace Qosmetics::UI;
 
 void RegisterTypes()
 {
+    custom_types::Register::RegisterType<FuckYouGC>();
     custom_types::Register::RegisterType<ModelManager>();
     custom_types::Register::RegisterTypes<SaberManager, NoteManager, WallManager, PointerManager>();
     custom_types::Register::RegisterTypes<ColorManager, ColorScheme>();

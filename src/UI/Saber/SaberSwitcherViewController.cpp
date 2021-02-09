@@ -54,10 +54,8 @@ namespace Qosmetics::UI
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
 
             VerticalLayoutGroup* layout = container->GetComponent<VerticalLayoutGroup*>();
-            layout->set_childForceExpandWidth(true);
-            layout->set_childControlWidth(false);
-            
-            //layout->m_TotalPreferredSize = {300, 0};
+            //layout->set_childForceExpandWidth(true);
+            //layout->set_childControlWidth(false);
 
             CreateUIButton(container->get_transform(), "Default Saber", "PlayButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, +[](SaberSwitcherViewController* self){
                 self->modelManager->SetDefault();
@@ -76,7 +74,7 @@ namespace Qosmetics::UI
                         return true;
                     }
                     HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
-                    layout->set_childForceExpandWidth(true);
+                    //layout->set_childForceExpandWidth(true);
                     //layout->set_childControlWidth(true);
                     //layout->m_TotalPreferredSize = {600, 0};
                     SaberSelectionElement* element = layout->get_gameObject()->AddComponent<SaberSelectionElement*>();

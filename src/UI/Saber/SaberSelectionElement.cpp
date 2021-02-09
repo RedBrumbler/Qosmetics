@@ -41,6 +41,7 @@ void SetupName(VerticalLayoutGroup* layout, std::string name)
     TextMeshProUGUI* text = CreateText(layout->get_transform(), name);
     if (!nameName) nameName = il2cpp_utils::createcsstr("Name", il2cpp_utils::StringType::Manual);
     text->get_gameObject()->set_name(nameName);
+    text->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredWidth(45.0f);
 }
 
 void SetupAuthor(VerticalLayoutGroup* layout, std::string author)
@@ -52,6 +53,7 @@ void SetupAuthor(VerticalLayoutGroup* layout, std::string author)
     text->get_gameObject()->set_name(authorName);
     text->set_color(color);
     text->set_fontSize(text->get_fontSize() * 0.8f);
+    text->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredWidth(45.0f);
 }
 
 void SetupSelect(HorizontalLayoutGroup* layout, SaberSelectionElement* self)
@@ -66,6 +68,11 @@ void SetupDelete(HorizontalLayoutGroup* layout, SaberSelectionElement* self)
     Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), self, +[](SaberSelectionElement* self){
         self->Delete();
     }));
+}
+
+void SetupDescription(HorizontalLayoutGroup* layout, std::string description)
+{
+    AddHoverHint(layout->get_gameObject(), description);
 }
 
 namespace Qosmetics::UI
@@ -124,8 +131,12 @@ namespace Qosmetics::UI
         TextMeshProUGUI* authorText = author->get_gameObject()->GetComponent<TextMeshProUGUI*>();
         authorText->set_text(il2cpp_utils::createcsstr("<i>" + authorName + "</i>"));
         authorText->set_color(color);
+        
+        HoverHint* hoverHint = GetComponent<HoverHint*>();
+        hoverHint->set_text(il2cpp_utils::createcsstr(descriptor.get_description()));
 
         config.lastActiveSaber = descriptor.GetFileName();
+        SaveConfig();
     }
 
     void SaberSelectionElement::SetDescriptor(Descriptor* descriptor)
@@ -179,6 +190,9 @@ namespace Qosmetics::UI
                         SetupDelete(info->layout, info->self);
                         break;
                     case 5:
+                        SetupDescription(info->layout, info->self->descriptor->get_description());
+                        break;
+                    default:
                         free(data->data);
                         free(data);
                         return true;

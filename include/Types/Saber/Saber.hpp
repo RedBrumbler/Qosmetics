@@ -14,7 +14,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Saber, UnityEngine::MonoBehaviour,
     
     DECLARE_METHOD(void, Awake);
     DECLARE_METHOD(void, Replace);
-    DECLARE_METHOD(void, UpdateModel);
+    DECLARE_METHOD(void, UpdateModel, bool firstActivation = false);
     DECLARE_METHOD(void, UpdateColors);
     DECLARE_METHOD(void, Restore);
     DECLARE_METHOD(void, Init, SaberManager* modelManager, ColorManager* colorManager);
