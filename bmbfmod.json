@@ -1,7 +1,7 @@
 {
   "id": "Qosmetics",
   "name": "Qosmetics",
-  "version": "ReWrite",
+  "version": "Rewrite",
   "icon": "cover.gif",
   "coverImageFilename": "cover.gif",
   "author": "RedBrumbler",
@@ -26,12 +26,6 @@
       "type": "HookModLibrary",
       "installAction": {
         "installLibraryFile": "libbeatsaber-hook_1_0_12.so"
-      }
-    },
-    {
-      "type": "HookModLibrary",
-      "installAction": {
-        "installLibraryFile": "libbs-utils.so"
       }
     },
     {

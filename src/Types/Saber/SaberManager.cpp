@@ -63,24 +63,24 @@ namespace Qosmetics
         INFO("Active Item Set!");
     }
 
-    UnityEngine::GameObject* SaberManager::get_rightSaber()
+    UnityEngine::Transform* SaberManager::get_rightSaber()
     {
         if (!activeItem) return nullptr;
         GameObject* prefab = activeItem->get_prefab();
         if (!prefab) return nullptr;
         Transform* object = prefab->get_transform()->Find(get_rightSaberName());
         if (!object) return nullptr;
-        return UnityEngine::Object::Instantiate(object)->get_gameObject();
+        return UnityEngine::Object::Instantiate(object);
     }
 
-    UnityEngine::GameObject* SaberManager::get_leftSaber()
+    UnityEngine::Transform* SaberManager::get_leftSaber()
     {
         if (!activeItem) return nullptr;
         GameObject* prefab = activeItem->get_prefab();
         if (!prefab) return nullptr;
         Transform* object = prefab->get_transform()->Find(get_leftSaberName());
         if (!object) return nullptr;
-        return UnityEngine::Object::Instantiate(object)->get_gameObject();
+        return UnityEngine::Object::Instantiate(object);
     }
 
     Il2CppString* SaberManager::get_basicSaberModelName()

@@ -19,8 +19,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SaberManager, Il2CppObject,
         DECLARE_METHOD(static Il2CppString*, get_rightSaberName);
         
         // gets a copy of either saber, not the original
-        DECLARE_METHOD(UnityEngine::GameObject*, get_leftSaber);
-        DECLARE_METHOD(UnityEngine::GameObject*, get_rightSaber);
+        DECLARE_METHOD(UnityEngine::Transform*, get_leftSaber);
+        DECLARE_METHOD(UnityEngine::Transform*, get_rightSaber);
 
         DECLARE_CTOR(ctor);
 

@@ -73,7 +73,7 @@ namespace Qosmetics
         if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), false, false);
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
         Transform* saber = get_transform()->Find(saberName);
-        if (saber) Object::Destroy(saber);
+        if (saber) saber->get_gameObject()->SetActive(false);
         replaced = false;
     }
 
@@ -90,29 +90,26 @@ namespace Qosmetics
         }
         
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-        GameObject* prefab = (saberType == 0) ? modelManager->get_leftSaber() : modelManager->get_rightSaber();
-        
-        prefab->set_name(saberName);
-        if (!prefab) 
+        Transform* prefab = get_transform()->Find(saberName);
+        if (!prefab)
         {
-            ERROR("Replacing model was nullptr!");
-            return;
+            Transform* prefab = (saberType == 0) ? modelManager->get_leftSaber() : modelManager->get_rightSaber();        
+            if (!prefab) 
+            {
+                ERROR("Replacing model was nullptr!");
+                return;
+            }
+            prefab->SetParent(get_transform());
+
+            prefab->get_gameObject()->set_name(saberName);
+            prefab->set_rotation(get_transform()->get_rotation());
+            prefab->set_position(get_transform()->get_position());
         }
+        else prefab->get_gameObject()->SetActive(true);
 
         Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
         if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), modelManager->get_item().get_config().get_enableFakeGlow());
-        Transform* newSaber = get_transform()->Find(saberName);
-        if (!newSaber) 
-        {
-            prefab->get_transform()->SetParent(get_transform());
-        }
-        else Object::Destroy(prefab);
-        newSaber = get_transform()->Find(saberName);
-
-        newSaber->get_gameObject()->set_name(saberName);
-        newSaber->get_transform()->set_rotation(get_transform()->get_rotation());
-        newSaber->get_transform()->set_position(get_transform()->get_position());
-
+        
         SetupTrails();
         UpdateModel(true);
         INFO("Done Replacing!");

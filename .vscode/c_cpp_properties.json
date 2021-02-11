@@ -19,7 +19,7 @@
       "name": "Quest",
       "cStandard": "c11",
       "cppStandard": "c++20",
-      "intelliSenseMode": "clang-x64"
+      "intelliSenseMode": "gcc-x64"
     }
   ],
   "version": 4

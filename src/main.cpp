@@ -120,7 +120,6 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator*
         //if (!saberManager) saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
         if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
         if (!colorManager) colorManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorManager*, il2cpp_utils::CreationType::Manual>());
-        if (saberManager) saberManager->SetActiveSaber(config.lastActiveSaber, true);
         Qosmetics::UI::SaberSwitcherViewController::modelManager = saberManager;
     }
 }
@@ -139,6 +138,44 @@ MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::C
     std::string thisName = to_utf8(csstrtostr(trailTransform->get_gameObject()->get_name()));
     if (thisName == "Trail(Clone)") return;
     ConditionalMaterialSwitcher_Awake(self);
+}
+
+bool saberSet = false;
+
+MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
+{
+    MainMenuViewController_HandleMenuButton(self, menuButton);
+    INFO("Menu pressed: %d", menuButton.value);
+    
+    if (saberManager && !saberSet) 
+    {
+        saberSet = true;
+        saberManager->SetActiveSaber(config.lastActiveSaber, true);
+    }
+
+    /*
+    switch (menuButton.value)
+    {
+        case 0: // solo
+            break;
+        case 1: // party
+            break;
+        case 2: // Editor
+            break;
+        case 3: // campaign
+            break;
+        case 4: // floorAdjust
+            break;
+        case 5: // quit
+            break;
+        case 6: // multi
+            break;
+        case 7: // options
+            break;
+        case 8: // howtoplay/tutorial
+            break;
+    }
+    */
 }
 
 extern "C" void setup(ModInfo& info)
@@ -162,6 +199,7 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));
     INSTALL_HOOK_OFFSETLESS(logger, SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
+    INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
 
     logger.info("Installed Hooks!");
 
