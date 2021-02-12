@@ -2,6 +2,7 @@
 #include "QosmeticsLogger.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "Data/CreatorCache.hpp"
+#include "Data/PatronCache.hpp"
 #include "static-defines.hpp"
 
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
@@ -27,6 +28,8 @@
 #include "Config.hpp"
 
 #include "UI/Saber/SaberSwitcherViewController.hpp"
+#include "UI/Saber/SaberSettingsViewController.hpp"
+#include "UI/General/PatronViewController.hpp"
 #include "questui/shared/QuestUI.hpp"
 
 ModInfo modInfo = {ID, VERSION};
@@ -64,6 +67,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     {
         firstWarmup = false;
         CreatorCache::Download();
+        PatronCache::Download();
         //saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
         //saberManager->SetActiveSaber("Plasma Katana.qsaber");
     }
@@ -208,6 +212,8 @@ extern "C" void load()
     logger.info("Registered Custom types!");
 
     QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSwitcherViewController*>((ModInfo){"Saber Switcher", VERSION});
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSettingsViewController*>((ModInfo){"Saber Settings", VERSION});
+    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::PatronViewController*>((ModInfo){"Patron Credits", VERSION});
 }
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)
