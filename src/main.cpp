@@ -10,6 +10,8 @@
 #include "GlobalNamespace/Saber.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
+#include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
+#include "HMUI/ViewController_AnimationType.hpp"
 #include "UnityEngine/SceneManagement/Scene.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/MeshFilter.hpp"
@@ -30,6 +32,8 @@
 #include "UI/Saber/SaberSwitcherViewController.hpp"
 #include "UI/Saber/SaberSettingsViewController.hpp"
 #include "UI/General/PatronViewController.hpp"
+#include "UI/General/UISetup.hpp"
+
 #include "questui/shared/QuestUI.hpp"
 
 ModInfo modInfo = {ID, VERSION};
@@ -38,6 +42,7 @@ ModInfo modInfo = {ID, VERSION};
 #define ERROR(value...) QosmeticsLogger::GetLogger().error(value);
 
 using namespace Qosmetics;
+using namespace Qosmetics::UI;
 using namespace GlobalNamespace;
 
 extern config_t config;
@@ -157,29 +162,60 @@ MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamesp
         saberManager->SetActiveSaber(config.lastActiveSaber, true);
     }
 
-    /*
     switch (menuButton.value)
     {
         case 0: // solo
+            UISetup::set_flowCoordinatorType(UISetup::solo);
             break;
         case 1: // party
+            UISetup::set_flowCoordinatorType(UISetup::party);
             break;
         case 2: // Editor
+            UISetup::set_flowCoordinatorType(UISetup::invalid);
             break;
         case 3: // campaign
+            UISetup::set_flowCoordinatorType(UISetup::campaign);
             break;
         case 4: // floorAdjust
+            UISetup::set_flowCoordinatorType(UISetup::invalid);
             break;
         case 5: // quit
+            UISetup::set_flowCoordinatorType(UISetup::invalid);
             break;
         case 6: // multi
             break;
         case 7: // options
+            UISetup::set_flowCoordinatorType(UISetup::settings);
             break;
         case 8: // howtoplay/tutorial
+            UISetup::set_flowCoordinatorType(UISetup::invalid);
             break;
     }
-    */
+}
+
+MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, void, GlobalNamespace::MultiplayerModeSelectionFlowCoordinator* self, HMUI::ViewController* oldViewController, HMUI::ViewController* newViewController, HMUI::ViewController::AnimationType animationType)
+{
+    MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange(self, oldViewController, newViewController, animationType);
+    if ((void*)newViewController == (void*)self->createServerViewController)
+    {
+        INFO("User is Host");
+        UISetup::set_flowCoordinatorType(UISetup::multiHost);
+    }
+    else if ((void*)newViewController == (void*)self->serverCodeEntryViewController)
+    {
+        INFO("User is Client");
+        UISetup::set_flowCoordinatorType(UISetup::multiClient);
+    }
+}
+
+MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+{
+    OptionsViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+
+    if (firstActivation)
+    {
+        UISetup::SetupFlowCoordinatorAtSettings(self);
+    }
 }
 
 extern "C" void setup(ModInfo& info)
@@ -204,6 +240,8 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));
     INSTALL_HOOK_OFFSETLESS(logger, SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
     INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
+    INSTALL_HOOK_OFFSETLESS(logger, OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
+    INSTALL_HOOK_OFFSETLESS(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
 
     logger.info("Installed Hooks!");
 
@@ -211,9 +249,9 @@ extern "C" void load()
     RegisterTypes();
     logger.info("Registered Custom types!");
 
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSwitcherViewController*>((ModInfo){"Saber Switcher", VERSION});
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSettingsViewController*>((ModInfo){"Saber Settings", VERSION});
-    QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::PatronViewController*>((ModInfo){"Patron Credits", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSwitcherViewController*>((ModInfo){"Saber Switcher", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSettingsViewController*>((ModInfo){"Saber Settings", VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::PatronViewController*>((ModInfo){"Patron Credits", VERSION});
 }
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)

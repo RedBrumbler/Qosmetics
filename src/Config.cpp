@@ -12,18 +12,18 @@ Configuration& getConfig() {
     config.Load();
     return config;
 }
-/*
+
 bool GetScoresDisabled()
 {
     bool disabled = false;
 
     if (config.wallConfig.forceCoreOff) disabled = true;
     if (config.noteConfig.alsoChangeHitboxes) disabled = true;
-    if (Qosmetics::QuestWall::get_scoreDisabled()) disabled = true;
+    //if (Qosmetics::QuestWall::get_scoreDisabled()) disabled = true;
 
     return disabled;
 }
-*/
+
 
 void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
 {
