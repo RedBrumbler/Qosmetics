@@ -14,6 +14,7 @@ DEFINE_CLASS(Qosmetics::UI::SaberSettingsViewController);
 #include "System/Func_1.hpp"
 
 #include "Config.hpp"
+#include "Utils/UIUtils.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -52,6 +53,9 @@ namespace Qosmetics::UI
         if (firstActivation)
         {
             get_gameObject()->AddComponent<Touchable*>();
+            
+            UIUtils::AddHeader(get_transform(), "Saber Settings", Color::get_red());
+
             GameObject* container = CreateScrollableSettingsContainer(get_transform());
 
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();

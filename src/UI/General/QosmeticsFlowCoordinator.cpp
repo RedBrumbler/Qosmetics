@@ -63,7 +63,7 @@ namespace Qosmetics::UI
             // saber stuff
             // preview is made first since the other 2 viewcontrollers need a reference to the view controller in order to update the preview after config changes
             saberPreviewViewController = CreateViewController<SaberPreviewViewController*>();
-
+            saberPreviewViewController->Init(saberManager, colorManager);
             saberSwitcherViewController = CreateViewController<SaberSwitcherViewController*>();
             
             saberSwitcherViewController->Init(saberManager, saberPreviewViewController);

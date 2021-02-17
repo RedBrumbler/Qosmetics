@@ -20,6 +20,8 @@ rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
 # Creating prebuilt for dependency: bs-utils - version: 0.5.8
 include $(CLEAR_VARS)
+# Creating prebuilt for dependency: bs-utils - version: 0.5.8
+include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
 LOCAL_SRC_FILES := extern/libbs-utils.so
@@ -41,7 +43,7 @@ LOCAL_EXPORT_C_INCLUDES := extern/custom-types
 LOCAL_SRC_FILES := extern/libcustom-types.so
 LOCAL_CPP_FEATURES += rtti exceptions
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: questui - version: 0.4.3
+# Creating prebuilt for dependency: questui - version: 0.4.4
 include $(CLEAR_VARS)
 LOCAL_MODULE := questui
 LOCAL_EXPORT_C_INCLUDES := extern/questui
