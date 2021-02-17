@@ -38,6 +38,7 @@
 #include "UI/Wall/WallSwitcherViewController.hpp"
 
 #include "UI/General/PatronViewController.hpp"
+#include "UI/General/FloorLogoViewController.hpp"
 #include "UI/General/QosmeticsFlowCoordinator.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
 
@@ -62,7 +63,7 @@ void RegisterTypes()
     custom_types::Register::RegisterTypes<SaberSwitcherViewController, NoteSwitcherViewController, WallSwitcherViewController>();
     custom_types::Register::RegisterTypes<SaberSettingsViewController, NoteSettingsViewController, WallSettingsViewController>();
     custom_types::Register::RegisterTypes<SaberSelectionElement, NoteSelectionElement, WallSelectionElement>();
-    custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController>();
+    custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController, FloorLogoViewController>();
 
     custom_types::Register::RegisterType<QosmeticsFlowCoordinator>();
 }

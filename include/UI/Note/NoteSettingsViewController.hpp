@@ -1,6 +1,5 @@
 #pragma once
 #include "custom-types/shared/macros.hpp"
-
 #include "HMUI/ViewController.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, NoteSettingsViewController, HMUI::ViewController,

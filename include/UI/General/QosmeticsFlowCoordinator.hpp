@@ -18,11 +18,11 @@
 #include "UI/Wall/WallSwitcherViewController.hpp"
 
 #include "UI/General/PatronViewController.hpp"
+#include "UI/General/FloorLogoViewController.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
     
-    DECLARE_INSTANCE_FIELD_DEFAULT(HMUI::ViewController*, activeViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::QosmeticsViewController*, qosmeticsViewController, nullptr);
 
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::SaberSwitcherViewController*, saberSwitcherViewController, nullptr);
@@ -38,15 +38,21 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::WallPreviewViewController*, wallPreviewViewController, nullptr);
 
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::PatronViewController*, patronViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::FloorLogoViewController*, floorLogoViewController, nullptr);
+    
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::SaberManager*, saberManager, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::NoteManager*, noteManager, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallManager*, wallManager, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorManager*, colorManager, nullptr);
 
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
     
+    DECLARE_METHOD(void, Init, Qosmetics::SaberManager* saberManager, Qosmetics::NoteManager* noteManager, Qosmetics::WallManager* wallManager, Qosmetics::ColorManager* colorManager);
     public:
         void SubMenuButtonWasPressed(ItemType type);
 
     REGISTER_FUNCTION(QosmeticsFlowCoordinator,
-        REGISTER_FIELD(activeViewController);
         REGISTER_FIELD(qosmeticsViewController);
 
         REGISTER_FIELD(saberSwitcherViewController);
@@ -62,7 +68,14 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
         REGISTER_FIELD(wallPreviewViewController);
 
         REGISTER_FIELD(patronViewController);
+        REGISTER_FIELD(floorLogoViewController);
 
+        REGISTER_FIELD(saberManager);
+        REGISTER_FIELD(noteManager);
+        REGISTER_FIELD(wallManager);
+        REGISTER_FIELD(colorManager);
+
+        REGISTER_METHOD(Init);
         REGISTER_METHOD(DidActivate);
         REGISTER_METHOD(BackButtonWasPressed);
     )

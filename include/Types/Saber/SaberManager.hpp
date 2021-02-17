@@ -7,6 +7,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SaberManager, Il2CppObject,
         
         DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
         DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
+        DECLARE_METHOD(void, FromFilePath, Il2CppString* path);
         DECLARE_METHOD(void, SetDefault);
 
         // gets the actual original prefab

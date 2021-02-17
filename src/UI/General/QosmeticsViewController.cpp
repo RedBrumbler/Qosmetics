@@ -6,6 +6,9 @@
 #include "static-defines.hpp"
 
 #include "UnityEngine/Events/UnityAction.hpp"
+#include "UnityEngine/Texture.hpp"
+#include "UnityEngine/TextureWrapMode.hpp"
+#include "UnityEngine/Texture2D.hpp"
 #include "HMUI/ButtonSpriteSwap.hpp"
 #include "HMUI/Touchable.hpp"
 #include "Config.hpp"
@@ -28,8 +31,12 @@ DEFINE_CLASS(Qosmetics::UI::QosmeticsViewController);
 void swapButtonSprites(Button* button, std::string normalName, std::string selectedName)
 {
     UnityEngine::Sprite* highlighted = QuestUI::BeatSaberUI::FileToSprite(selectedName, 266, 259);
+    Texture* highl = highlighted->get_texture();
+    highl->set_wrapMode(1);
     UnityEngine::Sprite* pressed = highlighted;
     UnityEngine::Sprite* selected = QuestUI::BeatSaberUI::FileToSprite(normalName, 266, 259);
+    Texture* sel = selected->get_texture();
+    sel->set_wrapMode(1);
     UnityEngine::Sprite* disabled = selected;
     HMUI::ButtonSpriteSwap* spriteSwap = button->get_gameObject()->GetComponent<HMUI::ButtonSpriteSwap*>();
     spriteSwap->normalStateSprite = selected;
@@ -46,7 +53,6 @@ namespace Qosmetics::UI
         {
             get_gameObject()->AddComponent<Touchable*>();
 
-            get_gameObject()->AddComponent<HMUI::Touchable*>();
             UnityEngine::UI::VerticalLayoutGroup* vertical = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
             UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(get_transform());
 

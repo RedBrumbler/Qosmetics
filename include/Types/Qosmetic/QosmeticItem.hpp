@@ -24,6 +24,18 @@ namespace Qosmetics
                 modelProvider.LoadBundle(true);
             }
 
+            void LoadBundle()
+            {
+                if (!fileexists(descriptor.get_filePath())) return;
+                modelProvider.LoadBundle(false);
+            }
+
+            void LoadAssets()
+            {
+                if (!fileexists(descriptor.get_filePath())) return;
+                modelProvider.LoadAssets();
+            }
+
             void GameObjectCallback(UnityEngine::GameObject* gameObject);
             virtual void ConfigCallback(UnityEngine::TextAsset* textAsset) {};
             virtual void DescriptorCallback(UnityEngine::TextAsset* textAsset);

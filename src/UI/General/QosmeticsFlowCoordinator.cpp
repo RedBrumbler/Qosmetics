@@ -60,13 +60,19 @@ namespace Qosmetics::UI
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
             showBackButton = true;
 
+            // saber stuff
+            // preview is made first since the other 2 viewcontrollers need a reference to the view controller in order to update the preview after config changes
+            saberPreviewViewController = CreateViewController<SaberPreviewViewController*>();
+
             saberSwitcherViewController = CreateViewController<SaberSwitcherViewController*>();
-    	    VerticalLayoutGroup* layout = CreateVerticalLayoutGroup(saberSwitcherViewController->get_rectTransform());
+            
+            saberSwitcherViewController->Init(saberManager, saberPreviewViewController);
+            VerticalLayoutGroup* layout = CreateVerticalLayoutGroup(saberSwitcherViewController->get_rectTransform());
             SetupSubTitle(layout, "Qosmetics Sabers");
 
             saberSettingsViewController = CreateViewController<SaberSettingsViewController*>();
-            saberPreviewViewController = CreateViewController<SaberPreviewViewController*>();
 
+            // note stuff
             noteSwitcherViewController = CreateViewController<NoteSwitcherViewController*>();
             layout = CreateVerticalLayoutGroup(noteSwitcherViewController->get_rectTransform());
             SetupSubTitle(layout, "Qosmetics Bloqs");
@@ -74,6 +80,7 @@ namespace Qosmetics::UI
             noteSettingsViewController = CreateViewController<NoteSettingsViewController*>();
             notePreviewViewController = CreateViewController<NotePreviewViewController*>();
 
+            // wall stuff
             wallSwitcherViewController = CreateViewController<WallSwitcherViewController*>();
             layout = CreateVerticalLayoutGroup(wallSwitcherViewController->get_rectTransform());
             SetupSubTitle(layout, "Qosmetics Walls");
@@ -82,14 +89,14 @@ namespace Qosmetics::UI
             wallPreviewViewController = CreateViewController<WallPreviewViewController*>();
 
             patronViewController = CreateViewController<PatronViewController*>();
+            floorLogoViewController = CreateViewController<FloorLogoViewController*>();
 
             qosmeticsViewController = CreateViewController<QosmeticsViewController*>();
 
             std::function<void(ItemType)> func = std::bind(&QosmeticsFlowCoordinator::SubMenuButtonWasPressed, this, std::placeholders::_1);
             qosmeticsViewController->set_selectCallback(func);
 
-            ProvideInitialViewControllers(qosmeticsViewController, nullptr, patronViewController, nullptr, nullptr);
-            activeViewController = qosmeticsViewController;
+            ProvideInitialViewControllers(qosmeticsViewController, nullptr, patronViewController, floorLogoViewController, nullptr);
         }
     }
 
@@ -102,21 +109,18 @@ namespace Qosmetics::UI
                 ReplaceTopViewController(saberSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
                 SetLeftScreenViewController(saberSettingsViewController, ViewController::AnimationType::In);
                 SetRightScreenViewController(saberPreviewViewController, ViewController::AnimationType::In);
-                activeViewController = saberSwitcherViewController;
                 break;
             case note:
                 SetTitle(noteTitle, ViewController::AnimationType::In);
                 ReplaceTopViewController(noteSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
                 SetLeftScreenViewController(noteSettingsViewController, ViewController::AnimationType::In);
                 SetRightScreenViewController(notePreviewViewController, ViewController::AnimationType::In);
-                activeViewController = noteSwitcherViewController;
                 break;
             case wall:
                 SetTitle(wallTitle, ViewController::AnimationType::In);
                 ReplaceTopViewController(wallSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
                 SetLeftScreenViewController(wallSettingsViewController, ViewController::AnimationType::In);
                 SetRightScreenViewController(wallPreviewViewController, ViewController::AnimationType::In);
-                activeViewController = wallSwitcherViewController;
                 break;
             default:
                 break;
@@ -125,16 +129,21 @@ namespace Qosmetics::UI
 
     void QosmeticsFlowCoordinator::BackButtonWasPressed(HMUI::ViewController* topViewController)
     {
-        INFO("Active View Controller: %p, topViewController: %p, qosmeticsViewController:", activeViewController, topViewController, qosmeticsViewController);
-
-        if (activeViewController != qosmeticsViewController)
+        if (topViewController != qosmeticsViewController)
         {
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
             ReplaceTopViewController(qosmeticsViewController, this, this, nullptr, ViewController::AnimationType::Out, ViewController::AnimationDirection::Horizontal);
             SetLeftScreenViewController(nullptr, ViewController::AnimationType::Out);
             SetRightScreenViewController(patronViewController, ViewController::AnimationType::Out);
-            activeViewController = qosmeticsViewController;
         }
         else this->parentFlowCoordinator->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
+    }
+
+    void QosmeticsFlowCoordinator::Init(Qosmetics::SaberManager* saberManager, Qosmetics::NoteManager* noteManager, Qosmetics::WallManager* wallManager, Qosmetics::ColorManager* colorManager)
+    {
+        this->saberManager = saberManager;
+        this->noteManager = noteManager;
+        this->wallManager = wallManager;
+        this->colorManager = colorManager;
     }
 }

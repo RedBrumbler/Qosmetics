@@ -1,5 +1,6 @@
 #pragma once
 #include "custom-types/shared/macros.hpp"
+#include "Types/Wall/WallManager.hpp"
 
 #include "HMUI/ViewController.hpp"
 

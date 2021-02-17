@@ -31,7 +31,7 @@ namespace Qosmetics
                 this->type = type;
             }
 
-            Descriptor(std::string filePath, ItemType type)
+            Descriptor(std::string filePath)
             {
                 this->filePath = filePath;
                 this->type = GetTypeFromName(filePath);

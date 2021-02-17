@@ -2,6 +2,7 @@
 
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Data/CustomDataType.hpp"
+#include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "UnityEngine/WaitUntil.hpp"
@@ -9,6 +10,7 @@
 #include "System/Func_1.hpp"
 
 #include "Utils/TextUtils.hpp"
+#include "Utils/UnityUtils.hpp"
 
 #include "Data/CreatorCache.hpp"
 
@@ -77,9 +79,10 @@ void SetupDescription(HorizontalLayoutGroup* layout, std::string description)
 
 namespace Qosmetics::UI
 {
-    void SaberSelectionElement::Init(SaberManager* saberManager)
+    void SaberSelectionElement::Init(SaberManager* saberManager, SaberPreviewViewController* previewViewController)
     {
         modelManager = saberManager;
+        this->previewViewController = previewViewController;
         if (!textLayoutName) textLayoutName = il2cpp_utils::createcsstr("TextLayout", il2cpp_utils::StringType::Manual);
     }
 
@@ -172,24 +175,27 @@ namespace Qosmetics::UI
                 switch(info->counter)
                 {
                     case 0:
+                        UnityUtils::GetAddComponent<Backgroundable*>(info->self->get_gameObject())->ApplyBackgroundWithAlpha(il2cpp_utils::createcsstr("round-rect-panel"), 0.5f);
+                        break;
+                    case 1:
                         info->textGroup = CreateVerticalLayoutGroup(info->self->get_transform());
                         info->textGroup->get_gameObject()->set_name(textLayoutName);
                         break;
-                    case 1:
+                    case 2:
                         name = info->self->descriptor->get_name();
                         if (name == "") name = info->self->descriptor->GetFileName(true);
                         SetupName(info->textGroup, name);
                         break;
-                    case 2:
+                    case 3:
                         SetupAuthor(info->textGroup, info->self->descriptor->get_author());
                         break;
-                    case 3:
+                    case 4:
                         SetupSelect(info->layout, info->self);
                         break;
-                    case 4:
+                    case 5:
                         SetupDelete(info->layout, info->self);
                         break;
-                    case 5:
+                    case 6:
                         SetupDescription(info->layout, info->self->descriptor->get_description());
                         break;
                     default:

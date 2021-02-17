@@ -1,12 +1,11 @@
 #pragma once
 #include "custom-types/shared/macros.hpp"
-#include "Types/Note/NoteManager.hpp"
 
 #include "HMUI/ViewController.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics::UI, NoteSwitcherViewController, HMUI::ViewController,
+DECLARE_CLASS_CODEGEN(Qosmetics::UI, FloorLogoViewController, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    REGISTER_FUNCTION(NoteSwitcherViewController,
+    REGISTER_FUNCTION(FloorLogoViewController,
         REGISTER_METHOD(DidActivate);
     )
 )

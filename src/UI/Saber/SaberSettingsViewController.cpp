@@ -138,26 +138,29 @@ namespace Qosmetics::UI
                 BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "Shrinks each trail towards its top");
                 break;
             case 8:
-                BeatSaberUI::CreateToggle(container->get_transform(), "Enable Menu Pointer", config.saberConfig.enableMenuPointer, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), info->self, +[](SaberSettingsViewController* view, bool value) { 
+                #warning change implemented message of enable menu pointer
+                BeatSaberUI::CreateToggle(container->get_transform(), "Enable Menu Pointer (Not implemented)", config.saberConfig.enableMenuPointer, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), info->self, +[](SaberSettingsViewController* view, bool value) { 
                         config.saberConfig.enableMenuPointer = value;
                         SaveConfig();
                     }));
                 break;
             case 9:
-                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Menu Pointer Size", 2, 0.05f, config.saberConfig.menuPointerSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), info->self, +[](SaberSettingsViewController* view, float value) {
+                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Menu Pointer Size (not implemented)", 2, 0.05f, config.saberConfig.menuPointerSize, 0.0f, 10.0f, il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), info->self, +[](SaberSettingsViewController* view, float value) {
                         config.saberConfig.menuPointerSize = value;
                         SaveConfig();
                     }));
                 BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "Size of the menu pointer");
                 break;
             case 10:
+                trailText.push_back(il2cpp_utils::createcsstr("<color=#0066ff>Custom</color>", il2cpp_utils::StringType::Manual));
+                trailText.push_back(il2cpp_utils::createcsstr("<color=#33ff66>Default</color>", il2cpp_utils::StringType::Manual));
+                trailText.push_back(il2cpp_utils::createcsstr("<color=#ff5555>None</color>", il2cpp_utils::StringType::Manual));
+                break;
+            case 11:
                 incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Type", 0, 1.0f, (int)config.saberConfig.trailType, nullptr);
                 
                 wrapper = CRASH_UNLESS(il2cpp_utils::New<CustomDataType*, il2cpp_utils::CreationType::Manual>());
                 wrapper->data = new enumInfo(info->self, incrSetting);
-                trailText.push_back(il2cpp_utils::createcsstr("<color=#0066ff>Custom</color>", il2cpp_utils::StringType::Manual));
-                trailText.push_back(il2cpp_utils::createcsstr("<color=#33ff66>Default</color>", il2cpp_utils::StringType::Manual));
-                trailText.push_back(il2cpp_utils::createcsstr("<color=#ff5555>None</color>", il2cpp_utils::StringType::Manual));
                 incrSetting->OnValueChange = il2cpp_utils::MakeDelegate<UnityAction_1<float>*>(classof(UnityAction_1<float>*), wrapper, +[](QuestUI::CustomDataType* data, float value) {
                         enumInfo* info = (enumInfo*)data->data;
                         IncrementSetting* self = info->self;

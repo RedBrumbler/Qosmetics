@@ -14,8 +14,7 @@ namespace Qosmetics
 {
     void ModelLoader::LoadBundle(bool alsoLoadAssets)
     {
-        ItemType fromItem = this->item->get_type();
-        ItemType fromdescriptor = this->item->get_descriptor().get_type();
+        if (bundle) return;
         
         bs_utils::AssetBundle::LoadFromFileAsync(item->get_descriptor().get_filePath(), [&, alsoLoadAssets](bs_utils::AssetBundle* bundle){
             this->bundle = bundle;
@@ -36,7 +35,7 @@ namespace Qosmetics
     void ModelLoader::LoadAssets()
     {
         INFO("Began loading assets for bundle %s", item->get_descriptor().get_filePath().c_str());
-        if (!this->bundle) 
+        if (!bundle)
         {
             ERROR("Bundle was nullptr");
             return;

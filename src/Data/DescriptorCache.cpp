@@ -190,7 +190,7 @@ namespace Qosmetics
             // if it was not valid (didn't exist) make a new descriptor and add to cache
             ItemType type = Descriptor::GetTypeFromName(name);
             std::string filePath = folderPath + name;
-            Descriptor newDescriptor = Descriptor(filePath, type);
+            Descriptor newDescriptor = Descriptor(filePath);
             INFO("Created descriptor with file path %s, and type %d", filePath.c_str(), (int)type);
             gotAny = true;
             AddDescriptorToCache(newDescriptor);

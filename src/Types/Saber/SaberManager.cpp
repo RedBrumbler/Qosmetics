@@ -35,6 +35,27 @@ namespace Qosmetics
         internalSetActiveModel(name, true);
     }
 
+    void SaberManager::FromFilePath(Il2CppString* filePath)
+    {
+        if (!filePath) return;
+        if (getenv("saberlocked")) return;
+        std::string path = to_utf8(csstrtostr(filePath));
+        if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
+        
+        Descriptor* desc = new Descriptor(path);
+        
+        // if descriptor doesn't exist for this thing, ignore the setactive
+        if (!desc->isValid())
+        {
+            ERROR("Item was invalid!");
+            return;  
+        } 
+
+        if (this->activeItem) delete(this->activeItem);
+        this->activeItem = new SaberItem(*desc, true);
+        INFO("Active Item Set!");
+    }
+
     void SaberManager::SetDefault()
     {
         if (getenv("saberlocked")) return;
@@ -59,7 +80,6 @@ namespace Qosmetics
         } 
         if (this->activeItem) delete(this->activeItem);
         this->activeItem = new SaberItem(newItem, load);
-        INFO("Active Item ptr: %p", activeItem);
         INFO("Active Item Set!");
     }
 

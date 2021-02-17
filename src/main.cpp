@@ -50,6 +50,8 @@ extern config_t config;
 bool atLeastMenu = false;
 std::string activeSceneName = "";
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output);
+void makeFolder(std::string directory);
+
 /*
 this->modelManager = Object::FindObjectOfType<SaberManager*>();
 if (!this->modelManager) 
@@ -62,6 +64,8 @@ if (!this->modelManager)
 */
 
 static Qosmetics::SaberManager* saberManager = nullptr;
+static Qosmetics::NoteManager* noteManager = nullptr;
+static Qosmetics::WallManager* wallManager = nullptr;
 static Qosmetics::ColorManager* colorManager = nullptr;
 bool firstWarmup = true;
 MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
@@ -73,6 +77,17 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
         firstWarmup = false;
         CreatorCache::Download();
         PatronCache::Download();
+        if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
+        if (!noteManager) noteManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::NoteManager*, il2cpp_utils::CreationType::Manual>());
+        if (!wallManager) wallManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::WallManager*, il2cpp_utils::CreationType::Manual>());
+
+        saberManager->internalSetActiveModel(config.lastActiveSaber);
+        noteManager->internalSetActiveModel(config.lastActiveNote);
+        wallManager->internalSetActiveModel(config.lastActiveWall);
+        
+        saberManager->get_item().LoadBundle();
+        noteManager->get_item().LoadBundle();
+        wallManager->get_item().LoadBundle();
         //saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
         //saberManager->SetActiveSaber("Plasma Katana.qsaber");
     }
@@ -80,6 +95,9 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     if (activeSceneName == "HealthWarning")
     {
         //saberManager->get_item().Load();
+        saberManager->get_item().LoadAssets();
+        noteManager->get_item().LoadAssets();
+        wallManager->get_item().LoadAssets();
     }
 
     if (activeSceneName == "MenuViewControllers" || activeSceneName == "MenuCore")
@@ -127,9 +145,9 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator*
     {
         atLeastMenu = true;
         //if (!saberManager) saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
-        if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
         if (!colorManager) colorManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorManager*, il2cpp_utils::CreationType::Manual>());
-        Qosmetics::UI::SaberSwitcherViewController::modelManager = saberManager;
+
+        UISetup::Init(saberManager, noteManager, wallManager, colorManager);
     }
 }
 // fix for trail renderers not getting these set on time
@@ -155,13 +173,13 @@ MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamesp
 {
     MainMenuViewController_HandleMenuButton(self, menuButton);
     INFO("Menu pressed: %d", menuButton.value);
-    
+    /*
     if (saberManager && !saberSet) 
     {
         saberSet = true;
         saberManager->SetActiveSaber(config.lastActiveSaber, true);
     }
-
+    */
     switch (menuButton.value)
     {
         case 0: // solo
@@ -218,6 +236,37 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
     }
 }
 
+#define copyFile(in, out) \
+{ \
+    std::string inPath = in; \
+    std::string outPath = out;\
+    if (!fileexists(outPath.c_str()))\
+        writefile(outPath.c_str(), readfile(inPath.c_str()));\
+}
+
+void CopyIcons()
+{
+    makeFolder(BASEPATH);
+    std::string mainPath = UIPATH;
+    makeFolder(mainPath.c_str());
+    makeFolder(string_format("%s%s", mainPath.c_str(), "Icons"));
+    
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/MenuIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/MenuIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/MenuIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/MenuIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/SaberIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/SaberIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/SaberIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/SaberIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/NoteIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/NoteIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/NoteIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/NoteIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/WallIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/WallIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/WallIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/WallIconSelected.png"));
+
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIcon.png", string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIcon.png"));
+    copyFile("sdcard/BMBFData/Mods/Qosmetics/GameSetupIconSelected.png", string_format("%s%s", mainPath.c_str(), "Icons/GameSetupIconSelected.png"));
+}
+
 extern "C" void setup(ModInfo& info)
 {
     info.id = ID;
@@ -232,7 +281,9 @@ extern "C" void load()
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     QuestUI::Init();
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
-
+    
+    CopyIcons();
+    
     logger.info("Installing Hooks...");
     INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
     INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
@@ -261,4 +312,16 @@ bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output
     RET_0_UNLESS(logger, csString);
     output = to_utf8(csstrtostr(csString));
     return true; 
+}
+
+void makeFolder(std::string directory)
+{
+    if (!direxists(directory.c_str()))
+    {
+        int makePath = mkpath(directory.data());
+        if (makePath == -1)
+        {
+            ERROR("Failed to make path %s", directory.c_str());
+        }
+    }
 }

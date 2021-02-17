@@ -82,7 +82,11 @@ namespace Qosmetics::UI
     void UISetup::OnQosmeticsMenuButtonClick(Il2CppObject* obj)
     {
         if (!flowCoordinator)
+        {
             flowCoordinator = CreateFlowCoordinator<QosmeticsFlowCoordinator*>();
+            flowCoordinator->Init(saberManager, noteManager, wallManager, colorManager);
+        }
+        
         flowCoordinator = UnityEngine::Object::FindObjectOfType<QosmeticsFlowCoordinator*>();
 
         if (!flowCoordinator) return;

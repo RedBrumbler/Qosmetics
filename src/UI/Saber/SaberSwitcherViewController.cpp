@@ -39,8 +39,6 @@ struct switcherInfo {
     }
 };
 
-Qosmetics::SaberManager* Qosmetics::UI::SaberSwitcherViewController::modelManager = nullptr;
-
 namespace Qosmetics::UI
 {
     void SaberSwitcherViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -78,12 +76,18 @@ namespace Qosmetics::UI
                     //layout->set_childControlWidth(true);
                     //layout->m_TotalPreferredSize = {600, 0};
                     SaberSelectionElement* element = layout->get_gameObject()->AddComponent<SaberSelectionElement*>();
-                    element->Init(info->self->modelManager);
+                    element->Init(info->self->modelManager, info->self->previewViewController);
                     element->SetDescriptor(&info->it->second);
                     info->it++;
                     return false;
                 }));
             StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(coroutine));
         }
+    }
+
+    void SaberSwitcherViewController::Init(SaberManager* saberManager, SaberPreviewViewController* previewViewController)
+    {
+        this->modelManager = saberManager;
+        this->previewViewController = previewViewController;
     }
 }
