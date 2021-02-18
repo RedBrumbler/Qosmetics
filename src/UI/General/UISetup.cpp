@@ -95,27 +95,21 @@ namespace Qosmetics::UI
         {
             case settings:
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::MainFlowCoordinator*>());
-                //getLogger().info("presenting from settings");
                 break;
             case solo:
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>());
-                //getLogger().info("presenting from solo");
                 break;
             case party:
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>());
-                //getLogger().info("presenting from party");
                 break;
             case campaign:
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>());
-                //getLogger().info("presenting from campaign");
                 break;
             case multiHost:
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::HostGameServerLobbyFlowCoordinator*>());
-                //getLogger().info("presenting from multiHost");
                 break;
             case multiClient:
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::ClientGameServerLobbyFlowCoordinator*>());
-                //getLogger().info("presenting from multiClient");
                 break;
             default:
                 break;

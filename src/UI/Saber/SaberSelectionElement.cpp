@@ -89,6 +89,7 @@ namespace Qosmetics::UI
     void SaberSelectionElement::Select()
     {
         std::string saberName = descriptor->GetFileName();
+        previewViewController->ShowLoading();
         modelManager->SetActiveSaber(saberName, true);
 
         auto coroutine = WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), this, 
@@ -138,6 +139,7 @@ namespace Qosmetics::UI
         HoverHint* hoverHint = GetComponent<HoverHint*>();
         hoverHint->set_text(il2cpp_utils::createcsstr(descriptor.get_description()));
 
+        previewViewController->UpdatePreview();
         config.lastActiveSaber = descriptor.GetFileName();
         SaveConfig();
     }
