@@ -15,6 +15,7 @@
 #include "UnityEngine/Object.hpp"
 #include "QosmeticsLogger.hpp"
 #include "HMUI/TitleViewController.hpp"
+#include "HMUI/ButtonStaticAnimations.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -29,7 +30,7 @@ using namespace TMPro;
 
 TextMeshProUGUI* UIUtils::AddHeader(Transform* parent, std::string title)
 {
-    Color color = {0.0f, 0.65f, 1.0f, 1.0f};
+    Color color = {0.0f, 0.75f, 1.0f, 1.0f};
     return AddHeader(parent, title, color);
 }
 
@@ -66,4 +67,32 @@ TextMeshProUGUI* UIUtils::AddHeader(Transform* parent, std::string title, Color 
     imageView->set_color1(rightColor);
     imageView->curvedCanvasSettingsHelper->Reset();
     return text;
+}
+
+void UIUtils::SetTitleColor(HMUI::TitleViewController* titleView, UnityEngine::Color color, bool buttonanim)
+{
+    if (!titleView)
+    {
+        ERROR("Title View was nullptr, not setting title color");
+        return;
+    }
+
+    Transform* title_T = titleView->get_transform();
+    Transform* BG_T = title_T->Find(il2cpp_utils::createcsstr("BG"));
+    Transform* BackButtonBG_T = title_T->Find(il2cpp_utils::createcsstr("BackButton/BG"));
+
+    ImageView* imageView = BG_T->get_gameObject()->GetComponent<ImageView*>();
+    Color oldColor = imageView->get_color();
+
+    INFO("old Color: %.2f, %.2f, %.2f, %.2f", oldColor.r, oldColor.g, oldColor.b, oldColor.a);
+
+    imageView->set_color(color);
+
+    ImageView* buttonImageView = BackButtonBG_T->get_gameObject()->GetComponent<ImageView*>();
+    buttonImageView->set_color(color);
+    buttonImageView->set_color0(color);
+    buttonImageView->set_color1(color * 0.9f);
+
+    ButtonStaticAnimations* anim = BackButtonBG_T->get_parent()->get_gameObject()->GetComponent<ButtonStaticAnimations*>();
+    anim->set_enabled(buttonanim);
 }

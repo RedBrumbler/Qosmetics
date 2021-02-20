@@ -10,6 +10,7 @@
 #include "UnityEngine/Transform.hpp"
 
 #include "custom-types/shared/macros.hpp"
+#include "zenjeqt/shared/Zenjeqtor.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::Transform*, topTransform, nullptr);
@@ -57,7 +58,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
         REGISTER_METHOD(Reset);
         REGISTER_METHOD(UpdateTrail);
         REGISTER_METHOD(UpdateColors);
-        REGISTER_METHOD(SetColorManager);
+        REGISTER_METHOD_INJECT(SetColorManager);
         REGISTER_METHOD(NewTrailRenderer);
 
         REGISTER_FIELD(topTransform);

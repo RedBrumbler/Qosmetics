@@ -35,6 +35,8 @@
 #include "UI/General/UISetup.hpp"
 
 #include "questui/shared/QuestUI.hpp"
+#include "Installers/GameInstaller.hpp"
+#include "zenjeqt/shared/Zenjeqtor.hpp"
 
 ModInfo modInfo = {ID, VERSION};
 
@@ -63,10 +65,11 @@ if (!this->modelManager)
 }
 */
 
-static Qosmetics::SaberManager* saberManager = nullptr;
-static Qosmetics::NoteManager* noteManager = nullptr;
-static Qosmetics::WallManager* wallManager = nullptr;
-static Qosmetics::ColorManager* colorManager = nullptr;
+//static Qosmetics::SaberManager* saberManager = nullptr;
+//static Qosmetics::NoteManager* noteManager = nullptr;
+//static Qosmetics::WallManager* wallManager = nullptr;
+//static Qosmetics::ColorManager* colorManager = nullptr;
+
 bool firstWarmup = true;
 MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
 {
@@ -77,17 +80,17 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
         firstWarmup = false;
         CreatorCache::Download();
         PatronCache::Download();
-        if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
-        if (!noteManager) noteManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::NoteManager*, il2cpp_utils::CreationType::Manual>());
-        if (!wallManager) wallManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::WallManager*, il2cpp_utils::CreationType::Manual>());
+        //if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
+        //if (!noteManager) noteManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::NoteManager*, il2cpp_utils::CreationType::Manual>());
+        //if (!wallManager) wallManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::WallManager*, il2cpp_utils::CreationType::Manual>());
 
-        saberManager->internalSetActiveModel(config.lastActiveSaber);
-        noteManager->internalSetActiveModel(config.lastActiveNote);
-        wallManager->internalSetActiveModel(config.lastActiveWall);
+        //saberManager->internalSetActiveModel(config.lastActiveSaber);
+        //noteManager->internalSetActiveModel(config.lastActiveNote);
+        //wallManager->internalSetActiveModel(config.lastActiveWall);
         
-        saberManager->get_item().LoadBundle();
-        noteManager->get_item().LoadBundle();
-        wallManager->get_item().LoadBundle();
+        //saberManager->get_item().LoadBundle();
+        //noteManager->get_item().LoadBundle();
+        //wallManager->get_item().LoadBundle();
         //saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
         //saberManager->SetActiveSaber("Plasma Katana.qsaber");
     }
@@ -95,9 +98,9 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     if (activeSceneName == "HealthWarning")
     {
         //saberManager->get_item().Load();
-        saberManager->get_item().LoadAssets();
-        noteManager->get_item().LoadAssets();
-        wallManager->get_item().LoadAssets();
+        //saberManager->get_item().LoadAssets();
+        //noteManager->get_item().LoadAssets();
+        //wallManager->get_item().LoadAssets();
     }
 
     if (activeSceneName == "MenuViewControllers" || activeSceneName == "MenuCore")
@@ -110,7 +113,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
 
     }
 
-    if (colorManager) colorManager->ClearCallbacks();
+    //if (colorManager) colorManager->ClearCallbacks();
     INFO("Found scene %s", activeSceneName.c_str());
     return SceneManager_SetActiveScene(scene);
 }
@@ -130,9 +133,9 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
     if (saber) 
     {
         //if (!saberManager->prefab) saberManager->SetActiveSaber("Plasma Katana.qsaber");
-        colorManager->ctor();
+        //colorManager->ctor();
 
-        saber->Init(saberManager, colorManager);
+        //saber->Init(saberManager, colorManager);
         INFO("Replacing...");
         saber->Replace();
     }
@@ -145,9 +148,9 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator*
     {
         atLeastMenu = true;
         //if (!saberManager) saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
-        if (!colorManager) colorManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorManager*, il2cpp_utils::CreationType::Manual>());
+        //if (!colorManager) colorManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorManager*, il2cpp_utils::CreationType::Manual>());
 
-        UISetup::Init(saberManager, noteManager, wallManager, colorManager);
+        //UISetup::Init(saberManager, noteManager, wallManager, colorManager);
     }
 }
 // fix for trail renderers not getting these set on time
@@ -303,6 +306,10 @@ extern "C" void load()
     //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSwitcherViewController*>((ModInfo){"Saber Switcher", VERSION});
     //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSettingsViewController*>((ModInfo){"Saber Settings", VERSION});
     //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::PatronViewController*>((ModInfo){"Patron Credits", VERSION});
+
+    auto zenjeqtor = new Zenjeqt::Zenjeqtor();
+
+    zenjeqtor->OnApp<Qosmetics::GameInstaller*>();
 }
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)

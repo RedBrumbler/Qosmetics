@@ -21,6 +21,8 @@
 #include "UI/General/FloorLogoViewController.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
 
+#include "zenjeqt/shared/Zenjeqtor.hpp"
+ 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
     
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::QosmeticsViewController*, qosmeticsViewController, nullptr);
@@ -75,7 +77,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
         REGISTER_FIELD(wallManager);
         REGISTER_FIELD(colorManager);
 
-        REGISTER_METHOD(Init);
+        REGISTER_METHOD_INJECT(Init);
         REGISTER_METHOD(DidActivate);
         REGISTER_METHOD(BackButtonWasPressed);
     )

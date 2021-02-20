@@ -384,7 +384,7 @@ public class QuestCompileWallWindow : EditorWindow
         //string bmbfmodJson = JsonUtility.ToJson(wall.bmbfmod, true);
         //TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
-        string descriptorString = JsonUtility.ToJson(new Descriptor(wall.bmbfmod.author, wall.bmbfmod.name, wall.bmbfmod.description[0]), true); ;
+        string descriptorString = JsonUtility.ToJson(wall.descriptor, true);
         TextAsset descriptor = new TextAsset(descriptorString);
         string wallName = wall.descriptor.objectName + "." + extension;
         if (!batch) path = EditorUtility.SaveFilePanel("Save " + extension + " file", "", wallName, extension);
@@ -552,7 +552,7 @@ public class QuestCompileWallWindow : EditorWindow
         string bmbfmodJson = JsonUtility.ToJson(wall.bmbfmod, true);
         TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
-        string descriptorString = JsonUtility.ToJson(new Descriptor(wall.bmbfmod.author, wall.bmbfmod.name, wall.bmbfmod.description[0]), true); ;
+        string descriptorString = JsonUtility.ToJson(wall.descriptor, true); ;
         TextAsset descriptor = new TextAsset(descriptorString);
 
         string zipname = wall.bmbfmod.name + "V" + wall.bmbfmod.version + ".zip";

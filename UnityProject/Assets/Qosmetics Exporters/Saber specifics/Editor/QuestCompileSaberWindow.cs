@@ -522,7 +522,7 @@ public class QuestCompileSaberWindow : EditorWindow
         //string bmbfmodJson = JsonUtility.ToJson(saber.bmbfmod, true);
         //TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
-        string descriptorString = JsonUtility.ToJson(new Descriptor(saber.bmbfmod.author, saber.bmbfmod.name, saber.bmbfmod.description[0]), true);
+        string descriptorString = JsonUtility.ToJson(saber.descriptor, true);
         TextAsset descriptor = new TextAsset(descriptorString);
 
         string saberName = saber.descriptor.objectName + "." + extension;
@@ -697,7 +697,7 @@ public class QuestCompileSaberWindow : EditorWindow
         string bmbfmodJson = JsonUtility.ToJson(saber.bmbfmod, true);
         TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
-        string descriptorString = JsonUtility.ToJson(new Descriptor(saber.bmbfmod.author, saber.bmbfmod.name, saber.bmbfmod.description[0]), true);
+        string descriptorString = JsonUtility.ToJson(saber.descriptor, true);
         TextAsset descriptor = new TextAsset(descriptorString);
 
         string zipname = saber.bmbfmod.name + "V" + saber.bmbfmod.version + ".zip";

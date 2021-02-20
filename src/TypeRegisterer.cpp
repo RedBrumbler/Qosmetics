@@ -42,6 +42,8 @@
 #include "UI/General/QosmeticsFlowCoordinator.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
 
+#include "Installers/GameInstaller.hpp"
+
 #include "custom-types/shared/register.hpp"
 
 using namespace Qosmetics;
@@ -66,4 +68,6 @@ void RegisterTypes()
     custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController, FloorLogoViewController>();
 
     custom_types::Register::RegisterType<QosmeticsFlowCoordinator>();
+
+    custom_types::Register::RegisterType<Qosmetics::GameInstaller>();
 }

@@ -37,6 +37,11 @@
       "id": "custom-types",
       "versionRange": "*",
       "additionalData": {}
+    },
+    {
+      "id": "zenjeqt",
+      "versionRange": "*",
+      "additionalData": {}
     }
   ],
   "additionalData": {}

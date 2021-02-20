@@ -50,3 +50,5 @@ typedef struct _config {
     std::string lastActiveNote = "";
     std::string lastActiveWall = "";
 } config_t;
+
+extern config_t config;

@@ -3,6 +3,9 @@
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
 #include "UnityEngine/Transform.hpp"
+
+#include "Config.hpp"
+
 DEFINE_CLASS(Qosmetics::SaberManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Manager").info(value)
@@ -19,6 +22,7 @@ namespace Qosmetics
     void SaberManager::ctor()
     {
         this->activeItem = nullptr;
+        SetActiveSaber(config.lastActiveSaber, true);    
     }
 
     GameObject* SaberManager::GetActivePrefab()

@@ -6,6 +6,9 @@
 #include "UnityEngine/RectTransform.hpp"
 #include "HMUI/ViewController_AnimationType.hpp"
 #include "HMUI/ViewController_AnimationDirection.hpp"
+#include "HMUI/ButtonStaticAnimations.hpp"
+
+#include "Utils/UIUtils.hpp"
 
 #include "QosmeticsLogger.hpp"
 
@@ -57,7 +60,9 @@ namespace Qosmetics::UI
             saberTitle = il2cpp_utils::createcsstr("Qosmetics Sabers", il2cpp_utils::StringType::Manual);
             noteTitle = il2cpp_utils::createcsstr("Qosmetics Bloqs", il2cpp_utils::StringType::Manual);
             wallTitle = il2cpp_utils::createcsstr("Qosmetics Walls", il2cpp_utils::StringType::Manual);
+
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
+            
             showBackButton = true;
 
             // saber stuff
@@ -98,10 +103,15 @@ namespace Qosmetics::UI
 
             ProvideInitialViewControllers(qosmeticsViewController, nullptr, patronViewController, floorLogoViewController, nullptr);
         }
+
+        TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();
+        UIUtils::SetTitleColor(titleView, Color(0.3f, 0.15f, 0.6f, 1.0f));
     }
 
     void QosmeticsFlowCoordinator::SubMenuButtonWasPressed(ItemType type)
     {
+        TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();
+
         switch (type)
         {
             case saber:
@@ -109,18 +119,21 @@ namespace Qosmetics::UI
                 ReplaceTopViewController(saberSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
                 SetLeftScreenViewController(saberSettingsViewController, ViewController::AnimationType::In);
                 SetRightScreenViewController(saberPreviewViewController, ViewController::AnimationType::In);
+                UIUtils::SetTitleColor(titleView, Color::get_red());
                 break;
             case note:
                 SetTitle(noteTitle, ViewController::AnimationType::In);
                 ReplaceTopViewController(noteSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
                 SetLeftScreenViewController(noteSettingsViewController, ViewController::AnimationType::In);
                 SetRightScreenViewController(notePreviewViewController, ViewController::AnimationType::In);
+                UIUtils::SetTitleColor(titleView, Color::get_blue());
                 break;
             case wall:
                 SetTitle(wallTitle, ViewController::AnimationType::In);
                 ReplaceTopViewController(wallSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
                 SetLeftScreenViewController(wallSettingsViewController, ViewController::AnimationType::In);
                 SetRightScreenViewController(wallPreviewViewController, ViewController::AnimationType::In);
+                UIUtils::SetTitleColor(titleView, Color::get_magenta());
                 break;
             default:
                 break;
@@ -129,14 +142,20 @@ namespace Qosmetics::UI
 
     void QosmeticsFlowCoordinator::BackButtonWasPressed(HMUI::ViewController* topViewController)
     {
+        TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();
         if (topViewController != qosmeticsViewController)
         {
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
             ReplaceTopViewController(qosmeticsViewController, this, this, nullptr, ViewController::AnimationType::Out, ViewController::AnimationDirection::Horizontal);
             SetLeftScreenViewController(nullptr, ViewController::AnimationType::Out);
             SetRightScreenViewController(patronViewController, ViewController::AnimationType::Out);
+            UIUtils::SetTitleColor(titleView, Color(0.3f, 0.15f, 0.6f, 1.0f));
         }
-        else this->parentFlowCoordinator->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
+        else 
+        {
+            this->parentFlowCoordinator->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
+            UIUtils::SetTitleColor(titleView, Color(0.0f, 0.75f, 1.0f, 1.0f), true);
+        }
     }
 
     void QosmeticsFlowCoordinator::Init(Qosmetics::SaberManager* saberManager, Qosmetics::NoteManager* noteManager, Qosmetics::WallManager* wallManager, Qosmetics::ColorManager* colorManager)
