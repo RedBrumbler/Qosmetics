@@ -36,7 +36,10 @@
 
 #include "questui/shared/QuestUI.hpp"
 #include "Installers/GameInstaller.hpp"
+#include "Installers/UIInstaller.hpp"
 #include "zenjeqt/shared/Zenjeqtor.hpp"
+
+#include "Zenject/DiContainer.hpp"
 
 ModInfo modInfo = {ID, VERSION};
 
@@ -53,6 +56,8 @@ bool atLeastMenu = false;
 std::string activeSceneName = "";
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output);
 void makeFolder(std::string directory);
+
+Zenjeqt::Zenjeqtor* zenjeqtor = nullptr;
 
 /*
 this->modelManager = Object::FindObjectOfType<SaberManager*>();
@@ -129,15 +134,11 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
         return;
     }
 
-    Qosmetics::Saber* saber = atLeastMenu ? UnityUtils::GetAddComponent<Qosmetics::Saber*>(self->saber->get_gameObject()) : nullptr;
-    if (saber) 
+    if (atLeastMenu) 
     {
-        //if (!saberManager->prefab) saberManager->SetActiveSaber("Plasma Katana.qsaber");
-        //colorManager->ctor();
-
-        //saber->Init(saberManager, colorManager);
+        Qosmetics::Saber* saber = self->container->InstantiateComponent<Qosmetics::Saber*>(self->saber->get_gameObject());
         INFO("Replacing...");
-        saber->Replace();
+        //saber->Replace();
     }
 }
 
@@ -280,13 +281,16 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load()
 {
+    Modloader::requireMod("zenjeqt", "0.1.0");
     if (!LoadConfig()) SaveConfig();
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     QuestUI::Init();
+    
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
     
     CopyIcons();
     
+
     logger.info("Installing Hooks...");
     INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
     INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
@@ -307,9 +311,10 @@ extern "C" void load()
     //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSettingsViewController*>((ModInfo){"Saber Settings", VERSION});
     //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::PatronViewController*>((ModInfo){"Patron Credits", VERSION});
 
-    auto zenjeqtor = new Zenjeqt::Zenjeqtor();
+    zenjeqtor = new Zenjeqt::Zenjeqtor();
 
     zenjeqtor->OnApp<Qosmetics::GameInstaller*>();
+    zenjeqtor->OnMenu<Qosmetics::UIInstaller*>();
 }
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)

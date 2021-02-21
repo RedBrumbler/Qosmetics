@@ -1,10 +1,14 @@
 #include "Config.hpp"
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Config").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Config").error(value)
+
 //#include "Qosmetic/QuestWall.hpp"
 //#include "Qosmetic/QuestSaber.hpp"
 //#include "Qosmetic/QuestNote.hpp"
 
 static ModInfo modInfo = {ID, VERSION};
-extern Logger& getLogger();
 config_t config;
 
 Configuration& getConfig() {
@@ -27,7 +31,7 @@ bool GetScoresDisabled()
 
 void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
 {
-    getLogger().info("Saving Saber config");
+    INFO("Saving Saber config");
     rapidjson::Value saberConfigObject;
     saberConfigObject.SetObject();
     saberConfig_t& saberConfig = config.saberConfig;
@@ -44,12 +48,12 @@ void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocume
     saberConfigObject.AddMember("trailType", (int)saberConfig.trailType, allocator);
 
     configDoc.AddMember("saberConfig", saberConfigObject, allocator);
-    getLogger().info("Saber config Saved Successfully!");
+    INFO("Saber config Saved Successfully!");
 }
 
 void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
 {
-    getLogger().info("Saving Wall config");
+    INFO("Saving Wall config");
     rapidjson::Value wallConfigObject;
     wallConfigObject.SetObject();
     wallConfig_t& wallConfig = config.wallConfig;
@@ -58,12 +62,12 @@ void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     wallConfigObject.AddMember("forceFrameOff", wallConfig.forceFrameOff, allocator);
 
     configDoc.AddMember("wallConfig", wallConfigObject, allocator);
-    getLogger().info("Wall config Saved Successfully!");
+    INFO("Wall config Saved Successfully!");
 }
 
 void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
 {
-    getLogger().info("Saving Note config");
+    INFO("Saving Note config");
     rapidjson::Value noteConfigObject;
     noteConfigObject.SetObject();
     noteConfig_t& noteConfig = config.noteConfig;
@@ -74,12 +78,12 @@ void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     noteConfigObject.AddMember("forceDefaultDebris", noteConfig.forceDefaultDebris, allocator);
 
     configDoc.AddMember("noteConfig", noteConfigObject, allocator);
-    getLogger().info("Note config Saved Successfully!");
+    INFO("Note config Saved Successfully!");
 }
 
 void SaveConfig()
 {
-    getLogger().info("Saving Configuration...");
+    INFO("Saving Configuration...");
     getConfig().config.RemoveAllMembers();
     getConfig().config.SetObject();
     rapidjson::Document::AllocatorType& allocator = getConfig().config.GetAllocator();
@@ -92,12 +96,12 @@ void SaveConfig()
     getConfig().config.AddMember("lastActiveNote", rapidjson::Value(config.lastActiveNote.c_str(), config.lastActiveNote.size(), allocator), allocator);
     getConfig().config.AddMember("lastActiveWall", rapidjson::Value(config.lastActiveWall.c_str(), config.lastActiveWall.size(), allocator), allocator);
     getConfig().Write();
-    getLogger().info("Saved Configuration!");
+    INFO("Saved Configuration!");
 }
 
 bool LoadSaberConfig(rapidjson::Value& configValue)
 {
-    getLogger().info("Loading saber config");
+    INFO("Loading saber config");
     bool foundEverything = true;
     if(configValue.HasMember("saberWidth") && configValue["saberWidth"].IsDouble()){
         config.saberConfig.saberWidth = configValue["saberWidth"].GetDouble();    
@@ -154,13 +158,13 @@ bool LoadSaberConfig(rapidjson::Value& configValue)
     }else{
         foundEverything = false;
     } 
-    if (foundEverything) getLogger().info("Saber config loaded successfully!");
+    if (foundEverything) INFO("Saber config loaded successfully!");
     return foundEverything;
 }
 
 bool LoadWallConfig(rapidjson::Value& configValue)
 {
-    getLogger().info("Loading wall config");
+    INFO("Loading wall config");
     bool foundEverything = true;
     if(configValue.HasMember("forceFakeGlowOff") && configValue["forceFakeGlowOff"].IsBool()){
         config.wallConfig.forceFakeGlowOff = configValue["forceFakeGlowOff"].GetBool();    
@@ -177,13 +181,13 @@ bool LoadWallConfig(rapidjson::Value& configValue)
     }else{
         foundEverything = false;
     } 
-    if (foundEverything) getLogger().info("Wall config loaded successfully!");
+    if (foundEverything) INFO("Wall config loaded successfully!");
     return foundEverything;
 }
 
 bool LoadNoteConfig(rapidjson::Value& configValue)
 {
-    getLogger().info("Loading note config");
+    INFO("Loading note config");
     bool foundEverything = true;
     if(configValue.HasMember("overrideNoteSize") && configValue["overrideNoteSize"].IsBool()){
         config.noteConfig.overrideNoteSize = configValue["overrideNoteSize"].GetBool();    
@@ -210,13 +214,13 @@ bool LoadNoteConfig(rapidjson::Value& configValue)
     }else{
         foundEverything = false;
     } 
-    if (foundEverything) getLogger().info("Note config loaded successfully!");
+    if (foundEverything) INFO("Note config loaded successfully!");
     return foundEverything;
 }
 
 bool LoadConfig()
 {
-    getLogger().info("Loading Configuration...");
+    INFO("Loading Configuration...");
     getConfig().Load();
     bool foundEverything = true;
 
@@ -241,9 +245,9 @@ bool LoadConfig()
     foundEverything = getConfig().config.HasMember("noteConfig") ? LoadNoteConfig(getConfig().config["noteConfig"]) : false;
 
     if(foundEverything){
-        getLogger().info("Loaded Configuration!");
+        INFO("Loaded Configuration!");
         return true;
     }
-    else getLogger().error("Some parts of the configuration could not be loaded, returning false!");
+    else ERROR("Some parts of the configuration could not be loaded, returning false!");
     return false;
 }

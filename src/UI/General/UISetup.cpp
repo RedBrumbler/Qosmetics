@@ -26,6 +26,8 @@
 
 #include "static-defines.hpp"
 
+#include "QosmeticsLogger.hpp"
+
 using namespace HMUI;
 using namespace UnityEngine;
 using namespace UnityEngine::Events;
@@ -35,6 +37,9 @@ using namespace QuestUI::BeatSaberUI;
 using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("UISetup").info(value);
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("UISetup").error(value);
 
 extern void swapButtonSprites(Button* button, std::string normalName, std::string selectedName);
 
@@ -81,15 +86,22 @@ namespace Qosmetics::UI
 
     void UISetup::OnQosmeticsMenuButtonClick(Il2CppObject* obj)
     {
+        /*
         if (!flowCoordinator)
         {
-            flowCoordinator = CreateFlowCoordinator<QosmeticsFlowCoordinator*>();
-            flowCoordinator->Init(saberManager, noteManager, wallManager, colorManager);
+            flowCoordinator = Object:://CreateFlowCoordinator<QosmeticsFlowCoordinator*>();
+            //flowCoordinator->Init(saberManager, noteManager, wallManager, colorManager);
         }
-        
+        */
+
         flowCoordinator = UnityEngine::Object::FindObjectOfType<QosmeticsFlowCoordinator*>();
 
-        if (!flowCoordinator) return;
+        if (!flowCoordinator) 
+        {
+            ERROR("Could not find an instance of QosmeticsFlowCoordinator, returning early");
+            return;
+        }
+        
         HMUI::FlowCoordinator* currentCoordinator = nullptr;
         switch (currentFlowCoordinatorType)
         {

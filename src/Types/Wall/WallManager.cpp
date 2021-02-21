@@ -29,6 +29,11 @@ return identifier
 
 namespace Qosmetics
 {
+    void WallManager::ctor()
+    {
+
+    }
+    
     GameObject* WallManager::GetActivePrefab()
     {
         if (!activeItem) return nullptr;

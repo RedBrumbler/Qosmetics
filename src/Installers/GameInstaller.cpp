@@ -4,8 +4,12 @@
 #include "Types/Note/NoteManager.hpp"
 #include "Types/Wall/WallManager.hpp"
 #include "Types/Colors/ColorManager.hpp"
+#include "QosmeticsLogger.hpp"
 
 DEFINE_CLASS(Qosmetics::GameInstaller);
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("GameInstaller").info(value);
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("GameInstaller").error(value);
 
 namespace Qosmetics
 {
@@ -13,6 +17,7 @@ namespace Qosmetics
 
     void GameInstaller::InstallBindings()
     {
+        INFO("Installing Game Bindings");
         container->Bind<SaberManager*>()
             ->AsSingle()
             ->NonLazy();

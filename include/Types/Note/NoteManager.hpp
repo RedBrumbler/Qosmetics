@@ -27,7 +27,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,
     DECLARE_METHOD(static Il2CppString*, get_leftDebrisName);
     DECLARE_METHOD(static Il2CppString*, get_rightDebrisName);
     DECLARE_METHOD(static Il2CppString*, get_bombName);
-
+    DECLARE_CTOR(ctor);
+    
     public:
         void internalSetActiveModel(std::string name, bool load = false);
         void SetActiveNote(std::string name);
@@ -37,6 +38,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,
     protected:
         NoteItem* activeItem;
     REGISTER_FUNCTION(NoteManager,
+        REGISTER_METHOD(ctor);
         REGISTER_METHOD(SetActiveModel);
         REGISTER_METHOD(GetActivePrefab);
         REGISTER_METHOD(SetDefault);

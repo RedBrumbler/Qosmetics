@@ -23,18 +23,21 @@ namespace Qosmetics
 {
     void Saber::Init(SaberManager* modelManager, ColorManager* colorManager)
     {
+        INFO("Saber Init, modelManager: %p, colorManager: %p", modelManager, colorManager);
         this->modelManager = modelManager;
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &Saber::UpdateColors, this );
         this->colorManager->RegisterCallback(callback, callbackType::saber);
         replaced = false;
+        GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
+        if (gameSaber)
+            saberType = gameSaber->get_saberType();
+        Replace();
     }
     
     void Saber::Awake()
     {
-        GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
-        if (gameSaber)
-            saberType = gameSaber->get_saberType();
+        
     }
 
     void Saber::UpdateModel(bool firstUpdate)

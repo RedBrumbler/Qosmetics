@@ -18,7 +18,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, Il2CppObject,
     DECLARE_METHOD(Array<UnityEngine::Material*>*, get_frameMaterialArray);
     DECLARE_METHOD(Array<UnityEngine::Material*>*, get_coreSharedMaterials);
     DECLARE_METHOD(Array<UnityEngine::Material*>*, get_frameSharedMaterials);
-    
+    DECLARE_CTOR(ctor);
     public:
         void internalSetActiveModel(std::string name, bool load = false);
         void SetActiveWall(std::string name);
@@ -36,6 +36,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, Il2CppObject,
         REGISTER_METHOD(GetActivePrefab);        
         REGISTER_METHOD(SetActiveModel);
         REGISTER_METHOD(SetDefault);     
+        REGISTER_METHOD(ctor);     
 
         REGISTER_METHOD(get_coreName);
         REGISTER_METHOD(get_frameName);

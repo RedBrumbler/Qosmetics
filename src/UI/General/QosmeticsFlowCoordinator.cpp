@@ -68,15 +68,15 @@ namespace Qosmetics::UI
             // saber stuff
             // preview is made first since the other 2 viewcontrollers need a reference to the view controller in order to update the preview after config changes
             saberPreviewViewController = CreateViewController<SaberPreviewViewController*>();
-            saberPreviewViewController->Init(saberManager, colorManager);
+            container->Inject(saberPreviewViewController);
             saberSwitcherViewController = CreateViewController<SaberSwitcherViewController*>();
             
-            saberSwitcherViewController->Init(saberManager, saberPreviewViewController);
+            saberSwitcherViewController->Init(container->Resolve<SaberManager*>(), saberPreviewViewController);
             VerticalLayoutGroup* layout = CreateVerticalLayoutGroup(saberSwitcherViewController->get_rectTransform());
             SetupSubTitle(layout, "Qosmetics Sabers");
 
             saberSettingsViewController = CreateViewController<SaberSettingsViewController*>();
-
+            saberSettingsViewController->Init(saberPreviewViewController);
             // note stuff
             noteSwitcherViewController = CreateViewController<NoteSwitcherViewController*>();
             layout = CreateVerticalLayoutGroup(noteSwitcherViewController->get_rectTransform());
@@ -158,11 +158,9 @@ namespace Qosmetics::UI
         }
     }
 
-    void QosmeticsFlowCoordinator::Init(Qosmetics::SaberManager* saberManager, Qosmetics::NoteManager* noteManager, Qosmetics::WallManager* wallManager, Qosmetics::ColorManager* colorManager)
+    void QosmeticsFlowCoordinator::Init(UnityEngine::EventSystems::BaseInputModule* inputModule, Zenject::DiContainer* dicontainer)
     {
-        this->saberManager = saberManager;
-        this->noteManager = noteManager;
-        this->wallManager = wallManager;
-        this->colorManager = colorManager;
+        this->baseInputModule = inputModule;
+        this->container = dicontainer;
     }
 }

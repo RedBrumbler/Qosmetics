@@ -29,6 +29,7 @@ return UnityEngine::Object::Instantiate(object)
 
 namespace Qosmetics
 {
+    void NoteManager::ctor() {}
     GameObject* NoteManager::GetActivePrefab()
     {
         if (!activeItem) return nullptr;

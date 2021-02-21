@@ -43,6 +43,9 @@
 #include "UI/General/QosmeticsViewController.hpp"
 
 #include "Installers/GameInstaller.hpp"
+#include "Installers/UIInstaller.hpp"
+
+#include "Containers/FlowCoordinatorContainer.hpp"
 
 #include "custom-types/shared/register.hpp"
 
@@ -69,5 +72,8 @@ void RegisterTypes()
 
     custom_types::Register::RegisterType<QosmeticsFlowCoordinator>();
 
-    custom_types::Register::RegisterType<Qosmetics::GameInstaller>();
+    custom_types::Register::RegisterType<FlowCoordinatorContainer>();
+
+    custom_types::Register::RegisterType<GameInstaller>();
+    custom_types::Register::RegisterType<UIInstaller>();
 }

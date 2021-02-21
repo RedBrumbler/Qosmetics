@@ -22,7 +22,9 @@
 #include "UI/General/QosmeticsViewController.hpp"
 
 #include "zenjeqt/shared/Zenjeqtor.hpp"
- 
+#include "Zenject/DiContainer.hpp"
+#include "UnityEngine/EventSystems/BaseInputModule.hpp"
+
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
     
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::QosmeticsViewController*, qosmeticsViewController, nullptr);
@@ -47,10 +49,13 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallManager*, wallManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorManager*, colorManager, nullptr);
 
+    DECLARE_INSTANCE_FIELD_DEFAULT(Zenject::DiContainer*, container, nullptr);
+
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
     
-    DECLARE_METHOD(void, Init, Qosmetics::SaberManager* saberManager, Qosmetics::NoteManager* noteManager, Qosmetics::WallManager* wallManager, Qosmetics::ColorManager* colorManager);
+    DECLARE_METHOD(void, Init, UnityEngine::EventSystems::BaseInputModule* inputModule, Zenject::DiContainer* dicontainer);
+    
     public:
         void SubMenuButtonWasPressed(ItemType type);
 
@@ -76,6 +81,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
         REGISTER_FIELD(noteManager);
         REGISTER_FIELD(wallManager);
         REGISTER_FIELD(colorManager);
+
+        REGISTER_FIELD(container);
 
         REGISTER_METHOD_INJECT(Init);
         REGISTER_METHOD(DidActivate);
