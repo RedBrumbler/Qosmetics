@@ -60,16 +60,16 @@ void SetupAuthor(VerticalLayoutGroup* layout, std::string author)
 
 void SetupSelect(HorizontalLayoutGroup* layout, SaberSelectionElement* self)
 {
-    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#88ff88>select</color>", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), self, +[](SaberSelectionElement* self){
+    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#88ff88>select</color>", [self]{
         self->Select();
-    }));
+    });
 }
 
 void SetupDelete(HorizontalLayoutGroup* layout, SaberSelectionElement* self)
 {
-    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), self, +[](SaberSelectionElement* self){
+    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", [self]{
         self->Delete();
-    }));
+    });
 }
 
 void SetupDescription(HorizontalLayoutGroup* layout, std::string description)

@@ -13,7 +13,7 @@ namespace Qosmetics
 {
     void DescriptorCache::Save()
     {
-        std::thread SaveToFile([]{
+        //std::thread SaveToFile([]{
             INFO("Saving Descriptor Cache...");
             rapidjson::Document d;
             d.SetObject();
@@ -27,9 +27,9 @@ namespace Qosmetics
 
             Write(d);
             INFO("Saved Descriptor Cache!");
-        });
+        //});
 
-        SaveToFile.detach();
+        //SaveToFile.detach();
     }
 
     void DescriptorCache::Write(rapidjson::Document& d)
@@ -52,7 +52,7 @@ namespace Qosmetics
     {
         INFO("Loading Descriptor Cache...");
         if (!fileexists(DESCRIPTORCACHE)) return false;
-        std::thread LoadFromFile([]{
+        //std::thread LoadFromFile([]{
             std::string json = readfile(DESCRIPTORCACHE);
             rapidjson::Document d;
             d.Parse(json.c_str());
@@ -77,8 +77,8 @@ namespace Qosmetics
                 INFO("New descriptors were found, writing to file");
                 Save();
             }
-        });
-        LoadFromFile.detach();
+        //});
+        //LoadFromFile.detach();
         return true;
     }
 

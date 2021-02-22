@@ -3,6 +3,7 @@
 #include "QosmeticsLogger.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 #include "static-defines.hpp"
+#include "Utils/UIUtils.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -27,6 +28,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
+            UIUtils::SetupViewController(this);
             INFO("Floor logo activated!");
             std::string mainPath = UIPATH;
             UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(get_transform());
@@ -35,5 +37,10 @@ namespace Qosmetics::UI
             button->get_transform()->set_localScale({2.0f, 3.0f, 2.0f});
             button->set_interactable(false);
         }
+    }
+
+    void FloorLogoViewController::Init()
+    {
+        set_enabled(false);
     }
 }

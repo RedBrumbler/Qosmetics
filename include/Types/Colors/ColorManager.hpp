@@ -42,7 +42,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, Il2CppObject,
 
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorScheme*, colorScheme, nullptr);
 
-    DECLARE_CTOR(ctor);
+    DECLARE_CTOR(ctor, Qosmetics::ColorScheme* colorScheme);
     
     public:
         void RegisterCallback(std::function<void()> callback, callbackType type);

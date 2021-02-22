@@ -6,6 +6,7 @@
 #include "Types/Saber/SaberManager.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
+#include "zenjeqt/shared/Zenjeqtor.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBehaviour, 
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberManager*, modelManager, nullptr);
@@ -27,6 +28,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBeh
         REGISTER_FIELD(modelManager);
         REGISTER_FIELD(previewViewController);
 
-        REGISTER_METHOD(Init);
+        REGISTER_METHOD_INJECT(Init);
     )
 )

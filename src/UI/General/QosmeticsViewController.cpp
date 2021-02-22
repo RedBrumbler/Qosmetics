@@ -12,6 +12,7 @@
 #include "HMUI/ButtonSpriteSwap.hpp"
 #include "HMUI/Touchable.hpp"
 #include "Config.hpp"
+#include "Utils/UIUtils.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -51,6 +52,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
+            UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
 
             UnityEngine::UI::VerticalLayoutGroup* vertical = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
@@ -92,5 +94,11 @@ namespace Qosmetics::UI
     void QosmeticsViewController::set_selectCallback(std::function<void(ItemType)> callback)
     {
         this->callback = callback;
+    }
+
+    void QosmeticsViewController::Init()
+    {
+        INFO("QosmeticsViewController init");
+        set_enabled(false);
     }
 }

@@ -20,8 +20,6 @@ rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
 # Creating prebuilt for dependency: bs-utils - version: 0.5.8
 include $(CLEAR_VARS)
-# Creating prebuilt for dependency: bs-utils - version: 0.5.8
-include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
 LOCAL_SRC_FILES := extern/libbs-utils.so
@@ -63,12 +61,13 @@ LOCAL_MODULE := beatsaber-hook_1_0_12
 LOCAL_EXPORT_C_INCLUDES := extern/beatsaber-hook
 LOCAL_SRC_FILES := extern/libbeatsaber-hook_1_0_12.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: zenjeqt - version: 0.1.0
+# Creating prebuilt for dependency: zenjeqt - version: 0.1.2
 include $(CLEAR_VARS)
-LOCAL_MODULE := zenjeqt_0_1_0
+LOCAL_MODULE := zenjeqt_0_1_2
 LOCAL_EXPORT_C_INCLUDES := extern/zenjeqt
-LOCAL_SRC_FILES := extern/libzenjeqt_0_1_0.so
+LOCAL_SRC_FILES := extern/libzenjeqt_0_1_2.so
 include $(PREBUILT_SHARED_LIBRARY)
+# Creating prebuilt for dependency: bs-utils - version: 0.5.8
 
 # If you would like to use more shared libraries (such as custom UI, utils, or more) add them here, following the format above.
 # In addition, ensure that you add them to the shared library build below.
@@ -84,7 +83,7 @@ LOCAL_SHARED_LIBRARIES += codegen_0_6_2
 LOCAL_SHARED_LIBRARIES += bs-utils
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_SHARED_LIBRARIES += questui
-LOCAL_SHARED_LIBRARIES += zenjeqt_0_1_0
+LOCAL_SHARED_LIBRARIES += zenjeqt_0_1_2
 LOCAL_LDLIBS += -llog
 LOCAL_CFLAGS += -I'D:/il2cpp/libil2cpp' -isystem 'extern' -I'extern/codegen/include' -DID='"Qosmetics"' -DVERSION='"Rewrite"' -I'./shared' -I'./extern' -Wno-inaccessible-base
 LOCAL_C_INCLUDES += ./include ./src

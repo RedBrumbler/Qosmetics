@@ -4,6 +4,7 @@
 #include "Types/Note/NoteManager.hpp"
 #include "Types/Wall/WallManager.hpp"
 #include "Types/Colors/ColorManager.hpp"
+#include "Types/Colors/ColorScheme.hpp"
 #include "QosmeticsLogger.hpp"
 
 DEFINE_CLASS(Qosmetics::GameInstaller);
@@ -27,8 +28,12 @@ namespace Qosmetics
         container->Bind<WallManager*>()
             ->AsSingle()
             ->NonLazy();
-        container->Bind<ColorManager*>()
+        container->Bind<Qosmetics::ColorScheme*>()
             ->AsSingle()
             ->NonLazy();
+        container->Bind<ColorManager*>()
+            ->AsTransient()
+            ->NonLazy();
+        
     }
 }

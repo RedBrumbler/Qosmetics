@@ -1,4 +1,5 @@
 #include "UI/Wall/WallSwitcherViewController.hpp"
+#include "Utils/UIUtils.hpp" 
 
 #include "questui/shared/BeatSaberUI.hpp"
 
@@ -19,9 +20,15 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
+            UIUtils::SetupViewController(this);
             TextMeshProUGUI* text = CreateText(get_transform(), "Not Implemented");
             text->set_alignment(TextAlignmentOptions::_get_Midline());
             text->set_fontSize(text->get_fontSize() * 3.0f);
         }
+    }
+
+    void WallSwitcherViewController::Init()
+    {
+        set_enabled(false);
     }
 }

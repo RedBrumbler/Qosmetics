@@ -84,6 +84,10 @@ namespace Qosmetics::UI
 {
     void PatronViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
+        if (firstActivation)
+        {
+            UIUtils::SetupViewController(this);
+        }
         if (firstActivation && PatronCache::get_atLeastOne())
         {
             get_gameObject()->AddComponent<Touchable*>();
@@ -141,5 +145,11 @@ namespace Qosmetics::UI
                 AddDonators(info);
             }
         }
+    }
+
+    void PatronViewController::Init()
+    {
+        set_enabled(false);
+        //UIUtils::SetupViewController(this);
     }
 }

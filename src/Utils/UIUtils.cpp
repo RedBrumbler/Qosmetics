@@ -7,16 +7,24 @@
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
 #include "HMUI/CurvedTextMeshPro.hpp"
 #include "HMUI/CurvedCanvasSettingsHelper.hpp"
-#include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Canvas.hpp"
 #include "UnityEngine/CanvasGroup.hpp"
 #include "UnityEngine/CanvasRenderer.hpp"
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/AdditionalCanvasShaderChannels.hpp"
+#include "UnityEngine/RenderMode.hpp"
+
+#include "VRUIControls/VRGraphicRaycaster.hpp"
+#include "VRUIControls/PhysicsRaycasterWithCache.hpp"
+
 #include "QosmeticsLogger.hpp"
 #include "HMUI/TitleViewController.hpp"
 #include "HMUI/ButtonStaticAnimations.hpp"
+#include "questui/shared/ArrayUtil.hpp"
 
+using namespace VRUIControls;
 using namespace HMUI;
 using namespace UnityEngine;
 using namespace UnityEngine::Events;
@@ -95,4 +103,38 @@ void UIUtils::SetTitleColor(HMUI::TitleViewController* titleView, UnityEngine::C
 
     ButtonStaticAnimations* anim = BackButtonBG_T->get_parent()->get_gameObject()->GetComponent<ButtonStaticAnimations*>();
     anim->set_enabled(buttonanim);
+}
+
+// these 2 methods were yoinked and edited from https://github.com/darknight1050/questui/blob/master/src/BeatSaberUI.cpp
+void UIUtils::AddViewComponents(GameObject* go, Zenject::DiContainer* container)
+{
+    Canvas* cv = go->AddComponent<Canvas*>();
+    Canvas* cvCopy = ArrayUtil::First(Resources::FindObjectsOfTypeAll<Canvas*>(), [](Canvas* x) { return to_utf8(csstrtostr(x->get_name())) == "DropdownTableView";});
+    cv->set_additionalShaderChannels(cvCopy->get_additionalShaderChannels());
+    cv->set_overrideSorting(cvCopy->get_overrideSorting());
+    cv->set_pixelPerfect(cvCopy->get_pixelPerfect());
+    cv->set_referencePixelsPerUnit(cvCopy->get_referencePixelsPerUnit());
+    cv->set_renderMode(cvCopy->get_renderMode());
+    cv->set_scaleFactor(cvCopy->get_scaleFactor());
+    cv->set_sortingLayerID(cvCopy->get_sortingLayerID());
+    cv->set_sortingOrder(cvCopy->get_sortingOrder());
+    cv->set_worldCamera(cvCopy->get_worldCamera());
+
+    VRGraphicRaycaster* rayc = container->InstantiateComponent<VRGraphicRaycaster*>(go);
+    if (!rayc) ERROR("Addcompponent VRGRaphicsRaycaster failed!");
+    go->AddComponent<CanvasGroup*>();
+
+    RectTransform* rectTransform = go->GetComponent<RectTransform*>();
+    rectTransform->set_anchorMin(UnityEngine::Vector2(0.0f, 0.0f));
+    rectTransform->set_anchorMax(UnityEngine::Vector2(1.0f, 1.0f));
+    rectTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
+    rectTransform->set_anchoredPosition(UnityEngine::Vector2(0.0f, 0.0f));
+    go->SetActive(false);
+}
+
+void UIUtils::SetupViewController(ViewController* vc) 
+{
+    return;
+    GameObject* go = vc->get_gameObject();
+    AddViewComponents(go, nullptr);
 }

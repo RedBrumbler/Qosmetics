@@ -52,6 +52,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
+            UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
             
             UIUtils::AddHeader(get_transform(), "Saber Settings", Color::get_red());
@@ -83,6 +84,7 @@ namespace Qosmetics::UI
     void SaberSettingsViewController::Init(SaberPreviewViewController* previewViewController)
     {
         this->previewViewController = previewViewController;
+        set_enabled(false);
     }
 
     bool coro(settingsInfo* info)

@@ -12,6 +12,7 @@
 
 #include "Data/DescriptorCache.hpp"
 
+#include "Utils/UIUtils.hpp" 
 #include "UI/Saber/SaberSelectionElement.hpp"
 
 DEFINE_CLASS(Qosmetics::UI::SaberSwitcherViewController);
@@ -45,6 +46,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
+            UIUtils::SetupViewController(this);
             GameObject* container = CreateScrollableSettingsContainer(get_transform());
 
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
@@ -72,11 +74,7 @@ namespace Qosmetics::UI
                         return true;
                     }
                     HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
-                    //layout->set_childForceExpandWidth(true);
-                    //layout->set_childControlWidth(true);
-                    //layout->m_TotalPreferredSize = {600, 0};
-                    SaberSelectionElement* element = layout->get_gameObject()->AddComponent<SaberSelectionElement*>();
-                    element->Init(info->self->modelManager, info->self->previewViewController);
+                    SaberSelectionElement* element = info->self->container->InstantiateComponent<SaberSelectionElement*>(layout->get_gameObject());
                     element->SetDescriptor(&info->it->second);
                     info->it++;
                     return false;
@@ -85,9 +83,10 @@ namespace Qosmetics::UI
         }
     }
 
-    void SaberSwitcherViewController::Init(SaberManager* saberManager, SaberPreviewViewController* previewViewController)
+    void SaberSwitcherViewController::Init(SaberManager* saberManager, SaberPreviewViewController* previewViewController, Zenject::DiContainer* container)
     {
         this->modelManager = saberManager;
         this->previewViewController = previewViewController;
+        this->container = container;
     }
 }

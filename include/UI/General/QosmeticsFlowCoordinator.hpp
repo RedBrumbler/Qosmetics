@@ -22,7 +22,6 @@
 #include "UI/General/QosmeticsViewController.hpp"
 
 #include "zenjeqt/shared/Zenjeqtor.hpp"
-#include "Zenject/DiContainer.hpp"
 #include "UnityEngine/EventSystems/BaseInputModule.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
@@ -54,7 +53,19 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
     
-    DECLARE_METHOD(void, Init, UnityEngine::EventSystems::BaseInputModule* inputModule, Zenject::DiContainer* dicontainer);
+    DECLARE_METHOD(void, Init,  UnityEngine::EventSystems::BaseInputModule* inputModule,
+                                SaberSwitcherViewController* saberSwitcherViewController,
+                                SaberSettingsViewController* saberSettingsViewController,
+                                SaberPreviewViewController* saberPreviewViewController,
+                                NoteSwitcherViewController* noteSwitcherViewController,
+                                NoteSettingsViewController* noteSettingsViewController,
+                                NotePreviewViewController* notePreviewViewController,
+                                WallSwitcherViewController* wallSwitcherViewController,
+                                WallSettingsViewController* wallSettingsViewController,
+                                WallPreviewViewController* wallPreviewViewController,
+                                PatronViewController* patronViewController,
+                                QosmeticsViewController* qosmeticsViewController,
+                                FloorLogoViewController* floorLogoViewController);
     
     public:
         void SubMenuButtonWasPressed(ItemType type);

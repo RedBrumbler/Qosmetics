@@ -22,11 +22,13 @@ namespace Qosmetics
         UpdateAllColors();
     }
 
-    void ColorManager::ctor()
+    void ColorManager::ctor(Qosmetics::ColorScheme* colorScheme)
     {
-        Array<GlobalNamespace::ColorManager*>* colorManagers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::ColorManager*>();
+        this->colorScheme = colorScheme;
+        //Array<GlobalNamespace::ColorManager*>* colorManagers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::ColorManager*>();
 
         // if not nullptr return or 0 found
+        /*
         if (colorManagers && colorManagers->Length() != 0)
         {
             INFO("Did find a color manager!");
@@ -40,6 +42,7 @@ namespace Qosmetics
             INFO("Didnt find any color managers...");
             this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>((GlobalNamespace::ColorScheme*)nullptr));
         }
+        */
     }
 
     void ColorManager::SetLeftSaberColor(Color color)

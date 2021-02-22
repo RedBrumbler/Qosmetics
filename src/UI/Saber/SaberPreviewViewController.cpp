@@ -37,6 +37,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
+            UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
             title = UIUtils::AddHeader(get_transform(), "SaberNameHere", Color::get_red());
 
@@ -69,6 +70,12 @@ namespace Qosmetics::UI
     void SaberPreviewViewController::UpdatePreview()
     {
         INFO("Updating preview");
+        if (!modelManager)
+        {
+            ERROR("model Manager was nullptr, returning!");
+            return;
+        }
+        
         SaberPreviewElement* previewElement = GetComponentInChildren<SaberPreviewElement*>();
         SaberItem& item = modelManager->get_item();
 

@@ -79,6 +79,7 @@ bool firstWarmup = true;
 MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
 {
     getSceneName(scene, activeSceneName);
+    INFO("Found scene %s", activeSceneName.c_str());
 
     if (firstWarmup && activeSceneName == "ShaderWarmup")
     {
@@ -119,7 +120,6 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     }
 
     //if (colorManager) colorManager->ClearCallbacks();
-    INFO("Found scene %s", activeSceneName.c_str());
     return SceneManager_SetActiveScene(scene);
 }
 
@@ -134,11 +134,10 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
         return;
     }
 
-    if (atLeastMenu) 
+    if (atLeastMenu)
     {
-        Qosmetics::Saber* saber = self->container->InstantiateComponent<Qosmetics::Saber*>(self->saber->get_gameObject());
         INFO("Replacing...");
-        //saber->Replace();
+        Qosmetics::Saber* saber = self->container->InstantiateComponent<Qosmetics::Saber*>(self->saber->get_gameObject());
     }
 }
 
@@ -281,7 +280,7 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load()
 {
-    Modloader::requireMod("zenjeqt", "0.1.0");
+    Modloader::requireMod("zenjeqt", "0.1.2");
     if (!LoadConfig()) SaveConfig();
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     QuestUI::Init();

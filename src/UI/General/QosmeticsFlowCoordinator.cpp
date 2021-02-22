@@ -56,15 +56,15 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
-            qosmeticsSettings = il2cpp_utils::createcsstr("Qosmetics Settings", il2cpp_utils::StringType::Manual);
-            saberTitle = il2cpp_utils::createcsstr("Qosmetics Sabers", il2cpp_utils::StringType::Manual);
-            noteTitle = il2cpp_utils::createcsstr("Qosmetics Bloqs", il2cpp_utils::StringType::Manual);
-            wallTitle = il2cpp_utils::createcsstr("Qosmetics Walls", il2cpp_utils::StringType::Manual);
+            if (!qosmeticsSettings) qosmeticsSettings = il2cpp_utils::createcsstr("Qosmetics Settings", il2cpp_utils::StringType::Manual);
+            if (!saberTitle) saberTitle = il2cpp_utils::createcsstr("Qosmetics Sabers", il2cpp_utils::StringType::Manual);
+            if (!noteTitle) noteTitle = il2cpp_utils::createcsstr("Qosmetics Bloqs", il2cpp_utils::StringType::Manual);
+            if (!wallTitle) wallTitle = il2cpp_utils::createcsstr("Qosmetics Walls", il2cpp_utils::StringType::Manual);
 
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
-            
             showBackButton = true;
-
+            
+            /*
             // saber stuff
             // preview is made first since the other 2 viewcontrollers need a reference to the view controller in order to update the preview after config changes
             saberPreviewViewController = CreateViewController<SaberPreviewViewController*>();
@@ -97,7 +97,7 @@ namespace Qosmetics::UI
             floorLogoViewController = CreateViewController<FloorLogoViewController*>();
 
             qosmeticsViewController = CreateViewController<QosmeticsViewController*>();
-
+            */
             std::function<void(ItemType)> func = std::bind(&QosmeticsFlowCoordinator::SubMenuButtonWasPressed, this, std::placeholders::_1);
             qosmeticsViewController->set_selectCallback(func);
 
@@ -158,9 +158,36 @@ namespace Qosmetics::UI
         }
     }
 
-    void QosmeticsFlowCoordinator::Init(UnityEngine::EventSystems::BaseInputModule* inputModule, Zenject::DiContainer* dicontainer)
+    void QosmeticsFlowCoordinator::Init(UnityEngine::EventSystems::BaseInputModule* inputModule,
+                                        SaberSwitcherViewController* saberSwitcherViewController,
+                                        SaberSettingsViewController* saberSettingsViewController,
+                                        SaberPreviewViewController* saberPreviewViewController,
+                                        NoteSwitcherViewController* noteSwitcherViewController,
+                                        NoteSettingsViewController* noteSettingsViewController,
+                                        NotePreviewViewController* notePreviewViewController,
+                                        WallSwitcherViewController* wallSwitcherViewController,
+                                        WallSettingsViewController* wallSettingsViewController,
+                                        WallPreviewViewController* wallPreviewViewController,
+                                        PatronViewController* patronViewController,
+                                        QosmeticsViewController* qosmeticsViewController,
+                                        FloorLogoViewController* floorLogoViewController)
     {
         this->baseInputModule = inputModule;
-        this->container = dicontainer;
+
+        this->saberSwitcherViewController = saberSwitcherViewController;
+        this->saberSettingsViewController = saberSettingsViewController;
+        this->saberPreviewViewController = saberPreviewViewController;
+        
+        this->noteSwitcherViewController = noteSwitcherViewController;
+        this->noteSettingsViewController = noteSettingsViewController;
+        this->notePreviewViewController = notePreviewViewController;
+
+        this->wallSwitcherViewController = wallSwitcherViewController;
+        this->wallSettingsViewController = wallSettingsViewController;
+        this->wallPreviewViewController = wallPreviewViewController;
+
+        this->patronViewController = patronViewController;
+        this->qosmeticsViewController = qosmeticsViewController;
+        this->floorLogoViewController = floorLogoViewController;
     }
 }

@@ -15,6 +15,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorScheme, GlobalNamespace::ColorScheme,
     DECLARE_METHOD(void, CopyFromCustom, Qosmetics::ColorScheme* orig);
     DECLARE_METHOD(void, SetLeftColor, UnityEngine::Color color);
     DECLARE_METHOD(void, SetRightColor, UnityEngine::Color color);
+    DECLARE_CTOR(ctor);
     DECLARE_CTOR(ctorbasegame, GlobalNamespace::ColorScheme* scheme);
     DECLARE_CTOR(ctorcustom, Qosmetics::ColorScheme* scheme);
 
@@ -25,6 +26,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorScheme, GlobalNamespace::ColorScheme,
         REGISTER_FIELD(trailBColor);
         REGISTER_METHOD(CopyFromBaseGame);
         REGISTER_METHOD(CopyFromCustom);
+        REGISTER_METHOD(ctor);
         REGISTER_METHOD(ctorbasegame);
         REGISTER_METHOD(ctorcustom);
     )
