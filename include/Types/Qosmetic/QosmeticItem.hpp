@@ -8,6 +8,8 @@
 #include "UnityEngine/TextAsset.hpp"
 #include <functional>
 
+#include "Types/Utils/FuckYouGC.hpp"
+
 namespace Qosmetics
 {
     class QosmeticItem
@@ -37,7 +39,7 @@ namespace Qosmetics
             }
 
             void GameObjectCallback(UnityEngine::GameObject* gameObject);
-            virtual void ConfigCallback(UnityEngine::TextAsset* textAsset) {};
+            virtual void ConfigCallback(UnityEngine::TextAsset* textAsset);
             virtual void DescriptorCallback(UnityEngine::TextAsset* textAsset);
             
             UnityEngine::GameObject* get_prefab()
@@ -59,11 +61,13 @@ namespace Qosmetics
             {
                 return descriptor;
             }
-
-            ~QosmeticItem()
+            
+            virtual ~QosmeticItem()
             {
+                //prefabWrapper->Finalize();
                 UnityEngine::Object::Destroy(prefab);
             }
+            
 
             bool get_complete()
             {
@@ -76,6 +80,8 @@ namespace Qosmetics
             bool ConfigLoaded = false;
             Descriptor& descriptor;
             ModelLoader modelProvider = ModelLoader(this);
+            //SafePtr<FuckYouGC> prefabWrapper;
+
             UnityEngine::GameObject* prefab = nullptr;
             ItemConfig config;
     };

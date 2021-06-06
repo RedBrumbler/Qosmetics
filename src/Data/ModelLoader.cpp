@@ -1,6 +1,8 @@
 #include "Data/ModelLoader.hpp"
 #include "Data/DescriptorCache.hpp"
 
+#include "Types/Saber/SaberItem.hpp"
+
 #include "QosmeticsLogger.hpp"
 #include "Types/Qosmetic/QosmeticItem.hpp"
 #include <thread>
@@ -16,19 +18,31 @@ namespace Qosmetics
     {
         if (bundle) return;
         
-        bs_utils::AssetBundle::LoadFromFileAsync(item->get_descriptor().get_filePath(), [&, alsoLoadAssets](bs_utils::AssetBundle* bundle){
+        //this->bundle = UnityEngine::AssetBundle::LoadFromFile(il2cpp_utils::createcsstr(item->get_descriptor().get_filePath()));
+        std::vector<char> bytes = readbytes(item->get_descriptor().get_filePath());
+        std::vector<uint8_t>& data = *((std::vector<uint8_t>*)&bytes);
+        using LoadFromMemory = function_ptr_t<UnityEngine::AssetBundle*, Array<uint8_t>*, unsigned int>;
+        static LoadFromMemory loadFromMemory = reinterpret_cast<LoadFromMemory>(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemory_Internal"));
+        Array<uint8_t>* dataArray = il2cpp_utils::vectorToArray(data);
+
+        this->bundle = loadFromMemory(dataArray, 0);
+        /*
+        AssetBundle::LoadFromFileAsync(item->get_descriptor().get_filePath(), [&, alsoLoadAssets](bs_utils::AssetBundle* bundle){
             this->bundle = bundle;
             if (this->bundle) INFO("Bundle Loaded!");
         });
+        */
         if (alsoLoadAssets)
         {
-            std::thread assetLoad([&]{
+            this->LoadAssets();
+            /*std::thread assetLoad([&]{
                 while(!this->bundle) usleep(1000);
                 INFO("Loading assets directly from bundle load")
                 this->LoadAssets();
             });
 
             assetLoad.detach();
+            */
         }
     }
 
@@ -42,7 +56,6 @@ namespace Qosmetics
         }
         
         std::string assetName;
-
         switch (item->get_type())
         {
             case ItemType::saber:
@@ -65,10 +78,22 @@ namespace Qosmetics
                 return;
         }
 
-        if (!GameObjectType) GameObjectType = il2cpp_utils::GetSystemType("UnityEngine", "GameObject");
-        if (!TextAssetType) TextAssetType = il2cpp_utils::GetSystemType("UnityEngine", "TextAsset");
-        
         INFO("Asset name to load is %s", assetName.c_str());
+
+        
+        item->GameObjectCallback(bundle->LoadAsset<GameObject*>(il2cpp_utils::createcsstr(assetName)));
+        objectLoaded = true;
+        this->OnComplete();
+
+        item->ConfigCallback(bundle->LoadAsset<TextAsset*>(il2cpp_utils::createcsstr("config")));
+        configLoaded = true;
+        this->OnComplete();
+
+        item->DescriptorCallback(bundle->LoadAsset<TextAsset*>(il2cpp_utils::createcsstr("descriptor")));
+        descriptorLoaded = true;
+        this->OnComplete();
+
+        /*
         bundle->LoadAssetAsync(assetName, [&](bs_utils::Asset* asset){
             item->GameObjectCallback((GameObject*)asset);
             objectLoaded = true;
@@ -84,6 +109,7 @@ namespace Qosmetics
             descriptorLoaded = true;
             this->OnComplete();
         }, TextAssetType);
+        */
     }
 
     void ModelLoader::OnComplete()
@@ -97,6 +123,6 @@ namespace Qosmetics
     void ModelLoader::UnloadBundle()
     {
         INFO("Unloading bundle, while assets will stay loaded");
-        ((UnityEngine::AssetBundle*)this->bundle)->Unload(false);
+        this->bundle->Unload(false);
     }
 }

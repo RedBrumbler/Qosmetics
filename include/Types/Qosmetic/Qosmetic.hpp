@@ -11,7 +11,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Qosmetic, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(virtual void, UpdateModel);
     DECLARE_METHOD(virtual void, Restore);
     
-    REGISTER_FUNCTION(Qosmetic,
+    REGISTER_FUNCTION(
         REGISTER_FIELD(modelManager);
         REGISTER_METHOD(Awake);
         REGISTER_METHOD(Replace);

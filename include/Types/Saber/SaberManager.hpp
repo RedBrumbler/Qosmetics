@@ -34,7 +34,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SaberManager, Il2CppObject,
     protected:
         SaberItem* activeItem = nullptr;
 
-    REGISTER_FUNCTION(SaberManager,
+    REGISTER_FUNCTION(
         REGISTER_METHOD(SetActiveModel);
         REGISTER_METHOD(GetActivePrefab);
         REGISTER_METHOD(SetDefault);

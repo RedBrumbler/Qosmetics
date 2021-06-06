@@ -34,6 +34,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, Il2CppObject,
 
     DECLARE_METHOD(void, SetObstacleColor, UnityEngine::Color color);
     DECLARE_METHOD(void, UpdateAllColors);
+    DECLARE_METHOD(void, Init);
     
     DECLARE_METHOD(UnityEngine::Color, ColorForNoteType, GlobalNamespace::ColorType type);
     DECLARE_METHOD(UnityEngine::Color, ColorForSaberType, GlobalNamespace::ColorType type);
@@ -42,7 +43,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, Il2CppObject,
 
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorScheme*, colorScheme, nullptr);
 
-    DECLARE_CTOR(ctor, Qosmetics::ColorScheme* colorScheme);
+    //DECLARE_CTOR(ctor, Qosmetics::ColorScheme* colorScheme);
+    DECLARE_CTOR(ctor);
     
     public:
         void RegisterCallback(std::function<void()> callback, callbackType type);
@@ -57,7 +59,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, Il2CppObject,
         std::vector<std::function<void()>> pointerCallbacks;
 
 
-    REGISTER_FUNCTION(ColorManager,
+    REGISTER_FUNCTION(
         REGISTER_METHOD(SetColorSchemeFromBase);
         REGISTER_METHOD(SetColorSchemeFromCustom);
         REGISTER_METHOD(ctor);
@@ -76,6 +78,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorManager, Il2CppObject,
 
         REGISTER_METHOD(SetObstacleColor);
         REGISTER_METHOD(UpdateAllColors);
+        REGISTER_METHOD(Init);
 
         REGISTER_METHOD(ColorForSaberType);
         REGISTER_METHOD(ColorForNoteType);

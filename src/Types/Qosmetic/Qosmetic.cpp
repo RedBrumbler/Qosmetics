@@ -1,7 +1,7 @@
 #include "Types/Qosmetic/Qosmetic.hpp"
 #include "UnityEngine/Object.hpp"
 
-DEFINE_CLASS(Qosmetics::Qosmetic);
+DEFINE_TYPE(Qosmetics::Qosmetic);
 
 using namespace UnityEngine;
 

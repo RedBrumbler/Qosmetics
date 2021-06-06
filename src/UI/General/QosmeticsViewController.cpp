@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
 
 #include "questui/shared/BeatSaberUI.hpp"
@@ -11,7 +12,6 @@
 #include "UnityEngine/Texture2D.hpp"
 #include "HMUI/ButtonSpriteSwap.hpp"
 #include "HMUI/Touchable.hpp"
-#include "Config.hpp"
 #include "Utils/UIUtils.hpp"
 
 using namespace HMUI;
@@ -24,7 +24,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_CLASS(Qosmetics::UI::QosmeticsViewController);
+DEFINE_TYPE(Qosmetics::UI::QosmeticsViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Qosmetics View Controller").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Qosmetics View Controller").error(value);
@@ -52,7 +52,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
-            UIUtils::SetupViewController(this);
+            //UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
 
             UnityEngine::UI::VerticalLayoutGroup* vertical = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
@@ -65,25 +65,23 @@ namespace Qosmetics::UI
             UnityEngine::RectTransform* rectTransform = layout->GetComponent<UnityEngine::RectTransform*>();
             std::string mainpath = UIPATH;
 
-            Button* saberButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Sabers", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, 
-                +[](QosmeticsViewController* self)
-                {
-                    self->callback(ItemType::saber); 
-                }));
+            Button* saberButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Sabers", "SettingsButton",
+                [&](){
+                    this->callback(ItemType::saber); 
+                });
             swapButtonSprites(saberButton, string_format("%s%s", mainpath.c_str(), "Icons/SaberIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/SaberIconSelected.png"));
         
-            Button* noteButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Bloqs", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, 
-                +[](QosmeticsViewController* self)
-                {
-                    self->callback(ItemType::note); 
-                }));
+            Button* noteButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Bloqs", "SettingsButton",
+                [&](){
+                    this->callback(ItemType::note); 
+                });
             swapButtonSprites(noteButton, string_format("%s%s", mainpath.c_str(), "Icons/NoteIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/NoteIconSelected.png"));
 
-            Button* wallButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Walls", "SettingsButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, 
-                +[](QosmeticsViewController* self)
-                {
-                    self->callback(ItemType::wall); 
-                }));
+            Button* wallButton = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "Walls", "SettingsButton", 
+                [&](){
+                    this->callback(ItemType::wall); 
+                });
+
             swapButtonSprites(wallButton, string_format("%s%s", mainpath.c_str(), "Icons/WallIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/WallIconSelected.png"));
         }
 

@@ -1,10 +1,11 @@
+#include "Config.hpp"
 #include "Types/Note/NoteManager.hpp"
 #include "Types/Note/NoteItem.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "QosmeticsLogger.hpp"
 
-DEFINE_CLASS(Qosmetics::NoteManager);
+DEFINE_TYPE(Qosmetics::NoteManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Note Manager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Note Manager").error(value)
@@ -29,7 +30,14 @@ return UnityEngine::Object::Instantiate(object)
 
 namespace Qosmetics
 {
-    void NoteManager::ctor() {}
+    void NoteManager::ctor() 
+    {
+        this->activeItem = nullptr;
+        if (config.lastActiveNote != "")
+            SetActiveNote(config.lastActiveNote, true);
+        else SetDefault();
+    }
+
     GameObject* NoteManager::GetActivePrefab()
     {
         if (!activeItem) return nullptr;
@@ -41,6 +49,28 @@ namespace Qosmetics
         if (!csname) return;
         std::string name = to_utf8(csstrtostr(csname));
         internalSetActiveModel(name, true);
+    }
+
+    void NoteManager::FromFilePath(Il2CppString* filePath)
+    {
+        if (!filePath) return;
+        if (getenv("notelocked")) return;
+        std::string path = to_utf8(csstrtostr(filePath));
+        if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
+        
+        Descriptor* desc = new Descriptor(path);
+        
+        // if descriptor doesn't exist for this thing, ignore the setactive
+        if (!desc->isValid())
+        {
+            ERROR("Item was invalid!");
+            return;  
+        } 
+
+        if (this->activeItem) delete(this->activeItem);
+        this->activeItem = new NoteItem(*desc, false);
+        this->activeItem->Load();
+        INFO("Active Item Set!");
     }
 
     void NoteManager::SetDefault()
@@ -62,8 +92,14 @@ namespace Qosmetics
             return;  
         } 
         if (activeItem) delete(activeItem);
-        activeItem = new NoteItem(newItem, load);
+        activeItem = new NoteItem(newItem, false);
+        if (load) activeItem->Load();
         INFO("Active Item Set!");
+    }
+
+    void NoteManager::SetActiveNote(std::string name, bool load)
+    {
+        internalSetActiveModel(name, load);
     }
 
     NoteItem& NoteManager::get_item()

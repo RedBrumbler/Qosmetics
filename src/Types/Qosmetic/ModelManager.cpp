@@ -1,7 +1,7 @@
 #include "Types/Qosmetic/ModelManager.hpp"
 #include "Data/DescriptorCache.hpp"
 
-DEFINE_CLASS(Qosmetics::ModelManager);
+DEFINE_TYPE(Qosmetics::ModelManager);
 
 using namespace UnityEngine;
 
@@ -23,7 +23,7 @@ namespace Qosmetics
     void ModelManager::SetDefault()
     {
         if (activeItem) delete (activeItem);
-        activeItem = new QosmeticItem(DescriptorCache::GetDescriptor(""));
+        //activeItem = new QosmeticItem(DescriptorCache::GetDescriptor(""));
     }
 
     void ModelManager::internalSetActiveModel(std::string name)
@@ -34,6 +34,6 @@ namespace Qosmetics
         // if descriptor doesn't exist for this thing, ignore the setactive
         if (!newItem.isValid()) return;
         if (activeItem) delete(activeItem);
-        activeItem = new QosmeticItem(newItem, true);
+        //activeItem = new QosmeticItem(newItem, true);
     }
 }

@@ -19,7 +19,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorScheme, GlobalNamespace::ColorScheme,
     DECLARE_CTOR(ctorbasegame, GlobalNamespace::ColorScheme* scheme);
     DECLARE_CTOR(ctorcustom, Qosmetics::ColorScheme* scheme);
 
-    REGISTER_FUNCTION(ColorScheme,
+    REGISTER_FUNCTION(
         REGISTER_FIELD(noteAColor);
         REGISTER_FIELD(noteBColor);
         REGISTER_FIELD(trailAColor);

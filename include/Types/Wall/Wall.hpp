@@ -4,11 +4,14 @@
 #include "Types/Wall/WallManager.hpp"
 #include "Types/Colors/ColorManager.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
+#include "GlobalNamespace/ObstacleController.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, Wall, UnityEngine::MonoBehaviour,
+    DECLARE_INSTANCE_FIELD_DEFAULT(GlobalNamespace::ObstacleController*, obstacleController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorManager*, colorManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(bool, replaced, false);
+    DECLARE_INSTANCE_FIELD_DEFAULT(bool, isMirror, false);
     
     DECLARE_METHOD(void, Awake);
     DECLARE_METHOD(void, Replace);
@@ -16,12 +19,12 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Wall, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(void, UpdateColors);
     DECLARE_METHOD(void, Restore);
     DECLARE_METHOD(void, Init, WallManager* modelManager, ColorManager* colorManager);
-    DECLARE_METHOD(void, SetupTrails);
 
-    REGISTER_FUNCTION(Wall,
+    REGISTER_FUNCTION(
         REGISTER_FIELD(modelManager);
         REGISTER_FIELD(colorManager);
         REGISTER_FIELD(replaced);
+        REGISTER_FIELD(isMirror);
 
         REGISTER_METHOD(Awake);
         REGISTER_METHOD(Replace);
@@ -29,6 +32,5 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Wall, UnityEngine::MonoBehaviour,
         REGISTER_METHOD(UpdateColors);
         REGISTER_METHOD(Restore);
         REGISTER_METHOD(Init);
-        REGISTER_METHOD(SetupTrails);
     )
 )

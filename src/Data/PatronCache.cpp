@@ -14,7 +14,8 @@ namespace Qosmetics
     {
         std::string url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json";
         new FileDownloader(url, "", [&](const FileDownloader& downloader){
-            std::thread loadpatreons([](std::string json){
+            std::string json = downloader.get_result();
+            //std::thread loadpatreons([](std::string json){
                 if (json == "") return;
                 rapidjson::Document d;
                 d.Parse(json.c_str());
@@ -22,8 +23,8 @@ namespace Qosmetics
                 GetAmazing(d["amazing"]);
                 GetLegendary(d["legendary"]);
                 GetPaypal(d["paypal"]);
-            }, downloader.get_result());
-            loadpatreons.detach();
+            //}, downloader.get_result());
+            //loadpatreons.detach();
         }, true);
     }
 

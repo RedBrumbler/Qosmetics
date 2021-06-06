@@ -1,5 +1,6 @@
 #pragma once
 #include "GlobalNamespace/OptionsViewController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
 #include "QosmeticsFlowCoordinator.hpp"
 #include "Types/Saber/SaberManager.hpp"
 #include "Types/Note/NoteManager.hpp"
@@ -23,6 +24,7 @@ namespace Qosmetics::UI
             };
 
             static void SetupFlowCoordinatorAtSettings(GlobalNamespace::OptionsViewController* self);
+            static void SetupFlowCoordinatorAtGameplay(GlobalNamespace::GameplaySetupViewController* self);
             static void Init(Qosmetics::SaberManager* saberManager, Qosmetics::NoteManager* noteManager, Qosmetics::WallManager* wallManager, Qosmetics::ColorManager* colorManager)
             {
                 UISetup::saberManager = saberManager;

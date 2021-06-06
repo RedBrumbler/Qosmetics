@@ -1,6 +1,11 @@
 #include "Types/Colors/ColorScheme.hpp"
+#include "QosmeticsLogger.hpp"
 
-DEFINE_CLASS(Qosmetics::ColorScheme);
+DEFINE_TYPE(Qosmetics::ColorScheme);
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("ColorScheme").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("ColorScheme").error(value)
+
 
 namespace Qosmetics
 {
@@ -8,13 +13,13 @@ namespace Qosmetics
     {
         if (orig)
         {
-            this->saberAColor = orig->saberAColor;
-            this->saberBColor = orig->saberBColor;
-            this->noteAColor = orig->saberAColor;
-            this->noteBColor = orig->saberBColor;
+            this->saberAColor = orig->get_saberAColor();
+            this->saberBColor = orig->get_saberBColor();
+            this->noteAColor = this->saberAColor;
+            this->noteBColor = this->saberBColor;
             this->obstaclesColor = orig->obstaclesColor;
-            this->trailAColor = orig->saberAColor;
-            this->trailBColor = orig->saberBColor;
+            this->trailAColor = this->saberAColor;
+            this->trailBColor = this->saberBColor;
         }
         else
         {

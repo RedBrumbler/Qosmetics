@@ -24,7 +24,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ModelManager, UnityEngine::MonoBehaviour,
     protected:
         QosmeticItem* activeItem = nullptr;
 
-    REGISTER_FUNCTION(ModelManager,
+    REGISTER_FUNCTION(
         REGISTER_METHOD(GetActivePrefab);
         REGISTER_METHOD(SetActiveModel);
         REGISTER_METHOD(SetDefault);

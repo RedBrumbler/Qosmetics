@@ -20,8 +20,8 @@
 #include "UI/General/PatronViewController.hpp"
 #include "UI/General/FloorLogoViewController.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
+#include "UI/General/UserProfileViewController.hpp"
 
-#include "zenjeqt/shared/Zenjeqtor.hpp"
 #include "UnityEngine/EventSystems/BaseInputModule.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordinator,
@@ -42,6 +42,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
 
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::PatronViewController*, patronViewController, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::FloorLogoViewController*, floorLogoViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::UserProfileViewController*, userProfileViewController, nullptr);
     
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::SaberManager*, saberManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::NoteManager*, noteManager, nullptr);
@@ -65,12 +66,13 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
                                 WallPreviewViewController* wallPreviewViewController,
                                 PatronViewController* patronViewController,
                                 QosmeticsViewController* qosmeticsViewController,
-                                FloorLogoViewController* floorLogoViewController);
+                                FloorLogoViewController* floorLogoViewController,
+                                UserProfileViewController* userProfileViewController);
     
     public:
         void SubMenuButtonWasPressed(ItemType type);
 
-    REGISTER_FUNCTION(QosmeticsFlowCoordinator,
+    REGISTER_FUNCTION(
         REGISTER_FIELD(qosmeticsViewController);
 
         REGISTER_FIELD(saberSwitcherViewController);
@@ -87,6 +89,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
 
         REGISTER_FIELD(patronViewController);
         REGISTER_FIELD(floorLogoViewController);
+        REGISTER_FIELD(userProfileViewController);
 
         REGISTER_FIELD(saberManager);
         REGISTER_FIELD(noteManager);
@@ -95,7 +98,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
 
         REGISTER_FIELD(container);
 
-        REGISTER_METHOD_INJECT(Init);
+        REGISTER_METHOD(Init);
         REGISTER_METHOD(DidActivate);
         REGISTER_METHOD(BackButtonWasPressed);
     )

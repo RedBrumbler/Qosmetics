@@ -1,5 +1,10 @@
 #include "Config.hpp"
 #include "QosmeticsLogger.hpp"
+#include "static-defines.hpp"
+
+#include "Utils/FileUtils.hpp"
+
+#include "beatsaber-hook/shared/utils/utils.h"
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Config").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Config").error(value)
@@ -10,6 +15,7 @@
 
 static ModInfo modInfo = {ID, VERSION};
 config_t config;
+MasterConfig masterConfig;
 
 Configuration& getConfig() {
     static Configuration config(modInfo);
@@ -21,15 +27,11 @@ bool GetScoresDisabled()
 {
     bool disabled = false;
 
-    if (config.wallConfig.forceCoreOff) disabled = true;
     if (config.noteConfig.alsoChangeHitboxes) disabled = true;
-    //if (Qosmetics::QuestWall::get_scoreDisabled()) disabled = true;
-
     return disabled;
 }
 
-
-void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
+void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc, config_t& config)
 {
     INFO("Saving Saber config");
     rapidjson::Value saberConfigObject;
@@ -51,7 +53,7 @@ void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocume
     INFO("Saber config Saved Successfully!");
 }
 
-void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
+void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc, config_t& config)
 {
     INFO("Saving Wall config");
     rapidjson::Value wallConfigObject;
@@ -60,12 +62,13 @@ void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     wallConfigObject.AddMember("forceFakeGlowOff", wallConfig.forceFakeGlowOff, allocator);
     wallConfigObject.AddMember("forceCoreOff", wallConfig.forceCoreOff, allocator);
     wallConfigObject.AddMember("forceFrameOff", wallConfig.forceFrameOff, allocator);
+    wallConfigObject.AddMember("disableReflections", wallConfig.disableReflections, allocator);
 
     configDoc.AddMember("wallConfig", wallConfigObject, allocator);
     INFO("Wall config Saved Successfully!");
 }
 
-void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc)
+void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocument& configDoc, config_t& config)
 {
     INFO("Saving Note config");
     rapidjson::Value noteConfigObject;
@@ -76,30 +79,44 @@ void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     noteConfigObject.AddMember("alsoChangeHitboxes", noteConfig.alsoChangeHitboxes, allocator);
     noteConfigObject.AddMember("forceDefaultBombs", noteConfig.forceDefaultBombs, allocator);
     noteConfigObject.AddMember("forceDefaultDebris", noteConfig.forceDefaultDebris, allocator);
+    noteConfigObject.AddMember("disableReflections", noteConfig.disableReflections, allocator);
 
     configDoc.AddMember("noteConfig", noteConfigObject, allocator);
     INFO("Note config Saved Successfully!");
 }
 
+void SaveConfig(rapidjson::Document& d, config_t& config)
+{
+    rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
+    
+    SaveSaberConfig(allocator, d, config);
+    SaveWallConfig(allocator, d, config);
+    SaveNoteConfig(allocator, d, config);
+
+    d.AddMember("lastActiveSaber", rapidjson::Value(config.lastActiveSaber.c_str(), config.lastActiveSaber.size(), allocator), allocator);
+    d.AddMember("lastActiveNote", rapidjson::Value(config.lastActiveNote.c_str(), config.lastActiveNote.size(), allocator), allocator);
+    d.AddMember("lastActiveWall", rapidjson::Value(config.lastActiveWall.c_str(), config.lastActiveWall.size(), allocator), allocator);
+}
+
 void SaveConfig()
 {
     INFO("Saving Configuration...");
+    
+    masterConfig.config = config;
+    Qosmetics::Config::SaveConfig();
+    
     getConfig().config.RemoveAllMembers();
     getConfig().config.SetObject();
     rapidjson::Document::AllocatorType& allocator = getConfig().config.GetAllocator();
-    
-    SaveSaberConfig(allocator, getConfig().config);
-    SaveWallConfig(allocator, getConfig().config);
-    SaveNoteConfig(allocator, getConfig().config);
 
-    getConfig().config.AddMember("lastActiveSaber", rapidjson::Value(config.lastActiveSaber.c_str(), config.lastActiveSaber.size(), allocator), allocator);
-    getConfig().config.AddMember("lastActiveNote", rapidjson::Value(config.lastActiveNote.c_str(), config.lastActiveNote.size(), allocator), allocator);
-    getConfig().config.AddMember("lastActiveWall", rapidjson::Value(config.lastActiveWall.c_str(), config.lastActiveWall.size(), allocator), allocator);
+    getConfig().config.AddMember("lastUsedConfig", masterConfig.lastUsedConfig, allocator);
+
     getConfig().Write();
+    
     INFO("Saved Configuration!");
 }
 
-bool LoadSaberConfig(rapidjson::Value& configValue)
+bool LoadSaberConfig(rapidjson::Value& configValue, config_t& config)
 {
     INFO("Loading saber config");
     bool foundEverything = true;
@@ -162,7 +179,7 @@ bool LoadSaberConfig(rapidjson::Value& configValue)
     return foundEverything;
 }
 
-bool LoadWallConfig(rapidjson::Value& configValue)
+bool LoadWallConfig(rapidjson::Value& configValue, config_t& config)
 {
     INFO("Loading wall config");
     bool foundEverything = true;
@@ -181,11 +198,16 @@ bool LoadWallConfig(rapidjson::Value& configValue)
     }else{
         foundEverything = false;
     } 
+    if(configValue.HasMember("disableReflections") && configValue["disableReflections"].IsBool()){
+        config.wallConfig.disableReflections = configValue["disableReflections"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
     if (foundEverything) INFO("Wall config loaded successfully!");
     return foundEverything;
 }
 
-bool LoadNoteConfig(rapidjson::Value& configValue)
+bool LoadNoteConfig(rapidjson::Value& configValue, config_t& config)
 {
     INFO("Loading note config");
     bool foundEverything = true;
@@ -214,35 +236,62 @@ bool LoadNoteConfig(rapidjson::Value& configValue)
     }else{
         foundEverything = false;
     } 
+    if(configValue.HasMember("disableReflections") && configValue["disableReflections"].IsBool()){
+        config.noteConfig.disableReflections = configValue["disableReflections"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
     if (foundEverything) INFO("Note config loaded successfully!");
     return foundEverything;
 }
 
+bool LoadConfig(rapidjson::Document& d, config_t& config);
+
 bool LoadConfig()
 {
-    INFO("Loading Configuration...");
+    INFO("Loading Config...");
     getConfig().Load();
     bool foundEverything = true;
-
-    if(getConfig().config.HasMember("lastActiveSaber") && getConfig().config["lastActiveSaber"].IsString()){
-        config.lastActiveSaber = std::string(getConfig().config["lastActiveSaber"].GetString());    
-    }else{
-        foundEverything = false;
-    }
-    if(getConfig().config.HasMember("lastActiveNote") && getConfig().config["lastActiveNote"].IsString()){
-        config.lastActiveNote = std::string(getConfig().config["lastActiveNote"].GetString());    
-    }else{
-        foundEverything = false;
-    }
-    if(getConfig().config.HasMember("lastActiveWall") && getConfig().config["lastActiveWall"].IsString()){
-        config.lastActiveWall = std::string(getConfig().config["lastActiveWall"].GetString());    
+    
+    if(getConfig().config.HasMember("lastUsedConfig") && getConfig().config["lastUsedConfig"].IsString()){
+        masterConfig.lastUsedConfig = getConfig().config["lastUsedConfig"].GetString();    
     }else{
         foundEverything = false;
     }
 
-    foundEverything = getConfig().config.HasMember("saberConfig") ? LoadSaberConfig(getConfig().config["saberConfig"]) : false;
-    foundEverything = getConfig().config.HasMember("wallConfig") ? LoadWallConfig(getConfig().config["wallConfig"]) : false;
-    foundEverything = getConfig().config.HasMember("noteConfig") ? LoadNoteConfig(getConfig().config["noteConfig"]) : false;
+    if (!Qosmetics::Config::LoadConfig(masterConfig.lastUsedConfig))
+    {
+        foundEverything = false;
+    } 
+    INFO("Config Loaded!");
+    return foundEverything;
+    //return LoadConfig(getConfig().config, config);
+}
+
+bool LoadConfig(rapidjson::Document& d, config_t& config)
+{
+    INFO("Loading Configuration...");
+    bool foundEverything = true;
+
+    if(d.HasMember("lastActiveSaber") && d["lastActiveSaber"].IsString()){
+        config.lastActiveSaber = std::string(d["lastActiveSaber"].GetString());    
+    }else{
+        foundEverything = false;
+    }
+    if(d.HasMember("lastActiveNote") && d["lastActiveNote"].IsString()){
+        config.lastActiveNote = std::string(d["lastActiveNote"].GetString());    
+    }else{
+        foundEverything = false;
+    }
+    if(d.HasMember("lastActiveWall") && d["lastActiveWall"].IsString()){
+        config.lastActiveWall = std::string(d["lastActiveWall"].GetString());    
+    }else{
+        foundEverything = false;
+    }
+
+    if (!(d.HasMember("saberConfig") && LoadSaberConfig(d["saberConfig"], config))) foundEverything = false;
+    if (!(d.HasMember("wallConfig") && LoadWallConfig(d["wallConfig"], config))) foundEverything = false;
+    if (!(d.HasMember("noteConfig") && LoadNoteConfig(d["noteConfig"], config))) foundEverything = false;
 
     if(foundEverything){
         INFO("Loaded Configuration!");
@@ -250,4 +299,90 @@ bool LoadConfig()
     }
     else ERROR("Some parts of the configuration could not be loaded, returning false!");
     return false;
+}
+
+namespace Qosmetics
+{
+    bool Config::LoadConfig(std::string name)
+    {
+        INFO("Loading config for user %s", name.c_str());
+        if (name == "") 
+        {
+            masterConfig.lastUsedConfig = "Default";
+            name = "Default";
+            Config::SaveConfig();
+        }
+
+        std::string configPath = string_format("%s%s.json", CONFIGPATH.c_str(), name.c_str());
+        INFO("FilePath: %s", configPath.c_str());
+        if (!fileexists(configPath)) 
+        {
+            masterConfig.lastUsedConfig = name;
+            Config::SaveConfig();
+            return false;
+        }
+
+        std::string configString = readfile(configPath);
+        rapidjson::Document d;
+        d.Parse(configString);
+        config_t newConfig;
+        bool foundEverything = ::LoadConfig(d, newConfig);
+
+        masterConfig.config = newConfig;
+        masterConfig.lastUsedConfig = name;
+        config = masterConfig.config;
+
+        INFO("Loaded Config!");
+        return foundEverything;
+    }
+
+    void Config::SaveConfig()
+    {
+        INFO("Saving config for user %s", masterConfig.lastUsedConfig.c_str());
+        FileUtils::makeFolder(CONFIGPATH);
+        std::string configPath = string_format("%s%s.json", CONFIGPATH.c_str(), masterConfig.lastUsedConfig.c_str());
+
+        rapidjson::Document d;
+        
+        d.RemoveAllMembers();
+        d.SetObject();
+        
+        ::SaveConfig(d, masterConfig.config);
+
+        Write(d, configPath);
+        INFO("Finished saving user config");
+    }
+
+    void Config::Write(rapidjson::Document& d, std::string path)
+    {
+        INFO("Writing Config to file");
+        // stringify document
+        rapidjson::StringBuffer buffer;
+        buffer.Clear();
+
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        d.Accept(writer);
+
+        // make string out of buffer data
+        std::string json(buffer.GetString(), buffer.GetSize());
+
+        // write to file
+        writefile(path, json);
+    }
+
+    void Config::Init()
+    {
+        FileUtils::GetFilesInFolderPath("json", CONFIGPATH, configs);
+        for (auto& p : configs)
+        {
+            p.erase(p.find(".json"));
+        }
+
+        if (configs.size() == 0)
+        {
+            ERROR("After Init, configs.size was still 0");
+            configs.push_back("Default");
+            SaveConfig();            
+        }
+    }
 }

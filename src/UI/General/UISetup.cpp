@@ -27,6 +27,7 @@
 #include "static-defines.hpp"
 
 #include "QosmeticsLogger.hpp"
+#include "Containers/SingletonContainer.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -45,6 +46,25 @@ extern void swapButtonSprites(Button* button, std::string normalName, std::strin
 
 namespace Qosmetics::UI
 {
+    void UISetup::SetupFlowCoordinatorAtGameplay(GlobalNamespace::GameplaySetupViewController* self)
+    {
+        INFO("GameplaySetupViewController");
+        QuestUI::BeatSaberUI::ClearCache();
+        UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(self->get_transform());
+        UnityEngine::RectTransform* rectTransform = layout->get_gameObject()->GetComponent<UnityEngine::RectTransform*>();
+
+        rectTransform->set_anchoredPosition(UnityEngine::Vector2(52.5f, 25.6f));
+        rectTransform->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
+        INFO("GameplaySetupViewController making button");
+
+        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", [&](){
+            OnQosmeticsMenuButtonClick(nullptr);
+        });
+
+        swapButtonSprites(button, string_format("%s%s", UIPATH.c_str(), "Icons/MenuIcon.png"), string_format("%s%s", UIPATH.c_str(), "Icons/MenuIconSelected.png"));
+        INFO("endof GameplaySetupViewController");
+    }
+
     void UISetup::SetupFlowCoordinatorAtSettings(GlobalNamespace::OptionsViewController* self)
     {
         bool questUIExists = QuestUI::GetModsCount() > 0;
@@ -83,18 +103,10 @@ namespace Qosmetics::UI
 
         button->GetComponentInChildren<TMPro::TextMeshProUGUI*>()->SetText(il2cpp_utils::createcsstr("Qosmetics Settings"));
     }
-
+    
     void UISetup::OnQosmeticsMenuButtonClick(Il2CppObject* obj)
-    {
-        /*
-        if (!flowCoordinator)
-        {
-            flowCoordinator = Object:://CreateFlowCoordinator<QosmeticsFlowCoordinator*>();
-            //flowCoordinator->Init(saberManager, noteManager, wallManager, colorManager);
-        }
-        */
-
-        flowCoordinator = UnityEngine::Object::FindObjectOfType<QosmeticsFlowCoordinator*>();
+    {        
+        flowCoordinator = SingletonContainer::get_qosmeticsFlowCoordinator();
 
         if (!flowCoordinator) 
         {

@@ -10,13 +10,13 @@ namespace Qosmetics
         public:
             SaberItem(Descriptor& descriptor, bool load = false) : QosmeticItem(descriptor, load) {};
             
-            SaberConfig& get_config()
+            SaberConfig& get_config() override
             {
                 return config;
             }
 
-            void ConfigCallback(UnityEngine::TextAsset* textAsset);
-            void DescriptorCallback(UnityEngine::TextAsset* textAsset);
+            void ConfigCallback(UnityEngine::TextAsset* textAsset) override;
+            void DescriptorCallback(UnityEngine::TextAsset* textAsset) override;
 
         private:
             SaberConfig config = SaberConfig();

@@ -41,12 +41,16 @@
 #include "UI/General/FloorLogoViewController.hpp"
 #include "UI/General/QosmeticsFlowCoordinator.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
+#include "UI/General/UserProfileViewController.hpp"
 
+/*
 #include "Installers/GameInstaller.hpp"
 #include "Installers/UIInstaller.hpp"
+#include "Installers/SongInstaller.hpp"
 
 #include "Containers/FlowCoordinatorContainer.hpp"
-
+*/
+#include "Containers/SingletonContainer.hpp"
 #include "custom-types/shared/register.hpp"
 
 using namespace Qosmetics;
@@ -68,12 +72,17 @@ void RegisterTypes()
     custom_types::Register::RegisterTypes<SaberSwitcherViewController, NoteSwitcherViewController, WallSwitcherViewController>();
     custom_types::Register::RegisterTypes<SaberSettingsViewController, NoteSettingsViewController, WallSettingsViewController>();
     custom_types::Register::RegisterTypes<SaberSelectionElement, NoteSelectionElement, WallSelectionElement>();
-    custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController, FloorLogoViewController>();
+    custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController, FloorLogoViewController, UserProfileViewController>();
 
     custom_types::Register::RegisterType<QosmeticsFlowCoordinator>();
+    
+    custom_types::Register::RegisterType<SingletonContainer>();
 
+    /*
     custom_types::Register::RegisterType<FlowCoordinatorContainer>();
 
+    custom_types::Register::RegisterType<SongInstaller>();
     custom_types::Register::RegisterType<GameInstaller>();
     custom_types::Register::RegisterType<UIInstaller>();
+    */
 }

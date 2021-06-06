@@ -1,8 +1,14 @@
 #include "Types/Utils/FuckYouGC.hpp"
+#include "UnityEngine/Object.hpp"
 
-DEFINE_CLASS(Qosmetics::FuckYouGC);
+DEFINE_TYPE(Qosmetics::FuckYouGC);
 
-void Qosmetics::FuckYouGC::Awake()
+void Qosmetics::FuckYouGC::ctor()
 {
-    this->prefab = get_gameObject();
+    prefab = nullptr;
+}
+
+void Qosmetics::FuckYouGC::dtor()
+{
+    UnityEngine::Object::Destroy(prefab);
 }

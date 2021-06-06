@@ -15,7 +15,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_CLASS(Qosmetics::UI::FloorLogoViewController);
+DEFINE_TYPE(Qosmetics::UI::FloorLogoViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Floor Logo View Controller").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Floor Logo View Controller").error(value);
@@ -28,7 +28,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
-            UIUtils::SetupViewController(this);
+            //UIUtils::SetupViewController(this);
             INFO("Floor logo activated!");
             std::string mainPath = UIPATH;
             UnityEngine::UI::HorizontalLayoutGroup* layout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(get_transform());

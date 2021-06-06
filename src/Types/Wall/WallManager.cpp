@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "Types/Wall/WallManager.hpp"
 #include "Types/Wall/WallItem.hpp"
 #include "Data/DescriptorCache.hpp"
@@ -5,7 +6,7 @@
 #include "UnityEngine/Transform.hpp"
 #include "Utils/MaterialUtils.hpp"
 
-DEFINE_CLASS(Qosmetics::WallManager);
+DEFINE_TYPE(Qosmetics::WallManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Wall Manager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall Manager").error(value)
@@ -21,7 +22,7 @@ GameObject* prefab = activeItem->get_prefab(); \
 if (!prefab) return nullptr; \
 Transform* object = prefab->get_transform()->Find(name); \
 if (!object) return nullptr; \
-return UnityEngine::Object::Instantiate(object)
+return object
 
 #define GetName(identifier, content) \
 if (!identifier) identifier = il2cpp_utils::createcsstr(content, il2cpp_utils::StringType::Manual); \
@@ -31,7 +32,10 @@ namespace Qosmetics
 {
     void WallManager::ctor()
     {
-
+        this->activeItem = nullptr;
+        if (config.lastActiveWall != "")
+            SetActiveWall(config.lastActiveWall, true);
+        else SetDefault();
     }
     
     GameObject* WallManager::GetActivePrefab()
@@ -53,6 +57,28 @@ namespace Qosmetics
         activeItem = new WallItem(DescriptorCache::GetDescriptor(""));
     }
 
+    void WallManager::FromFilePath(Il2CppString* filePath)
+    {
+        if (!filePath) return;
+        if (getenv("walllocked")) return;
+        std::string path = to_utf8(csstrtostr(filePath));
+        if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
+        
+        Descriptor* desc = new Descriptor(path);
+        
+        // if descriptor doesn't exist for this thing, ignore the setactive
+        if (!desc->isValid())
+        {
+            ERROR("Item was invalid!");
+            return;  
+        } 
+
+        if (this->activeItem) delete(this->activeItem);
+        this->activeItem = new WallItem(*desc, false);
+        this->activeItem->Load();
+        INFO("Active Item Set!");
+    }
+
     void WallManager::internalSetActiveModel(std::string name, bool load)
     {
         INFO("Setting active Wall %s", name.c_str());
@@ -66,7 +92,8 @@ namespace Qosmetics
             return;  
         } 
         if (activeItem) delete(activeItem);
-        activeItem = new WallItem(newItem, load);
+        activeItem = new WallItem(newItem, false);
+        activeItem->Load();
         INFO("Active Item Set!");
     }
 
@@ -123,6 +150,20 @@ namespace Qosmetics
         return frame->get_sharedMaterials();
     }
 
+    UnityEngine::Mesh* WallManager::get_coreMesh()
+    {
+        MeshFilter* core = get_coreFilter();
+        if (!core) return nullptr;
+        return core->get_sharedMesh();
+    }
+
+    UnityEngine::Mesh* WallManager::get_frameMesh()
+    {
+        MeshFilter* frame = get_frameFilter();
+        if (!frame) return nullptr;
+        return frame->get_sharedMesh();
+    }
+    
     Transform* WallManager::get_core()
     {
         GetNameInPrefab(get_coreName());
@@ -133,6 +174,20 @@ namespace Qosmetics
         GetNameInPrefab(get_frameName());
     }
 
+    UnityEngine::MeshFilter* WallManager::get_coreFilter()
+    {
+        Transform* core = get_core();
+        if (!core) return nullptr;
+        return core->get_gameObject()->GetComponent<MeshFilter*>();
+    }
+
+    UnityEngine::MeshFilter* WallManager::get_frameFilter()
+    {
+        Transform* frame = get_frame();
+        if (!frame) return nullptr;
+        return frame->get_gameObject()->GetComponent<MeshFilter*>();
+    }
+    
     MeshRenderer* WallManager::get_coreRenderer()
     {
         Transform* core = get_core();
@@ -155,5 +210,10 @@ namespace Qosmetics
     Il2CppString* WallManager::get_frameName()
     {
         GetName(frameName, "Frame");
+    }
+
+    void WallManager::SetActiveWall(std::string name, bool load)
+    {
+        internalSetActiveModel(name, load);
     }
 }

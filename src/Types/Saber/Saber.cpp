@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "Types/Saber/Saber.hpp"
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
@@ -8,14 +9,18 @@
 #include "Utils/SaberUtils.hpp"
 #include "Utils/TrailUtils.hpp"
 #include "QosmeticsLogger.hpp"
-#include "Config.hpp"
 
-DEFINE_CLASS(Qosmetics::Saber);
+#include "chroma/shared/SaberAPI.hpp"
+
+DEFINE_TYPE(Qosmetics::Saber);
 
 using namespace UnityEngine;
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber").error(value)
+
+#define LOG_COLOR(text, color) \
+    INFO("color %s: %.2f, %.2f, %.2f", text, color.r, color.g, color.b)
 
 extern config_t config;
 
@@ -23,11 +28,12 @@ namespace Qosmetics
 {
     void Saber::Init(SaberManager* modelManager, ColorManager* colorManager)
     {
-        INFO("Saber Init, modelManager: %p, colorManager: %p", modelManager, colorManager);
         this->modelManager = modelManager;
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &Saber::UpdateColors, this );
         this->colorManager->RegisterCallback(callback, callbackType::saber);
+        if (modelManager->get_item().get_type() != ItemType::invalid) Chroma::SaberAPI::registerSaberCallback(callback);
+
         replaced = false;
         GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
         if (gameSaber)
@@ -52,6 +58,7 @@ namespace Qosmetics
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
             Transform* customSaber = get_transform()->Find(saberName);
             SaberUtils::SetSaberSize(customSaber);
+            UpdateColors();
         }
 
         if (!firstUpdate)
@@ -130,6 +137,7 @@ namespace Qosmetics
             std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
             Transform* customSaber = get_transform()->Find(saberName);
+            INFO("Trail size: %d, Config trails: %d, saber ptr: %p", trails.size(), (int)config.saberConfig.trailType, customSaber);
             if (trails.size() > 0 && config.saberConfig.trailType == TrailType::custom && customSaber)
             {
                 INFO("Putting custom trails on custom saber");
@@ -164,9 +172,29 @@ namespace Qosmetics
     void Saber::UpdateColors()
     {
         if (!colorManager) return;
-        Color thisColor = colorManager->ColorForSaberType(saberType.value);
-        Color otherColor = colorManager->ColorForSaberType(1 - saberType.value);
-        Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
+
+        INFO("Updating Saber Colors!");
+
+        auto sabersColorOptional = Chroma::SaberAPI::getSabersColorSafe();
+        
+        Color thisColor;
+        Color otherColor;
+        
+        switch (saberType.value)
+        {   
+            // left saber
+            case 0:
+                thisColor = (sabersColorOptional.first != std::nullopt) ? *(sabersColorOptional.first) : colorManager->ColorForSaberType(saberType.value);
+                otherColor = (sabersColorOptional.second != std::nullopt) ? *(sabersColorOptional.second) : colorManager->ColorForSaberType(1 - saberType.value);
+                break;
+            // right saber
+            case 1:
+                thisColor = (sabersColorOptional.second != std::nullopt) ? *(sabersColorOptional.second) : colorManager->ColorForSaberType(saberType.value);
+                otherColor = (sabersColorOptional.first != std::nullopt) ? *(sabersColorOptional.first) : colorManager->ColorForSaberType(1 - saberType.value);
+                break;
+        }
+
+        Il2CppString* saberName = (saberType.value == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
 
         SaberUtils::SetColors(get_transform()->Find(saberName)->get_gameObject(), thisColor, otherColor);
     }

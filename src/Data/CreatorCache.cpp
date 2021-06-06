@@ -11,19 +11,19 @@ namespace Qosmetics
             std::string result = downloader.get_result();
             if (result == "") return;
 
-            std::thread cacheThread([](std::string val){
+            //std::thread cacheThread([](std::string val){
                 rapidjson::Document d;
                 d.SetObject();
-                d.Parse(val.c_str());
+                d.Parse(result.c_str());
 
                 for (rapidjson::Value::ConstMemberIterator i = d.MemberBegin(); i != d.MemberEnd(); ++i)
                 {
                     const rapidjson::Value& val = i->value;
                     AddCreator(i->name.GetString(), val);
                 }
-            }, result);
+            //}, result);
 
-            cacheThread.detach();
+            //cacheThread.detach();
         }, true);
     }
     

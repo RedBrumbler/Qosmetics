@@ -1,6 +1,7 @@
+#include "Config.hpp"
 #include "UI/Saber/SaberSettingsViewController.hpp"
 
-DEFINE_CLASS(Qosmetics::UI::SaberSettingsViewController);
+DEFINE_TYPE(Qosmetics::UI::SaberSettingsViewController);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
@@ -13,7 +14,6 @@ DEFINE_CLASS(Qosmetics::UI::SaberSettingsViewController);
 #include "System/Collections/IEnumerator.hpp"
 #include "System/Func_1.hpp"
 
-#include "Config.hpp"
 #include "Utils/UIUtils.hpp"
 
 using namespace HMUI;
@@ -26,7 +26,11 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-static std::vector<Il2CppString*> trailText = {};
+static std::vector<std::string> trailTextValues = {
+    "Custom",
+    "Default",
+    "None"
+};
 
 extern config_t config;
 
@@ -39,20 +43,23 @@ namespace Qosmetics::UI
         settingsInfo(GameObject* container, SaberSettingsViewController* self) : container(container), self(self), counter(0) {}
     };
 
-    struct enumInfo {
-        SaberSettingsViewController* view;
-        IncrementSetting* self;
-
-        enumInfo(SaberSettingsViewController* view, IncrementSetting* self) : view(view), self(self) {}
-    };
-
     bool coro(settingsInfo* info);
 
     void SaberSettingsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
-        if (firstActivation)
+        if (masterConfig.saberConfigRedo)
         {
-            UIUtils::SetupViewController(this);
+            int childCount = get_transform()->get_childCount();
+
+            for (int i = 0; i < childCount; i++)
+            {
+                Object::DestroyImmediate(get_transform()->GetChild(i));
+            }
+        }
+
+        if (firstActivation || masterConfig.saberConfigRedo)
+        {
+            //UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
             
             UIUtils::AddHeader(get_transform(), "Saber Settings", Color::get_red());
@@ -63,21 +70,9 @@ namespace Qosmetics::UI
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
 
-            CustomDataType* wrapper = CRASH_UNLESS(il2cpp_utils::New<CustomDataType*, il2cpp_utils::CreationType::Manual>());
-            wrapper->data = new settingsInfo(container, this);
+            StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SettingsSetupRoutine(container)))); 
 
-            auto coroutine = WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), wrapper, 
-                +[](CustomDataType* data){
-                    settingsInfo* info = (settingsInfo*)data->data;
-                    if (coro(info)) 
-                    {
-                        free(info);
-                        free(data);
-                        return true;
-                    }
-                    return false;
-                }));
-            StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(coroutine));   
+            masterConfig.saberConfigRedo = false;  
         }
     }
 
@@ -87,134 +82,110 @@ namespace Qosmetics::UI
         set_enabled(false);
     }
 
-    bool coro(settingsInfo* info)
+    custom_types::Helpers::Coroutine SaberSettingsViewController::SettingsSetupRoutine(GameObject* container)
     {
-        GameObject* container = info->container;
-        IncrementSetting* incrSetting;
-        IncrementSetting* lastIncrSettting = nullptr;
-        Toggle* toggleSetting;
-        CustomDataType* wrapper;
-        SaberSettingsViewController* view = info->self;
-        switch (info->counter)
-        {
-            case 0: // saber width
-                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Saber Width", 2, 0.05f, config.saberConfig.saberWidth, 0.0f, 10.0f, [view](float value) {
-                        config.saberConfig.saberWidth = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "Makes the saber more or less thick");
-                break;
-            case 1: // override trail length
-                BeatSaberUI::CreateToggle(container->get_transform(), "Override Trail Length", config.saberConfig.overrideTrailLength, [view](bool value) { 
-                        config.saberConfig.overrideTrailLength = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                break;
-            case 2: // trail length
-                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Length", 0, 1.0f, config.saberConfig.trailLength, 0.0f, 1000.0f, [view](float value) {
-                        config.saberConfig.trailLength = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "The overridden length of the trail");
-                break;
-            case 3: // white trails
-                toggleSetting = BeatSaberUI::CreateToggle(container->get_transform(), "White Trail", config.saberConfig.whiteTrail, [view](bool value) { 
-                        config.saberConfig.whiteTrail = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                BeatSaberUI::AddHoverHint(toggleSetting->get_gameObject(), "Makes the Trail completely white, if you turn it back off the next menu/song load the color will be correct again");
-                break;
-            case 4: // override whitestep
-                BeatSaberUI::CreateToggle(container->get_transform(), "Override White Step Value", config.saberConfig.overrideWhiteStep, [view](bool value) { 
-                        config.saberConfig.overrideWhiteStep = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                break;
-            case 5:
-                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "White Step Amount", 2, 0.05f, config.saberConfig.whiteStep, 0.0f, 1.00f, [view](float value) {
-                        config.saberConfig.whiteStep = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "Override the duration of the \"white\" part of the saber trail, set to 0 for off");
-                break;
-            case 6:
-                BeatSaberUI::CreateToggle(container->get_transform(), "Override Trail Width Value", config.saberConfig.overrideTrailWidth, [view](bool value) { 
-                        config.saberConfig.overrideTrailWidth = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                break;
-            case 7:
-                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Width", 2, 0.05f, config.saberConfig.trailWidth, 0.0f, 1.0f, [view](float value) {
-                        config.saberConfig.trailWidth = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "Shrinks each trail towards its top");
-                break;
-            case 8:
-                #warning change implemented message of enable menu pointer
-                BeatSaberUI::CreateToggle(container->get_transform(), "Enable Menu Pointer (Not implemented)", config.saberConfig.enableMenuPointer, [view](bool value) { 
-                        config.saberConfig.enableMenuPointer = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                break;
-            case 9:
-                incrSetting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Menu Pointer Size (not implemented)", 2, 0.05f, config.saberConfig.menuPointerSize, 0.0f, 10.0f, [view](float value) {
-                        config.saberConfig.menuPointerSize = value;
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                BeatSaberUI::AddHoverHint(incrSetting->get_gameObject(), "Size of the menu pointer");
-                break;
-            case 10:
-                trailText.push_back(il2cpp_utils::createcsstr("<color=#0066ff>Custom</color>", il2cpp_utils::StringType::Manual));
-                trailText.push_back(il2cpp_utils::createcsstr("<color=#33ff66>Default</color>", il2cpp_utils::StringType::Manual));
-                trailText.push_back(il2cpp_utils::createcsstr("<color=#ff5555>None</color>", il2cpp_utils::StringType::Manual));
-                break;
-            case 11:
-                lastIncrSettting = BeatSaberUI::CreateIncrementSetting(container->get_transform(), "Trail Type", 0, 1.0f, (int)config.saberConfig.trailType, [lastIncrSettting, view](float value){
-                        IncrementSetting* self = lastIncrSettting;
-                        int val = (int)value;
-                        if (val < 0) 
-                        {
-                            self->CurrentValue = 2.0f;
-                            val = 2;
-                        }
-                        val %= 3;
-                        switch (val)
-                        {
-                            case 0:
-                                config.saberConfig.trailType = TrailType::custom;
-                                break;
-                            case 1:
-                                config.saberConfig.trailType = TrailType::baseGame;
-                                break;
-                            case 2:
-                                config.saberConfig.trailType = TrailType::none;
-                                break;
-                            default:
-                                break;
-                        }
-                        self->Text->SetText(trailText[val]);
-                        view->previewViewController->UpdatePreview();
-                        SaveConfig();
-                    });
-                lastIncrSettting->Text->SetText(trailText[(int)config.saberConfig.trailType]);
-                BeatSaberUI::AddHoverHint(lastIncrSettting->get_gameObject(), "Sets the trail type you want to use");
-                break;
-            default:
-                return true;
-        }
-        info->counter++;
-        return false;
+        Transform* containerT = container->get_transform();
+        auto widthSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Saber Width", 2, 0.05f, config.saberConfig.saberWidth, 0.0f, 10.0f, [this](float value) {
+                config.saberConfig.saberWidth = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(widthSetting->get_gameObject(), "Makes the saber more or less thick");
+        co_yield nullptr;
+
+        BeatSaberUI::CreateToggle(containerT, "Override Trail Length", config.saberConfig.overrideTrailLength, [this](bool value) { 
+                config.saberConfig.overrideTrailLength = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        co_yield nullptr;
+
+        auto trailLengthSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Trail Length", 0, 1.0f, config.saberConfig.trailLength, 0.0f, 1000.0f, [this](float value) {
+                config.saberConfig.trailLength = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(trailLengthSetting->get_gameObject(), "The overridden length of the trail");
+        co_yield nullptr;
+
+        auto toggleSetting = BeatSaberUI::CreateToggle(containerT, "White Trail", config.saberConfig.whiteTrail, [this](bool value) { 
+                config.saberConfig.whiteTrail = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(toggleSetting->get_gameObject(), "Makes the Trail completely white, if you turn it back off the next menu/song load the color will be correct again");
+        co_yield nullptr;
+
+        BeatSaberUI::CreateToggle(containerT, "Override White Step Value", config.saberConfig.overrideWhiteStep, [this](bool value) { 
+                config.saberConfig.overrideWhiteStep = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        co_yield nullptr;
+
+        auto whiteStepAmountSetting = BeatSaberUI::CreateIncrementSetting(containerT, "White Step Amount", 2, 0.05f, config.saberConfig.whiteStep, 0.0f, 1.00f, [this](float value) {
+                config.saberConfig.whiteStep = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(whiteStepAmountSetting->get_gameObject(), "Override the duration of the \"white\" part of the saber trail, set to 0 for off");
+        co_yield nullptr;
+
+        BeatSaberUI::CreateToggle(containerT, "Override Trail Width Value", config.saberConfig.overrideTrailWidth, [this](bool value) { 
+                config.saberConfig.overrideTrailWidth = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        co_yield nullptr;
+
+        auto trailWidthSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Trail Width", 2, 0.05f, config.saberConfig.trailWidth, 0.0f, 1.0f, [this](float value) {
+                config.saberConfig.trailWidth = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(trailWidthSetting->get_gameObject(), "Shrinks each trail towards its top");
+        co_yield nullptr;
+
+        BeatSaberUI::CreateToggle(containerT, "Enable Menu Pointer", config.saberConfig.enableMenuPointer, [this](bool value) { 
+                config.saberConfig.enableMenuPointer = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        co_yield nullptr;
+
+        auto pointerSizeSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Menu Pointer Size", 2, 0.05f, config.saberConfig.menuPointerSize, 0.0f, 10.0f, [this](float value) {
+                config.saberConfig.menuPointerSize = value;
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(pointerSizeSetting->get_gameObject(), "Size of the menu pointer");
+        co_yield nullptr;
+
+        auto trailDropdown = BeatSaberUI::CreateDropdown(containerT, "Trail Type", trailTextValues[(int)config.saberConfig.trailType], trailTextValues, [this](std::string value){
+                int val = 0;
+                for (auto& s : trailTextValues)
+                {
+                    if (s.find(value) != std::string::npos) break;
+                    val++;
+                }
+
+                switch (val)
+                {
+                    case 0:
+                        config.saberConfig.trailType = TrailType::custom;
+                        break;
+                    case 1:
+                        config.saberConfig.trailType = TrailType::baseGame;
+                        break;
+                    case 2:
+                        config.saberConfig.trailType = TrailType::none;
+                        break;
+                    default:
+                        break;
+                }
+                this->previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(trailDropdown->get_gameObject(), "Sets the trail type you want to use");
     }
-    
 }

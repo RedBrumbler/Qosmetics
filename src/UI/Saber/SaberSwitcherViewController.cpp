@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "UI/Saber/SaberSwitcherViewController.hpp"
 
 #include "questui/shared/BeatSaberUI.hpp"
@@ -14,8 +15,9 @@
 
 #include "Utils/UIUtils.hpp" 
 #include "UI/Saber/SaberSelectionElement.hpp"
+#include "UI/datastructs.hpp"
 
-DEFINE_CLASS(Qosmetics::UI::SaberSwitcherViewController);
+DEFINE_TYPE(Qosmetics::UI::SaberSwitcherViewController);
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -26,19 +28,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-struct switcherInfo {
-    Cache& cache;
-    Cache::iterator it;
-    Transform* layout;
-    SaberSwitcherViewController* self;
 
-    switcherInfo(Cache& cache, Transform* layout, SaberSwitcherViewController* self) : cache(cache)
-    {
-        it = this->cache.begin();
-        this->layout = layout;
-        this->self = self;
-    }
-};
 
 namespace Qosmetics::UI
 {
@@ -46,7 +36,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
-            UIUtils::SetupViewController(this);
+            //UIUtils::SetupViewController(this);
             GameObject* container = CreateScrollableSettingsContainer(get_transform());
 
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
@@ -57,36 +47,45 @@ namespace Qosmetics::UI
             //layout->set_childForceExpandWidth(true);
             //layout->set_childControlWidth(false);
 
-            CreateUIButton(container->get_transform(), "Default Saber", "PlayButton", il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), this, +[](SaberSwitcherViewController* self){
-                self->modelManager->SetDefault();
-            }));
+            CreateUIButton(container->get_transform(), "Default Saber", "PlayButton", 
+                [&](){
+                    config.lastActiveSaber = "";
+                    this->modelManager->SetDefault();
+                    this->previewViewController->UpdatePreview();
+                    SaveConfig();
+                });
             
             Cache& cache = DescriptorCache::GetCache(ItemType::saber);
-            CustomDataType* wrapper = CRASH_UNLESS(il2cpp_utils::New<CustomDataType*, il2cpp_utils::CreationType::Manual>());
-            wrapper->data = new switcherInfo(cache, container->get_transform(), this);
-            auto coroutine = WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), wrapper, 
-                +[](CustomDataType* data){
-                    switcherInfo* info = (switcherInfo*)data->data;
-                    if (info->it == info->cache.end())
-                    {
-                        free (info);
-                        free (data);
-                        return true;
-                    }
-                    HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
-                    SaberSelectionElement* element = info->self->container->InstantiateComponent<SaberSelectionElement*>(layout->get_gameObject());
-                    element->SetDescriptor(&info->it->second);
-                    info->it++;
-                    return false;
-                }));
-            StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(coroutine));
+            switcherInfo* info = new switcherInfo(cache, container->get_transform());
+
+            StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SetupSelectionsRoutine(info))));
         }
     }
 
-    void SaberSwitcherViewController::Init(SaberManager* saberManager, SaberPreviewViewController* previewViewController, Zenject::DiContainer* container)
+    custom_types::Helpers::Coroutine SaberSwitcherViewController::SetupSelectionsRoutine(switcherInfo* info)
+    {
+        while (info->it != info->cache.end())
+        {
+            if (!fileexists(info->it->second.get_filePath()))
+            {
+                info->it++;
+                continue;
+            }
+            HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
+            SaberSelectionElement* element = layout->get_gameObject()->AddComponent<SaberSelectionElement*>();
+            element->Init(this->modelManager, this->previewViewController);
+            element->SetDescriptor(&info->it->second);
+            info->it++;
+            co_yield nullptr;
+        }
+
+        free (info);
+        co_return;
+    }
+
+    void SaberSwitcherViewController::Init(SaberManager* saberManager, SaberPreviewViewController* previewViewController)
     {
         this->modelManager = saberManager;
         this->previewViewController = previewViewController;
-        this->container = container;
     }
 }

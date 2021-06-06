@@ -1,12 +1,12 @@
 #pragma once
 
 #include "custom-types/shared/macros.hpp"
+#include "custom-types/shared/coroutine.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "Types/Saber/SaberManager.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
-#include "zenjeqt/shared/Zenjeqtor.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBehaviour, 
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberManager*, modelManager, nullptr);
@@ -19,15 +19,17 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBeh
         void Delete();
         void UpdateData();
         void SetDescriptor(Descriptor* descriptor);
+        custom_types::Helpers::Coroutine ButtonSetupRoutine();
+        
         Descriptor& get_descriptor();
         
     protected:
         Descriptor* descriptor;
 
-    REGISTER_FUNCTION(SaberSelectionElement,
+    REGISTER_FUNCTION(
         REGISTER_FIELD(modelManager);
         REGISTER_FIELD(previewViewController);
 
-        REGISTER_METHOD_INJECT(Init);
+        REGISTER_METHOD(Init);
     )
 )

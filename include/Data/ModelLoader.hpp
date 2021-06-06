@@ -30,7 +30,7 @@ namespace Qosmetics
 
         private:
             QosmeticItem* item = nullptr;
-            bs_utils::AssetBundle* bundle = nullptr;
+            UnityEngine::AssetBundle* bundle = nullptr;
             void OnComplete();
             void UnloadBundle();
 

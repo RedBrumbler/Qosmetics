@@ -20,11 +20,18 @@ namespace Qosmetics
 
         GameObject* instantiated = Object::Instantiate(gameObject);
         Object::DontDestroyOnLoad(instantiated);
+        MaterialUtils::ReplaceMaterialsForGameObject(instantiated);
         
         this->prefab = instantiated;
-        this->prefab->AddComponent<FuckYouGC*>();
-        MaterialUtils::PrewarmAllShadersOnObject(this->prefab);
         this->prefab->SetActive(false);
+
+        /*
+        this->prefabWrapper = *il2cpp_utils::New<FuckYouGC*, il2cpp_utils::CreationType::Manual>();
+        this->prefabWrapper->prefab = instantiated;
+        */
+
+        MaterialUtils::PrewarmAllShadersOnObject(prefab);
+        //this->prefabWrapper->prefab->SetActive(false);
         GOloaded = true;
         INFO("Prefab Loaded");
     }
@@ -48,5 +55,10 @@ namespace Qosmetics
         descriptor.CopyFrom(temp);
         INFO("Descriptor loaded!");
         DescriptorLoaded = true;
+    }
+    
+    void QosmeticItem::ConfigCallback(TextAsset* textAsset)
+    {
+        ERROR("Qosmetic item config callback was called? this shouldn't happen...");
     }
 }

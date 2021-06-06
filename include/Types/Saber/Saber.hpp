@@ -5,7 +5,6 @@
 #include "Types/Colors/ColorManager.hpp"
 #include "GlobalNamespace/SaberType.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
-#include "zenjeqt/shared/Zenjeqtor.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, Saber, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::SaberManager*, modelManager, nullptr);
@@ -21,7 +20,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Saber, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(void, Init, SaberManager* modelManager, ColorManager* colorManager);
     DECLARE_METHOD(void, SetupTrails);
 
-    REGISTER_FUNCTION(Saber,
+    REGISTER_FUNCTION(
         REGISTER_FIELD(modelManager);
         REGISTER_FIELD(colorManager);
         REGISTER_FIELD(saberType);
@@ -32,7 +31,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Saber, UnityEngine::MonoBehaviour,
         REGISTER_METHOD(UpdateModel);
         REGISTER_METHOD(UpdateColors);
         REGISTER_METHOD(Restore);
-        REGISTER_METHOD_INJECT(Init);
+        REGISTER_METHOD(Init);
         REGISTER_METHOD(SetupTrails);
     )
 )

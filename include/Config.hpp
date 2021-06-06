@@ -13,6 +13,7 @@ typedef struct _noteConfig {
     bool alsoChangeHitboxes = false;
     bool forceDefaultBombs = false;
     bool forceDefaultDebris = false;
+    bool disableReflections = false;
 } noteConfig_t;
 
 enum TrailType {
@@ -39,6 +40,7 @@ typedef struct _wallConfig {
     bool forceFakeGlowOff = false;
     bool forceCoreOff = false;
     bool forceFrameOff = false;
+    bool disableReflections = false;
 } wallConfig_t;
 
 
@@ -51,4 +53,34 @@ typedef struct _config {
     std::string lastActiveWall = "";
 } config_t;
 
+struct MasterConfig {
+    config_t config;
+    bool saberConfigRedo = false;
+    bool wallConfigRedo = false;
+    bool noteConfigRedo = false;
+    std::string lastUsedConfig = "Default";
+};
+
+extern MasterConfig masterConfig;
 extern config_t config;
+
+namespace Qosmetics
+{
+    class Config
+    {
+        public:
+            static bool LoadConfig(std::string name);
+            static void SaveConfig();
+            static void Init();
+
+            static std::string get_configName(int index);
+
+            static std::vector<std::string>& get_configNames()
+            {
+                return configs;
+            }
+        private:
+            static void Write(rapidjson::Document& d, std::string path);
+            static inline std::vector<std::string> configs = {};
+    };
+}

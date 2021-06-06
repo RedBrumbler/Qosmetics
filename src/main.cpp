@@ -1,242 +1,128 @@
 #include "modloader/shared/modloader.hpp"
+#include "Config.hpp"
 #include "QosmeticsLogger.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "Data/CreatorCache.hpp"
 #include "Data/PatronCache.hpp"
 #include "static-defines.hpp"
 
-#include "GlobalNamespace/MainFlowCoordinator.hpp"
-#include "GlobalNamespace/SaberModelContainer.hpp"
-#include "GlobalNamespace/Saber.hpp"
-#include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
-#include "GlobalNamespace/SaberTrailRenderer.hpp"
-#include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
-#include "HMUI/ViewController_AnimationType.hpp"
+
 #include "UnityEngine/SceneManagement/Scene.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/MeshFilter.hpp"
-
-#include "Types/Saber/SaberItem.hpp"
-#include "Types/Note/NoteItem.hpp"
-#include "Types/Wall/WallItem.hpp"
-#include "Types/Colors/ColorManager.hpp"
+#include "UnityEngine/Vector3.hpp"
 
 #include "TypeRegisterer.hpp"
-#include "Types/Saber/SaberManager.hpp"
 
 #include "Utils/UnityUtils.hpp"
-#include "Types/Saber/Saber.hpp"
-#include "Types/Qosmetic/Qosmetic.hpp"
-#include "Config.hpp"
+#include "Utils/PlayerSettings.hpp"
+#include "Types/Trail/QosmeticsTrail.hpp"
 
-#include "UI/Saber/SaberSwitcherViewController.hpp"
-#include "UI/Saber/SaberSettingsViewController.hpp"
-#include "UI/General/PatronViewController.hpp"
-#include "UI/General/UISetup.hpp"
+#include "Types/Qosmetic/Qosmetic.hpp"
+
+#include "GlobalNamespace/IDifficultyBeatmap.hpp"
+#include "GlobalNamespace/ColorScheme.hpp"
+#include "GlobalNamespace/StandardLevelScenesTransitionSetupDataSO.hpp"
+#include "GlobalNamespace/BeatmapEnvironmentHelper.hpp"
+#include "GlobalNamespace/EnvironmentInfoSO.hpp"
+#include "GlobalNamespace/OverrideEnvironmentSettings.hpp"
+#include "GlobalNamespace/ColorSchemeSO.hpp"
+#include "GlobalNamespace/GameplayCoreSceneSetupData.hpp"
+
+#include "GlobalNamespace/GameplayModifiers.hpp"
+#include "GlobalNamespace/PlayerSpecificSettings.hpp"
+#include "Containers/SingletonContainer.hpp"
 
 #include "questui/shared/QuestUI.hpp"
-#include "Installers/GameInstaller.hpp"
-#include "Installers/UIInstaller.hpp"
-#include "zenjeqt/shared/Zenjeqtor.hpp"
 
-#include "Zenject/DiContainer.hpp"
+#include "bs-utils/shared/utils.hpp"
+
+#include "Utils/MaterialUtils.hpp"
 
 ModInfo modInfo = {ID, VERSION};
 
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
 #define ERROR(value...) QosmeticsLogger::GetLogger().error(value);
 
+#define LOG_COLOR(text, color) INFO("color %s: %.2f, %.2f, %.2f", text, color.r, color.g, color.b)
+
+using namespace UnityEngine;
 using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace GlobalNamespace;
 
 extern config_t config;
 
-bool atLeastMenu = false;
 std::string activeSceneName = "";
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output);
 void makeFolder(std::string directory);
-
-Zenjeqt::Zenjeqtor* zenjeqtor = nullptr;
-
-/*
-this->modelManager = Object::FindObjectOfType<SaberManager*>();
-if (!this->modelManager) 
-{
-    INFO("Making Model Manager!");
-    this->modelManager = UnityUtils::FindAddComponent<SaberManager*>(true);
-    modelManager->internalSetActiveModel("Plasma Katana.qsaber");
-    Replace();
-}
-*/
-
-//static Qosmetics::SaberManager* saberManager = nullptr;
-//static Qosmetics::NoteManager* noteManager = nullptr;
-//static Qosmetics::WallManager* wallManager = nullptr;
-//static Qosmetics::ColorManager* colorManager = nullptr;
 
 bool firstWarmup = true;
 MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
 {
     getSceneName(scene, activeSceneName);
     INFO("Found scene %s", activeSceneName.c_str());
+    bool result = SceneManager_SetActiveScene(scene);
 
     if (firstWarmup && activeSceneName == "ShaderWarmup")
     {
+        // when settings get reset it goes through shaderwarmup again
         firstWarmup = false;
+
+        // async pog
         CreatorCache::Download();
+        // async pog
         PatronCache::Download();
-        //if (!saberManager) saberManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::SaberManager*, il2cpp_utils::CreationType::Manual>());
-        //if (!noteManager) noteManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::NoteManager*, il2cpp_utils::CreationType::Manual>());
-        //if (!wallManager) wallManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::WallManager*, il2cpp_utils::CreationType::Manual>());
 
-        //saberManager->internalSetActiveModel(config.lastActiveSaber);
-        //noteManager->internalSetActiveModel(config.lastActiveNote);
-        //wallManager->internalSetActiveModel(config.lastActiveWall);
-        
-        //saberManager->get_item().LoadBundle();
-        //noteManager->get_item().LoadBundle();
-        //wallManager->get_item().LoadBundle();
-        //saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
-        //saberManager->SetActiveSaber("Plasma Katana.qsaber");
-    }
-
-    if (activeSceneName == "HealthWarning")
-    {
-        //saberManager->get_item().Load();
-        //saberManager->get_item().LoadAssets();
-        //noteManager->get_item().LoadAssets();
-        //wallManager->get_item().LoadAssets();
-    }
-
-    if (activeSceneName == "MenuViewControllers" || activeSceneName == "MenuCore")
-    {
-
+        // create 1 instance
+        SingletonContainer::Init();
     }
 
     if (activeSceneName == "GameCore")
     {
+        if (GetScoresDisabled())
+        {
+            bs_utils::Submission::disable(modInfo);
+        }
+        else
+        {
+            bs_utils::Submission::enable(modInfo);
+        }
 
+        if (SingletonContainer::get_noteManager()->get_item().get_descriptor().isValid())
+        {
+            MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_noteManager()->get_item().get_prefab());
+        }
+
+        if (SingletonContainer::get_saberManager()->get_item().get_descriptor().isValid())
+        {
+            MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_saberManager()->get_item().get_prefab());
+        }
+
+        if (SingletonContainer::get_wallManager()->get_item().get_descriptor().isValid())
+        {
+            MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_wallManager()->get_item().get_prefab());
+        }
     }
 
-    //if (colorManager) colorManager->ClearCallbacks();
-    return SceneManager_SetActiveScene(scene);
+    // clear all callbacks
+    SingletonContainer::get_colorManager()->ClearCallbacks();
+    return result;
 }
 
-MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberModelContainer* self)
+MAKE_HOOK_OFFSETLESS(GameplayCoreSceneSetupData_ctor, void, GlobalNamespace::GameplayCoreSceneSetupData* self, Il2CppObject* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, Il2CppObject* gameplayModifiers, Il2CppObject* playerSpecificSettings, Il2CppObject* practiceSettings, bool useTestNoteCutSoundEffects, Il2CppObject* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
 {
-    SaberModelContainer_Start(self);
-
-    INFO("SaberModelContainer");
-    if (!self->saber) 
-    {
-        ERROR("Saber Was nullptr");
-        return;
-    }
-
-    if (atLeastMenu)
-    {
-        INFO("Replacing...");
-        Qosmetics::Saber* saber = self->container->InstantiateComponent<Qosmetics::Saber*>(self->saber->get_gameObject());
-    }
+    SingletonContainer::get_colorManager()->SetColorSchemeFromBase(colorScheme);
+    GameplayCoreSceneSetupData_ctor(self, difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, environmentInfo, colorScheme);
 }
 
-MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+// needed for reading settings lol
+MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, GlobalNamespace::StandardLevelScenesTransitionSetupDataSO* self, Il2CppString* gameMode, GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, GlobalNamespace::OverrideEnvironmentSettings* overrideEnvironmentSettings, GlobalNamespace::ColorScheme* overrideColorScheme, GlobalNamespace::GameplayModifiers* gamePlayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, Il2CppObject* practiceSettings, Il2CppString* backButtonText, bool useTestNoteCutSoundEffects)
 {
-    MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-    if (firstActivation)
-    {
-        atLeastMenu = true;
-        //if (!saberManager) saberManager = UnityUtils::FindAddComponent<Qosmetics::SaberManager*>(true);
-        //if (!colorManager) colorManager = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorManager*, il2cpp_utils::CreationType::Manual>());
-
-        //UISetup::Init(saberManager, noteManager, wallManager, colorManager);
-    }
-}
-// fix for trail renderers not getting these set on time
-MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTrailRenderer* self)
-{
-    if (!self->meshRenderer)self->meshRenderer = self->get_gameObject()->GetComponent<UnityEngine::MeshRenderer*>();
-    if (!self->meshFilter) self->meshFilter = self->get_gameObject()->GetComponent<UnityEngine::MeshFilter*>();
-    SaberTrailRenderer_OnEnable(self);
-}
-
-MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
-{
-    // basically QuestTrailOverlap is forced with this
-    UnityEngine::Transform* trailTransform = self->get_transform();
-    std::string thisName = to_utf8(csstrtostr(trailTransform->get_gameObject()->get_name()));
-    if (thisName == "Trail(Clone)") return;
-    ConditionalMaterialSwitcher_Awake(self);
-}
-
-bool saberSet = false;
-
-MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
-{
-    MainMenuViewController_HandleMenuButton(self, menuButton);
-    INFO("Menu pressed: %d", menuButton.value);
-    /*
-    if (saberManager && !saberSet) 
-    {
-        saberSet = true;
-        saberManager->SetActiveSaber(config.lastActiveSaber, true);
-    }
-    */
-    switch (menuButton.value)
-    {
-        case 0: // solo
-            UISetup::set_flowCoordinatorType(UISetup::solo);
-            break;
-        case 1: // party
-            UISetup::set_flowCoordinatorType(UISetup::party);
-            break;
-        case 2: // Editor
-            UISetup::set_flowCoordinatorType(UISetup::invalid);
-            break;
-        case 3: // campaign
-            UISetup::set_flowCoordinatorType(UISetup::campaign);
-            break;
-        case 4: // floorAdjust
-            UISetup::set_flowCoordinatorType(UISetup::invalid);
-            break;
-        case 5: // quit
-            UISetup::set_flowCoordinatorType(UISetup::invalid);
-            break;
-        case 6: // multi
-            break;
-        case 7: // options
-            UISetup::set_flowCoordinatorType(UISetup::settings);
-            break;
-        case 8: // howtoplay/tutorial
-            UISetup::set_flowCoordinatorType(UISetup::invalid);
-            break;
-    }
-}
-
-MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, void, GlobalNamespace::MultiplayerModeSelectionFlowCoordinator* self, HMUI::ViewController* oldViewController, HMUI::ViewController* newViewController, HMUI::ViewController::AnimationType animationType)
-{
-    MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange(self, oldViewController, newViewController, animationType);
-    if ((void*)newViewController == (void*)self->createServerViewController)
-    {
-        INFO("User is Host");
-        UISetup::set_flowCoordinatorType(UISetup::multiHost);
-    }
-    else if ((void*)newViewController == (void*)self->serverCodeEntryViewController)
-    {
-        INFO("User is Client");
-        UISetup::set_flowCoordinatorType(UISetup::multiClient);
-    }
-}
-
-MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-{
-    OptionsViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-
-    if (firstActivation)
-    {
-        UISetup::SetupFlowCoordinatorAtSettings(self);
-    }
+    StandardLevelScenesTransitionSetupDataSO_Init(self, gameMode, difficultyBeatmap, previewBeatmapLevel, overrideEnvironmentSettings, overrideColorScheme, gamePlayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects);
+    PlayerSettings::CheckForIllegalModifiers(gamePlayModifiers);
+    PlayerSettings::CheckReducedDebris(playerSpecificSettings);
+    Qosmetics::QosmeticsTrail::trailIntensity = playerSpecificSettings->get_saberTrailIntensity();
 }
 
 #define copyFile(in, out) \
@@ -278,42 +164,39 @@ extern "C" void setup(ModInfo& info)
     QosmeticsLogger::GetContextLogger("Setup").info("idk why you are reading logs instead of playing the game, go hit bloq or something you dolt");
 }
 
+extern void installNoteHooks(LoggerContextObject& logger);
+extern void installSaberHooks(LoggerContextObject& logger);
+extern void installUIHooks(LoggerContextObject& logger);
+extern void installWallHooks(LoggerContextObject& logger);
+
 extern "C" void load()
 {
-    Modloader::requireMod("zenjeqt", "0.1.2");
     if (!LoadConfig()) SaveConfig();
+    Config::Init();
+    
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     QuestUI::Init();
     
     LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
     
     CopyIcons();
-    
 
     logger.info("Installing Hooks...");
-    INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
-    INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));
-    INSTALL_HOOK_OFFSETLESS(logger, SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
-    INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
-    INSTALL_HOOK_OFFSETLESS(logger, OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
+    INSTALL_HOOK_OFFSETLESS(logger, StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 10));
+    INSTALL_HOOK_OFFSETLESS(logger, GameplayCoreSceneSetupData_ctor, il2cpp_utils::FindMethodUnsafe("", "GameplayCoreSceneSetupData", ".ctor", 8));
+
+    installNoteHooks(logger);
+    installSaberHooks(logger);
+    installUIHooks(logger);
+    installWallHooks(logger);
 
     logger.info("Installed Hooks!");
 
     logger.info("Registering Custom types...");
     RegisterTypes();
+
     logger.info("Registered Custom types!");
-
-    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSwitcherViewController*>((ModInfo){"Saber Switcher", VERSION});
-    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::SaberSettingsViewController*>((ModInfo){"Saber Settings", VERSION});
-    //QuestUI::Register::RegisterModSettingsViewController<Qosmetics::UI::PatronViewController*>((ModInfo){"Patron Credits", VERSION});
-
-    zenjeqtor = new Zenjeqt::Zenjeqtor();
-
-    zenjeqtor->OnApp<Qosmetics::GameInstaller*>();
-    zenjeqtor->OnMenu<Qosmetics::UIInstaller*>();
 }
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)

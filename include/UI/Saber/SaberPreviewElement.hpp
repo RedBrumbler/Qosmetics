@@ -15,7 +15,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberPreviewElement, UnityEngine::MonoBehav
         DECLARE_METHOD(void, UpdatePreview, bool reinstantiate = false);
         DECLARE_METHOD(void, ClearPreview);
 
-    REGISTER_FUNCTION(SaberPreviewElement, 
+    REGISTER_FUNCTION(
         REGISTER_FIELD(modelManager);
         REGISTER_FIELD(colorManager);
         REGISTER_FIELD(prefab);

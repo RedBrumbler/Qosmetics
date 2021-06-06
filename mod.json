@@ -1,0 +1,87 @@
+{
+    "_QPVersion": "0.1.1",
+    "name": "Qosmetics",
+    "id": "Qosmetics",
+    "author": "RedBrumbler",
+    "version": "1.3.0",
+    "packageId": "com.beatgames.beatsaber",
+    "packageVersion": "1.16.2",
+    "coverImage": "cover.gif",
+    "description": "Quest Cosmetics on a whole new level!",
+    "type": "Gameplay",
+    "dependencies": [
+    ],
+	"modFiles": [
+		"libquestcosmetics.so"
+    ],
+    "libraryFiles": [
+        "libbeatsaber-hook_1_3_5.so",
+        "libbeatsaber-hook_1_3_3.so",
+        "libbs-utils.so",
+        "libcodegen_0_9_0.so",
+        "libcustom-types.so",
+        "libquestui.so"
+    ],
+    "fileCopies": [
+        {
+          "name": "Plasma Katana.qsaber",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/sabers/Plasma Katana.qsaber"
+        },
+        {
+          "name": "PC recreation.qwall",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/walls/PC recreation.qwall"
+        },
+        {
+          "name": "PC recreation + Rainbow Frames.qwall",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/walls/PC recreation + Rainbow Frames.qwall"
+        },
+        {
+          "name": "UWU Notes.qbloq",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/notes/UWU Notes.qbloq"
+        },
+        {
+          "name": "DDR Arrows.qbloq",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/notes/DDR Arrows.qbloq"
+        },
+        {
+          "name": "MenuIcon.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/MenuIcon.png"
+        },
+        {
+          "name": "MenuIconSelected.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/MenuIconSelected.png"
+        },
+        {
+          "name": "SaberIcon.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/SaberIcon.png"
+        },
+        {
+          "name": "SaberIconSelected.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/SaberIconSelected.png"
+        },
+        {
+          "name": "NoteIcon.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/NoteIcon.png"
+        },
+        {
+          "name": "NoteIconSelected.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/NoteIconSelected.png"
+        },
+        {
+          "name": "WallIcon.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/WallIcon.png"
+        },
+        {
+          "name": "WallIconSelected.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/WallIconSelected.png"
+        },
+        {
+          "name": "GameSetupIcon.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/GameSetupIcon.png"
+        },
+        {
+          "name": "GameSetupIconSelected.png",
+          "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/UI/Icons/GameSetupIconSelected.png"
+        }
+    ]
+}

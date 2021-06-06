@@ -19,6 +19,7 @@
 
 #include "HMUI/ImageView.hpp"
 
+
 using namespace HMUI;
 using namespace UnityEngine;
 using namespace UnityEngine::Events;
@@ -29,18 +30,16 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_CLASS(Qosmetics::UI::PatronViewController);
+DEFINE_TYPE(Qosmetics::UI::PatronViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Patron View").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Patron View").error(value);
 
 struct donatorInfo {
-    std::string header;
+    VerticalLayoutGroup* layout;
     const std::vector<std::string>& names;
     std::vector<std::string>::const_iterator it;
-    VerticalLayoutGroup* layout;
-    PatronViewController* self;
-    donatorInfo(PatronViewController* self, VerticalLayoutGroup* layout, const std::vector<std::string>& names, std::string header) : self(self), layout(layout), names(names), it(names.begin()),  header(header) {}
+    donatorInfo(VerticalLayoutGroup* layout, const std::vector<std::string>& names) : layout(layout), names(names), it(names.begin()) {}
 };
 
 void CreateHeader(VerticalLayoutGroup* layout, std::string header)
@@ -59,34 +58,26 @@ void AddDonator(VerticalLayoutGroup* layout, std::string name)
     text->set_alignment(TextAlignmentOptions::_get_Midline());
 }
 
-void AddDonators(donatorInfo* info)
-{
-    QuestUI::CustomDataType* wrapper = CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*, il2cpp_utils::CreationType::Manual>(classof(QuestUI::CustomDataType*)));
-    wrapper->data = info;
-    CreateHeader(info->layout, info->header);
-    auto coroutine = UnityEngine::WaitUntil::New_ctor(il2cpp_utils::MakeDelegate<System::Func_1<bool>*>(classof(System::Func_1<bool>*), wrapper,
-        +[](QuestUI::CustomDataType* wrapper){
-            donatorInfo* info = (donatorInfo*)wrapper->data;
-            if (info->it == info->names.end())
-            {
-                free(info);
-                free(wrapper);
-                return true;
-            }
-            AddDonator(info->layout, *info->it);
-            info->it++;
-            return false;
-        }));
-    info->self->StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(coroutine));
-}
-
 namespace Qosmetics::UI
 {
+    custom_types::Helpers::Coroutine PatronViewController::AddDonators(donatorInfo* info)
+    {
+        while (info->it != info->names.end())
+        {
+            AddDonator(info->layout, *info->it);
+            info->it++;
+            co_yield nullptr;
+        }
+
+        free(info);
+        co_return;
+    }
+
     void PatronViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         if (firstActivation)
         {
-            UIUtils::SetupViewController(this);
+            //UIUtils::SetupViewController(this);
         }
         if (firstActivation && PatronCache::get_atLeastOne())
         {
@@ -114,8 +105,9 @@ namespace Qosmetics::UI
             {
                 middle = CreateHorizontalLayoutGroup(container->get_transform());
                 layout = CreateVerticalLayoutGroup(middle->get_transform());
-                info = new donatorInfo(this, layout, legendary, "<color=#e4c13c>== Legendary Patrons ==</color>\n<color=#666666><size=2>(Tier 4)</size></color>");
-                AddDonators(info);
+                info = new donatorInfo(layout, legendary);
+                CreateHeader(layout, "<color=#e4c13c>== Legendary Patrons ==</color>\n<color=#666666><size=2>(Tier 4)</size></color>");
+                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(AddDonators(info))));
             }
 
             const std::vector<std::string>& amazing = PatronCache::get_amazing();
@@ -123,8 +115,9 @@ namespace Qosmetics::UI
             {
                 middle = CreateHorizontalLayoutGroup(container->get_transform());
                 layout = CreateVerticalLayoutGroup(middle->get_transform());
-                info = new donatorInfo(this, layout, amazing, "<color=#6573cc>-- Amazing Patrons --</color>\n<color=#666666><size=2>(Tier 3)</size></color>");
-                AddDonators(info);
+                info = new donatorInfo(layout, amazing);
+                CreateHeader(layout, "<color=#6573cc>-- Amazing Patrons --</color>\n<color=#666666><size=2>(Tier 3)</size></color>");
+                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(AddDonators(info))));
             }
 
             const std::vector<std::string>& enthusiastic = PatronCache::get_enthusiastic();
@@ -132,8 +125,9 @@ namespace Qosmetics::UI
             {
                 middle = CreateHorizontalLayoutGroup(container->get_transform());
                 layout = CreateVerticalLayoutGroup(middle->get_transform());
-                info = new donatorInfo(this, layout, enthusiastic, "<color=#818de2>-- Enthusiastic Patrons --</color>\n<color=#666666><size=2>(Tier 2)</size></color>");
-                AddDonators(info);
+                info = new donatorInfo(layout, enthusiastic);
+                CreateHeader(layout, "<color=#818de2>-- Enthusiastic Patrons --</color>\n<color=#666666><size=2>(Tier 2)</size></color>");
+                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(AddDonators(info))));
             }
 
             const std::vector<std::string>& paypal = PatronCache::get_paypal();
@@ -141,8 +135,9 @@ namespace Qosmetics::UI
             {
                 middle = CreateHorizontalLayoutGroup(container->get_transform());
                 layout = CreateVerticalLayoutGroup(middle->get_transform());
-                info = new donatorInfo(this, layout, paypal, "<color=#0095d9>-- Paypal Donators --</color>");
-                AddDonators(info);
+                info = new donatorInfo(layout, paypal);
+                CreateHeader(layout, "<color=#0095d9>-- Paypal Donators --</color>");
+                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(AddDonators(info))));
             }
         }
     }

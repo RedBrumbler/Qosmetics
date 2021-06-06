@@ -2,7 +2,7 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Data/DescriptorCache.hpp"
 
-DEFINE_CLASS(Qosmetics::PointerManager);
+DEFINE_TYPE(Qosmetics::PointerManager);
 
 namespace Qosmetics
 {

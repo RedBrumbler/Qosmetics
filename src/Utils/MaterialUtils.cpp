@@ -1,8 +1,14 @@
 #include "Utils/MaterialUtils.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp" 
 #include "UnityEngine/Shader.hpp"
+#include "UnityEngine/Resources.hpp"
+
+#include "QosmeticsLogger.hpp"
 
 using namespace UnityEngine;
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Material Utils").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Material Utils").error(value)
 
 static inline function_ptr_t<void, Il2CppObject*> createFunc = nullptr;
 static inline function_ptr_t<bool, Il2CppObject*, Il2CppObject*, int, Array<Il2CppString*>*> addFunc = nullptr;
@@ -24,6 +30,7 @@ Array<UnityEngine::Material*>* MaterialUtils::GetMaterials(Renderer* renderer)
 
 void MaterialUtils::PrewarmAllShadersOnObject(GameObject* object)
 {
+    if (!object) return;
     Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>(true);
 
     // get material method is stripped so resolve icall
@@ -53,9 +60,9 @@ void MaterialUtils::PrewarmAllShadersOnObject(GameObject* object)
 
 bool MaterialUtils::ShouldCC(UnityEngine::Material* mat, bool checkName)
 {
-    if (!CustomColorID) Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors"));
-    if (!GlowID) Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow"));
-    if (!BloomID) Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom"));
+    if (!CustomColorID) CustomColorID = Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors"));
+    if (!GlowID) GlowID = Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow"));
+    if (!BloomID) BloomID = Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom"));
 
     // ew ugly else if ladder, but there is no other way of doing it
     if (mat->HasProperty(CustomColorID))
@@ -80,13 +87,10 @@ bool MaterialUtils::ShouldCC(UnityEngine::Material* mat, bool checkName)
     return false;
 }
 
-void MaterialUtils::SetColors(GameObject* object, Color color, Color otherColor, bool checkName)
+void MaterialUtils::SetRenderQueue(GameObject* object, int renderQueue)
 {
-    if (!ColorID) Shader::PropertyToID(il2cpp_utils::createcsstr("_Color"));
-    if (!OtherColorID) Shader::PropertyToID(il2cpp_utils::createcsstr("_OtherColor"));
-
-    // get all renderers on the object
-    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>();
+    if (!object) return;
+    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
     if (!renderers) return;
     int rendererLength = renderers->Length();
     for (int i = 0; i < rendererLength; i++)
@@ -98,9 +102,157 @@ void MaterialUtils::SetColors(GameObject* object, Color color, Color otherColor,
         for (int j = 0; j < materialLength; j++)
         {
             Material* currentMaterial = materials->values[j];
+            currentMaterial->set_renderQueue(renderQueue);
+        }
+    }
+}
+
+void MaterialUtils::SetColors(GameObject* object, Color color, Color otherColor, bool checkName, int renderQueue)
+{
+    if (!object) return;
+    if (!ColorID) ColorID = Shader::PropertyToID(il2cpp_utils::createcsstr("_Color"));
+    if (!OtherColorID) OtherColorID = Shader::PropertyToID(il2cpp_utils::createcsstr("_OtherColor"));
+
+    // get all renderers on the object
+    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+    if (!renderers) return;
+    int rendererLength = renderers->Length();
+    for (int i = 0; i < rendererLength; i++)
+    {
+        Renderer* currentRenderer = renderers->values[i];
+        if (!currentRenderer) continue;
+        Array<Material*>* materials = MaterialUtils::GetMaterials(currentRenderer);
+        int materialLength = materials->Length();
+        for (int j = 0; j < materialLength; j++)
+        {
+            Material* currentMaterial = materials->values[j];
+            // if renderqueue is given, set it
+            if (renderQueue) currentMaterial->set_renderQueue(renderQueue);
             if (!currentMaterial || !ShouldCC(currentMaterial, checkName)) continue;
             if (currentMaterial->HasProperty(ColorID)) currentMaterial->SetColor(ColorID, color);
             if (currentMaterial->HasProperty(OtherColorID)) currentMaterial->SetColor(OtherColorID, otherColor);
         }
+    }
+}
+
+void MaterialUtils::SetColors(UnityEngine::GameObject* object, UnityEngine::Color color, bool checkName, int renderQueue)
+{
+    if (!object) return;
+    if (!ColorID) ColorID = Shader::PropertyToID(il2cpp_utils::createcsstr("_Color"));
+
+    // get all renderers on the object
+    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+    if (!renderers) return;
+    int rendererLength = renderers->Length();
+    for (int i = 0; i < rendererLength; i++)
+    {
+        Renderer* currentRenderer = renderers->values[i];
+        if (!currentRenderer) continue;
+        Array<Material*>* materials = MaterialUtils::GetMaterials(currentRenderer);
+        int materialLength = materials->Length();
+        for (int j = 0; j < materialLength; j++)
+        {
+            Material* currentMaterial = materials->values[j];
+            // if renderqueue is given, set it
+            if (renderQueue) currentMaterial->set_renderQueue(renderQueue);
+            if (!currentMaterial || !ShouldCC(currentMaterial, checkName)) continue;
+            if (currentMaterial->HasProperty(ColorID)) currentMaterial->SetColor(ColorID, color);
+        }
+    }
+}
+
+Array<Material*>* allMaterials = nullptr;
+
+std::string toLowerCase(std::string in)
+{
+    std::string out = "";
+    for (char letter : in) out += tolower(letter);
+    return out;
+}
+
+
+void MaterialUtils::ReplaceMaterialsForGameObject(GameObject* object)
+{
+    allMaterials = Resources::FindObjectsOfTypeAll<Material*>();
+
+    int matCount = allMaterials->Length();
+    INFO("Found %d materials", matCount);
+    for (int i = 0; i < matCount; i++)
+    {
+        Material* material = allMaterials->values[i];
+        Il2CppString* materialNameCS = material->get_name();
+        std::string materialName = to_utf8(csstrtostr(materialNameCS));
+        if (materialName == "") continue;
+        // names with _replace are custom materials, they can be skipped
+        if (materialName.find("_replace") != std::string::npos) continue;
+        
+        ReplaceMaterialForGameObjectChildren(object, material, toLowerCase(materialName));
+    }
+}
+
+void MaterialUtils::ReplaceMaterialForGameObjectChildren(GameObject* gameObject, Material* material, std::string materialToReplaceName)
+{
+    Array<Renderer*>* renderers = gameObject->GetComponentsInChildren<Renderer*>(true);
+
+    int rendererCount = renderers->Length();
+
+    for (int i = 0; i < rendererCount; i++)
+    {
+        ReplaceMaterialForRenderer(renderers->values[i], material, materialToReplaceName);
+    }
+}
+
+void MaterialUtils::ReplaceMaterialForRenderer(Renderer* renderer, Material* replacingMaterial, std::string materialToReplaceName)
+{
+    Array<Material*>* materials = renderer->GetMaterialArray();
+    std::vector<Material*> materialsCopy = {}; 
+    bool materialsDidChange = false;
+
+    int materialLength = materials->Length();
+    for (int i = 0; i < materialLength; i++)
+    {
+        Material* material = materials->values[i];
+        Il2CppString* materialNameCS = material->get_name();
+        std::string materialName = to_utf8(csstrtostr(materialNameCS));
+        materialName = toLowerCase(materialName);
+
+        // if not a replace material, skip
+        if (materialName.find("_replace") == std::string::npos) 
+        {
+            materialsCopy.push_back(material);
+            continue;
+        }
+        // if material already replaced, skip
+        if (materialName.find("_done") != std::string::npos) 
+        {
+            materialsCopy.push_back(material);
+            continue;
+        }
+        // if not the current material name there, skip
+        if (materialName.find(materialToReplaceName) == std::string::npos) 
+        {
+            materialsCopy.push_back(material);
+            continue;
+        }
+
+        INFO("Replacing %s with %s", materialName.c_str(), materialToReplaceName.c_str());
+
+        // now we should be good to update this stuff
+        materialName += "_done";
+        if (!ShouldCC(material) && materialName.find("_noCC") == std::string::npos) materialName += "_noCC";
+        // now we have the new material name, as well as being sure that this material is the one that needs to be replaced;
+        Color oldColor = material->get_color();
+
+        Material* newMat = (Material*)Object::Instantiate((UnityEngine::Object*)replacingMaterial);
+        newMat->set_color(oldColor);
+        newMat->set_name(il2cpp_utils::newcsstr(materialName));
+        materialsCopy.push_back(newMat);
+
+        materialsDidChange = true;
+    }
+
+    if (materialsDidChange)
+    {
+        renderer->SetMaterialArray(il2cpp_utils::vectorToArray(materialsCopy));
     }
 }

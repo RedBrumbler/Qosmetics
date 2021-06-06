@@ -9,6 +9,18 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("File Utils").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("File Utils").error(value)
 
+void FileUtils::makeFolder(std::string directory)
+{
+    if (!direxists(directory.c_str()))
+    {
+        int makePath = mkpath(directory.data());
+        if (makePath == -1)
+        {
+            ERROR("Failed to make path %s", directory.c_str());
+        }
+    }
+}
+
 std::string FileUtils::GetFileName(std::string path, bool removeExtension)
 {
     std::string result = "";

@@ -1,12 +1,12 @@
+#include "Config.hpp"
 #include "Types/Saber/SaberManager.hpp"
 #include "Types/Saber/SaberItem.hpp"
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
 #include "UnityEngine/Transform.hpp"
 
-#include "Config.hpp"
 
-DEFINE_CLASS(Qosmetics::SaberManager);
+DEFINE_TYPE(Qosmetics::SaberManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Manager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber Manager").error(value)
@@ -22,7 +22,9 @@ namespace Qosmetics
     void SaberManager::ctor()
     {
         this->activeItem = nullptr;
-        SetActiveSaber(config.lastActiveSaber, true);    
+        if (config.lastActiveSaber != "")
+            SetActiveSaber(config.lastActiveSaber, true);    
+        else SetDefault();
     }
 
     GameObject* SaberManager::GetActivePrefab()
@@ -56,7 +58,8 @@ namespace Qosmetics
         } 
 
         if (this->activeItem) delete(this->activeItem);
-        this->activeItem = new SaberItem(*desc, true);
+        this->activeItem = new SaberItem(*desc, false);
+        this->activeItem->Load();
         INFO("Active Item Set!");
     }
 
@@ -83,7 +86,8 @@ namespace Qosmetics
             return;  
         } 
         if (this->activeItem) delete(this->activeItem);
-        this->activeItem = new SaberItem(newItem, load);
+        this->activeItem = new SaberItem(newItem, false);
+        if (load) this->activeItem->Load();
         INFO("Active Item Set!");
     }
 

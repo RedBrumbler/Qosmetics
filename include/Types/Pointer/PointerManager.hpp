@@ -10,7 +10,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, PointerManager, Qosmetics::ModelManager,
         }
     protected:
 
-    REGISTER_FUNCTION(PointerManager,
+    REGISTER_FUNCTION(
 
     )
 )

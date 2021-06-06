@@ -1,6 +1,6 @@
 #include "UI/Saber/SaberPreviewElement.hpp"
 
-DEFINE_CLASS(Qosmetics::UI::SaberPreviewElement);
+DEFINE_TYPE(Qosmetics::UI::SaberPreviewElement);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
@@ -16,6 +16,8 @@ DEFINE_CLASS(Qosmetics::UI::SaberPreviewElement);
 #include "System/Collections/IEnumerator.hpp"
 #include "System/Func_1.hpp"
 
+#include "Utils/SaberUtils.hpp"
+
 using namespace HMUI;
 using namespace UnityEngine;
 using namespace UnityEngine::Events;
@@ -25,6 +27,9 @@ using namespace QuestUI::BeatSaberUI;
 using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Preview Element").info(value);
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber Preview Element").error(value);
 
 namespace Qosmetics::UI
 {
@@ -40,8 +45,10 @@ namespace Qosmetics::UI
 
     void SaberPreviewElement::UpdatePreview(bool reinstantiate)
     {
+        INFO("Updating Preview Element");
         if (reinstantiate || !prefab)
         {
+            ClearPreview();
             if (!modelManager) return;
             GameObject* prefabToInstantiate = modelManager->GetActivePrefab();
             if (!prefabToInstantiate) return;
@@ -51,7 +58,8 @@ namespace Qosmetics::UI
         
         Transform* prefabTransform = prefab->get_transform();
         int childCount = prefabTransform->get_childCount();
-
+        Color leftColor = colorManager->ColorForSaberType(0);
+        Color rightColor = colorManager->ColorForSaberType(1);
         for (int i = 0; i < childCount; i++)
         {
             Transform* child = prefabTransform->GetChild(i);
@@ -61,10 +69,12 @@ namespace Qosmetics::UI
             if (name == "LeftSaber")
             {
                 child->set_localPosition(UnityEngine::Vector3(0.0f, 0.25f, -0.4f));
+                SaberUtils::SetColors(child->get_gameObject(), leftColor, rightColor);
             }
             else if (name == "RightSaber")
             {
                 child->set_localPosition(UnityEngine::Vector3(0.0f, -0.25f, -0.4f));
+                SaberUtils::SetColors(child->get_gameObject(), rightColor, leftColor);
             }
             else Object::Destroy(child);
         }

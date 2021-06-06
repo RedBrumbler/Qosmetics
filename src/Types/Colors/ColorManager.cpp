@@ -1,12 +1,15 @@
 #include "Types/Colors/ColorManager.hpp"
 #include "QosmeticsLogger.hpp"
+#include "GlobalNamespace/SaberModelController.hpp"
 
-DEFINE_CLASS(Qosmetics::ColorManager);
+DEFINE_TYPE(Qosmetics::ColorManager);
 
 using namespace UnityEngine;
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("ColorManager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("ColorManager").error(value)
+
+#define LOG_COLOR(text, color) INFO("color %s: %.2f, %.2f, %.2f", text, color.r, color.g, color.b)
 
 namespace Qosmetics
 {
@@ -22,17 +25,23 @@ namespace Qosmetics
         UpdateAllColors();
     }
 
-    void ColorManager::ctor(Qosmetics::ColorScheme* colorScheme)
+    void ColorManager::ctor()
     {
-        this->colorScheme = colorScheme;
-        //Array<GlobalNamespace::ColorManager*>* colorManagers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::ColorManager*>();
+        Init();
+    }
+
+    void ColorManager::Init()
+    {
+         //this->colorScheme = colorScheme;
+        
+        Array<GlobalNamespace::SaberModelController*>* modelControllers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::SaberModelController*>();
 
         // if not nullptr return or 0 found
-        /*
-        if (colorManagers && colorManagers->Length() != 0)
+        
+        if (modelControllers && modelControllers->Length() != 0)
         {
             INFO("Did find a color manager!");
-            GlobalNamespace::ColorManager* last = colorManagers->values[colorManagers->Length() - 1];
+            GlobalNamespace::ColorManager* last = modelControllers->values[modelControllers->Length() - 1]->colorManager;
             GlobalNamespace::ColorScheme* scheme = last ? last->colorScheme : nullptr; 
             if (this->colorScheme) this->colorScheme->CopyFromBaseGame(scheme);
             else this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>(scheme));
@@ -42,7 +51,6 @@ namespace Qosmetics
             INFO("Didnt find any color managers...");
             this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>((GlobalNamespace::ColorScheme*)nullptr));
         }
-        */
     }
 
     void ColorManager::SetLeftSaberColor(Color color)

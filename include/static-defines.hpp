@@ -12,6 +12,7 @@
 #define WALLEXT             "qwall"
 
 #define UIPATH              string_format("%s/%s", BASEPATH, "UI/")
+#define CONFIGPATH              string_format("%s/%s", BASEPATH, "Configs/")
 
 #define DESCRIPTORCACHE     string_format("%s/%s", BASEPATH, "DescriptorCache")
 #define CREATORCACHE        string_format("%s/%s", BASEPATH, "CreatorCache")

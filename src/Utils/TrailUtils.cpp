@@ -20,12 +20,14 @@ GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
 {
     // make a new gameobject to house the prefab on
     GameObject* newPrefab = GameObject::New_ctor();
+    newPrefab->set_layer(12);
+    
     // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
     newPrefab->AddComponent<MeshFilter*>();
     newPrefab->AddComponent<MeshRenderer*>();
     
     GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = newPrefab->AddComponent<GlobalNamespace::SaberTrailRenderer*>();
-    
+
     // set the material
     trailRendererPrefab->meshRenderer->set_material(mat);      
     // give it a good name, for identification I guess
@@ -38,7 +40,6 @@ GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
 void TrailUtils::RemoveTrail(Transform* obj)
 {
     if (!obj) return;
-    GlobalNamespace::SaberTrail* trail = nullptr;
     Array<GlobalNamespace::SaberTrail*>* trails = obj->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
 
     if (trails)
@@ -46,7 +47,7 @@ void TrailUtils::RemoveTrail(Transform* obj)
         QosmeticsTrail* customTrail = obj->get_gameObject()->GetComponent<QosmeticsTrail*>();
         for (int i = 0; i < trails->Length(); i++)
         {
-            trail = trails->values[i];
+            GlobalNamespace::SaberTrail* trail = trails->values[i];
             if (trail && trail != customTrail)
             {
                 trail->trailDuration = 0.0f;

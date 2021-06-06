@@ -84,24 +84,8 @@ namespace Qosmetics
 
     Descriptor& DescriptorCache::AddDescriptorToCache(Descriptor& descriptor)
     {
+        if (!descriptor.isValid()) return invalid;
         return AddDescriptorToMap(descriptor, descriptors[descriptor.get_type()]);
-        /*
-        switch(descriptor.get_type())
-        {
-            case saber:
-                return AddDescriptorToMap(descriptor, saberDescriptors);
-            case note:
-                return AddDescriptorToMap(descriptor, noteDescriptors);
-            case wall:
-                return AddDescriptorToMap(descriptor, wallDescriptors);
-            case pointer:
-                return AddDescriptorToMap(descriptor, pointerDescriptors);
-            case platform:
-                return AddDescriptorToMap(descriptor, platformDescriptors);
-            default:
-                return invalid;
-        }
-        */
     }
 
     Descriptor& DescriptorCache::AddDescriptorToMap(Descriptor& descriptor, Cache& map)
@@ -187,7 +171,7 @@ namespace Qosmetics
             {
                 continue;
             }
-            // if it was not valid (didn't exist) make a new descriptor and add to cache
+            // if it was valid (didn't exist) make a new descriptor and add to cache
             ItemType type = Descriptor::GetTypeFromName(name);
             std::string filePath = folderPath + name;
             Descriptor newDescriptor = Descriptor(filePath);

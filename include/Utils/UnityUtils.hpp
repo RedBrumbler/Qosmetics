@@ -1,6 +1,8 @@
 #pragma once
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Component.hpp"
 #include "UnityEngine/Renderer.hpp"
 
@@ -20,7 +22,7 @@ class UnityUtils
         template<typename T>
         static T FindAddComponent(bool manual = false)
         {
-            static_assert(std::is_convertible_v<T, UnityEngine::Object*>);
+            static_assert(std::is_convertible_v<T, UnityEngine::Component*>);
             T component = UnityEngine::Object::FindObjectOfType<T>();
             if (component) return component; 
             if (manual)
@@ -36,7 +38,20 @@ class UnityUtils
             } 
         }
 
+        template<typename T>
+        static T FindLastObjectOfType()
+        {
+            static_assert(std::is_convertible_v<T, UnityEngine::Object*>);
+            Array<T>* objects = UnityEngine::Resources::FindObjectsOfTypeAll<T>();
+            if (!objects || objects->Length() == 0) return nullptr;
+            else return objects->values[objects->Length() - 1];
+        }
+
         static void HideRenderersOnObject(UnityEngine::GameObject* obj, bool doHide = true);
+        static void HideRenderersOnObject(UnityEngine::Transform* obj, bool doHide = true);
 
         static void HideRenderer(UnityEngine::Renderer* renderer, bool doHide = true);
+        
+        static void SetLayerRecursive(UnityEngine::Transform* object, int layer);
+        static void SetLayerRecursive(UnityEngine::GameObject* object, int layer);
 };

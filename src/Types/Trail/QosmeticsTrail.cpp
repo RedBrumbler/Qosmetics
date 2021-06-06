@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
 #include "GlobalNamespace/IBladeMovementData.hpp"
 #include "GlobalNamespace/TimeHelper.hpp"
@@ -6,13 +7,14 @@
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/Vector3.hpp"
 
-#include "Config.hpp"
 #include "Utils/TrailUtils.hpp"
 #include "QosmeticsLogger.hpp"
 
+#include "chroma/shared/SaberAPI.hpp"
+
 extern config_t config;
 
-DEFINE_CLASS(Qosmetics::QosmeticsTrail);
+DEFINE_TYPE(Qosmetics::QosmeticsTrail);
 
 using namespace UnityEngine;
 
@@ -27,6 +29,33 @@ float Qosmetics::QosmeticsTrail::trailIntensity = 1.0f;
 
 namespace Qosmetics
 {
+    void QosmeticsTrail::ctor()
+    {
+        auto origCtor = il2cpp_utils::FindMethod(classof(GlobalNamespace::SaberTrail*), ".ctor");
+        if (origCtor) 
+        {
+            INFO("Running original ctor");
+            il2cpp_utils::RunMethod(this, origCtor);
+        }
+
+        topTransform = nullptr;
+        bottomTransform = nullptr;
+        customBottomTransform = nullptr;
+        trailMaterial = nullptr;
+        length = 14;
+        whitestep = 0;
+        colorType = 2;
+        customMovementData = nullptr;
+        colorManager = nullptr;
+        customInited = false;
+        trailConfig = nullptr;
+    }
+
+    void QosmeticsTrail::dtor()
+    {
+        Object::Destroy(trailRenderer);
+    }
+
     void QosmeticsTrail::Awake()
     {
         if (!trailMaterial)
@@ -160,6 +189,8 @@ namespace Qosmetics
         if (!this->topTransform || !this->bottomTransform || !this->customBottomTransform) return;
         if (!this->customMovementData) return;
 
+        if (!trailRenderer->meshRenderer->get_enabled()) return;
+
         UnityEngine::Vector3 topPos = this->topTransform->get_position();
 		UnityEngine::Vector3 bottomPos = (config.saberConfig.overrideTrailWidth && this->customBottomTransform) ? this->customBottomTransform->get_position() : this->bottomTransform->get_position();
 
@@ -168,7 +199,8 @@ namespace Qosmetics
 
     void QosmeticsTrail::UpdateTrail()
     {
-        if (!this->customMovementData) this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
+        if (this->customMovementData) this->customMovementData->Finalize();
+        this->customMovementData = GlobalNamespace::SaberMovementData::New_ctor();
         this->movementData = reinterpret_cast<GlobalNamespace::IBladeMovementData*>(this->customMovementData);
 
         this->trailDuration = (float)this->length / (float)this->samplingFrequency;
@@ -196,18 +228,27 @@ namespace Qosmetics
 
     void QosmeticsTrail::UpdateColors()
     {
-       switch (this->colorType)
-		{
-			case 0: // LeftSaber
-				this->color = colorManager->ColorForTrailType(0) * this->multiplierColor;
-				break;
-			case 1:	// RightSaber
-				this->color = colorManager->ColorForTrailType(1) * this->multiplierColor;
-				break;
-			default:	// Custom Color
-				this->color = this->trailColor * this->multiplierColor;
-				break;
-		}
+        using SaberAPI = Chroma::SaberAPI;
+        
+        if (colorType == 0 || colorType == 1)
+        {
+            std::optional<UnityEngine::Color> saberColor = SaberAPI::getSaberColorSafe(colorType);
+            if (saberColor != std::nullopt)
+            {
+                INFO("Used Chroma Color");
+                this->color = (*saberColor) * this->multiplierColor;
+            }
+            else
+            {
+                INFO("Used Normal Color");
+	    	    this->color = colorManager->ColorForTrailType(colorType) * this->multiplierColor;
+            }
+        }
+        else
+        {
+	    	this->color = this->trailColor * this->multiplierColor;
+        }
+        
         this->color.a *= trailIntensity;
     }
 
@@ -223,6 +264,7 @@ namespace Qosmetics
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &QosmeticsTrail::UpdateColors, this );
         this->colorManager->RegisterCallback(callback, callbackType::trail);
+        Chroma::SaberAPI::registerSaberCallback(callback);
         UpdateColors();
     }
 
@@ -253,8 +295,13 @@ namespace Qosmetics
     GlobalNamespace::SaberTrailRenderer* QosmeticsTrail::NewTrailRenderer()
     {
         if (!trailMaterial) return nullptr;
+        if (trailRenderer) Object::Destroy(trailRenderer->get_gameObject());
         GlobalNamespace::SaberTrailRenderer* newRenderer = TrailUtils::NewTrailRenderer(trailMaterial);
-        float trailWidth = GetTrailWidth(movementData->get_lastAddedData());
+        Vector3 topPos = topTransform ? topTransform->get_position() : Vector3(0.0f, 0.0f, 1.0f);
+        Vector3 bottomPos = (config.saberConfig.overrideTrailWidth && customBottomTransform) ? customBottomTransform->get_position() : (bottomTransform ? bottomTransform->get_position() : Vector3::get_zero());
+        
+        float trailWidth = (bottomPos - topPos).get_magnitude();//GetTrailWidth(customMovementData->get_lastAddedData());
+        INFO("width: %.2f, duration: %.2f, granularity: %d, whiteSectionMaxDuration: %.2f", trailWidth, trailDuration, granularity, whiteSectionMaxDuration);
         newRenderer->Init(trailWidth, trailDuration, granularity, whiteSectionMaxDuration);
         return newRenderer;
     }

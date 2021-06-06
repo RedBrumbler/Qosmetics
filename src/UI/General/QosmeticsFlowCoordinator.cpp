@@ -9,6 +9,8 @@
 #include "HMUI/ButtonStaticAnimations.hpp"
 
 #include "Utils/UIUtils.hpp"
+#include "Utils/TextUtils.hpp"
+#include "Utils/DateUtils.hpp"
 
 #include "QosmeticsLogger.hpp"
 
@@ -22,7 +24,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_CLASS(Qosmetics::UI::QosmeticsFlowCoordinator);
+DEFINE_TYPE(Qosmetics::UI::QosmeticsFlowCoordinator);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Qosmetics Flow Coordinator").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Qosmetics Flow Coordinator").error(value);
@@ -56,52 +58,23 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
-            if (!qosmeticsSettings) qosmeticsSettings = il2cpp_utils::createcsstr("Qosmetics Settings", il2cpp_utils::StringType::Manual);
-            if (!saberTitle) saberTitle = il2cpp_utils::createcsstr("Qosmetics Sabers", il2cpp_utils::StringType::Manual);
-            if (!noteTitle) noteTitle = il2cpp_utils::createcsstr("Qosmetics Bloqs", il2cpp_utils::StringType::Manual);
-            if (!wallTitle) wallTitle = il2cpp_utils::createcsstr("Qosmetics Walls", il2cpp_utils::StringType::Manual);
+            std::string qosmeticsSettingsCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Settings") : "Qosmetics Settings";
+            std::string saberTitleCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Sabers") : "Qosmetics Sabers";
+            std::string noteTitleCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Bloqs") : "Qosmetics Bloqs";
+            std::string wallTitleCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Walls") : "Qosmetics Walls";
+            
+            if (!qosmeticsSettings) qosmeticsSettings = il2cpp_utils::createcsstr(qosmeticsSettingsCPP, il2cpp_utils::StringType::Manual);
+            if (!saberTitle) saberTitle = il2cpp_utils::createcsstr(saberTitleCPP, il2cpp_utils::StringType::Manual);
+            if (!noteTitle) noteTitle = il2cpp_utils::createcsstr(noteTitleCPP, il2cpp_utils::StringType::Manual);
+            if (!wallTitle) wallTitle = il2cpp_utils::createcsstr(wallTitleCPP, il2cpp_utils::StringType::Manual);
 
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
             showBackButton = true;
-            
-            /*
-            // saber stuff
-            // preview is made first since the other 2 viewcontrollers need a reference to the view controller in order to update the preview after config changes
-            saberPreviewViewController = CreateViewController<SaberPreviewViewController*>();
-            container->Inject(saberPreviewViewController);
-            saberSwitcherViewController = CreateViewController<SaberSwitcherViewController*>();
-            
-            saberSwitcherViewController->Init(container->Resolve<SaberManager*>(), saberPreviewViewController);
-            VerticalLayoutGroup* layout = CreateVerticalLayoutGroup(saberSwitcherViewController->get_rectTransform());
-            SetupSubTitle(layout, "Qosmetics Sabers");
 
-            saberSettingsViewController = CreateViewController<SaberSettingsViewController*>();
-            saberSettingsViewController->Init(saberPreviewViewController);
-            // note stuff
-            noteSwitcherViewController = CreateViewController<NoteSwitcherViewController*>();
-            layout = CreateVerticalLayoutGroup(noteSwitcherViewController->get_rectTransform());
-            SetupSubTitle(layout, "Qosmetics Bloqs");
-
-            noteSettingsViewController = CreateViewController<NoteSettingsViewController*>();
-            notePreviewViewController = CreateViewController<NotePreviewViewController*>();
-
-            // wall stuff
-            wallSwitcherViewController = CreateViewController<WallSwitcherViewController*>();
-            layout = CreateVerticalLayoutGroup(wallSwitcherViewController->get_rectTransform());
-            SetupSubTitle(layout, "Qosmetics Walls");
-
-            wallSettingsViewController = CreateViewController<WallSettingsViewController*>();
-            wallPreviewViewController = CreateViewController<WallPreviewViewController*>();
-
-            patronViewController = CreateViewController<PatronViewController*>();
-            floorLogoViewController = CreateViewController<FloorLogoViewController*>();
-
-            qosmeticsViewController = CreateViewController<QosmeticsViewController*>();
-            */
             std::function<void(ItemType)> func = std::bind(&QosmeticsFlowCoordinator::SubMenuButtonWasPressed, this, std::placeholders::_1);
             qosmeticsViewController->set_selectCallback(func);
 
-            ProvideInitialViewControllers(qosmeticsViewController, nullptr, patronViewController, floorLogoViewController, nullptr);
+            ProvideInitialViewControllers(qosmeticsViewController, userProfileViewController, patronViewController, floorLogoViewController, nullptr);
         }
 
         TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();
@@ -147,7 +120,7 @@ namespace Qosmetics::UI
         {
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
             ReplaceTopViewController(qosmeticsViewController, this, this, nullptr, ViewController::AnimationType::Out, ViewController::AnimationDirection::Horizontal);
-            SetLeftScreenViewController(nullptr, ViewController::AnimationType::Out);
+            SetLeftScreenViewController(userProfileViewController, ViewController::AnimationType::Out);
             SetRightScreenViewController(patronViewController, ViewController::AnimationType::Out);
             UIUtils::SetTitleColor(titleView, Color(0.3f, 0.15f, 0.6f, 1.0f));
         }
@@ -170,10 +143,9 @@ namespace Qosmetics::UI
                                         WallPreviewViewController* wallPreviewViewController,
                                         PatronViewController* patronViewController,
                                         QosmeticsViewController* qosmeticsViewController,
-                                        FloorLogoViewController* floorLogoViewController)
+                                        FloorLogoViewController* floorLogoViewController,
+                                        UserProfileViewController* userProfileViewController)
     {
-        this->baseInputModule = inputModule;
-
         this->saberSwitcherViewController = saberSwitcherViewController;
         this->saberSettingsViewController = saberSettingsViewController;
         this->saberPreviewViewController = saberPreviewViewController;
@@ -189,5 +161,6 @@ namespace Qosmetics::UI
         this->patronViewController = patronViewController;
         this->qosmeticsViewController = qosmeticsViewController;
         this->floorLogoViewController = floorLogoViewController;
+        this->userProfileViewController = userProfileViewController;
     }
 }

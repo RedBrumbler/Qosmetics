@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
 #include "UI/Saber/SaberPreviewElement.hpp"
 #include "questui/shared/BeatSaberUI.hpp" 
@@ -5,12 +6,20 @@
 
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "Types/Saber/SaberItem.hpp"
+#include "Types/Pointer/Pointer.hpp"
 #include "Utils/UIUtils.hpp"
+#include "Utils/UnityUtils.hpp"
+#include "Utils/TextUtils.hpp"
+#include "Utils/DateUtils.hpp"
 
 #include "UnityEngine/GameObject.hpp"
 #include "QosmeticsLogger.hpp"
+#include "HMUI/ImageView.hpp"
+#include "HMUI/CurvedCanvasSettingsHelper.hpp"
 
-DEFINE_CLASS(Qosmetics::UI::SaberPreviewViewController);
+#include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
+
+DEFINE_TYPE(Qosmetics::UI::SaberPreviewViewController);
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -37,7 +46,7 @@ namespace Qosmetics::UI
     {
         if (firstActivation)
         {
-            UIUtils::SetupViewController(this);
+            //UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
             title = UIUtils::AddHeader(get_transform(), "SaberNameHere", Color::get_red());
 
@@ -46,11 +55,28 @@ namespace Qosmetics::UI
             SaberPreviewElement* previewElement = preview->AddComponent<SaberPreviewElement*>();
             previewElement->Init(modelManager, colorManager);
 
-            GameObject* container = CreateScrollableSettingsContainer(get_transform());
-            //CreateText(container->get_transform(), "bitch");
-        }
+            //GameObject* container = CreateScrollableSettingsContainer(get_transform());
+            VerticalLayoutGroup* layout = CreateVerticalLayoutGroup(get_transform());
+            LayoutElement* layoutelem = UnityUtils::GetAddComponent<LayoutElement*>(layout->get_gameObject());
+            layoutelem->set_preferredWidth(100.0f);
 
-        UpdatePreview();
+            Backgroundable* bg = UnityUtils::GetAddComponent<Backgroundable*>(layout->get_gameObject());
+            bg->ApplyBackgroundWithAlpha(il2cpp_utils::createcsstr("title-gradient"), 1.0f);
+
+            ImageView* imageView = bg->get_gameObject()->GetComponent<ImageView*>();
+            imageView->gradient = true;
+            imageView->gradientDirection = 1;
+            imageView->set_color(Color::get_white());
+            Color color = Color::get_black();
+            color.a = 0.3f;
+            imageView->set_color0(color);
+            color.a = 0.7f;
+            imageView->set_color1(color);
+            imageView->curvedCanvasSettingsHelper->Reset();
+        }
+        
+        UpdatePreview(masterConfig.saberConfigRedo);
+        masterConfig.saberConfigRedo = false;
     }
 
     void SaberPreviewViewController::Init(SaberManager* saberManager, ColorManager* colorManager)
@@ -67,7 +93,7 @@ namespace Qosmetics::UI
         previewElement->ClearPreview();
     }
 
-    void SaberPreviewViewController::UpdatePreview()
+    void SaberPreviewViewController::UpdatePreview(bool reinstantiate)
     {
         INFO("Updating preview");
         if (!modelManager)
@@ -81,14 +107,16 @@ namespace Qosmetics::UI
 
         if (item.get_descriptor().isValid())
         {
-            title->set_text(il2cpp_utils::createcsstr("<i>" + item.get_descriptor().get_name() + "</i>"));
-            previewElement->ClearPreview();
-            previewElement->UpdatePreview();
+            std::string itemName = DateUtils::get_isMonth(6) ? "<i>" + TextUtils::rainbowify(item.get_descriptor().get_name()) + "</i>" : "<i>" + item.get_descriptor().get_name() + "</i>";
+            title->set_text(il2cpp_utils::createcsstr(itemName));
+            previewElement->UpdatePreview(reinstantiate);
         }
-        else // default saber
+        else // default Saber
         {
-            title->set_text(il2cpp_utils::createcsstr("<i>Default Saber (no preview)</i>"));
+            std::string itemName = DateUtils::get_isMonth(6) ? "<i>" + TextUtils::rainbowify("Default Saber (no preview)") + "</i>" : "<i>Default Saber (no preview)</i>";
+            title->set_text(il2cpp_utils::createcsstr(itemName));
             previewElement->ClearPreview();
         }
+        Pointer::UpdateAll(reinstantiate);
     }
 }

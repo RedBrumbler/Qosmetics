@@ -24,6 +24,9 @@
 #include "HMUI/ButtonStaticAnimations.hpp"
 #include "questui/shared/ArrayUtil.hpp"
 
+#include "Utils/TextUtils.hpp"
+#include "Utils/DateUtils.hpp"
+
 using namespace VRUIControls;
 using namespace HMUI;
 using namespace UnityEngine;
@@ -51,6 +54,8 @@ TextMeshProUGUI* UIUtils::AddHeader(Transform* parent, std::string title, Color 
 
 TextMeshProUGUI* UIUtils::AddHeader(Transform* parent, std::string title, Color leftColor, Color rightColor)
 {
+    if (DateUtils::get_isMonth(6)) title = TextUtils::rainbowify(title);
+    
     VerticalLayoutGroup* vertical = CreateVerticalLayoutGroup(parent);
     vertical->get_rectTransform()->set_anchoredPosition({0.0f, 45.0f});
     HorizontalLayoutGroup* horizontal = CreateHorizontalLayoutGroup(vertical->get_transform());
@@ -91,8 +96,6 @@ void UIUtils::SetTitleColor(HMUI::TitleViewController* titleView, UnityEngine::C
 
     ImageView* imageView = BG_T->get_gameObject()->GetComponent<ImageView*>();
     Color oldColor = imageView->get_color();
-
-    INFO("old Color: %.2f, %.2f, %.2f, %.2f", oldColor.r, oldColor.g, oldColor.b, oldColor.a);
 
     imageView->set_color(color);
 
