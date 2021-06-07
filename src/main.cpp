@@ -73,9 +73,6 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
         CreatorCache::Download();
         // async pog
         PatronCache::Download();
-
-        // create 1 instance
-        SingletonContainer::Init();
     }
 
     if (activeSceneName == "GameCore")

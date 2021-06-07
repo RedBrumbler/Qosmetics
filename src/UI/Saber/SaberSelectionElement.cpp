@@ -102,7 +102,8 @@ namespace Qosmetics::UI
     {
         SaberItem& item = modelManager->get_item();
         // if selected was the current, set to default
-        if (item.get_descriptor().GetFileName() == descriptor->GetFileName()) modelManager->SetDefault();
+        std::string filePath = item.get_descriptor().GetFileName();
+        if (filePath == descriptor->GetFileName()) modelManager->SetDefault();
         Object::Destroy(get_gameObject());
     }
     

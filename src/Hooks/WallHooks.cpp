@@ -39,7 +39,7 @@ MAKE_HOOK_OFFSETLESS(MirroredObstacleController_Mirror, void, GlobalNamespace::M
     wall->Replace();
 }
 
-MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleController* self, GlobalNamespace::ObstacleData obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
+MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleController* self, GlobalNamespace::ObstacleData* obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
 {
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
     Qosmetics::Wall* wall = self->get_gameObject()->GetComponent<Qosmetics::Wall*>();

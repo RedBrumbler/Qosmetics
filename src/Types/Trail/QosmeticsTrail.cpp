@@ -31,6 +31,7 @@ namespace Qosmetics
 {
     void QosmeticsTrail::ctor()
     {
+        INVOKE_CTOR();
         auto origCtor = il2cpp_utils::FindMethod(classof(GlobalNamespace::SaberTrail*), ".ctor");
         if (origCtor) 
         {

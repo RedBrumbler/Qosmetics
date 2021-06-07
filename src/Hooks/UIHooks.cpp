@@ -84,6 +84,10 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, GlobalNamespace::Mai
     if (firstActivation)
     {
         atLeastMenu = true;
+        
+        // create 1 instance
+        SingletonContainer::Init();
+
         SingletonContainer::get_saberManager();
         SingletonContainer::get_noteManager();
         SingletonContainer::get_wallManager();
