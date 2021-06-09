@@ -44,7 +44,8 @@ namespace Qosmetics
             
             UnityEngine::GameObject* get_prefab()
             {
-                return prefab;
+                if (!prefabWrapper) return nullptr;
+                return prefabWrapper->prefab;
             }
 
             ItemType get_type()
@@ -64,8 +65,8 @@ namespace Qosmetics
             
             virtual ~QosmeticItem()
             {
-                //prefabWrapper->Finalize();
-                UnityEngine::Object::Destroy(prefab);
+                prefabWrapper->Finalize();
+                //UnityEngine::Object::Destroy(prefab);
             }
             
 
@@ -80,9 +81,9 @@ namespace Qosmetics
             bool ConfigLoaded = false;
             Descriptor& descriptor;
             ModelLoader modelProvider = ModelLoader(this);
-            //SafePtr<FuckYouGC> prefabWrapper;
+            SafePtr<FuckYouGC> prefabWrapper;
 
-            UnityEngine::GameObject* prefab = nullptr;
+            //UnityEngine::GameObject* prefab = nullptr;
             ItemConfig config;
     };
 }

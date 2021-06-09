@@ -92,6 +92,12 @@ namespace Qosmetics::UI
 
     void SaberSelectionElement::Select()
     {
+        if (!fileexists(descriptor->get_filePath()))
+        {
+            Delete();
+            return;
+        }
+
         std::string saberName = descriptor->GetFileName();
         previewViewController->ShowLoading();
         modelManager->SetActiveSaber(saberName, true);
@@ -102,8 +108,14 @@ namespace Qosmetics::UI
     {
         SaberItem& item = modelManager->get_item();
         // if selected was the current, set to default
-        std::string filePath = item.get_descriptor().GetFileName();
-        if (filePath == descriptor->GetFileName()) modelManager->SetDefault();
+        if (item.get_descriptor().GetFileName() == descriptor->GetFileName()) 
+        {
+            modelManager->SetDefault();
+            previewViewController->UpdatePreview();
+        }
+        
+        std::string filePath = item.get_descriptor().get_filePath();
+        if (fileexists(filePath)) deletefile(filePath);
         Object::Destroy(get_gameObject());
     }
     

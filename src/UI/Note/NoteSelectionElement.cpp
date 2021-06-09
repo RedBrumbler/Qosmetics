@@ -92,6 +92,12 @@ namespace Qosmetics::UI
 
     void NoteSelectionElement::Select()
     {
+        if (!fileexists(descriptor->get_filePath()))
+        {
+            Delete();
+            return;
+        }
+
         std::string noteName = descriptor->GetFileName();
         previewViewController->ShowLoading();
         modelManager->SetActiveNote(noteName, true);
@@ -107,6 +113,9 @@ namespace Qosmetics::UI
             modelManager->SetDefault();
             previewViewController->UpdatePreview();
         }
+        
+        std::string filePath = item.get_descriptor().get_filePath();
+        if (fileexists(filePath)) deletefile(filePath);
         Object::Destroy(get_gameObject());
     }
     

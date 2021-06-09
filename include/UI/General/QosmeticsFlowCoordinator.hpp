@@ -49,13 +49,10 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallManager*, wallManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::ColorManager*, colorManager, nullptr);
 
-    DECLARE_INSTANCE_FIELD_DEFAULT(Zenject::DiContainer*, container, nullptr);
-
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
     
-    DECLARE_METHOD(void, Init,  UnityEngine::EventSystems::BaseInputModule* inputModule,
-                                SaberSwitcherViewController* saberSwitcherViewController,
+    DECLARE_METHOD(void, Init,  SaberSwitcherViewController* saberSwitcherViewController,
                                 SaberSettingsViewController* saberSettingsViewController,
                                 SaberPreviewViewController* saberPreviewViewController,
                                 NoteSwitcherViewController* noteSwitcherViewController,
@@ -95,8 +92,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
         REGISTER_FIELD(noteManager);
         REGISTER_FIELD(wallManager);
         REGISTER_FIELD(colorManager);
-
-        REGISTER_FIELD(container);
 
         REGISTER_METHOD(Init);
         REGISTER_METHOD(DidActivate);

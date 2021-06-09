@@ -42,6 +42,7 @@
 #include "UI/General/QosmeticsFlowCoordinator.hpp"
 #include "UI/General/QosmeticsViewController.hpp"
 #include "UI/General/UserProfileViewController.hpp"
+#include "UI/General/ContainerFindType.hpp"
 
 /*
 #include "Installers/GameInstaller.hpp"
@@ -50,6 +51,7 @@
 
 #include "Containers/FlowCoordinatorContainer.hpp"
 */
+
 #include "Containers/SingletonContainer.hpp"
 #include "custom-types/shared/register.hpp"
 
@@ -72,7 +74,7 @@ void RegisterTypes()
     custom_types::Register::RegisterTypes<SaberSwitcherViewController, NoteSwitcherViewController, WallSwitcherViewController>();
     custom_types::Register::RegisterTypes<SaberSettingsViewController, NoteSettingsViewController, WallSettingsViewController>();
     custom_types::Register::RegisterTypes<SaberSelectionElement, NoteSelectionElement, WallSelectionElement>();
-    custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController, FloorLogoViewController, UserProfileViewController>();
+    custom_types::Register::RegisterTypes<QosmeticsViewController, PatronViewController, FloorLogoViewController, UserProfileViewController, ContainerFindType>();
 
     custom_types::Register::RegisterType<QosmeticsFlowCoordinator>();
     

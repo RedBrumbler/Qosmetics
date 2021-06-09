@@ -9,7 +9,6 @@
 DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, Il2CppObject,     
     DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
     DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
-    DECLARE_METHOD(void, FromFilePath, Il2CppString* filePath);
     DECLARE_METHOD(void, SetDefault);
 
     DECLARE_METHOD(static Il2CppString*, get_coreName);
@@ -28,6 +27,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, Il2CppObject,
     public:
         void internalSetActiveModel(std::string name, bool load = false);
         void SetActiveWall(std::string name, bool load = false);
+        void FromFilePath(std::string path, bool load = false);
         ItemType get_type();
         WallItem& get_item();
         
@@ -44,7 +44,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, WallManager, Il2CppObject,
         REGISTER_METHOD(GetActivePrefab);        
         REGISTER_METHOD(SetActiveModel);
         REGISTER_METHOD(SetDefault);     
-        REGISTER_METHOD(FromFilePath);     
         REGISTER_METHOD(ctor);     
 
         REGISTER_METHOD(get_coreName);

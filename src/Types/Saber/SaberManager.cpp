@@ -23,8 +23,15 @@ namespace Qosmetics
     {
         this->activeItem = nullptr;
         if (config.lastActiveSaber != "")
-            SetActiveSaber(config.lastActiveSaber, true);    
-        else SetDefault();
+        {
+            Descriptor& descriptor = DescriptorCache::GetDescriptor(config.lastActiveSaber);
+            if (descriptor.isValid() && fileexists(descriptor.get_filePath()))
+            {
+                SetActiveSaber(config.lastActiveSaber, true);    
+                return;
+            }
+        }
+        SetDefault();
     }
 
     GameObject* SaberManager::GetActivePrefab()
@@ -41,11 +48,9 @@ namespace Qosmetics
         internalSetActiveModel(name, true);
     }
 
-    void SaberManager::FromFilePath(Il2CppString* filePath)
+    void SaberManager::FromFilePath(std::string path, bool load)
     {
-        if (!filePath) return;
         if (getenv("saberlocked")) return;
-        std::string path = to_utf8(csstrtostr(filePath));
         if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
         
         Descriptor* desc = new Descriptor(path);
@@ -59,7 +64,7 @@ namespace Qosmetics
 
         if (this->activeItem) delete(this->activeItem);
         this->activeItem = new SaberItem(*desc, false);
-        this->activeItem->Load();
+        if (load) this->activeItem->Load();
         INFO("Active Item Set!");
     }
 

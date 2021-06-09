@@ -34,8 +34,15 @@ namespace Qosmetics
     {
         this->activeItem = nullptr;
         if (config.lastActiveWall != "")
-            SetActiveWall(config.lastActiveWall, true);
-        else SetDefault();
+        {
+            Descriptor& descriptor = DescriptorCache::GetDescriptor(config.lastActiveWall);
+            if (descriptor.isValid() && fileexists(descriptor.get_filePath()))
+            {
+                SetActiveWall(config.lastActiveWall, true);    
+                return;
+            }
+        }
+        SetDefault();
     }
     
     GameObject* WallManager::GetActivePrefab()
@@ -57,11 +64,9 @@ namespace Qosmetics
         activeItem = new WallItem(DescriptorCache::GetDescriptor(""));
     }
 
-    void WallManager::FromFilePath(Il2CppString* filePath)
+    void WallManager::FromFilePath(std::string path, bool load)
     {
-        if (!filePath) return;
         if (getenv("walllocked")) return;
-        std::string path = to_utf8(csstrtostr(filePath));
         if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
         
         Descriptor* desc = new Descriptor(path);
@@ -75,7 +80,7 @@ namespace Qosmetics
 
         if (this->activeItem) delete(this->activeItem);
         this->activeItem = new WallItem(*desc, false);
-        this->activeItem->Load();
+        if (load) this->activeItem->Load();
         INFO("Active Item Set!");
     }
 

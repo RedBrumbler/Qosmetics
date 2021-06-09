@@ -100,7 +100,7 @@ namespace Qosmetics
         ItemType type = Descriptor::GetTypeFromName(fileName);
         if (type == ItemType::invalid) return invalid;
         return GetDescriptorFromMap(fileName, descriptors[type]);
-
+        
         /*
         switch (type)
         {

@@ -56,20 +56,19 @@ namespace Qosmetics
         if (!instance->qosmeticsFlowCoordinator) 
         {
             instance->qosmeticsFlowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<QosmeticsFlowCoordinator*>();
-            instance->qosmeticsFlowCoordinator->Init(nullptr,
-                                            get_saberSwitcherViewController(), 
-                                            get_saberSettingsViewController(), 
-                                            get_saberPreviewViewController(), 
-                                            get_noteSwitcherViewController(),
-                                            get_noteSettingsViewController(),
-                                            get_notePreviewViewController(),
-                                            get_wallSwitcherViewController(),
-                                            get_wallSettingsViewController(),
-                                            get_wallPreviewViewController(),
-                                            get_patronViewController(),
-                                            get_qosmeticsViewController(),
-                                            get_floorLogoViewController(),
-                                            get_userProfileViewController());
+            instance->qosmeticsFlowCoordinator->Init(   get_saberSwitcherViewController(), 
+                                                        get_saberSettingsViewController(), 
+                                                        get_saberPreviewViewController(), 
+                                                        get_noteSwitcherViewController(),
+                                                        get_noteSettingsViewController(),
+                                                        get_notePreviewViewController(),
+                                                        get_wallSwitcherViewController(),
+                                                        get_wallSettingsViewController(),
+                                                        get_wallPreviewViewController(),
+                                                        get_patronViewController(),
+                                                        get_qosmeticsViewController(),
+                                                        get_floorLogoViewController(),
+                                                        get_userProfileViewController());
         }
 
         return instance->qosmeticsFlowCoordinator;

@@ -76,7 +76,9 @@ namespace Qosmetics::UI
 
             ProvideInitialViewControllers(qosmeticsViewController, userProfileViewController, patronViewController, floorLogoViewController, nullptr);
         }
-
+        
+        patronViewController->get_gameObject()->SetActive(true);
+        //SetRightScreenViewController(patronViewController, ViewController::AnimationType::Out);
         TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();
         UIUtils::SetTitleColor(titleView, Color(0.3f, 0.15f, 0.6f, 1.0f));
     }
@@ -126,13 +128,14 @@ namespace Qosmetics::UI
         }
         else 
         {
+            patronViewController->get_gameObject()->SetActive(false);
+            SetRightScreenViewController(nullptr, ViewController::AnimationType::Out);
             this->parentFlowCoordinator->DismissFlowCoordinator(this, ViewController::AnimationDirection::Horizontal, nullptr, false);
             UIUtils::SetTitleColor(titleView, Color(0.0f, 0.75f, 1.0f, 1.0f), true);
         }
     }
 
-    void QosmeticsFlowCoordinator::Init(UnityEngine::EventSystems::BaseInputModule* inputModule,
-                                        SaberSwitcherViewController* saberSwitcherViewController,
+    void QosmeticsFlowCoordinator::Init(SaberSwitcherViewController* saberSwitcherViewController,
                                         SaberSettingsViewController* saberSettingsViewController,
                                         SaberPreviewViewController* saberPreviewViewController,
                                         NoteSwitcherViewController* noteSwitcherViewController,

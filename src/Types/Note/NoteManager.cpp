@@ -30,12 +30,19 @@ return UnityEngine::Object::Instantiate(object)
 
 namespace Qosmetics
 {
-    void NoteManager::ctor() 
+    void NoteManager::ctor()
     {
         this->activeItem = nullptr;
         if (config.lastActiveNote != "")
-            SetActiveNote(config.lastActiveNote, true);
-        else SetDefault();
+        {
+            Descriptor& descriptor = DescriptorCache::GetDescriptor(config.lastActiveNote);
+            if (descriptor.isValid() && fileexists(descriptor.get_filePath()))
+            {
+                SetActiveNote(config.lastActiveNote, true);    
+                return;
+            }
+        }
+        SetDefault();
     }
 
     GameObject* NoteManager::GetActivePrefab()
@@ -51,11 +58,9 @@ namespace Qosmetics
         internalSetActiveModel(name, true);
     }
 
-    void NoteManager::FromFilePath(Il2CppString* filePath)
+    void NoteManager::FromFilePath(std::string path, bool load)
     {
-        if (!filePath) return;
         if (getenv("notelocked")) return;
-        std::string path = to_utf8(csstrtostr(filePath));
         if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
         
         Descriptor* desc = new Descriptor(path);
@@ -69,7 +74,7 @@ namespace Qosmetics
 
         if (this->activeItem) delete(this->activeItem);
         this->activeItem = new NoteItem(*desc, false);
-        this->activeItem->Load();
+        if (load) this->activeItem->Load();
         INFO("Active Item Set!");
     }
 

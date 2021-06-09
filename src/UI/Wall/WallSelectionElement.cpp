@@ -17,7 +17,6 @@
 
 #include "QosmeticsLogger.hpp"
 
-#include "System/Collections/IEnumerator.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -92,6 +91,12 @@ namespace Qosmetics::UI
 
     void WallSelectionElement::Select()
     {
+        if (!fileexists(descriptor->get_filePath()))
+        {
+            Delete();
+            return;
+        }
+
         std::string wallName = descriptor->GetFileName();
         previewViewController->ShowLoading();
         modelManager->SetActiveWall(wallName, true);
@@ -107,6 +112,9 @@ namespace Qosmetics::UI
             modelManager->SetDefault();
             previewViewController->UpdatePreview();
         }
+
+        std::string filePath = item.get_descriptor().get_filePath();
+        if (fileexists(filePath)) deletefile(filePath);
         Object::Destroy(get_gameObject());
     }
     

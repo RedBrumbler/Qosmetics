@@ -10,9 +10,10 @@
       ],
       "includePath": [
         "${workspaceFolder}/**",
-        "d:/il2cpp/libil2cpp",
-        "d:/android-ndk-r21-windows-x86_64/android-ndk-r21/**",
+        "${workspaceFolder}/extern/il2cpp/libil2cpp",
+        "D:/NDK/android-ndk-r22b-windows-x86_64/android-ndk-r22b/**",
         "${workspaceFolder}/shared",
+        "${workspaceFolder}/include",
         "${workspaceFolder}/extern",
         "${workspaceFolder}/extern/codegen/include/**"
       ],

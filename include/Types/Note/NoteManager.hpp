@@ -7,11 +7,7 @@
 DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,     
     DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
     DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
-    DECLARE_METHOD(void, FromFilePath, Il2CppString* filePath);
     DECLARE_METHOD(void, SetDefault);
-    //DECLARE_OVERRIDE_METHOD(UnityEngine::GameObject*, GetActivePrefab, il2cpp_utils::FindMethodUnsafe("Qosmetics", "ModelManager", "GetActivePrefab", 0));
-    //DECLARE_OVERRIDE_METHOD(void, SetActiveModel, il2cpp_utils::FindMethodUnsafe("Qosmetics", "ModelManager", "SetActiveModel", 1), Il2CppString* csname);
-    //DECLARE_OVERRIDE_METHOD(void, SetDefault, il2cpp_utils::FindMethodUnsafe("Qosmetics", "ModelManager", "SetDefault", 0));
 
     DECLARE_METHOD(UnityEngine::Transform*, get_leftArrow);    
     DECLARE_METHOD(UnityEngine::Transform*, get_rightArrow);    
@@ -33,6 +29,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,
     public:
         void internalSetActiveModel(std::string name, bool load = false);
         void SetActiveNote(std::string name, bool load);
+        void FromFilePath(std::string path, bool load);
         ItemType get_type();
         NoteItem& get_item();
         
@@ -42,7 +39,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,
         REGISTER_METHOD(ctor);
         REGISTER_METHOD(SetActiveModel);
         REGISTER_METHOD(GetActivePrefab);
-        REGISTER_METHOD(FromFilePath);
         REGISTER_METHOD(SetDefault);
 
         REGISTER_METHOD(get_leftArrow);    

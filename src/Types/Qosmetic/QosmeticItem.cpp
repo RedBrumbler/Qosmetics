@@ -22,15 +22,11 @@ namespace Qosmetics
         Object::DontDestroyOnLoad(instantiated);
         MaterialUtils::ReplaceMaterialsForGameObject(instantiated);
         
-        this->prefab = instantiated;
-        this->prefab->SetActive(false);
-
-        /*
-        this->prefabWrapper = *il2cpp_utils::New<FuckYouGC*, il2cpp_utils::CreationType::Manual>();
+        this->prefabWrapper = *il2cpp_utils::New<FuckYouGC*>();
         this->prefabWrapper->prefab = instantiated;
-        */
+        this->prefabWrapper->prefab->SetActive(false);
 
-        MaterialUtils::PrewarmAllShadersOnObject(prefab);
+        MaterialUtils::PrewarmAllShadersOnObject(this->prefabWrapper->prefab);
         //this->prefabWrapper->prefab->SetActive(false);
         GOloaded = true;
         INFO("Prefab Loaded");
