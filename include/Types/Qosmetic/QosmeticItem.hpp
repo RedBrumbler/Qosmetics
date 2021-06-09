@@ -65,7 +65,8 @@ namespace Qosmetics
             
             virtual ~QosmeticItem()
             {
-                prefabWrapper->Finalize();
+                if (prefabWrapper)
+                    prefabWrapper->Finalize();
                 //UnityEngine::Object::Destroy(prefab);
             }
             
