@@ -1,14 +1,18 @@
 #include "Containers/SingletonContainer.hpp"
 #include "questui/shared/QuestUI.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/Object.hpp"
 
 DEFINE_TYPE(Qosmetics::SingletonContainer);
 
 using namespace Qosmetics::UI;
+using namespace UnityEngine;
 
 namespace Qosmetics
 {
-    SafePtr<SingletonContainer> SingletonContainer::instance = SafePtr<SingletonContainer>();
+    //SafePtr<SingletonContainer>* SingletonContainer::instance = nullptr;
+    SingletonContainer* SingletonContainer::instance = nullptr;
     void SingletonContainer::ctor()
     {
         qosmeticsFlowCoordinator = nullptr;
@@ -35,16 +39,46 @@ namespace Qosmetics
         userProfileViewController = nullptr;
     }
 
+    void SingletonContainer::Delete()
+    {
+        instance->qosmeticsFlowCoordinator = nullptr;
+        instance->saberSwitcherViewController = nullptr;
+        instance->saberSettingsViewController = nullptr;
+        instance->saberPreviewViewController = nullptr;
+
+        instance->noteSwitcherViewController = nullptr;
+        instance->noteSettingsViewController = nullptr;
+        instance->notePreviewViewController = nullptr;
+
+        instance->wallSwitcherViewController = nullptr;
+        instance->wallSettingsViewController = nullptr;
+        instance->wallPreviewViewController = nullptr;
+
+        instance->qosmeticsViewController = nullptr;
+        instance->patronViewController = nullptr;
+        instance->floorLogoViewController = nullptr;
+        instance->userProfileViewController = nullptr;
+
+        /*
+        if (instance)
+        {
+            free(instance);
+            instance = nullptr;
+        }
+        */
+    }
     void SingletonContainer::Init()
     {
-        instance = *il2cpp_utils::New<SingletonContainer*>();
+        //if (!instance) instance = new SafePtr<SingletonContainer>();
+        if (!instance) instance = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
     }
 
     SingletonContainer* SingletonContainer::get_instance()
     {
-        if (!instance)
+        if (!instance)// || !instance->operator bool())
         {
-            instance = *il2cpp_utils::New<SingletonContainer*>();
+            //if (!instance) instance = new SafePtr<SingletonContainer>();
+            instance = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
         }
 
         return (SingletonContainer*)instance;
@@ -53,9 +87,11 @@ namespace Qosmetics
     Qosmetics::UI::QosmeticsFlowCoordinator* SingletonContainer::get_qosmeticsFlowCoordinator()
     {
         SingletonContainer* instance = get_instance();
+
         if (!instance->qosmeticsFlowCoordinator) 
         {
             instance->qosmeticsFlowCoordinator = QuestUI::BeatSaberUI::CreateFlowCoordinator<QosmeticsFlowCoordinator*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->qosmeticsFlowCoordinator->get_gameObject());
             instance->qosmeticsFlowCoordinator->Init(   get_saberSwitcherViewController(), 
                                                         get_saberSettingsViewController(), 
                                                         get_saberPreviewViewController(), 
@@ -124,6 +160,7 @@ namespace Qosmetics
         if (!instance->saberSwitcherViewController)
         {
             instance->saberSwitcherViewController = QuestUI::BeatSaberUI::CreateViewController<SaberSwitcherViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->saberSwitcherViewController->get_gameObject());
             instance->saberSwitcherViewController->Init(get_saberManager(), get_saberPreviewViewController());
         }
         
@@ -136,6 +173,7 @@ namespace Qosmetics
         if (!instance->saberSettingsViewController)
         {
             instance->saberSettingsViewController = QuestUI::BeatSaberUI::CreateViewController<SaberSettingsViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->saberSettingsViewController->get_gameObject());
             instance->saberSettingsViewController->Init(get_saberPreviewViewController());
         }
         
@@ -148,6 +186,7 @@ namespace Qosmetics
         if (!instance->saberPreviewViewController)
         {
             instance->saberPreviewViewController = QuestUI::BeatSaberUI::CreateViewController<SaberPreviewViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->saberPreviewViewController->get_gameObject());
             instance->saberPreviewViewController->Init(get_saberManager(), get_colorManager());
         }
         
@@ -161,6 +200,7 @@ namespace Qosmetics
         if (!instance->noteSwitcherViewController)
         {
             instance->noteSwitcherViewController = QuestUI::BeatSaberUI::CreateViewController<NoteSwitcherViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->noteSwitcherViewController->get_gameObject());
             instance->noteSwitcherViewController->Init(get_noteManager(), get_notePreviewViewController());
         }
         
@@ -173,6 +213,7 @@ namespace Qosmetics
         if (!instance->noteSettingsViewController)
         {
             instance->noteSettingsViewController = QuestUI::BeatSaberUI::CreateViewController<NoteSettingsViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->noteSettingsViewController->get_gameObject());
             instance->noteSettingsViewController->Init(get_notePreviewViewController());
         }
         
@@ -185,6 +226,7 @@ namespace Qosmetics
         if (!instance->notePreviewViewController)
         {
             instance->notePreviewViewController = QuestUI::BeatSaberUI::CreateViewController<NotePreviewViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->notePreviewViewController->get_gameObject());
             instance->notePreviewViewController->Init(get_noteManager(), get_colorManager());
         }
         
@@ -197,6 +239,7 @@ namespace Qosmetics
         if (!instance->wallSwitcherViewController)
         {
             instance->wallSwitcherViewController = QuestUI::BeatSaberUI::CreateViewController<WallSwitcherViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->wallSwitcherViewController->get_gameObject());
             instance->wallSwitcherViewController->Init(get_wallManager(), get_wallPreviewViewController());
         }
         
@@ -209,6 +252,7 @@ namespace Qosmetics
         if (!instance->wallSettingsViewController)
         {
             instance->wallSettingsViewController = QuestUI::BeatSaberUI::CreateViewController<WallSettingsViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->wallSettingsViewController->get_gameObject());
             instance->wallSettingsViewController->Init(get_wallPreviewViewController());
         }
         
@@ -221,6 +265,7 @@ namespace Qosmetics
         if (!instance->wallPreviewViewController)
         {
             instance->wallPreviewViewController = QuestUI::BeatSaberUI::CreateViewController<WallPreviewViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->wallPreviewViewController->get_gameObject());
             instance->wallPreviewViewController->Init(get_wallManager(), get_colorManager());
         }
         
@@ -233,6 +278,7 @@ namespace Qosmetics
         if (!instance->qosmeticsViewController)
         {
             instance->qosmeticsViewController = QuestUI::BeatSaberUI::CreateViewController<QosmeticsViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->qosmeticsViewController->get_gameObject());
             instance->qosmeticsViewController->Init();
         }
         
@@ -245,6 +291,7 @@ namespace Qosmetics
         if (!instance->patronViewController)
         {
             instance->patronViewController = QuestUI::BeatSaberUI::CreateViewController<PatronViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->patronViewController->get_gameObject());
             instance->patronViewController->Init();
         }
         
@@ -257,6 +304,7 @@ namespace Qosmetics
         if (!instance->floorLogoViewController)
         {
             instance->floorLogoViewController = QuestUI::BeatSaberUI::CreateViewController<FloorLogoViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->floorLogoViewController->get_gameObject());
             instance->floorLogoViewController->Init();
         }
         
@@ -269,6 +317,7 @@ namespace Qosmetics
         if (!instance->userProfileViewController)
         {
             instance->userProfileViewController = QuestUI::BeatSaberUI::CreateViewController<UserProfileViewController*>();
+            UnityEngine::Object::DontDestroyOnLoad(instance->userProfileViewController->get_gameObject());
             instance->userProfileViewController->Init(get_saberManager(), get_noteManager(), get_wallManager());
         }
         

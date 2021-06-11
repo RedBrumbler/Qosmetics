@@ -3,6 +3,7 @@
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
 #include "HMUI/ViewController_AnimationType.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
 
 #include "Containers/SingletonContainer.hpp"
 
@@ -93,8 +94,16 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, GlobalNamespace::Mai
         SingletonContainer::get_wallManager();
 
         Qosmetics::Pointer::AddToAll();
+
+        GameObject* newObj = GameObject::New_ctor();
+        Object::DontDestroyOnLoad(newObj);
+
+        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(newObj->get_transform(), "fuckoff", [](){});
+        Object::DontDestroyOnLoad(button->get_gameObject());
+        button->get_gameObject()->set_name(il2cpp_utils::newcsstr("QosmeticsTemplateButton"));
     }
 }
+
 MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamespace::GameplaySetupViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     GameplaySetupViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
@@ -103,6 +112,7 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
         UISetup::SetupFlowCoordinatorAtGameplay(self);
     }
 }
+
 void installUIHooks(LoggerContextObject& logger)
 {
     INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));

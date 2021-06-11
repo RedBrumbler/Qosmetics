@@ -40,7 +40,7 @@ namespace NoteUtils
 
     void SetNoteSize(Transform* transform)
     {
-        if (!transform || !config.noteConfig.overrideNoteSize) return;
+        if (!transform || (!config.noteConfig.overrideNoteSize && !PlayerSettings::get_SmallNotes())) return;
         Vector3 size = Vector3::get_one() * (float)config.noteConfig.noteSize * (PlayerSettings::get_SmallNotes() ? 0.5f : 1.0f);
         transform->set_localScale(size);
 
@@ -48,7 +48,7 @@ namespace NoteUtils
         {
             if (!BigCuttable) BigCuttable = il2cpp_utils::createcsstr("BigCuttable", il2cpp_utils::StringType::Manual); 
             if (!SmallCuttable) SmallCuttable = il2cpp_utils::createcsstr("SmallCuttable", il2cpp_utils::StringType::Manual); 
-            
+
             Transform* bigCuttable = transform->Find(BigCuttable);
             Transform* smallCuttable = transform->Find(SmallCuttable);
 

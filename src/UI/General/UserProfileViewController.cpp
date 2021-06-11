@@ -109,7 +109,7 @@ namespace Qosmetics::UI
             layoutelem->set_preferredHeight(8.0f);
             layoutelem->set_preferredWidth(50.0f);
 
-            Button* confirmAdd = BeatSaberUI::CreateUIButton(hor->get_transform(), "Add User", [textField, trailDropdown]{
+            Button* confirmAdd = BeatSaberUI::CreateUIButton(hor->get_transform(), "Add User", "QosmeticsTemplateButton", [textField, trailDropdown]{
                 std::vector<std::string>& configs = Config::get_configNames();
                 Il2CppString* newUserCS = textField->get_text();
                 std::string newUser = to_utf8(csstrtostr(newUserCS));

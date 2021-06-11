@@ -153,6 +153,8 @@ namespace Qosmetics
                 customNote->get_gameObject()->SetActive((int)noteType == i);
             }
         }
+        
+        NoteUtils::SetNoteSize(noteCubeTransform);
         UpdateColors();
     }
 

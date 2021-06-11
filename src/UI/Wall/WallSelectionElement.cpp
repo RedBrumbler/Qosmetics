@@ -63,14 +63,14 @@ static void SetupAuthor(VerticalLayoutGroup* layout, std::string author)
 
 static void SetupSelect(HorizontalLayoutGroup* layout, WallSelectionElement* self)
 {
-    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#88ff88>select</color>", [self]{
+    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#88ff88>select</color>", "QosmeticsTemplateButton", [self]{
         self->Select();
     });
 }
 
 static void SetupDelete(HorizontalLayoutGroup* layout, WallSelectionElement* self)
 {
-    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", [self]{
+    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", "QosmeticsTemplateButton", [self]{
         self->Delete();
     });
 }

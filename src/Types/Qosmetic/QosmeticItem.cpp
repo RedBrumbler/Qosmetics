@@ -1,6 +1,7 @@
 #include "Types/Qosmetic/QosmeticItem.hpp"
 #include "QosmeticsLogger.hpp"
 #include "Utils/MaterialUtils.hpp"
+#include "Utils/UnityUtils.hpp"
 #include "Types/Utils/FuckYouGC.hpp"
 
 using namespace UnityEngine;
@@ -17,7 +18,7 @@ namespace Qosmetics
             ERROR("GameObject was nullptr");
             return;
         }
-
+        UnityUtils::SanitizePrefab(gameObject);
         GameObject* instantiated = Object::Instantiate(gameObject);
         Object::DontDestroyOnLoad(instantiated);
         MaterialUtils::ReplaceMaterialsForGameObject(instantiated);

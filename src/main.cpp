@@ -29,6 +29,7 @@
 #include "GlobalNamespace/ColorSchemeSO.hpp"
 #include "GlobalNamespace/GameplayCoreSceneSetupData.hpp"
 
+#include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "GlobalNamespace/GameplayModifiers.hpp"
 #include "GlobalNamespace/PlayerSpecificSettings.hpp"
 #include "Containers/SingletonContainer.hpp"
@@ -107,9 +108,10 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     return result;
 }
 
-MAKE_HOOK_OFFSETLESS(GameplayCoreSceneSetupData_ctor, void, GlobalNamespace::GameplayCoreSceneSetupData* self, Il2CppObject* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, Il2CppObject* gameplayModifiers, Il2CppObject* playerSpecificSettings, Il2CppObject* practiceSettings, bool useTestNoteCutSoundEffects, Il2CppObject* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
+MAKE_HOOK_OFFSETLESS(GameplayCoreSceneSetupData_ctor, void, GlobalNamespace::GameplayCoreSceneSetupData* self, Il2CppObject* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, GlobalNamespace::GameplayModifiers* gameplayModifiers, Il2CppObject* playerSpecificSettings, Il2CppObject* practiceSettings, bool useTestNoteCutSoundEffects, Il2CppObject* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
 {
     SingletonContainer::get_colorManager()->SetColorSchemeFromBase(colorScheme);
+    PlayerSettings::CheckForIllegalModifiers(gameplayModifiers);
     GameplayCoreSceneSetupData_ctor(self, difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, environmentInfo, colorScheme);
 }
 
@@ -120,6 +122,12 @@ MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, Global
     PlayerSettings::CheckForIllegalModifiers(gamePlayModifiers);
     PlayerSettings::CheckReducedDebris(playerSpecificSettings);
     Qosmetics::QosmeticsTrail::trailIntensity = playerSpecificSettings->get_saberTrailIntensity();
+}
+
+MAKE_HOOK_OFFSETLESS(MenuTransitionsHelper_RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, Il2CppObject* finishCallback)
+{
+    SingletonContainer::Delete();
+    MenuTransitionsHelper_RestartGame(self, finishCallback);
 }
 
 #define copyFile(in, out) \
@@ -182,6 +190,7 @@ extern "C" void load()
     INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));
     INSTALL_HOOK_OFFSETLESS(logger, StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 10));
     INSTALL_HOOK_OFFSETLESS(logger, GameplayCoreSceneSetupData_ctor, il2cpp_utils::FindMethodUnsafe("", "GameplayCoreSceneSetupData", ".ctor", 8));
+    INSTALL_HOOK_OFFSETLESS(logger, MenuTransitionsHelper_RestartGame, il2cpp_utils::FindMethodUnsafe("", "MenuTransitionsHelper", "RestartGame", 1));
 
     installNoteHooks(logger);
     installSaberHooks(logger);

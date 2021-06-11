@@ -77,7 +77,7 @@ namespace Qosmetics::UI
                     SaveConfig();
                 });
                 
-            CreateUIButton(topButtonGroup->get_transform(), "Reload", 
+            CreateUIButton(topButtonGroup->get_transform(), "Reload", "QosmeticsTemplateButton", 
                 [&](){
                     // save the cache and load it, which makes it check for new files
                     DescriptorCache::Save();

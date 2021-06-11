@@ -54,4 +54,5 @@ class UnityUtils
         
         static void SetLayerRecursive(UnityEngine::Transform* object, int layer);
         static void SetLayerRecursive(UnityEngine::GameObject* object, int layer);
+        static void SanitizePrefab(UnityEngine::GameObject* prefab);
 };

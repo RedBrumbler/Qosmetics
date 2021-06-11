@@ -90,16 +90,18 @@ namespace Qosmetics
         if (!RightPointer) RightPointer = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("RightPointer");
         
         Transform* prefab = isLeft ? modelManager->get_leftSaber() : modelManager->get_rightSaber();
-        Il2CppString* name = isLeft ? LeftPointer : RightPointer;
+        if (prefab)
+        {
+            Il2CppString* name = isLeft ? LeftPointer : RightPointer;
+            prefab->SetParent(get_transform());
+            prefab->get_gameObject()->set_name(name);
+            PointerUtils::SetPointerSize(prefab);
 
-        prefab->SetParent(get_transform());
-        prefab->get_gameObject()->set_name(name);
-        PointerUtils::SetPointerSize(prefab);
+            SetupTrails();
 
-        SetupTrails();
-
-        replaced = true;
-        UpdateModel(false, true);
+            replaced = true;
+            UpdateModel(false, true);
+        }
     }
 
     void Pointer::UpdateModel(bool reinstantiate, bool firstUpdate)

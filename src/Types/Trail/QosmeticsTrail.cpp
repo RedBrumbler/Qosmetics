@@ -120,7 +120,6 @@ namespace Qosmetics
 
     void QosmeticsTrail::InitTrail(int length, int colorType, int whiteStep, UnityEngine::Material* material, UnityEngine::Color trailColor, UnityEngine::Color multiplierColor, bool ignoreOverrides = false)
     {
-        INFO("Initing trail");
         customInited = false;
         int overriddenLength = (int)config.saberConfig.trailLength;
         this->length = (config.saberConfig.overrideTrailLength && !ignoreOverrides) ? overriddenLength : length;
@@ -236,12 +235,10 @@ namespace Qosmetics
             std::optional<UnityEngine::Color> saberColor = SaberAPI::getSaberColorSafe(colorType);
             if (saberColor != std::nullopt)
             {
-                INFO("Used Chroma Color");
                 this->color = (*saberColor) * this->multiplierColor;
             }
             else
             {
-                INFO("Used Normal Color");
 	    	    this->color = colorManager->ColorForTrailType(colorType) * this->multiplierColor;
             }
         }
