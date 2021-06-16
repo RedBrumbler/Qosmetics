@@ -18,6 +18,7 @@ using namespace UnityEngine;
 
 static Il2CppString* noteCube = nullptr;
 static Il2CppString* cube = nullptr;
+
 namespace Qosmetics
 {
     void Note::Init(NoteManager* modelManager, ColorManager* colorManager)
