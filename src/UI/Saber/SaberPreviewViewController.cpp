@@ -19,7 +19,7 @@
 
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::SaberPreviewViewController);
+DEFINE_TYPE(Qosmetics::UI, SaberPreviewViewController);
 
 using namespace HMUI;
 using namespace UnityEngine;

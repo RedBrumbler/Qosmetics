@@ -12,7 +12,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, WallSelectionElement, UnityEngine::MonoBeha
     DECLARE_INSTANCE_FIELD_DEFAULT(WallManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(WallPreviewViewController*, previewViewController, nullptr);
 
-    DECLARE_METHOD(void, Init, WallManager* wallManager, WallPreviewViewController* previewViewController);
+    DECLARE_INSTANCE_METHOD(void, Init, WallManager* wallManager, WallPreviewViewController* previewViewController);
     public:
         void Select();
         void SetupButtons();
@@ -25,11 +25,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, WallSelectionElement, UnityEngine::MonoBeha
         
     protected:
         Descriptor* descriptor;
-
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(modelManager);
-        REGISTER_FIELD(previewViewController);
-
-        REGISTER_METHOD(Init);
-    )
 )

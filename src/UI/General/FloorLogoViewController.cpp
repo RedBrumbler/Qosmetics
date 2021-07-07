@@ -15,7 +15,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::FloorLogoViewController);
+DEFINE_TYPE(Qosmetics::UI, FloorLogoViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Floor Logo View Controller").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Floor Logo View Controller").error(value);

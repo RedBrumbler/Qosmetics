@@ -14,7 +14,7 @@
 
 #include "Utils/WallUtils.hpp"
 
-DEFINE_TYPE(Qosmetics::Wall);
+DEFINE_TYPE(Qosmetics, Wall);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Wall").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall").error(value)
@@ -112,7 +112,6 @@ namespace Qosmetics
         {
             fakeGlowRenderer->set_enabled(false);
         }
-        
 
         UpdateColors();
     }

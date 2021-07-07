@@ -17,7 +17,7 @@
 #include "Utils/UIUtils.hpp" 
 #include "UI/Wall/WallSelectionElement.hpp"
 #include "UI/datastructs.hpp"
-DEFINE_TYPE(Qosmetics::UI::WallSwitcherViewController);
+DEFINE_TYPE(Qosmetics::UI, WallSwitcherViewController);
 
 using namespace HMUI;
 using namespace UnityEngine;

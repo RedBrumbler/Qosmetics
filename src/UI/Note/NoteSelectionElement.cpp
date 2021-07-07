@@ -28,7 +28,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::NoteSelectionElement);
+DEFINE_TYPE(Qosmetics::UI, NoteSelectionElement);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Note Selector").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Note Selector").error(value)

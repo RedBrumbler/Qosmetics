@@ -46,29 +46,29 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
     DECLARE_INSTANCE_FIELD(Qosmetics::UI::FloorLogoViewController*, floorLogoViewController);
     DECLARE_INSTANCE_FIELD(Qosmetics::UI::UserProfileViewController*, userProfileViewController);
 
-    DECLARE_METHOD(static Qosmetics::SingletonContainer*, get_instance);
-    DECLARE_METHOD(static Qosmetics::UI::QosmeticsFlowCoordinator*, get_qosmeticsFlowCoordinator);
-    DECLARE_METHOD(static Qosmetics::SaberManager*, get_saberManager);
-    DECLARE_METHOD(static Qosmetics::NoteManager*, get_noteManager);
-    DECLARE_METHOD(static Qosmetics::WallManager*, get_wallManager);
-    DECLARE_METHOD(static Qosmetics::ColorManager*, get_colorManager);
+    DECLARE_STATIC_METHOD(Qosmetics::SingletonContainer*, get_instance);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::QosmeticsFlowCoordinator*, get_qosmeticsFlowCoordinator);
+    DECLARE_STATIC_METHOD(Qosmetics::SaberManager*, get_saberManager);
+    DECLARE_STATIC_METHOD(Qosmetics::NoteManager*, get_noteManager);
+    DECLARE_STATIC_METHOD(Qosmetics::WallManager*, get_wallManager);
+    DECLARE_STATIC_METHOD(Qosmetics::ColorManager*, get_colorManager);
 
-    DECLARE_METHOD(static Qosmetics::UI::SaberSwitcherViewController*, get_saberSwitcherViewController);
-    DECLARE_METHOD(static Qosmetics::UI::SaberSettingsViewController*, get_saberSettingsViewController);
-    DECLARE_METHOD(static Qosmetics::UI::SaberPreviewViewController*, get_saberPreviewViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::SaberSwitcherViewController*, get_saberSwitcherViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::SaberSettingsViewController*, get_saberSettingsViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::SaberPreviewViewController*, get_saberPreviewViewController);
     
-    DECLARE_METHOD(static Qosmetics::UI::NoteSwitcherViewController*, get_noteSwitcherViewController);
-    DECLARE_METHOD(static Qosmetics::UI::NoteSettingsViewController*, get_noteSettingsViewController);
-    DECLARE_METHOD(static Qosmetics::UI::NotePreviewViewController*, get_notePreviewViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::NoteSwitcherViewController*, get_noteSwitcherViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::NoteSettingsViewController*, get_noteSettingsViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::NotePreviewViewController*, get_notePreviewViewController);
 
-    DECLARE_METHOD(static Qosmetics::UI::WallSwitcherViewController*, get_wallSwitcherViewController);
-    DECLARE_METHOD(static Qosmetics::UI::WallSettingsViewController*, get_wallSettingsViewController);
-    DECLARE_METHOD(static Qosmetics::UI::WallPreviewViewController*, get_wallPreviewViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::WallSwitcherViewController*, get_wallSwitcherViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::WallSettingsViewController*, get_wallSettingsViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::WallPreviewViewController*, get_wallPreviewViewController);
 
-    DECLARE_METHOD(static Qosmetics::UI::QosmeticsViewController*, get_qosmeticsViewController);
-    DECLARE_METHOD(static Qosmetics::UI::PatronViewController*, get_patronViewController);
-    DECLARE_METHOD(static Qosmetics::UI::FloorLogoViewController*, get_floorLogoViewController);
-    DECLARE_METHOD(static Qosmetics::UI::UserProfileViewController*, get_userProfileViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::QosmeticsViewController*, get_qosmeticsViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::PatronViewController*, get_patronViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::FloorLogoViewController*, get_floorLogoViewController);
+    DECLARE_STATIC_METHOD(Qosmetics::UI::UserProfileViewController*, get_userProfileViewController);
 
     DECLARE_CTOR(ctor);
 
@@ -78,55 +78,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
     private:
         static SingletonContainer* instance;
         //static SafePtr<SingletonContainer>* instance;
-
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(ctor);
-        REGISTER_METHOD(get_instance);
-        REGISTER_METHOD(get_qosmeticsFlowCoordinator);
-        REGISTER_METHOD(get_saberManager);
-        REGISTER_METHOD(get_noteManager);
-        REGISTER_METHOD(get_wallManager);
-        REGISTER_METHOD(get_colorManager);
-
-        REGISTER_METHOD(get_saberSwitcherViewController);
-        REGISTER_METHOD(get_saberSettingsViewController);
-        REGISTER_METHOD(get_saberPreviewViewController);
-
-        REGISTER_METHOD(get_noteSwitcherViewController);
-        REGISTER_METHOD(get_noteSettingsViewController);
-        REGISTER_METHOD(get_notePreviewViewController);
-
-        REGISTER_METHOD(get_wallSwitcherViewController);
-        REGISTER_METHOD(get_wallSettingsViewController);
-        REGISTER_METHOD(get_wallPreviewViewController);
-
-        REGISTER_METHOD(get_qosmeticsViewController);
-        REGISTER_METHOD(get_patronViewController);
-        REGISTER_METHOD(get_floorLogoViewController);
-        REGISTER_METHOD(get_userProfileViewController);
-
-        REGISTER_FIELD(qosmeticsFlowCoordinator);
-        REGISTER_FIELD(saberManager);
-        REGISTER_FIELD(noteManager);
-        REGISTER_FIELD(wallManager);
-        REGISTER_FIELD(colorManager);
-        
-        REGISTER_FIELD(saberSwitcherViewController);
-        REGISTER_FIELD(saberSettingsViewController);
-        REGISTER_FIELD(saberPreviewViewController);
-
-        REGISTER_FIELD(noteSwitcherViewController);
-        REGISTER_FIELD(noteSettingsViewController);
-        REGISTER_FIELD(notePreviewViewController);
-
-        REGISTER_FIELD(wallSwitcherViewController);
-        REGISTER_FIELD(wallSettingsViewController);
-        REGISTER_FIELD(wallPreviewViewController);
-
-        REGISTER_FIELD(qosmeticsViewController);
-        REGISTER_FIELD(patronViewController);
-        REGISTER_FIELD(floorLogoViewController);
-        REGISTER_FIELD(userProfileViewController);
-
-    )
 )

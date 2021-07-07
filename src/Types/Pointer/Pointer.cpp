@@ -12,7 +12,7 @@
 #include "Types/Trail/QosmeticsTrail.hpp"
 #include "chroma/shared/SaberAPI.hpp"
 
-DEFINE_TYPE(Qosmetics::Pointer);
+DEFINE_TYPE(Qosmetics, Pointer);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Pointer").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Pointer").error(value)
@@ -168,7 +168,7 @@ namespace Qosmetics
 
         Transform* oldPointer = colorType == 0 ? get_transform()->Find(LeftPointer) : get_transform()->Find(RightPointer);
 
-        auto sabersColorOptional = Chroma::SaberAPI::getSabersColorSafe();
+        auto sabersColorOptional = Chroma::SaberAPI::getGlobalSabersColorSafe();
         
         Color thisColor;
         Color otherColor;

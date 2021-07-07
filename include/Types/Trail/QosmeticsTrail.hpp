@@ -2,6 +2,7 @@
 #include "Types/Trail/TrailConfig.hpp"
 #include "Types/Colors/ColorManager.hpp"
 
+#include "GlobalNamespace/SaberModelController.hpp"
 #include "GlobalNamespace/SaberTrail.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
 #include "GlobalNamespace/SaberMovementData.hpp"
@@ -24,10 +25,10 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_INSTANCE_FIELD(GlobalNamespace::SaberMovementData*, customMovementData);
     DECLARE_INSTANCE_FIELD(Qosmetics::ColorManager*, colorManager);
     DECLARE_INSTANCE_FIELD(bool, customInited);
-    DECLARE_STATIC_FIELD(float, trailIntensity);
+    DECLARE_INSTANCE_FIELD(GlobalNamespace::SaberModelController*, attachedSaberModelController);
     
-    DECLARE_METHOD(void, Awake);
-    DECLARE_METHOD(void, InitTrail, int length,
+    DECLARE_INSTANCE_METHOD(void, Awake);
+    DECLARE_INSTANCE_METHOD(void, InitTrail, int length,
                                     int colorType,
                                     int whiteStep,
                                     UnityEngine::Material* material,
@@ -35,49 +36,21 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
                                     UnityEngine::Color multiplierColor,
                                     bool ignoreOverrides);
                                     
-    DECLARE_METHOD(void, InitFromDefault, UnityEngine::Transform* objToCopy);
-    DECLARE_METHOD(void, Update);
-    DECLARE_METHOD(void, Reset);
-    DECLARE_METHOD(void, UpdateTrail);
-    DECLARE_METHOD(void, UpdateColors);
-    DECLARE_METHOD(void, SetColorManager, ColorManager* colorManager);
-    DECLARE_METHOD(GlobalNamespace::SaberTrailRenderer*, NewTrailRenderer);
+    DECLARE_INSTANCE_METHOD(void, InitFromDefault, UnityEngine::Transform* objToCopy);
+    DECLARE_INSTANCE_METHOD(void, Update);
+    DECLARE_INSTANCE_METHOD(void, Reset);
+    DECLARE_INSTANCE_METHOD(void, UpdateTrail);
+    DECLARE_INSTANCE_METHOD(void, UpdateColors);
+    DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int, GlobalNamespace::SaberModelController* modelController, UnityEngine::Color color);
+    DECLARE_INSTANCE_METHOD(void, SetColorManager, ColorManager* colorManager);
+    DECLARE_INSTANCE_METHOD(GlobalNamespace::SaberTrailRenderer*, NewTrailRenderer);
 
     DECLARE_CTOR(ctor);
     DECLARE_DTOR(dtor);
 
     public:
         void SetTrailConfig(TrailConfig* config);
-
+        static float trailIntensity;
     private: 
-        TrailConfig* trailConfig = nullptr;
-
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(dtor);
-        REGISTER_METHOD(ctor);
-        REGISTER_METHOD(Awake);
-        REGISTER_METHOD(InitTrail);
-        REGISTER_METHOD(InitFromDefault);
-        REGISTER_METHOD(Update);
-        REGISTER_METHOD(Reset);
-        REGISTER_METHOD(UpdateTrail);
-        REGISTER_METHOD(UpdateColors);
-        REGISTER_METHOD(SetColorManager);
-        REGISTER_METHOD(NewTrailRenderer);
-
-        REGISTER_FIELD(topTransform);
-        REGISTER_FIELD(bottomTransform);
-        REGISTER_FIELD(customBottomTransform);
-        REGISTER_FIELD(trailMaterial);
-        REGISTER_FIELD(length);
-        REGISTER_FIELD(whitestep);
-        REGISTER_FIELD(colorType);
-        REGISTER_FIELD(customInited);
-        
-        REGISTER_FIELD(trailColor);
-        REGISTER_FIELD(multiplierColor);
-        
-        REGISTER_FIELD(customMovementData);
-        REGISTER_FIELD(trailIntensity);
-    )
+        TrailConfig* trailConfig;
 )

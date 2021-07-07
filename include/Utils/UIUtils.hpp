@@ -9,14 +9,12 @@
 #include "HMUI/ViewController.hpp"
 #include "Zenject/DiContainer.hpp"
 
-class UIUtils
+namespace UIUtils
 {
-    public:
-        static TMPro::TextMeshProUGUI* AddHeader(UnityEngine::Transform* parent, std::string title);
-        static TMPro::TextMeshProUGUI* AddHeader(UnityEngine::Transform* parent, std::string title, UnityEngine::Color color);
-        static TMPro::TextMeshProUGUI* AddHeader(UnityEngine::Transform* parent, std::string title, UnityEngine::Color leftColor, UnityEngine::Color rightColor);
-        static void SetTitleColor(HMUI::TitleViewController* titleView, UnityEngine::Color color, bool buttonanim = false);
-        static void SetupViewController(HMUI::ViewController* vc);
-        static void AddViewComponents(UnityEngine::GameObject* go, Zenject::DiContainer* container);
-
-};
+    TMPro::TextMeshProUGUI* AddHeader(UnityEngine::Transform* parent, std::string title);
+    TMPro::TextMeshProUGUI* AddHeader(UnityEngine::Transform* parent, std::string title, UnityEngine::Color color);
+    TMPro::TextMeshProUGUI* AddHeader(UnityEngine::Transform* parent, std::string title, UnityEngine::Color leftColor, UnityEngine::Color rightColor);
+    void SetTitleColor(HMUI::TitleViewController* titleView, UnityEngine::Color color, bool buttonanim = false);
+    void SetupViewController(HMUI::ViewController* vc);
+    void AddViewComponents(UnityEngine::GameObject* go, Zenject::DiContainer* container);
+}

@@ -8,10 +8,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics, FuckYouGC, Il2CppObject,
     DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::GameObject*, prefab, nullptr);
     DECLARE_CTOR(ctor);
     DECLARE_DTOR(dtor);
-    
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(prefab);
-        REGISTER_METHOD(ctor);
-        REGISTER_METHOD(dtor);
-    )
 )

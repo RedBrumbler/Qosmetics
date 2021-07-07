@@ -1,7 +1,7 @@
 #include "Config.hpp"
 #include "UI/Wall/WallPreviewElement.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::WallPreviewElement);
+DEFINE_TYPE(Qosmetics::UI, WallPreviewElement);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"

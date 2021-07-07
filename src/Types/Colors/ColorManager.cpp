@@ -2,7 +2,7 @@
 #include "QosmeticsLogger.hpp"
 #include "GlobalNamespace/SaberModelController.hpp"
 
-DEFINE_TYPE(Qosmetics::ColorManager);
+DEFINE_TYPE(Qosmetics, ColorManager);
 
 using namespace UnityEngine;
 

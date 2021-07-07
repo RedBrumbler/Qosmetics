@@ -6,7 +6,7 @@
 #include "UnityEngine/Transform.hpp"
 
 
-DEFINE_TYPE(Qosmetics::SaberManager);
+DEFINE_TYPE(Qosmetics, SaberManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Manager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber Manager").error(value)

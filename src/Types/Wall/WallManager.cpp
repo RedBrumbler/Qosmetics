@@ -6,7 +6,7 @@
 #include "UnityEngine/Transform.hpp"
 #include "Utils/MaterialUtils.hpp"
 
-DEFINE_TYPE(Qosmetics::WallManager);
+DEFINE_TYPE(Qosmetics, WallManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Wall Manager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall Manager").error(value)

@@ -9,7 +9,7 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/GameObject.hpp"
 
-DEFINE_TYPE(Qosmetics::Debris);
+DEFINE_TYPE(Qosmetics, Debris);
 
 using namespace UnityEngine;
 

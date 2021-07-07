@@ -31,7 +31,7 @@ using namespace TMPro;
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Note Preview").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Note Preview").error(value)
 
-DEFINE_TYPE(Qosmetics::UI::NotePreviewViewController);
+DEFINE_TYPE(Qosmetics::UI, NotePreviewViewController);
 
 using namespace Qosmetics;
 using namespace UnityEngine;

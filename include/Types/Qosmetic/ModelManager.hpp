@@ -5,9 +5,9 @@
 #include "UnityEngine/MonoBehaviour.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, ModelManager, UnityEngine::MonoBehaviour,
-        DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
-        DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
-        DECLARE_METHOD(void, SetDefault);
+        DECLARE_INSTANCE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
+        DECLARE_INSTANCE_METHOD(void, SetActiveModel, Il2CppString* csname);
+        DECLARE_INSTANCE_METHOD(void, SetDefault);
         
     public:
         virtual QosmeticItem& get_item()
@@ -23,10 +23,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ModelManager, UnityEngine::MonoBehaviour,
         virtual void internalSetActiveModel(std::string name);
     protected:
         QosmeticItem* activeItem = nullptr;
-
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(GetActivePrefab);
-        REGISTER_METHOD(SetActiveModel);
-        REGISTER_METHOD(SetDefault);
-    )
 )

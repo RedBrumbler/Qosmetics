@@ -1,6 +1,6 @@
 #include "UI/Saber/SaberPreviewElement.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::SaberPreviewElement);
+DEFINE_TYPE(Qosmetics::UI, SaberPreviewElement);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"

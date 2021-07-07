@@ -1,7 +1,7 @@
 #include "Config.hpp"
 #include "UI/Wall/WallSettingsViewController.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::WallSettingsViewController);
+DEFINE_TYPE(Qosmetics::UI, WallSettingsViewController);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"

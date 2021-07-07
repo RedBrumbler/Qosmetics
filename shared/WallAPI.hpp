@@ -21,7 +21,7 @@ namespace Qosmetics
             /// @return pointer to Main copy of Wall, nullopt on nonexistent, nullptr on default
             static std::optional<UnityEngine::GameObject*> GetActiveWallModel() noexcept
             {
-                auto function = CondDep::Find<UnityEngine::GameObject*>(qosm_id, "GetActiveWallModel");
+                static auto function = CondDep::Find<UnityEngine::GameObject*>(qosm_id, "GetActiveWallModel");
                 if (!function) return std::nullopt;
                 UnityEngine::GameObject* result = function.value()();
                 return std::make_optional(result);
@@ -31,7 +31,7 @@ namespace Qosmetics
             /// @return valid array on custom, nullptr on default, nullopt on nonexistent
             static std::optional<Array<UnityEngine::Material*>*> get_coreMaterials() noexcept
             {
-                auto function = CondDep::Find<Array<UnityEngine::Material*>*>(qosm_id, "get_coreMaterials");
+                static auto function = CondDep::Find<Array<UnityEngine::Material*>*>(qosm_id, "get_coreMaterials");
                 if (!function) return std::nullopt;
                 Array<UnityEngine::Material*>* result = function.value()();
                 return std::make_optional(result);
@@ -41,7 +41,7 @@ namespace Qosmetics
             /// @return valid array on custom, nullptr on default, nullopt on nonexistent
             static std::optional<Array<UnityEngine::Material*>*> get_frameMaterials() noexcept
             {
-                auto function = CondDep::Find<Array<UnityEngine::Material*>*>(qosm_id, "get_frameMaterials");
+                static auto function = CondDep::Find<Array<UnityEngine::Material*>*>(qosm_id, "get_frameMaterials");
                 if (!function) return std::nullopt;
                 Array<UnityEngine::Material*>* result = function.value()();
                 return std::make_optional(result);
@@ -51,7 +51,7 @@ namespace Qosmetics
             /// @return valid array on custom, nullptr on default, nullopt on nonexistent
             static std::optional<UnityEngine::Mesh*> get_coreMesh() noexcept
             {
-                auto function = CondDep::Find<UnityEngine::Mesh*>(qosm_id, "get_coreMesh");
+                static auto function = CondDep::Find<UnityEngine::Mesh*>(qosm_id, "get_coreMesh");
                 if (!function) return std::nullopt;
                 UnityEngine::Mesh* result = function.value()();
                 return std::make_optional(result);
@@ -61,7 +61,7 @@ namespace Qosmetics
             /// @return valid array on custom, nullptr on default, nullopt on nonexistent
             static std::optional<UnityEngine::Mesh*> get_frameMesh() noexcept
             {
-                auto function = CondDep::Find<UnityEngine::Mesh*>(qosm_id, "get_frameMesh");
+                static auto function = CondDep::Find<UnityEngine::Mesh*>(qosm_id, "get_frameMesh");
                 if (!function) return std::nullopt;
                 UnityEngine::Mesh* result = function.value()();
                 return std::make_optional(result);
@@ -70,7 +70,7 @@ namespace Qosmetics
             /// @brief sets the default wall as the active wall
             static void SetDefault() noexcept
             {
-                auto function = CondDep::Find<void>(qosm_id, "SetDefaultWall");
+                static auto function = CondDep::Find<void>(qosm_id, "SetDefaultWall");
                 if (!function) return;
                 function.value()();
             }
@@ -80,7 +80,7 @@ namespace Qosmetics
             static void SetActiveWall(std::string wall) noexcept
             {
                 if (wall == "") return;
-                auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveWall");
+                static auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveWall");
                 if (!function) return;
                 function.value()(wall.c_str());
             }
@@ -90,7 +90,7 @@ namespace Qosmetics
             static void SetActiveWallFromFilePath(std::string wallPath) noexcept
             {
                 if (wallPath == "") return;
-                auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveWallFromFilePath");
+                static auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveWallFromFilePath");
                 if (!function) return;
                 function.value()(wallPath.c_str());
             }
@@ -99,7 +99,7 @@ namespace Qosmetics
             /// @return true for custom, false for default/nonexistent
             static std::optional<bool> GetWallIsCustom() noexcept
             {
-                auto function = CondDep::Find<bool>(qosm_id, "GetWallIsCustom");
+                static auto function = CondDep::Find<bool>(qosm_id, "GetWallIsCustom");
                 if (!function) return std::nullopt;
                 return std::make_optional(function.value()());
             }
@@ -108,7 +108,7 @@ namespace Qosmetics
             /// @return string folder path, or nullopt for not installed
             static std::optional<std::string> GetWallFolder()
             {
-                auto function = CondDep::Find<char*>(qosm_id, "GetWallFolder");
+                static auto function = CondDep::Find<char*>(qosm_id, "GetWallFolder");
                 if (!function) return std::nullopt;
                 char* array = function.value()();
                 std::string result(array);

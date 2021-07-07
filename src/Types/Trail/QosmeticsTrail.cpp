@@ -8,13 +8,14 @@
 #include "UnityEngine/Vector3.hpp"
 
 #include "Utils/TrailUtils.hpp"
+#include "Utils/ChromaUtils.hpp"
 #include "QosmeticsLogger.hpp"
 
 #include "chroma/shared/SaberAPI.hpp"
 
 extern config_t config;
 
-DEFINE_TYPE(Qosmetics::QosmeticsTrail);
+DEFINE_TYPE(Qosmetics, QosmeticsTrail);
 
 using namespace UnityEngine;
 
@@ -232,7 +233,7 @@ namespace Qosmetics
         
         if (colorType == 0 || colorType == 1)
         {
-            std::optional<UnityEngine::Color> saberColor = SaberAPI::getSaberColorSafe(colorType);
+            std::optional<UnityEngine::Color> saberColor = SaberAPI::getGlobalSaberColorSafe(colorType);
             if (saberColor != std::nullopt)
             {
                 this->color = (*saberColor) * this->multiplierColor;
@@ -250,6 +251,12 @@ namespace Qosmetics
         this->color.a *= trailIntensity;
     }
 
+    void QosmeticsTrail::UpdateChromaColors(int colorType, GlobalNamespace::SaberModelController* modelController, UnityEngine::Color color)
+    {
+        if(modelController->Equals(this->attachedSaberModelController))
+            UpdateColors(); 
+    }
+
     void QosmeticsTrail::SetTrailConfig(TrailConfig* config)
     {
         if (!config) return;
@@ -262,7 +269,8 @@ namespace Qosmetics
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &QosmeticsTrail::UpdateColors, this );
         this->colorManager->RegisterCallback(callback, callbackType::trail);
-        Chroma::SaberAPI::registerSaberCallback(callback);
+        //ChromaUtils::registerSaberCallback({+[this](int, GlobalNamespace::SaberModelController* modelController, Color) -> void { if(modelController->Equals(this->attachedSaberModelController)) UpdateColors(); }, this});
+        ChromaUtils::registerSaberCallback({&QosmeticsTrail::UpdateChromaColors, this});
         UpdateColors();
     }
 

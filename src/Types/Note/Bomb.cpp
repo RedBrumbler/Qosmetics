@@ -6,7 +6,7 @@
 
 #include "UnityEngine/MeshRenderer.hpp"
 
-DEFINE_TYPE(Qosmetics::Bomb);
+DEFINE_TYPE(Qosmetics, Bomb);
 
 using namespace UnityEngine;
 

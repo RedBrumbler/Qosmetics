@@ -6,14 +6,9 @@
 #include "UnityEngine/GameObject.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, CurrentSaber, UnityEngine::MonoBehaviour,
-    DECLARE_METHOD(static UnityEngine::GameObject*, get_instance);
-    DECLARE_METHOD(void, Awake);
-    DECLARE_METHOD(void, OnDestroy);
+    DECLARE_STATIC_METHOD(UnityEngine::GameObject*, get_instance);
+    DECLARE_INSTANCE_METHOD(void, Awake);
+    DECLARE_INSTANCE_METHOD(void, OnDestroy);
     private:
         static SafePtr<CurrentSaber> instance;
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(Awake);
-        REGISTER_METHOD(OnDestroy);
-        REGISTER_METHOD(get_instance);
-    )
 );

@@ -27,7 +27,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::WallSelectionElement);
+DEFINE_TYPE(Qosmetics::UI, WallSelectionElement);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Wall Selector").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall Selector").error(value)

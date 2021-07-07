@@ -4,7 +4,7 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Object.hpp"
 
-DEFINE_TYPE(Qosmetics::SingletonContainer);
+DEFINE_TYPE(Qosmetics, SingletonContainer);
 
 using namespace Qosmetics::UI;
 using namespace UnityEngine;

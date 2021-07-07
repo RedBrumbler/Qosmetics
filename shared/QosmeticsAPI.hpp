@@ -16,7 +16,7 @@ namespace Qosmetic
         /// @return true for yes false for no
         static bool GetExists() noexcept
         {
-            auto function = CondDep::Find<bool>(qosm_id, "GetExists");
+            static auto function = CondDep::Find<bool>(qosm_id, "GetExists");
             if (!function) return false;
             else return true;
         }
@@ -25,7 +25,7 @@ namespace Qosmetic
         /// @return method found
         static bool ReloadDescriptors()
         {
-            auto function = CondDep::Find<void>(qosm_id, "ReloadDescriptors");
+            static auto function = CondDep::Find<void>(qosm_id, "ReloadDescriptors");
             if (!function) return false;
             function.value()();
             return true;

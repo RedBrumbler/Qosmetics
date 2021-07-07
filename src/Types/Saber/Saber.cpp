@@ -8,11 +8,13 @@
 #include "Utils/UnityUtils.hpp"
 #include "Utils/SaberUtils.hpp"
 #include "Utils/TrailUtils.hpp"
+#include "Utils/ChromaUtils.hpp"
 #include "QosmeticsLogger.hpp"
 
 #include "chroma/shared/SaberAPI.hpp"
+#include "beatsaber-hook/shared/utils/typedefs-wrappers.hpp"
 
-DEFINE_TYPE(Qosmetics::Saber);
+DEFINE_TYPE(Qosmetics, Saber);
 
 using namespace UnityEngine;
 
@@ -24,6 +26,11 @@ using namespace UnityEngine;
 
 extern config_t config;
 
+void StaticUpdateColors(Qosmetics::Saber* self, int, GlobalNamespace::SaberModelController*, UnityEngine::Color)
+{
+    self->UpdateColors();
+}
+
 namespace Qosmetics
 {
     void Saber::Init(SaberManager* modelManager, ColorManager* colorManager)
@@ -32,18 +39,30 @@ namespace Qosmetics
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &Saber::UpdateColors, this );
         this->colorManager->RegisterCallback(callback, callbackType::saber);
-        if (modelManager->get_item().get_type() != ItemType::invalid) Chroma::SaberAPI::registerSaberCallback(callback);
-
-        replaced = false;
+        
         GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
         if (gameSaber)
             saberType = gameSaber->get_saberType();
+
+        modelController = GetComponentInChildren<GlobalNamespace::SaberModelController*>(true);
+        if (modelManager->get_item().get_type() != ItemType::invalid)
+        {
+            ChromaUtils::setSaberColoredByChroma(modelController, false);
+            ChromaUtils::registerSaberCallback({&Saber::UpdateChromaColors, this});
+        }
+        
+        replaced = false;
         Replace();
     }
     
+    void Saber::OnDestroy()
+    {
+        ChromaUtils::setSaberColoredByChroma(modelController, true);
+    }
+
     void Saber::Awake()
     {
-        
+        modelController = GetComponentInChildren<GlobalNamespace::SaberModelController*>(true);
     }
 
     void Saber::UpdateModel(bool firstUpdate)
@@ -137,7 +156,7 @@ namespace Qosmetics
             std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
             Transform* customSaber = get_transform()->Find(saberName);
-            INFO("Trail size: %d, Config trails: %d, saber ptr: %p", trails.size(), (int)config.saberConfig.trailType, customSaber);
+            INFO("Trail size: %d, Config trails: %d, saber ptr: %p", (int)trails.size(), (int)config.saberConfig.trailType, customSaber);
             if (trails.size() > 0 && config.saberConfig.trailType == TrailType::custom && customSaber)
             {
                 INFO("Putting custom trails on custom saber");
@@ -147,6 +166,7 @@ namespace Qosmetics
                     Transform* trailObj = customSaber->Find(trailPath);
                     if (!trailObj) continue;
                     QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
+                    trailComponent->attachedSaberModelController = modelController;
                     trailComponent->SetColorManager(colorManager);
                     trailComponent->SetTrailConfig(&trail);
                 }
@@ -155,6 +175,7 @@ namespace Qosmetics
             {
                 INFO("Putting base game trails on custom saber");
                 QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(customSaber->get_gameObject());
+                trailComponent->attachedSaberModelController = modelController;
                 trailComponent->SetColorManager(colorManager);
                 trailComponent->InitFromDefault(basicSaberModel);
             }
@@ -163,6 +184,7 @@ namespace Qosmetics
         {
             INFO("Changing base game trails on base game saber");
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(basicSaberModel->get_gameObject());
+            trailComponent->attachedSaberModelController = modelController;
             trailComponent->SetColorManager(colorManager);
             trailComponent->InitFromDefault(basicSaberModel);
         }
@@ -172,10 +194,9 @@ namespace Qosmetics
     void Saber::UpdateColors()
     {
         if (!colorManager) return;
-
         INFO("Updating Saber Colors!");
 
-        auto sabersColorOptional = Chroma::SaberAPI::getSabersColorSafe();
+        auto sabersColorOptional = Chroma::SaberAPI::getGlobalSabersColorSafe();
         
         Color thisColor;
         Color otherColor;
@@ -194,8 +215,16 @@ namespace Qosmetics
                 break;
         }
 
+        INFO(sabersColorOptional.first ? "using chroma color" : "using normal color");
+
         Il2CppString* saberName = (saberType.value == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
 
         SaberUtils::SetColors(get_transform()->Find(saberName)->get_gameObject(), thisColor, otherColor);
     }
+
+    void Saber::UpdateChromaColors(int saberTypePassed, GlobalNamespace::SaberModelController* modelController, UnityEngine::Color)
+    {
+        if(modelController->Equals(this->modelController)) UpdateColors(); 
+    }
+
 }

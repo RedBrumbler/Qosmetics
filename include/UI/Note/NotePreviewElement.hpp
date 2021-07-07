@@ -11,17 +11,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, NotePreviewElement, UnityEngine::MonoBehavi
         DECLARE_INSTANCE_FIELD_DEFAULT(ColorManager*, colorManager, nullptr);
         DECLARE_INSTANCE_FIELD_DEFAULT(UnityEngine::GameObject*, prefab, nullptr);
 
-        DECLARE_METHOD(void, Init, NoteManager* modelManager, ColorManager* colorManager);
-        DECLARE_METHOD(void, UpdatePreview, bool reinstantiate = false);
-        DECLARE_METHOD(void, ClearPreview);
-
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(modelManager);
-        REGISTER_FIELD(colorManager);
-        REGISTER_FIELD(prefab);
-
-        REGISTER_METHOD(Init);
-        REGISTER_METHOD(UpdatePreview);
-        REGISTER_METHOD(ClearPreview);
-    )
+        DECLARE_INSTANCE_METHOD(void, Init, NoteManager* modelManager, ColorManager* colorManager);
+        DECLARE_INSTANCE_METHOD(void, UpdatePreview, bool reinstantiate = false);
+        DECLARE_INSTANCE_METHOD(void, ClearPreview);
 )

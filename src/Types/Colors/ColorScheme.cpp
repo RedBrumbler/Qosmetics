@@ -1,7 +1,7 @@
 #include "Types/Colors/ColorScheme.hpp"
 #include "QosmeticsLogger.hpp"
 
-DEFINE_TYPE(Qosmetics::ColorScheme);
+DEFINE_TYPE(Qosmetics, ColorScheme);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("ColorScheme").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("ColorScheme").error(value)

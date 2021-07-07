@@ -60,6 +60,8 @@ using namespace Qosmetics::UI;
 
 void RegisterTypes()
 {
+    custom_types::Register::AutoRegister();
+    /*
     custom_types::Register::RegisterType<FuckYouGC>();
     custom_types::Register::RegisterType<ModelManager>();
     custom_types::Register::RegisterTypes<SaberManager, NoteManager, WallManager, PointerManager>();
@@ -79,7 +81,7 @@ void RegisterTypes()
     custom_types::Register::RegisterType<QosmeticsFlowCoordinator>();
     
     custom_types::Register::RegisterType<SingletonContainer>();
-
+    */
     /*
     custom_types::Register::RegisterType<FlowCoordinatorContainer>();
 

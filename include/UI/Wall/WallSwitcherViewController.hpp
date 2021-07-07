@@ -13,15 +13,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, WallSwitcherViewController, HMUI::ViewContr
     DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::WallPreviewViewController*, previewViewController, nullptr);
 
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    DECLARE_METHOD(void, Init, Qosmetics::WallManager* modelManager, Qosmetics::UI::WallPreviewViewController* previewViewController);
+    DECLARE_INSTANCE_METHOD(void, Init, Qosmetics::WallManager* modelManager, Qosmetics::UI::WallPreviewViewController* previewViewController);
 
     public:    
         custom_types::Helpers::Coroutine SetupSelectionsRoutine(switcherInfo* info);
-
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(Init);
-        REGISTER_FIELD(modelManager);
-        REGISTER_FIELD(previewViewController);
-    )
 )

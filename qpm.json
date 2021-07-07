@@ -15,13 +15,8 @@
       "additionalData": {}
     },
     {
-      "id": "bs-utils",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
       "id": "beatsaber-hook",
-      "versionRange": "^1.0.0",
+      "versionRange": "*",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"

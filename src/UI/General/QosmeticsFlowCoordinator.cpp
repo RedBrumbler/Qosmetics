@@ -24,7 +24,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::QosmeticsFlowCoordinator);
+DEFINE_TYPE(Qosmetics::UI, QosmeticsFlowCoordinator);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Qosmetics Flow Coordinator").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Qosmetics Flow Coordinator").error(value);

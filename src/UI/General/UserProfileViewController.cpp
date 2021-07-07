@@ -29,7 +29,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::UserProfileViewController);
+DEFINE_TYPE(Qosmetics::UI, UserProfileViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("User Profile View Controller").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("User Profile View Controller").error(value);

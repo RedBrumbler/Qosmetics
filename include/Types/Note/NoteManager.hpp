@@ -5,25 +5,25 @@
 #include "Types/Note/NoteItem.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,     
-    DECLARE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
-    DECLARE_METHOD(void, SetActiveModel, Il2CppString* csname);
-    DECLARE_METHOD(void, SetDefault);
+    DECLARE_INSTANCE_METHOD(UnityEngine::GameObject*, GetActivePrefab);
+    DECLARE_INSTANCE_METHOD(void, SetActiveModel, Il2CppString* csname);
+    DECLARE_INSTANCE_METHOD(void, SetDefault);
 
-    DECLARE_METHOD(UnityEngine::Transform*, get_leftArrow);    
-    DECLARE_METHOD(UnityEngine::Transform*, get_rightArrow);    
-    DECLARE_METHOD(UnityEngine::Transform*, get_leftDot);
-    DECLARE_METHOD(UnityEngine::Transform*, get_rightDot);
-    DECLARE_METHOD(UnityEngine::Transform*, get_leftDebris);
-    DECLARE_METHOD(UnityEngine::Transform*, get_rightDebris);
-    DECLARE_METHOD(UnityEngine::Transform*, get_bomb);
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_leftArrow);    
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_rightArrow);    
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_leftDot);
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_rightDot);
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_leftDebris);
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_rightDebris);
+    DECLARE_INSTANCE_METHOD(UnityEngine::Transform*, get_bomb);
     
-    DECLARE_METHOD(static Il2CppString*, get_leftArrowName);    
-    DECLARE_METHOD(static Il2CppString*, get_rightArrowName);    
-    DECLARE_METHOD(static Il2CppString*, get_leftDotName);
-    DECLARE_METHOD(static Il2CppString*, get_rightDotName);
-    DECLARE_METHOD(static Il2CppString*, get_leftDebrisName);
-    DECLARE_METHOD(static Il2CppString*, get_rightDebrisName);
-    DECLARE_METHOD(static Il2CppString*, get_bombName);
+    DECLARE_STATIC_METHOD(Il2CppString*, get_leftArrowName);    
+    DECLARE_STATIC_METHOD(Il2CppString*, get_rightArrowName);    
+    DECLARE_STATIC_METHOD(Il2CppString*, get_leftDotName);
+    DECLARE_STATIC_METHOD(Il2CppString*, get_rightDotName);
+    DECLARE_STATIC_METHOD(Il2CppString*, get_leftDebrisName);
+    DECLARE_STATIC_METHOD(Il2CppString*, get_rightDebrisName);
+    DECLARE_STATIC_METHOD(Il2CppString*, get_bombName);
     DECLARE_CTOR(ctor);
     
     public:
@@ -35,26 +35,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics, NoteManager, Il2CppObject,
         
     protected:
         NoteItem* activeItem;
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(ctor);
-        REGISTER_METHOD(SetActiveModel);
-        REGISTER_METHOD(GetActivePrefab);
-        REGISTER_METHOD(SetDefault);
-
-        REGISTER_METHOD(get_leftArrow);    
-        REGISTER_METHOD(get_rightArrow);    
-        REGISTER_METHOD(get_leftDot);
-        REGISTER_METHOD(get_rightDot);
-        REGISTER_METHOD(get_leftDebris);
-        REGISTER_METHOD(get_rightDebris);
-        REGISTER_METHOD(get_bomb);
-
-        REGISTER_METHOD(get_leftArrowName);    
-        REGISTER_METHOD(get_rightArrowName);    
-        REGISTER_METHOD(get_leftDotName);
-        REGISTER_METHOD(get_rightDotName);
-        REGISTER_METHOD(get_leftDebrisName);
-        REGISTER_METHOD(get_rightDebrisName);
-        REGISTER_METHOD(get_bombName);
-    )
 )

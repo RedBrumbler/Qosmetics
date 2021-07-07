@@ -30,7 +30,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::PatronViewController);
+DEFINE_TYPE(Qosmetics::UI, PatronViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Patron View").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Patron View").error(value);

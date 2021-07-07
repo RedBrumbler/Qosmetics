@@ -31,7 +31,7 @@ using namespace TMPro;
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Wall Preview").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall Preview").error(value)
 
-DEFINE_TYPE(Qosmetics::UI::WallPreviewViewController);
+DEFINE_TYPE(Qosmetics::UI, WallPreviewViewController);
 
 using namespace Qosmetics;
 using namespace UnityEngine;

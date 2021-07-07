@@ -19,7 +19,7 @@ namespace Qosmetics
             /// @return pointer to Main copy of Note, nullopt on nonexistent, nullptr on default
             static std::optional<UnityEngine::GameObject*> GetActiveNoteModel() noexcept
             {
-                auto function = CondDep::Find<UnityEngine::GameObject*>(qosm_id, "GetActiveNoteModel");
+                static auto function = CondDep::Find<UnityEngine::GameObject*>(qosm_id, "GetActiveNoteModel");
 
                 if (!function) return std::nullopt;
 
@@ -42,7 +42,7 @@ namespace Qosmetics
             static std::optional<UnityEngine::Transform*> get_note(int type) noexcept
             {
                 if (type < 0 || type > 3) return std::nullopt;
-                auto function = CondDep::Find<UnityEngine::Transform*, int>(qosm_id, "get_note");
+                static auto function = CondDep::Find<UnityEngine::Transform*, int>(qosm_id, "get_note");
 
                 if (!function) return std::nullopt;
                 
@@ -56,7 +56,7 @@ namespace Qosmetics
             static std::optional<UnityEngine::Transform*> get_debris(int type) noexcept
             {
                 if (type < 0 || type > 1) return std::nullopt;
-                auto function = CondDep::Find<UnityEngine::Transform*, int>(qosm_id, "get_debris");
+                static auto function = CondDep::Find<UnityEngine::Transform*, int>(qosm_id, "get_debris");
                 if (!function) return std::nullopt;
                 UnityEngine::Transform* result = function.value()(type);
                 return std::make_optional(result);
@@ -66,7 +66,7 @@ namespace Qosmetics
             /// @return valid ptr for found, nullptr for not found, nullopt for no qosmetics or invalid type
             static std::optional<UnityEngine::Transform*> get_bomb() noexcept
             {
-                auto function = CondDep::Find<UnityEngine::Transform*>(qosm_id, "get_bomb");
+                static auto function = CondDep::Find<UnityEngine::Transform*>(qosm_id, "get_bomb");
                 if (!function) return std::nullopt;
                 UnityEngine::Transform* result = function.value()();
                 return std::make_optional(result);
@@ -75,7 +75,7 @@ namespace Qosmetics
             /// @brief sets the default note as the active note
             static void SetDefault() noexcept
             {
-                auto function = CondDep::Find<void>(qosm_id, "SetDefaultNote");
+                static auto function = CondDep::Find<void>(qosm_id, "SetDefaultNote");
                 if (!function) return;
                 function.value()();
             }
@@ -85,7 +85,7 @@ namespace Qosmetics
             static void SetActiveNote(std::string note) noexcept
             {
                 if (note == "") return;
-                auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveNote");
+                static auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveNote");
                 if (!function) return;
                 function.value()(note.c_str());
             }
@@ -95,7 +95,7 @@ namespace Qosmetics
             static void SetActiveNoteFromFilePath(std::string notePath) noexcept
             {
                 if (notePath == "") return;
-                auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveNoteFromFilePath");
+                static auto function = CondDep::Find<void, const char*>(qosm_id, "SetActiveNoteFromFilePath");
                 if (!function) return;
                 function.value()(notePath.c_str());
             }
@@ -104,7 +104,7 @@ namespace Qosmetics
             /// @return true for custom, false for default, nullopt for nonexistent
             static std::optional<bool> GetNoteIsCustom() noexcept
             {
-                auto function = CondDep::Find<bool>(qosm_id, "GetNoteIsCustom");
+                static auto function = CondDep::Find<bool>(qosm_id, "GetNoteIsCustom");
                 if (!function) return std::nullopt;
                 return std::make_optional(function.value()());
             }
@@ -113,7 +113,7 @@ namespace Qosmetics
             /// @return string folder path, or nullopt for not installed
             static std::optional<std::string> GetNoteFolder()
             {
-                auto function = CondDep::Find<char*>(qosm_id, "GetNoteFolder");
+                static auto function = CondDep::Find<char*>(qosm_id, "GetNoteFolder");
                 if (!function) return std::nullopt;
                 char* array = function.value()();
                 std::string result(array);

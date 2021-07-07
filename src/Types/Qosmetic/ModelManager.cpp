@@ -1,7 +1,7 @@
 #include "Types/Qosmetic/ModelManager.hpp"
 #include "Data/DescriptorCache.hpp"
 
-DEFINE_TYPE(Qosmetics::ModelManager);
+DEFINE_TYPE(Qosmetics, ModelManager);
 
 using namespace UnityEngine;
 

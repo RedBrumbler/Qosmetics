@@ -5,7 +5,7 @@
 #include "UnityEngine/GameObject.hpp"
 #include "QosmeticsLogger.hpp"
 
-DEFINE_TYPE(Qosmetics::NoteManager);
+DEFINE_TYPE(Qosmetics, NoteManager);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Note Manager").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Note Manager").error(value)

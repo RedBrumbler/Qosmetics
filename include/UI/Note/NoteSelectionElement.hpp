@@ -12,7 +12,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, NoteSelectionElement, UnityEngine::MonoBeha
     DECLARE_INSTANCE_FIELD_DEFAULT(NoteManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(NotePreviewViewController*, previewViewController, nullptr);
 
-    DECLARE_METHOD(void, Init, NoteManager* noteManager, NotePreviewViewController* previewViewController);
+    DECLARE_INSTANCE_METHOD(void, Init, NoteManager* noteManager, NotePreviewViewController* previewViewController);
     public:
         void Select();
         void SetupButtons();
@@ -25,11 +25,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, NoteSelectionElement, UnityEngine::MonoBeha
         
     protected:
         Descriptor* descriptor;
-
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(modelManager);
-        REGISTER_FIELD(previewViewController);
-
-        REGISTER_METHOD(Init);
-    )
 )

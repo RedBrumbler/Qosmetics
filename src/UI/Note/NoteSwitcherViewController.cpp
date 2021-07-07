@@ -17,7 +17,7 @@
 #include "Utils/UIUtils.hpp" 
 #include "UI/Note/NoteSelectionElement.hpp"
 #include "UI/datastructs.hpp"
-DEFINE_TYPE(Qosmetics::UI::NoteSwitcherViewController);
+DEFINE_TYPE(Qosmetics::UI, NoteSwitcherViewController);
 
 using namespace HMUI;
 using namespace UnityEngine;

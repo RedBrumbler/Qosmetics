@@ -1,7 +1,8 @@
 #pragma once
 #include "Types/Qosmetic/ModelManager.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, PointerManager, Qosmetics::ModelManager, 
+
+DECLARE_CLASS_CUSTOM(Qosmetics, PointerManager, Qosmetics::ModelManager, 
     public:
         void internalSetActiveModel(std::string name);
         void SetActivePointer(std::string name)
@@ -9,8 +10,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics, PointerManager, Qosmetics::ModelManager,
             internalSetActiveModel(name);
         }
     protected:
-
-    REGISTER_FUNCTION(
-
-    )
 )

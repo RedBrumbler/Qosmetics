@@ -9,7 +9,7 @@
 #include "GlobalNamespace/MaterialPropertyBlockController.hpp"
 #include "UnityEngine/MaterialPropertyBlock.hpp"
 
-DEFINE_TYPE(Qosmetics::Note);
+DEFINE_TYPE(Qosmetics, Note);
 
 using namespace UnityEngine;
 

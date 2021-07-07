@@ -24,7 +24,7 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Switcher").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber Switcher").error(value)
 
-DEFINE_TYPE(Qosmetics::UI::SaberSwitcherViewController);
+DEFINE_TYPE(Qosmetics::UI, SaberSwitcherViewController);
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -98,6 +98,7 @@ namespace Qosmetics::UI
 
     custom_types::Helpers::Coroutine SaberSwitcherViewController::SetupSelectionsRoutine(switcherInfo* info)
     {
+        // for all available descriptors
         while (info->it != info->cache.end())
         {
             // get a possibly already existing transform for the selector for current descriptor
@@ -117,6 +118,7 @@ namespace Qosmetics::UI
                 continue;
             }
 
+            // create horizontal layout that houses the entire selection thing
             HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
             SaberSelectionElement* element = layout->get_gameObject()->AddComponent<SaberSelectionElement*>();
             element->Init(this->modelManager, this->previewViewController);

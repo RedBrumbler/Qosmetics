@@ -28,7 +28,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::SaberSelectionElement);
+DEFINE_TYPE(Qosmetics::UI, SaberSelectionElement);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Saber Selector").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Saber Selector").error(value)

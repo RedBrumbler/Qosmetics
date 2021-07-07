@@ -1,7 +1,7 @@
 #include "Types/Utils/FuckYouGC.hpp"
 #include "UnityEngine/Object.hpp"
 
-DEFINE_TYPE(Qosmetics::FuckYouGC);
+DEFINE_TYPE(Qosmetics, FuckYouGC);
 
 void Qosmetics::FuckYouGC::ctor()
 {

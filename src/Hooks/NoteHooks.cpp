@@ -1,6 +1,8 @@
 #include "Config.hpp"
 #include "QosmeticsLogger.hpp"
+
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 
 #include "Types/Note/Note.hpp"
 #include "Types/Note/Bomb.hpp"
@@ -34,7 +36,7 @@
 using namespace Qosmetics;
 using namespace UnityEngine;
 
-MAKE_HOOK_OFFSETLESS(GameNoteController_Init, void, GlobalNamespace::GameNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, GlobalNamespace::GameNoteController_GameNoteType gameNoteType, float cutDirectionAngleOffset, float cutAngleTolerance, float uniformScale)
+MAKE_HOOK_MATCH(GameNoteController_Init, &GlobalNamespace::GameNoteController::Init, void, GlobalNamespace::GameNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, GlobalNamespace::GameNoteController_GameNoteType gameNoteType, float cutDirectionAngleOffset, float cutAngleTolerance, float uniformScale)
 {
     GameNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, gameNoteType, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
     
@@ -52,7 +54,7 @@ MAKE_HOOK_OFFSETLESS(GameNoteController_Init, void, GlobalNamespace::GameNoteCon
     note->Replace();
 }
 
-MAKE_HOOK_OFFSETLESS(TutorialNoteController_Init, void, GlobalNamespace::TutorialNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, UnityEngine::Vector3 moveStartPos, UnityEngine::Vector3 moveEndPos, UnityEngine::Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float cutDirectionAngleOffset, float cutAngleTolerance, float uniformScale)
+MAKE_HOOK_MATCH(TutorialNoteController_Init, &GlobalNamespace::TutorialNoteController::Init, void, GlobalNamespace::TutorialNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, UnityEngine::Vector3 moveStartPos, UnityEngine::Vector3 moveEndPos, UnityEngine::Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, float cutDirectionAngleOffset, float cutAngleTolerance, float uniformScale)
 {
     TutorialNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
 
@@ -68,7 +70,7 @@ MAKE_HOOK_OFFSETLESS(TutorialNoteController_Init, void, GlobalNamespace::Tutoria
     note->Replace();
 }
 
-MAKE_HOOK_OFFSETLESS(BombNoteController_Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity)
+MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity)
 {
     BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity);
     
@@ -87,7 +89,7 @@ MAKE_HOOK_OFFSETLESS(BombNoteController_Init, void, GlobalNamespace::BombNoteCon
 
 static Il2CppString* MeshName = nullptr;
 
-MAKE_HOOK_OFFSETLESS(MirroredBombNoteController_Mirror, void, GlobalNamespace::MirroredBombNoteController* self, GlobalNamespace::NoteController* noteController)
+MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MirroredBombNoteController_Mirror, "", "MirroredBombNoteController", "Mirror", void, GlobalNamespace::MirroredBombNoteController* self, GlobalNamespace::NoteController* noteController)
 {
     MirroredBombNoteController_Mirror(self, noteController);
     NoteItem& item = SingletonContainer::get_noteManager()->get_item();
@@ -115,7 +117,7 @@ MAKE_HOOK_OFFSETLESS(MirroredBombNoteController_Mirror, void, GlobalNamespace::M
     bomb->Replace();
 }
 
-MAKE_HOOK_OFFSETLESS(MirroredCubeNoteController_Mirror, void, GlobalNamespace::MirroredCubeNoteController* self, GlobalNamespace::ICubeNoteMirrorable* noteController)
+MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MirroredCubeNoteController_Mirror, "", "MirroredCubeNoteController", "Mirror", void, GlobalNamespace::MirroredCubeNoteController* self, GlobalNamespace::ICubeNoteMirrorable* noteController)
 {
     MirroredCubeNoteController_Mirror(self, noteController);
     if (config.noteConfig.disableReflections || SingletonContainer::get_noteManager()->get_item().get_type() != ItemType::invalid)
@@ -139,7 +141,7 @@ MAKE_HOOK_OFFSETLESS(MirroredCubeNoteController_Mirror, void, GlobalNamespace::M
     note->Replace();
 }
 
-MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris* self, GlobalNamespace::ColorType colorType, Vector3 notePos, Quaternion noteRot, Vector3 noteMoveVec, Vector3 noteScale, Vector3 positionOffset, Quaternion rotationOffset, Vector3 cutPoint, Vector3 cutNormal, Vector3 force, Vector3 torque, float lifeTime)
+MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, GlobalNamespace::NoteDebris* self, GlobalNamespace::ColorType colorType, Vector3 notePos, Quaternion noteRot, Vector3 noteMoveVec, Vector3 noteScale, Vector3 positionOffset, Quaternion rotationOffset, Vector3 cutPoint, Vector3 cutNormal, Vector3 force, Vector3 torque, float lifeTime)
 {
     NoteDebris_Init(self, colorType, notePos, noteRot, noteMoveVec, noteScale, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
     if (!PlayerSettings::get_SpawnDebris()) return;
@@ -159,10 +161,10 @@ MAKE_HOOK_OFFSETLESS(NoteDebris_Init, void, GlobalNamespace::NoteDebris* self, G
 
 void installNoteHooks(LoggerContextObject& logger)
 {
-    INSTALL_HOOK_OFFSETLESS(logger, GameNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "GameNoteController", "Init", 12));
-    INSTALL_HOOK_OFFSETLESS(logger, TutorialNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "TutorialNoteController", "Init", 11));
-    INSTALL_HOOK_OFFSETLESS(logger, MirroredCubeNoteController_Mirror, il2cpp_utils::FindMethodUnsafe("", "MirroredCubeNoteController", "Mirror", 1));
-    INSTALL_HOOK_OFFSETLESS(logger, BombNoteController_Init, il2cpp_utils::FindMethodUnsafe("", "BombNoteController", "Init", 8));
-    INSTALL_HOOK_OFFSETLESS(logger, MirroredBombNoteController_Mirror, il2cpp_utils::FindMethodUnsafe("", "MirroredBombNoteController", "Mirror", 1));
-    INSTALL_HOOK_OFFSETLESS(logger, NoteDebris_Init, il2cpp_utils::FindMethodUnsafe("", "NoteDebris", "Init", 12));
+    INSTALL_HOOK(logger, GameNoteController_Init);
+    INSTALL_HOOK(logger, TutorialNoteController_Init);
+    INSTALL_HOOK(logger, MirroredCubeNoteController_Mirror);
+    INSTALL_HOOK(logger, BombNoteController_Init);
+    INSTALL_HOOK(logger, MirroredBombNoteController_Mirror);
+    INSTALL_HOOK(logger, NoteDebris_Init);
 }

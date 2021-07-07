@@ -1,7 +1,7 @@
 #include "Config.hpp"
 #include "UI/Note/NoteSettingsViewController.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::NoteSettingsViewController);
+DEFINE_TYPE(Qosmetics::UI, NoteSettingsViewController);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"

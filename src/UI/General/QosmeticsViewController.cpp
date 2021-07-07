@@ -24,7 +24,7 @@ using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
 
-DEFINE_TYPE(Qosmetics::UI::QosmeticsViewController);
+DEFINE_TYPE(Qosmetics::UI, QosmeticsViewController);
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("Qosmetics View Controller").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("Qosmetics View Controller").error(value);

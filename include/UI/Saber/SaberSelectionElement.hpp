@@ -12,7 +12,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBeh
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberPreviewViewController*, previewViewController, nullptr);
 
-    DECLARE_METHOD(void, Init, SaberManager* saberManager, SaberPreviewViewController* previewViewController);
+    DECLARE_INSTANCE_METHOD(void, Init, SaberManager* saberManager, SaberPreviewViewController* previewViewController);
     public:
         void Select();
         void SetupButtons();
@@ -25,11 +25,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBeh
         
     protected:
         Descriptor* descriptor;
-
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(modelManager);
-        REGISTER_FIELD(previewViewController);
-
-        REGISTER_METHOD(Init);
-    )
 )

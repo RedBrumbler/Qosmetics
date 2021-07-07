@@ -1,4 +1,5 @@
 #include "UI/General/UISetup.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/MultiplayerModeSelectionFlowCoordinator.hpp"
@@ -19,7 +20,7 @@ using namespace HMUI;
 
 bool atLeastMenu = false;
 
-MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
+MAKE_HOOK_MATCH(MainMenuViewController_HandleMenuButton, &GlobalNamespace::MainMenuViewController::HandleMenuButton, void, GlobalNamespace::MainMenuViewController* self, GlobalNamespace::MainMenuViewController::MenuButton menuButton)
 {
     MainMenuViewController_HandleMenuButton(self, menuButton);
 
@@ -54,7 +55,7 @@ MAKE_HOOK_OFFSETLESS(MainMenuViewController_HandleMenuButton, void, GlobalNamesp
     }
 }
 
-MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, void, GlobalNamespace::MultiplayerModeSelectionFlowCoordinator* self, HMUI::ViewController* oldViewController, HMUI::ViewController* newViewController, HMUI::ViewController::AnimationType animationType)
+MAKE_HOOK_MATCH(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, &GlobalNamespace::MultiplayerModeSelectionFlowCoordinator::TopViewControllerWillChange, void, GlobalNamespace::MultiplayerModeSelectionFlowCoordinator* self, HMUI::ViewController* oldViewController, HMUI::ViewController* newViewController, HMUI::ViewController::AnimationType animationType)
 {
     MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange(self, oldViewController, newViewController, animationType);
     if ((void*)newViewController == (void*)self->createServerViewController)
@@ -69,7 +70,7 @@ MAKE_HOOK_OFFSETLESS(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWi
     }
 }
 
-MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+MAKE_HOOK_MATCH(OptionsViewController_DidActivate, &GlobalNamespace::OptionsViewController::DidActivate, void, GlobalNamespace::OptionsViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     OptionsViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
 
@@ -79,7 +80,7 @@ MAKE_HOOK_OFFSETLESS(OptionsViewController_DidActivate, void, GlobalNamespace::O
     }
 }
 
-MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, GlobalNamespace::MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoordinator::DidActivate, void, GlobalNamespace::MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     if (firstActivation)
@@ -104,7 +105,7 @@ MAKE_HOOK_OFFSETLESS(MainFlowCoordinator_DidActivate, void, GlobalNamespace::Mai
     }
 }
 
-MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamespace::GameplaySetupViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+MAKE_HOOK_MATCH(GameplaySetupViewController_DidActivate, &GlobalNamespace::GameplaySetupViewController::DidActivate, void, GlobalNamespace::GameplaySetupViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     GameplaySetupViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     if (firstActivation)
@@ -115,9 +116,9 @@ MAKE_HOOK_OFFSETLESS(GameplaySetupViewController_DidActivate, void, GlobalNamesp
 
 void installUIHooks(LoggerContextObject& logger)
 {
-    INSTALL_HOOK_OFFSETLESS(logger, MainMenuViewController_HandleMenuButton, il2cpp_utils::FindMethodUnsafe("", "MainMenuViewController", "HandleMenuButton", 1));
-    INSTALL_HOOK_OFFSETLESS(logger, MainFlowCoordinator_DidActivate, il2cpp_utils::FindMethodUnsafe("", "MainFlowCoordinator", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(logger, OptionsViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "OptionsViewController", "DidActivate", 3));
-    INSTALL_HOOK_OFFSETLESS(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange, il2cpp_utils::FindMethodUnsafe("", "MultiplayerModeSelectionFlowCoordinator", "TopViewControllerWillChange", 3));
-    INSTALL_HOOK_OFFSETLESS(logger, GameplaySetupViewController_DidActivate, il2cpp_utils::FindMethodUnsafe("", "GameplaySetupViewController", "DidActivate", 3));
+    INSTALL_HOOK(logger, MainMenuViewController_HandleMenuButton);
+    INSTALL_HOOK(logger, MainFlowCoordinator_DidActivate);
+    INSTALL_HOOK(logger, OptionsViewController_DidActivate);
+    INSTALL_HOOK(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange);
+    INSTALL_HOOK(logger, GameplaySetupViewController_DidActivate);
 }

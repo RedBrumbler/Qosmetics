@@ -1,5 +1,6 @@
 #include "Config.hpp"
 #include "QosmeticsLogger.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
 #define ERROR(value...) QosmeticsLogger::GetLogger().error(value);
@@ -16,7 +17,7 @@
 using namespace Qosmetics;
 using namespace UnityEngine;
 
-MAKE_HOOK_OFFSETLESS(MirroredObstacleController_Mirror, void, GlobalNamespace::MirroredObstacleController* self, GlobalNamespace::ObstacleController* obstacleController)
+MAKE_HOOK_MATCH(MirroredObstacleController_Mirror, &GlobalNamespace::MirroredObstacleController::Mirror, void, GlobalNamespace::MirroredObstacleController* self, GlobalNamespace::ObstacleController* obstacleController)
 {
     MirroredObstacleController_Mirror(self, obstacleController);
     
@@ -39,7 +40,7 @@ MAKE_HOOK_OFFSETLESS(MirroredObstacleController_Mirror, void, GlobalNamespace::M
     wall->Replace();
 }
 
-MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleController* self, GlobalNamespace::ObstacleData* obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
+MAKE_HOOK_MATCH(ObstacleController_Init, &GlobalNamespace::ObstacleController::Init, void, GlobalNamespace::ObstacleController* self, GlobalNamespace::ObstacleData* obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
 {
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
     Qosmetics::Wall* wall = self->get_gameObject()->GetComponent<Qosmetics::Wall*>();
@@ -57,6 +58,6 @@ MAKE_HOOK_OFFSETLESS(ObstacleController_Init, void, GlobalNamespace::ObstacleCon
 
 void installWallHooks(LoggerContextObject& logger)
 {
-    INSTALL_HOOK_OFFSETLESS(logger, ObstacleController_Init, il2cpp_utils::FindMethodUnsafe("", "ObstacleController", "Init", 9));
-    INSTALL_HOOK_OFFSETLESS(logger, MirroredObstacleController_Mirror, il2cpp_utils::FindMethodUnsafe("", "MirroredObstacleController", "Mirror", 1));
+    INSTALL_HOOK(logger, ObstacleController_Init);
+    INSTALL_HOOK(logger, MirroredObstacleController_Mirror);
 }

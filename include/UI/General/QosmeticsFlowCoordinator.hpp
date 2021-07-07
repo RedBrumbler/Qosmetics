@@ -52,7 +52,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, BackButtonWasPressed, il2cpp_utils::FindMethodUnsafe("HMUI", "FlowCoordinator", "BackButtonWasPressed", 1), HMUI::ViewController* topViewController);
     
-    DECLARE_METHOD(void, Init,  SaberSwitcherViewController* saberSwitcherViewController,
+    DECLARE_INSTANCE_METHOD(void, Init,  SaberSwitcherViewController* saberSwitcherViewController,
                                 SaberSettingsViewController* saberSettingsViewController,
                                 SaberPreviewViewController* saberPreviewViewController,
                                 NoteSwitcherViewController* noteSwitcherViewController,
@@ -68,33 +68,4 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     
     public:
         void SubMenuButtonWasPressed(ItemType type);
-
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(qosmeticsViewController);
-
-        REGISTER_FIELD(saberSwitcherViewController);
-        REGISTER_FIELD(saberSettingsViewController);
-        REGISTER_FIELD(saberPreviewViewController);
-
-        REGISTER_FIELD(noteSwitcherViewController);
-        REGISTER_FIELD(noteSettingsViewController);
-        REGISTER_FIELD(notePreviewViewController);
-
-        REGISTER_FIELD(wallSwitcherViewController);
-        REGISTER_FIELD(wallSettingsViewController);
-        REGISTER_FIELD(wallPreviewViewController);
-
-        REGISTER_FIELD(patronViewController);
-        REGISTER_FIELD(floorLogoViewController);
-        REGISTER_FIELD(userProfileViewController);
-
-        REGISTER_FIELD(saberManager);
-        REGISTER_FIELD(noteManager);
-        REGISTER_FIELD(wallManager);
-        REGISTER_FIELD(colorManager);
-
-        REGISTER_METHOD(Init);
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(BackButtonWasPressed);
-    )
 )

@@ -5,9 +5,5 @@
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, FloorLogoViewController, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    DECLARE_METHOD(void, Init);
-    REGISTER_FUNCTION(
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(Init);
-    )
+    DECLARE_INSTANCE_METHOD(void, Init);
 )

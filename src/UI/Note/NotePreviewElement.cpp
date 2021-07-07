@@ -1,7 +1,7 @@
 #include "Config.hpp"
 #include "UI/Note/NotePreviewElement.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::NotePreviewElement);
+DEFINE_TYPE(Qosmetics::UI, NotePreviewElement);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"

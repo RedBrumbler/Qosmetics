@@ -11,24 +11,10 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Bomb, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD_DEFAULT(bool, replaced, false);
     DECLARE_INSTANCE_FIELD_DEFAULT(bool, isMirror, false);
     
-    DECLARE_METHOD(void, Awake);
-    DECLARE_METHOD(void, Replace);
-    DECLARE_METHOD(void, UpdateModel);
-    DECLARE_METHOD(void, UpdateColors);
-    DECLARE_METHOD(void, Restore);
-    DECLARE_METHOD(void, Init, NoteManager* modelManager, ColorManager* colorManager);
-
-    REGISTER_FUNCTION(
-        REGISTER_FIELD(modelManager);
-        REGISTER_FIELD(colorManager);
-        REGISTER_FIELD(replaced);
-        REGISTER_FIELD(isMirror);
-
-        REGISTER_METHOD(Awake);
-        REGISTER_METHOD(Replace);
-        REGISTER_METHOD(UpdateModel);
-        REGISTER_METHOD(UpdateColors);
-        REGISTER_METHOD(Restore);
-        REGISTER_METHOD(Init);
-    )
+    DECLARE_INSTANCE_METHOD(void, Awake);
+    DECLARE_INSTANCE_METHOD(void, Replace);
+    DECLARE_INSTANCE_METHOD(void, UpdateModel);
+    DECLARE_INSTANCE_METHOD(void, UpdateColors);
+    DECLARE_INSTANCE_METHOD(void, Restore);
+    DECLARE_INSTANCE_METHOD(void, Init, NoteManager* modelManager, ColorManager* colorManager);
 )

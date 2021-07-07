@@ -1,6 +1,6 @@
 #pragma once
 #include "UnityEngine/AssetBundle.hpp"
-#include "bs-utils/shared/AssetBundle.hpp"
+//#include "bs-utils/shared/AssetBundle.hpp"
 
 namespace Qosmetics
 {

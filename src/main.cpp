@@ -5,8 +5,9 @@
 #include "Data/CreatorCache.hpp"
 #include "Data/PatronCache.hpp"
 #include "static-defines.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 
-
+#include "UnityEngine/SceneManagement/SceneManager.hpp"
 #include "UnityEngine/SceneManagement/Scene.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/MeshFilter.hpp"
@@ -36,9 +37,11 @@
 
 #include "questui/shared/QuestUI.hpp"
 
-#include "bs-utils/shared/utils.hpp"
+#warning bs utils commented out still
+//#include "bs-utils/shared/utils.hpp"
 
 #include "Utils/MaterialUtils.hpp"
+#include "Utils/ChromaUtils.hpp"
 
 ModInfo modInfo = {ID, VERSION};
 
@@ -59,7 +62,7 @@ bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output
 void makeFolder(std::string directory);
 
 bool firstWarmup = true;
-MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
+MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
 {
     getSceneName(scene, activeSceneName);
     INFO("Found scene %s", activeSceneName.c_str());
@@ -80,16 +83,23 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     {
         if (GetScoresDisabled())
         {
-            bs_utils::Submission::disable(modInfo);
+            ERROR("Scores should've been disabled, but bs utils wasn't available so scores submitted anyways!");
+            //bs_utils::Submission::disable(modInfo);
         }
         else
         {
-            bs_utils::Submission::enable(modInfo);
+            INFO("scores left enabled!");
+            //bs_utils::Submission::enable(modInfo);
         }
 
         if (SingletonContainer::get_noteManager()->get_item().get_descriptor().isValid())
         {
             MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_noteManager()->get_item().get_prefab());
+            ChromaUtils::setNoteColoredByChroma(false);
+        }
+        else
+        {
+            ChromaUtils::setNoteColoredByChroma(true);
         }
 
         if (SingletonContainer::get_saberManager()->get_item().get_descriptor().isValid())
@@ -100,6 +110,11 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
         if (SingletonContainer::get_wallManager()->get_item().get_descriptor().isValid())
         {
             MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_wallManager()->get_item().get_prefab());
+            ChromaUtils::setObstacleColoredByChroma(false);
+        }
+        else
+        {
+            ChromaUtils::setObstacleColoredByChroma(true);
         }
     }
 
@@ -108,7 +123,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_SetActiveScene, bool, UnityEngine::SceneManage
     return result;
 }
 
-MAKE_HOOK_OFFSETLESS(GameplayCoreSceneSetupData_ctor, void, GlobalNamespace::GameplayCoreSceneSetupData* self, Il2CppObject* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, GlobalNamespace::GameplayModifiers* gameplayModifiers, Il2CppObject* playerSpecificSettings, Il2CppObject* practiceSettings, bool useTestNoteCutSoundEffects, Il2CppObject* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
+MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(GameplayCoreSceneSetupData_ctor, "", "GameplayCoreSceneSetupData", ".ctor", void, GlobalNamespace::GameplayCoreSceneSetupData* self, Il2CppObject* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, GlobalNamespace::GameplayModifiers* gameplayModifiers, Il2CppObject* playerSpecificSettings, Il2CppObject* practiceSettings, bool useTestNoteCutSoundEffects, Il2CppObject* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
 {
     SingletonContainer::get_colorManager()->SetColorSchemeFromBase(colorScheme);
     PlayerSettings::CheckForIllegalModifiers(gameplayModifiers);
@@ -116,7 +131,7 @@ MAKE_HOOK_OFFSETLESS(GameplayCoreSceneSetupData_ctor, void, GlobalNamespace::Gam
 }
 
 // needed for reading settings lol
-MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, GlobalNamespace::StandardLevelScenesTransitionSetupDataSO* self, Il2CppString* gameMode, GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, GlobalNamespace::OverrideEnvironmentSettings* overrideEnvironmentSettings, GlobalNamespace::ColorScheme* overrideColorScheme, GlobalNamespace::GameplayModifiers* gamePlayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, Il2CppObject* practiceSettings, Il2CppString* backButtonText, bool useTestNoteCutSoundEffects)
+MAKE_HOOK_MATCH(StandardLevelScenesTransitionSetupDataSO_Init, &GlobalNamespace::StandardLevelScenesTransitionSetupDataSO::Init, void, GlobalNamespace::StandardLevelScenesTransitionSetupDataSO* self, Il2CppString* gameMode, GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, GlobalNamespace::IPreviewBeatmapLevel* previewBeatmapLevel, GlobalNamespace::OverrideEnvironmentSettings* overrideEnvironmentSettings, GlobalNamespace::ColorScheme* overrideColorScheme, GlobalNamespace::GameplayModifiers* gamePlayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, GlobalNamespace::PracticeSettings* practiceSettings, Il2CppString* backButtonText, bool useTestNoteCutSoundEffects)
 {
     StandardLevelScenesTransitionSetupDataSO_Init(self, gameMode, difficultyBeatmap, previewBeatmapLevel, overrideEnvironmentSettings, overrideColorScheme, gamePlayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects);
     PlayerSettings::CheckForIllegalModifiers(gamePlayModifiers);
@@ -124,7 +139,7 @@ MAKE_HOOK_OFFSETLESS(StandardLevelScenesTransitionSetupDataSO_Init, void, Global
     Qosmetics::QosmeticsTrail::trailIntensity = playerSpecificSettings->get_saberTrailIntensity();
 }
 
-MAKE_HOOK_OFFSETLESS(MenuTransitionsHelper_RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, Il2CppObject* finishCallback)
+MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MenuTransitionsHelper_RestartGame, "", "MenuTransitionsHelper", "RestartGame", void, GlobalNamespace::MenuTransitionsHelper* self, Il2CppObject* finishCallback)
 {
     SingletonContainer::Delete();
     MenuTransitionsHelper_RestartGame(self, finishCallback);
@@ -177,6 +192,10 @@ extern void installWallHooks(LoggerContextObject& logger);
 extern "C" void load()
 {
     if (!LoadConfig()) SaveConfig();
+
+    std::string path = getDataDir(modInfo);
+    path = getDataDir(ID);
+
     Config::Init();
     
     if (!DescriptorCache::Load()) DescriptorCache::Save();
@@ -187,10 +206,11 @@ extern "C" void load()
     CopyIcons();
 
     logger.info("Installing Hooks...");
-    INSTALL_HOOK_OFFSETLESS(logger, SceneManager_SetActiveScene, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "SetActiveScene", 1));
-    INSTALL_HOOK_OFFSETLESS(logger, StandardLevelScenesTransitionSetupDataSO_Init, il2cpp_utils::FindMethodUnsafe("", "StandardLevelScenesTransitionSetupDataSO", "Init", 10));
-    INSTALL_HOOK_OFFSETLESS(logger, GameplayCoreSceneSetupData_ctor, il2cpp_utils::FindMethodUnsafe("", "GameplayCoreSceneSetupData", ".ctor", 8));
-    INSTALL_HOOK_OFFSETLESS(logger, MenuTransitionsHelper_RestartGame, il2cpp_utils::FindMethodUnsafe("", "MenuTransitionsHelper", "RestartGame", 1));
+    
+    INSTALL_HOOK(logger, SceneManager_SetActiveScene);
+    INSTALL_HOOK(logger, StandardLevelScenesTransitionSetupDataSO_Init);
+    INSTALL_HOOK(logger, GameplayCoreSceneSetupData_ctor);
+    INSTALL_HOOK(logger, MenuTransitionsHelper_RestartGame);
 
     installNoteHooks(logger);
     installSaberHooks(logger);

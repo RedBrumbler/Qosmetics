@@ -1,7 +1,7 @@
 #include "Config.hpp"
 #include "UI/Saber/SaberSettingsViewController.hpp"
 
-DEFINE_TYPE(Qosmetics::UI::SaberSettingsViewController);
+DEFINE_TYPE(Qosmetics::UI, SaberSettingsViewController);
 
 #include "HMUI/Touchable.hpp"
 #include "questui/shared/BeatSaberUI.hpp"

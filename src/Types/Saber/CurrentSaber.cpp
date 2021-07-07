@@ -1,6 +1,6 @@
 #include "Types/Saber/CurrentSaber.hpp"
 
-DEFINE_TYPE(Qosmetics::CurrentSaber);
+DEFINE_TYPE(Qosmetics, CurrentSaber);
 
 #include "UnityEngine/Object.hpp"
 

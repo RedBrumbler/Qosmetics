@@ -1,4 +1,5 @@
 #include "QosmeticsLogger.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 
 #include "Types/Saber/Saber.hpp"
 #include "Types/Pointer/Pointer.hpp"
@@ -31,7 +32,7 @@ using namespace UnityEngine;
 extern bool atLeastMenu;
 
 // fix for trail renderers not getting these set on time
-MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTrailRenderer* self)
+MAKE_HOOK_MATCH(SaberTrailRenderer_OnEnable, &GlobalNamespace::SaberTrailRenderer::OnEnable, void, GlobalNamespace::SaberTrailRenderer* self)
 {
     if (!self->meshRenderer)self->meshRenderer = self->get_gameObject()->GetComponent<MeshRenderer*>();
     if (!self->meshFilter) self->meshFilter = self->get_gameObject()->GetComponent<MeshFilter*>();
@@ -39,7 +40,7 @@ MAKE_HOOK_OFFSETLESS(SaberTrailRenderer_OnEnable, void, GlobalNamespace::SaberTr
 }
 
 // creates saber to use for left or right things which is poggers
-MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberModelContainer* self)
+MAKE_HOOK_MATCH(SaberModelContainer_Start, &GlobalNamespace::SaberModelContainer::Start, void, GlobalNamespace::SaberModelContainer* self)
 {
     SaberModelContainer_Start(self);
 
@@ -59,7 +60,7 @@ MAKE_HOOK_OFFSETLESS(SaberModelContainer_Start, void, GlobalNamespace::SaberMode
     }
 }
 
-MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
+MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self)
 {
     // basically QuestTrailOverlap is forced with this
     Transform* trailTransform = self->get_transform();
@@ -68,7 +69,7 @@ MAKE_HOOK_OFFSETLESS(ConditionalMaterialSwitcher_Awake, void, GlobalNamespace::C
     ConditionalMaterialSwitcher_Awake(self);
 }
 
-MAKE_HOOK_OFFSETLESS(VRController_ctor, void, GlobalNamespace::VRController* self)
+MAKE_HOOK_FIND(VRController_ctor, classof(GlobalNamespace::VRController*), ".ctor", void, GlobalNamespace::VRController* self)
 {
     VRController_ctor(self);
     INFO("VRController ctor: %d", self->get_node().value);
@@ -88,7 +89,7 @@ MAKE_HOOK_OFFSETLESS(VRController_ctor, void, GlobalNamespace::VRController* sel
     }
 }
 
-MAKE_HOOK_OFFSETLESS(GamePause_Pause, void, GlobalNamespace::GamePause* self)
+MAKE_HOOK_MATCH(GamePause_Pause, &GlobalNamespace::GamePause::Pause, void, GlobalNamespace::GamePause* self)
 {
     GamePause_Pause(self);
     return;
@@ -103,7 +104,7 @@ MAKE_HOOK_OFFSETLESS(GamePause_Pause, void, GlobalNamespace::GamePause* self)
     }
 }
 
-MAKE_HOOK_OFFSETLESS(GamePause_Resume, void, GlobalNamespace::GamePause* self)
+MAKE_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void, GlobalNamespace::GamePause* self)
 {
     GamePause_Resume(self);
     return;
@@ -118,10 +119,10 @@ MAKE_HOOK_OFFSETLESS(GamePause_Resume, void, GlobalNamespace::GamePause* self)
 
 void installSaberHooks(LoggerContextObject& logger)
 {
-    INSTALL_HOOK_OFFSETLESS(logger, ConditionalMaterialSwitcher_Awake, il2cpp_utils::FindMethodUnsafe("", "ConditionalMaterialSwitcher", "Awake", 0)); 
-    INSTALL_HOOK_OFFSETLESS(logger, SaberModelContainer_Start, il2cpp_utils::FindMethodUnsafe("", "SaberModelContainer", "Start", 0));
-    INSTALL_HOOK_OFFSETLESS(logger, SaberTrailRenderer_OnEnable, il2cpp_utils::FindMethodUnsafe("", "SaberTrailRenderer", "OnEnable", 0));
-    INSTALL_HOOK_OFFSETLESS(logger, GamePause_Pause, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Pause", 0));
-    INSTALL_HOOK_OFFSETLESS(logger, GamePause_Resume, il2cpp_utils::FindMethodUnsafe("", "GamePause", "Resume", 0));
-    //INSTALL_HOOK_OFFSETLESS(logger, VRController_ctor, il2cpp_utils::FindMethodUnsafe("", "VRController", ".ctor", 0));
+    INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake); 
+    INSTALL_HOOK(logger, SaberModelContainer_Start);
+    INSTALL_HOOK(logger, SaberTrailRenderer_OnEnable);
+    INSTALL_HOOK(logger, GamePause_Pause);
+    INSTALL_HOOK(logger, GamePause_Resume);
+    //INSTALL_HOOK(logger, VRController_ctor);
 }
