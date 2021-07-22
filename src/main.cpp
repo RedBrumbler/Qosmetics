@@ -37,8 +37,7 @@
 
 #include "questui/shared/QuestUI.hpp"
 
-#warning bs utils commented out still
-//#include "bs-utils/shared/utils.hpp"
+#include "bs-utils/shared/utils.hpp"
 
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/ChromaUtils.hpp"
@@ -83,13 +82,11 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
     {
         if (GetScoresDisabled())
         {
-            ERROR("Scores should've been disabled, but bs utils wasn't available so scores submitted anyways!");
-            //bs_utils::Submission::disable(modInfo);
+            bs_utils::Submission::disable(modInfo);
         }
         else
         {
-            INFO("scores left enabled!");
-            //bs_utils::Submission::enable(modInfo);
+            bs_utils::Submission::enable(modInfo);
         }
 
         if (SingletonContainer::get_noteManager()->get_item().get_descriptor().isValid())

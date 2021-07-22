@@ -108,8 +108,6 @@ namespace Qosmetics
 
     void Saber::Replace()
     {
-        INFO("Replacing saber");
-
         if (!modelManager || modelManager->get_type() != ItemType::saber)
         {
             ERROR("Saber model manager was nullptr or itemtype was invalid");
@@ -141,7 +139,6 @@ namespace Qosmetics
         
         SetupTrails();
         UpdateModel(true);
-        INFO("Done Replacing!");
     }
 
     void Saber::SetupTrails()
@@ -156,7 +153,6 @@ namespace Qosmetics
             std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
             Transform* customSaber = get_transform()->Find(saberName);
-            INFO("Trail size: %d, Config trails: %d, saber ptr: %p", (int)trails.size(), (int)config.saberConfig.trailType, customSaber);
             if (trails.size() > 0 && config.saberConfig.trailType == TrailType::custom && customSaber)
             {
                 INFO("Putting custom trails on custom saber");
@@ -194,7 +190,6 @@ namespace Qosmetics
     void Saber::UpdateColors()
     {
         if (!colorManager) return;
-        INFO("Updating Saber Colors!");
 
         auto sabersColorOptional = Chroma::SaberAPI::getGlobalSabersColorSafe();
         

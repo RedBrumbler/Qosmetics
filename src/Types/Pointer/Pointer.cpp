@@ -204,7 +204,6 @@ namespace Qosmetics
     {
         if (!vrController) return;
         bool isLeft = vrController->get_node().value == 4;
-        INFO("Restoring Pointer");
         if (!LeftPointer) LeftPointer = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("LeftPointer");
         if (!RightPointer) RightPointer = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("RightPointer");
 
@@ -237,7 +236,6 @@ namespace Qosmetics
         Transform* oldPointer = isLeft ? get_transform()->Find(LeftPointer) : get_transform()->Find(RightPointer);
         std::vector<TrailConfig>& trails = isLeft ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
 
-        INFO("Putting custom trails on custom pointer");
         for (auto& trail : trails)
         {
             Il2CppString* trailPath = trail.get_name();
