@@ -28,6 +28,11 @@ namespace Qosmetics
         replaced = false;
     }
 
+    void Wall::OnEnable()
+    {
+        Replace();
+    }
+
     void Wall::Replace()
     {
         if (replaced) 

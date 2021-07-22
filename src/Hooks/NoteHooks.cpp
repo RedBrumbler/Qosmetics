@@ -30,6 +30,8 @@
 #include "Utils/UnityUtils.hpp"
 #include "Utils/PlayerSettings.hpp"
 
+#include "hooks.hpp"
+
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
 #define ERROR(value...) QosmeticsLogger::GetLogger().error(value);
 
@@ -92,7 +94,7 @@ static Il2CppString* MeshName = nullptr;
 template<>
 struct ::il2cpp_utils::il2cpp_type_check::MetadataGetter<static_cast<void (GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::*)(GlobalNamespace::INoteMirrorable*)>(&GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::Mirror)> {
   static const MethodInfo* get() {
-    static auto* noteController = &::il2cpp_utils::GetClassFromName("", "MirroredNoteController_1")->byval_arg;
+    static auto* noteController = &classof(GlobalNamespace::INoteMirrorable*)->byval_arg;
     return ::il2cpp_utils::FindMethod(classof(GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>*), "Mirror", std::vector<Il2CppClass*>(), ::std::vector<const Il2CppType*>{noteController});
   }
 };
@@ -101,7 +103,7 @@ MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteC
 {
     MirroredNoteController_1_Mirror(self, noteController);
 
-    if (strcmp(self->klass->name, "Bomb") != 0) return;
+    if (strcmp(self->klass->name, "MirroredBombNoteController") != 0) return;
     NoteItem& item = SingletonContainer::get_noteManager()->get_item();
     if (config.noteConfig.disableReflections || (item.get_type() != ItemType::invalid && item.get_config().get_hasBomb() && !config.noteConfig.forceDefaultBombs))
     {
@@ -169,12 +171,14 @@ MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, Globa
     debris->Replace();
 }
 
-void installNoteHooks(LoggerContextObject& logger)
+void InstallNoteHooks(Logger& logger)
 {
-    INSTALL_HOOK(logger, GameNoteController_Init);
-    INSTALL_HOOK(logger, TutorialNoteController_Init);
-    INSTALL_HOOK(logger, MirroredCubeNoteController_Mirror);
-    INSTALL_HOOK(logger, BombNoteController_Init);
-    INSTALL_HOOK(logger, MirroredNoteController_1_Mirror);
-    INSTALL_HOOK(logger, NoteDebris_Init);
+    SIMPLE_INSTALL_HOOK(GameNoteController_Init);
+    SIMPLE_INSTALL_HOOK(TutorialNoteController_Init);
+    SIMPLE_INSTALL_HOOK(MirroredCubeNoteController_Mirror);
+    SIMPLE_INSTALL_HOOK(BombNoteController_Init);
+    SIMPLE_INSTALL_HOOK(MirroredNoteController_1_Mirror);
+    SIMPLE_INSTALL_HOOK(NoteDebris_Init);
 }
+
+QOS_INSTALL_HOOKS(InstallNoteHooks)

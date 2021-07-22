@@ -14,6 +14,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Wall, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD_DEFAULT(bool, isMirror, false);
     
     DECLARE_INSTANCE_METHOD(void, Awake);
+    DECLARE_INSTANCE_METHOD(void, OnEnable);
     DECLARE_INSTANCE_METHOD(void, Replace);
     DECLARE_INSTANCE_METHOD(void, UpdateModel);
     DECLARE_INSTANCE_METHOD(void, UpdateColors);

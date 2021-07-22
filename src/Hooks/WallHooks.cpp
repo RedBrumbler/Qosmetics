@@ -14,6 +14,8 @@
 
 #include "Containers/SingletonContainer.hpp"
 
+#include "hooks.hpp"
+
 using namespace Qosmetics;
 using namespace UnityEngine;
 
@@ -56,8 +58,10 @@ MAKE_HOOK_MATCH(ObstacleController_Init, &GlobalNamespace::ObstacleController::I
     wall->Replace();
 }
 
-void installWallHooks(LoggerContextObject& logger)
+void InstallWallHooks(Logger& logger)
 {
-    INSTALL_HOOK(logger, ObstacleController_Init);
-    INSTALL_HOOK(logger, MirroredObstacleController_Mirror);
+    SIMPLE_INSTALL_HOOK(ObstacleController_Init);
+    SIMPLE_INSTALL_HOOK(MirroredObstacleController_Mirror);
 }
+
+QOS_INSTALL_HOOKS(InstallWallHooks)

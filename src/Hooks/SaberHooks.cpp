@@ -19,6 +19,8 @@
 #include "GlobalNamespace/VRController.hpp"
 #include "GlobalNamespace/GamePause.hpp"
 
+#include "hooks.hpp"
+
 #include <map>
 
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
@@ -118,12 +120,14 @@ MAKE_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void, Glo
     }
 }
 
-void installSaberHooks(LoggerContextObject& logger)
+void InstallSaberHooks(Logger& logger)
 {
-    INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake); 
-    INSTALL_HOOK(logger, SaberModelContainer_Start);
-    INSTALL_HOOK(logger, SaberTrailRenderer_OnEnable);
-    INSTALL_HOOK(logger, GamePause_Pause);
-    INSTALL_HOOK(logger, GamePause_Resume);
-    //INSTALL_HOOK(logger, VRController_ctor);
+    SIMPLE_INSTALL_HOOK(ConditionalMaterialSwitcher_Awake); 
+    SIMPLE_INSTALL_HOOK(SaberModelContainer_Start);
+    SIMPLE_INSTALL_HOOK(SaberTrailRenderer_OnEnable);
+    SIMPLE_INSTALL_HOOK(GamePause_Pause);
+    SIMPLE_INSTALL_HOOK(GamePause_Resume);
+    //SIMPLE_INSTALL_HOOK(VRController_ctor);
 }
+
+QOS_INSTALL_HOOKS(InstallSaberHooks)

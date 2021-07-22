@@ -10,6 +10,8 @@
 
 #include "Types/Pointer/Pointer.hpp"
 
+#include "hooks.hpp"
+
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
 #define ERROR(value...) QosmeticsLogger::GetLogger().error(value);
 
@@ -114,11 +116,13 @@ MAKE_HOOK_MATCH(GameplaySetupViewController_DidActivate, &GlobalNamespace::Gamep
     }
 }
 
-void installUIHooks(LoggerContextObject& logger)
+void InstallUIHooks(Logger& logger)
 {
-    INSTALL_HOOK(logger, MainMenuViewController_HandleMenuButton);
-    INSTALL_HOOK(logger, MainFlowCoordinator_DidActivate);
-    INSTALL_HOOK(logger, OptionsViewController_DidActivate);
-    INSTALL_HOOK(logger, MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange);
-    INSTALL_HOOK(logger, GameplaySetupViewController_DidActivate);
+    SIMPLE_INSTALL_HOOK(MainMenuViewController_HandleMenuButton);
+    SIMPLE_INSTALL_HOOK(MainFlowCoordinator_DidActivate);
+    SIMPLE_INSTALL_HOOK(OptionsViewController_DidActivate);
+    SIMPLE_INSTALL_HOOK(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange);
+    SIMPLE_INSTALL_HOOK(GameplaySetupViewController_DidActivate);
 }
+
+QOS_INSTALL_HOOKS(InstallUIHooks)

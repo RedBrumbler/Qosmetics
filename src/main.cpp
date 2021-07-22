@@ -46,6 +46,10 @@
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/ChromaUtils.hpp"
 
+#include "hooks.hpp"
+
+std::vector<void (*)(Logger&)> Hooks::installFuncs;
+
 ModInfo modInfo = {ID, VERSION};
 
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
@@ -185,11 +189,6 @@ extern "C" void setup(ModInfo& info)
     QosmeticsLogger::GetContextLogger("Setup").info("idk why you are reading logs instead of playing the game, go hit bloq or something you dolt");
 }
 
-extern void installNoteHooks(LoggerContextObject& logger);
-extern void installSaberHooks(LoggerContextObject& logger);
-extern void installUIHooks(LoggerContextObject& logger);
-extern void installWallHooks(LoggerContextObject& logger);
-
 extern "C" void load()
 {
     if (!LoadConfig()) SaveConfig();
@@ -202,21 +201,13 @@ extern "C" void load()
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     QuestUI::Init();
     
-    LoggerContextObject& logger = QosmeticsLogger::GetContextLogger("Mod Load");
+    Logger& logger = QosmeticsLogger::GetLogger();
     
     CopyIcons();
 
     logger.info("Installing Hooks...");
     
-    INSTALL_HOOK(logger, SceneManager_SetActiveScene);
-    INSTALL_HOOK(logger, StandardLevelScenesTransitionSetupDataSO_Init);
-    INSTALL_HOOK(logger, GameplayCoreSceneSetupData_ctor);
-    INSTALL_HOOK(logger, MenuTransitionsHelper_RestartGame);
-
-    installNoteHooks(logger);
-    installSaberHooks(logger);
-    installUIHooks(logger);
-    installWallHooks(logger);
+    Hooks::InstallHooks(logger);
 
     logger.info("Installed Hooks!");
 
@@ -246,3 +237,13 @@ void makeFolder(std::string directory)
         }
     }
 }
+
+void InstallMainHooks(Logger& logger)
+{   
+    SIMPLE_INSTALL_HOOK(SceneManager_SetActiveScene);
+    SIMPLE_INSTALL_HOOK(StandardLevelScenesTransitionSetupDataSO_Init);
+    SIMPLE_INSTALL_HOOK(GameplayCoreSceneSetupData_ctor);
+    SIMPLE_INSTALL_HOOK(MenuTransitionsHelper_RestartGame);
+}
+
+QOS_INSTALL_HOOKS(InstallMainHooks)
