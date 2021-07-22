@@ -1,39 +1,134 @@
 if (-not $env:qmodName) 
 {
-    $env:qmodName = "Qosmetics"
+    $env:qmodName = "PinkCore"
+}  
+if (-not $env:module_id)
+{
+    $env:module_id = "pinkcore"
 }
 
 $zip = $env:qmodName + ".zip"
 $qmod = $env:qmodName + ".qmod"
 
+$mod = "./mod.json"
+$modJson = Get-Content $mod -Raw | ConvertFrom-Json
+
+$allLibs = Get-ChildItem ./libs/arm64-v8a/*.so | Select -Expand Name
+$libs = @()
+
+$cover = "./" + $modJson.coverImage
+
+$fileList = @($cover, $mod)
+
+$bannedLibList = @("modloader")
+
+$modlib = @()
+
+foreach ($lib in $allLibs) 
+{
+    # ignore modloader
+    $contains = 0
+    foreach ($ban in $bannedLibList)
+    {
+        if ($lib.Contains($ban))
+        {
+            $contains = 1
+            break
+        }
+    }
+
+    if ($contains)
+    {
+        continue
+    }
+    # if its the actual mod lib
+    else
+    {
+        if ($lib.Contains($env:module_id))
+        {
+            $path = "./libs/arm64-v8a/" + $lib;
+            $fileList += ,$path;
+            $modlib += ,$lib;
+            continue
+        }
+    }
+    $path = "./libs/arm64-v8a/" + $lib
+    $fileList += ,$path
+    $libs += ,$lib
+}
+
+$extraFiles = @()
+
+if (Test-Path "./ExtraFiles")
+{
+    $extraEntries = Get-ChildItem ./ExtraFiles/* -Recurse
+
+    foreach ($entry in $extraEntries)
+    {
+        $mode = $entry | Select -Expand Mode
+        if ($mode.Contains("d"))
+        {
+            continue
+        }
+
+        # if not a dir
+        if (-not $entry.Directory.Name.Contains("ExtraFiles"))
+        {
+            $dir = $entry.Directory
+            $folderPath = $dir.Name + "/" + $entry.Name
+            while (($dir.Directory) -and (-not $dir.Directory.Name.Contains("ExtraFiles")))
+            {
+                $folderPath = $dir.Directory.Name + "/" + $folderPath
+            }
+
+            if ($folderPath.Contains("Icons")) 
+            {
+                continue;
+            }
+            $extraFiles += ,$folderPath
+        }
+        else
+        {
+            $extraFiles += ,$entry.Name
+        }
+    }
+
+    foreach ($file in $extraFiles)
+    {
+        $path = "./ExtraFiles/" + $file
+        $fileList += ,$path
+    } 
+}
+else
+{
+    echo "No ExtraFiles Directory Found"
+}
+# update version from qpm json
+$qpm = "./qpm.json"
+$qpmJson = Get-Content $qpm | ConvertFrom-Json 
+$modJson.version = $qpmJson.info.version
+
+
+echo "Adding extra libbeatsaber_hook_2_0_2.so to file list!"
+$fileList += ,"./extern/libbeatsaber_hook_2_0_2.so"
+$libs += ,"libbeatsaber_hook_2_0_2.so"
+
+# add the thing to the libs list because we don't need it as a mod file
+$modJson.modFiles = $modlib
+$modJson.libraryFiles = $libs
+$modText = $modJson | ConvertTo-Json -Depth 50 -EscapeHandling EscapeNonAscii
+
+Set-Content $mod $modText
+
 # if the qmod exists, rename it to zip to update it, we'll rename it back later
 if (Test-Path $qmod) 
 {
-    & move-item -Force $qmod $zip
+    move-item -Force $qmod $zip
 }
+$msg = "Creating qmod for module " + $env:module_id + " With name " + $qmod
+echo $msg
 
-& Compress-Archive -Path  "./libs/arm64-v8a/libbeatsaber-hook_2_0_3.so",`
-                        "./extern/libbeatsaber-hook_2_0_2.so",`
-                        "./libs/arm64-v8a/libquestcosmetics.so",`
-                        "./libs/arm64-v8a/libbs-utils.so",`
-                        "./libs/arm64-v8a/libcodegen_0_10_2.so",`
-                        "./libs/arm64-v8a/libquestui.so",`
-                        "./libs/arm64-v8a/libcustom-types.so",`
-                        "./cover.gif",`
-                        "./ExtraFiles/IncludedItems/Plasma Katana.qsaber",`
-                        "./ExtraFiles/IncludedItems/PC recreation.qwall",`
-                        "./ExtraFiles/IncludedItems/PC recreation + Rainbow Frames.qwall",`
-                        "./ExtraFiles/IncludedItems/UWU Notes.qbloq",`
-                        "./ExtraFiles/IncludedItems/DDR Arrows.qbloq",`
-                        "./ExtraFiles/UI/Icons/MenuIcon.png",`
-                        "./ExtraFiles/UI/Icons/MenuIconSelected.png",`
-                        "./ExtraFiles/UI/Icons/SaberIcon.png",`
-                        "./ExtraFiles/UI/Icons/SaberIconSelected.png",`
-                        "./ExtraFiles/UI/Icons/NoteIcon.png",`
-                        "./ExtraFiles/UI/Icons/NoteIconSelected.png",`
-                        "./ExtraFiles/UI/Icons/WallIcon.png",`
-                        "./ExtraFiles/UI/Icons/WallIconSelected.png",`
-                        "./ExtraFiles/UI/Icons/GameSetupIcon.png",`
-                        "./ExtraFiles/UI/Icons/GameSetupIconSelected.png",`
-                        "./mod.json" -DestinationPath $zip -Update
+
+Compress-Archive -Path $fileList -DestinationPath $zip -Update
+
 & move-item -Force $zip $qmod

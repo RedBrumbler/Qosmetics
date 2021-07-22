@@ -69,6 +69,7 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
     ConditionalMaterialSwitcher_Awake(self);
 }
 
+/// unused
 MAKE_HOOK_FIND(VRController_ctor, classof(GlobalNamespace::VRController*), ".ctor", void, GlobalNamespace::VRController* self)
 {
     VRController_ctor(self);

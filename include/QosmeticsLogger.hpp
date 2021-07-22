@@ -4,7 +4,7 @@
 class QosmeticsLogger
 {
     public:
-        static LoggerContextObject GetContextLogger(std::string context);
+        static LoggerContextObject& GetContextLogger(std::string context);
         static Logger& GetLogger();
         static void Init();
     private:

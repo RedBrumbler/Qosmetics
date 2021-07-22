@@ -31,6 +31,10 @@
 #include "GlobalNamespace/GameplayCoreSceneSetupData.hpp"
 
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
+#include "System/Action_1.hpp"
+#include "Zenject/DiContainer.hpp"
+
+#include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "GlobalNamespace/GameplayModifiers.hpp"
 #include "GlobalNamespace/PlayerSpecificSettings.hpp"
 #include "Containers/SingletonContainer.hpp"
@@ -119,8 +123,8 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
     SingletonContainer::get_colorManager()->ClearCallbacks();
     return result;
 }
-
-MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(GameplayCoreSceneSetupData_ctor, "", "GameplayCoreSceneSetupData", ".ctor", void, GlobalNamespace::GameplayCoreSceneSetupData* self, Il2CppObject* difficultyBeatmap, Il2CppObject* previewBeatmapLevel, GlobalNamespace::GameplayModifiers* gameplayModifiers, Il2CppObject* playerSpecificSettings, Il2CppObject* practiceSettings, bool useTestNoteCutSoundEffects, Il2CppObject* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
+                                                                                                                       
+MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(GameplayCoreSceneSetupData_ctor, "", "GameplayCoreSceneSetupData", ".ctor", void, GlobalNamespace::GameplayCoreSceneSetupData* self, GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, GlobalNamespace::IPreviewBeatmapLevel* previewBeatmapLevel, GlobalNamespace::GameplayModifiers* gameplayModifiers, GlobalNamespace::PlayerSpecificSettings* playerSpecificSettings, GlobalNamespace::PracticeSettings* practiceSettings, bool useTestNoteCutSoundEffects, GlobalNamespace::EnvironmentInfoSO* environmentInfo, GlobalNamespace::ColorScheme* colorScheme)
 {
     SingletonContainer::get_colorManager()->SetColorSchemeFromBase(colorScheme);
     PlayerSettings::CheckForIllegalModifiers(gameplayModifiers);
@@ -136,7 +140,7 @@ MAKE_HOOK_MATCH(StandardLevelScenesTransitionSetupDataSO_Init, &GlobalNamespace:
     Qosmetics::QosmeticsTrail::trailIntensity = playerSpecificSettings->get_saberTrailIntensity();
 }
 
-MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MenuTransitionsHelper_RestartGame, "", "MenuTransitionsHelper", "RestartGame", void, GlobalNamespace::MenuTransitionsHelper* self, Il2CppObject* finishCallback)
+MAKE_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTransitionsHelper::RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, System::Action_1<Zenject::DiContainer*>* finishCallback)
 {
     SingletonContainer::Delete();
     MenuTransitionsHelper_RestartGame(self, finishCallback);
@@ -198,7 +202,7 @@ extern "C" void load()
     if (!DescriptorCache::Load()) DescriptorCache::Save();
     QuestUI::Init();
     
-    LoggerContextObject logger = QosmeticsLogger::GetContextLogger("Mod Load");
+    LoggerContextObject& logger = QosmeticsLogger::GetContextLogger("Mod Load");
     
     CopyIcons();
 
@@ -224,7 +228,7 @@ extern "C" void load()
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)
 {
-    LoggerContextObject logger = QosmeticsLogger::GetContextLogger("scene name");
+    LoggerContextObject& logger = QosmeticsLogger::GetContextLogger("scene name");
     Il2CppString* csString = UnityEngine::SceneManagement::Scene::GetNameInternal(scene.m_Handle);
     RET_0_UNLESS(logger, csString);
     output = to_utf8(csstrtostr(csString));

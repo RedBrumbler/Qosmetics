@@ -89,9 +89,19 @@ MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::I
 
 static Il2CppString* MeshName = nullptr;
 
-MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MirroredBombNoteController_Mirror, "", "MirroredBombNoteController", "Mirror", void, GlobalNamespace::MirroredBombNoteController* self, GlobalNamespace::NoteController* noteController)
+template<>
+struct ::il2cpp_utils::il2cpp_type_check::MetadataGetter<static_cast<void (GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::*)(GlobalNamespace::INoteMirrorable*)>(&GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::Mirror)> {
+  static const MethodInfo* get() {
+    static auto* noteController = &::il2cpp_utils::GetClassFromName("", "MirroredNoteController_1")->byval_arg;
+    return ::il2cpp_utils::FindMethod(classof(GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>*), "Mirror", std::vector<Il2CppClass*>(), ::std::vector<const Il2CppType*>{noteController});
+  }
+};
+
+MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::Mirror, void, GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>* self, GlobalNamespace::INoteMirrorable* noteController)
 {
-    MirroredBombNoteController_Mirror(self, noteController);
+    MirroredNoteController_1_Mirror(self, noteController);
+
+    if (strcmp(self->klass->name, "Bomb") != 0) return;
     NoteItem& item = SingletonContainer::get_noteManager()->get_item();
     if (config.noteConfig.disableReflections || (item.get_type() != ItemType::invalid && item.get_config().get_hasBomb() && !config.noteConfig.forceDefaultBombs))
     {
@@ -117,7 +127,7 @@ MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MirroredBombNoteController_Mirror, "", "Mir
     bomb->Replace();
 }
 
-MAKE_HOOK_FIND_CLASS_UNSAFE_INSTANCE(MirroredCubeNoteController_Mirror, "", "MirroredCubeNoteController", "Mirror", void, GlobalNamespace::MirroredCubeNoteController* self, GlobalNamespace::ICubeNoteMirrorable* noteController)
+MAKE_HOOK_MATCH(MirroredCubeNoteController_Mirror, &GlobalNamespace::MirroredCubeNoteController::Mirror, void, GlobalNamespace::MirroredCubeNoteController* self, GlobalNamespace::ICubeNoteMirrorable* noteController)
 {
     MirroredCubeNoteController_Mirror(self, noteController);
     if (config.noteConfig.disableReflections || SingletonContainer::get_noteManager()->get_item().get_type() != ItemType::invalid)
@@ -165,6 +175,6 @@ void installNoteHooks(LoggerContextObject& logger)
     INSTALL_HOOK(logger, TutorialNoteController_Init);
     INSTALL_HOOK(logger, MirroredCubeNoteController_Mirror);
     INSTALL_HOOK(logger, BombNoteController_Init);
-    INSTALL_HOOK(logger, MirroredBombNoteController_Mirror);
+    INSTALL_HOOK(logger, MirroredNoteController_1_Mirror);
     INSTALL_HOOK(logger, NoteDebris_Init);
 }
