@@ -18,8 +18,9 @@
 #include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
 #include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
 #include "GlobalNamespace/CampaignFlowCoordinator.hpp"
-#include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
-#include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/GameServerLobbyFlowCoordinator.hpp"
+//#include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
+//#include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
 
 #include "HMUI/ViewController_AnimationType.hpp"
 #include "HMUI/ViewController_AnimationDirection.hpp"
@@ -130,10 +131,8 @@ namespace Qosmetics::UI
                 currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>());
                 break;
             case multiHost:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::HostGameServerLobbyFlowCoordinator*>());
-                break;
             case multiClient:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::ClientGameServerLobbyFlowCoordinator*>());
+                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::GameServerLobbyFlowCoordinator*>());
                 break;
             default:
                 break;

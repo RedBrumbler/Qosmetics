@@ -1,30 +1,21 @@
 #include "Data/CreatorCache.hpp"
-#include "Utils/FileDownloader.hpp"
+#include "Utils/WebUtils.hpp"
 #include <thread>
 namespace Qosmetics
 {
     void CreatorCache::Download()
     {
-        std::string url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/CreatorCache.json";
-        std::string path = "";
-        new FileDownloader(url, path, [](const FileDownloader& downloader){
-            std::string result = downloader.get_result();
-            if (result == "") return;
-
-            //std::thread cacheThread([](std::string val){
-                rapidjson::Document d;
-                d.SetObject();
-                d.Parse(result.c_str());
+        WebUtils::GetAsync("https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/CreatorCache.json", [&](long returnCode, std::string result){
+            if (returnCode != 200) return;
+            rapidjson::Document d;
+            d.Parse(result.c_str());
 
                 for (rapidjson::Value::ConstMemberIterator i = d.MemberBegin(); i != d.MemberEnd(); ++i)
                 {
                     const rapidjson::Value& val = i->value;
                     AddCreator(i->name.GetString(), val);
                 }
-            //}, result);
-
-            //cacheThread.detach();
-        }, true);
+        });
     }
     
     UnityEngine::Color CreatorCache::GetCreatorColor(std::string name)

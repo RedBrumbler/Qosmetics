@@ -10,11 +10,6 @@
   },
   "dependencies": [
     {
-      "id": "codegen",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
       "id": "beatsaber-hook",
       "versionRange": "*",
       "additionalData": {
@@ -40,6 +35,11 @@
     },
     {
       "id": "bs-utils",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "codegen",
       "versionRange": "*",
       "additionalData": {}
     }

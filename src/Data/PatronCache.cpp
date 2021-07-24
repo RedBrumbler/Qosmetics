@@ -1,5 +1,6 @@
 #include "Data/PatronCache.hpp"
-#include "Utils/FileDownloader.hpp"
+#include "Utils/WebUtils.hpp"
+#include "beatsaber-hook/shared/utils/logging.hpp"
 #include <thread>
 
 void GetEnthusiastic(rapidjson::Value& val);
@@ -12,17 +13,16 @@ namespace Qosmetics
 {
     void PatronCache::Download()
     {
-        std::string url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json";
-        new FileDownloader(url, "", [&](const FileDownloader& downloader){
-            std::string json = downloader.get_result();
-                if (json == "") return;
-                rapidjson::Document d;
-                d.Parse(json.c_str());
-                GetEnthusiastic(d["enthusiastic"]);
-                GetAmazing(d["amazing"]);
-                GetLegendary(d["legendary"]);
-                GetPaypal(d["paypal"]);
-        }, true);
+        WebUtils::GetAsync("https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json", [&](long returnCode, std::string result){
+            if (returnCode != 200) return;
+            rapidjson::Document d;
+            d.Parse(result.c_str());
+
+            GetEnthusiastic(d["enthusiastic"]);
+            GetAmazing(d["amazing"]);
+            GetLegendary(d["legendary"]);
+            GetPaypal(d["paypal"]);
+        });
     }
 
     void PatronCache::GetEnthusiastic(rapidjson::Value& val)

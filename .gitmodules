@@ -1,0 +1,4 @@
+[submodule "include/curl"]
+	path = include/curl
+	url = https://github.com/darknight1050/openssl-curl-android
+	branch = quest_prebuilt
