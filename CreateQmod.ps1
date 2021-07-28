@@ -1,10 +1,12 @@
+param($p1)
+
 if (-not $env:qmodName) 
 {
-    $env:qmodName = "PinkCore"
+    $env:qmodName = "Qosmetics"
 }  
 if (-not $env:module_id)
 {
-    $env:module_id = "pinkcore"
+    $env:module_id = "questcosmetics"
 }
 
 $zip = $env:qmodName + ".zip"
@@ -20,7 +22,7 @@ $cover = "./" + $modJson.coverImage
 
 $fileList = @($cover, $mod)
 
-$bannedLibList = @("modloader")
+$bannedLibList = @("modloader", "questui")
 
 $modlib = @()
 
@@ -57,6 +59,8 @@ foreach ($lib in $allLibs)
     $libs += ,$lib
 }
 
+$bannedFiles = @("CreatorCache", "Patrons")
+
 $extraFiles = @()
 
 if (Test-Path "./ExtraFiles")
@@ -71,6 +75,21 @@ if (Test-Path "./ExtraFiles")
             continue
         }
 
+        $doContinue = 0
+        foreach ($ban in $bannedFiles)
+        {
+            if ($entry.Name.Contains($ban))
+            {
+                $doContinue = 1
+                break
+            }
+        }
+
+        if ($doContinue)
+        {
+            continue
+        }
+
         # if not a dir
         if (-not $entry.Directory.Name.Contains("ExtraFiles"))
         {
@@ -81,10 +100,6 @@ if (Test-Path "./ExtraFiles")
                 $folderPath = $dir.Directory.Name + "/" + $folderPath
             }
 
-            if ($folderPath.Contains("Icons")) 
-            {
-                continue;
-            }
             $extraFiles += ,$folderPath
         }
         else
@@ -109,9 +124,9 @@ $qpmJson = Get-Content $qpm | ConvertFrom-Json
 $modJson.version = $qpmJson.info.version
 
 
-echo "Adding extra libbeatsaber_hook_2_0_2.so to file list!"
-$fileList += ,"./extern/libbeatsaber_hook_2_0_2.so"
-$libs += ,"libbeatsaber_hook_2_0_2.so"
+#echo "Adding extra libbeatsaber_hook_2_0_2.so to file list!"
+#$fileList += ,"./extern/libbeatsaber_hook_2_0_2.so"
+#$libs += ,"libbeatsaber_hook_2_0_2.so"
 
 # add the thing to the libs list because we don't need it as a mod file
 $modJson.modFiles = $modlib
@@ -123,12 +138,17 @@ Set-Content $mod $modText
 # if the qmod exists, rename it to zip to update it, we'll rename it back later
 if (Test-Path $qmod) 
 {
-    move-item -Force $qmod $zip
+    if ($p1 -and $p1.Contains("y"))
+    {
+        remove-item $qmod
+    }
+    else
+    {
+        move-item -Force $qmod $zip
+    }
 }
 $msg = "Creating qmod for module " + $env:module_id + " With name " + $qmod
 echo $msg
-
-
 Compress-Archive -Path $fileList -DestinationPath $zip -Update
 
 & move-item -Force $zip $qmod
