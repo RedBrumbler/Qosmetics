@@ -2,6 +2,7 @@
 #include "Types/Saber/Saber.hpp"
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/AltTrail.hpp"
 
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -13,6 +14,7 @@
 
 #include "chroma/shared/SaberAPI.hpp"
 #include "beatsaber-hook/shared/utils/typedefs-wrappers.hpp"
+
 
 DEFINE_TYPE(Qosmetics, Saber);
 
@@ -161,10 +163,21 @@ namespace Qosmetics
                     Il2CppString* trailPath = trail.get_name();
                     Transform* trailObj = customSaber->Find(trailPath);
                     if (!trailObj) continue;
+                    auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
+                    auto initData = TrailInitData(trail);
+                    initData.TrailColor = colorManager->ColorForTrailType(saberType);
+                    
+                    static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
+                    static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
+
+                    altTrail->Setup(initData, trailObj->Find(bottomTransformName), trailObj->Find(topTransformName), trailObj->GetComponent<Renderer*>()->get_material(), false);
+
+                    /*
                     QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
                     trailComponent->attachedSaberModelController = modelController;
                     trailComponent->SetColorManager(colorManager);
                     trailComponent->SetTrailConfig(&trail);
+                    */
                 }
             }
             else if (config.saberConfig.trailType != TrailType::none && customSaber && basicSaberModel)// there were no trails, or base game was configured

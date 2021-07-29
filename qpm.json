@@ -44,6 +44,11 @@
       "id": "codegen",
       "versionRange": "*",
       "additionalData": {}
+    },
+    {
+      "id": "libcurl",
+      "versionRange": "*",
+      "additionalData": {}
     }
   ],
   "additionalData": {}
