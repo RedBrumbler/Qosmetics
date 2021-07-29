@@ -165,7 +165,7 @@ namespace Qosmetics
                     if (!trailObj) continue;
                     auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
                     auto initData = TrailInitData(trail);
-                    initData.TrailColor = colorManager->ColorForTrailType(saberType);
+                    initData.TrailColor = colorManager->ColorForTrailType(saberType.value);
                     
                     static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
                     static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);

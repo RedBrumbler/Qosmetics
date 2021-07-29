@@ -3,8 +3,8 @@
 #include "Utils/WebUtils.hpp"
 #include "beatsaber-hook/shared/utils/logging.hpp"
 
-#include "curl/curl.h"
-#include "curl/easy.h"
+#include "libcurl/shared/curl.h"
+#include "libcurl/shared/easy.h"
 
 #include <thread>
 

@@ -124,9 +124,12 @@ $qpmJson = Get-Content $qpm | ConvertFrom-Json
 $modJson.version = $qpmJson.info.version
 
 
-#echo "Adding extra libbeatsaber_hook_2_0_2.so to file list!"
-#$fileList += ,"./extern/libbeatsaber_hook_2_0_2.so"
-#$libs += ,"libbeatsaber_hook_2_0_2.so"
+echo "Adding extra libs to file list!"
+
+$fileList += ,"./extern/libbeatsaber-hook_2_2_1.so"
+$libs += ,"libbeatsaber-hook_2_2_1.so"
+$fileList += ,"./extern/libbeatsaber-hook_2_2_2.so"
+$libs += ,"libbeatsaber-hook_2_2_2.so"
 
 # add the thing to the libs list because we don't need it as a mod file
 $modJson.modFiles = $modlib
