@@ -1,0 +1,25 @@
+#pragma once
+
+#include "custom-types/shared/macros.hpp"
+#include "Types/Trail/AltTrail.hpp"
+#include "Types/Trail/TrailConfig.hpp"
+#include "Types/Colors/ColorManager.hpp"
+
+#include "GlobalNamespace/SaberModelController.hpp"
+#include "UnityEngine/Color.hpp"
+
+DECLARE_CLASS_CODEGEN(Qosmetics, TrailHelper, UnityEngine::MonoBehaviour,
+    DECLARE_INSTANCE_FIELD(Qosmetics::AltTrail*, trailInstance);
+    DECLARE_INSTANCE_FIELD(Qosmetics::ColorManager*, colorManager);
+    
+    DECLARE_INSTANCE_METHOD(void, Init, Qosmetics::ColorManager* colorManager);
+    DECLARE_INSTANCE_METHOD(void, TrailSetup);
+    DECLARE_INSTANCE_METHOD(void, SetTrailActive, bool active);
+    DECLARE_INSTANCE_METHOD(void, UpdateColors);
+    DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int, GlobalNamespace::SaberModelController*, UnityEngine::Color);
+
+    public:
+        void set_trailConfig(Qosmetics::TrailConfig* trailConfig);
+    private:
+        TrailConfig* trailConfig;
+)

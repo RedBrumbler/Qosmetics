@@ -26,6 +26,8 @@ static inline Vector3 Vector3SubVal(Vector3 first, Vector3 second)
 namespace Qosmetics
 {
     bool AltTrail::CapFps = false;
+    float AltTrail::trailIntensity = 1.0f;
+    
     void AltTrail::ctor()
     {
         INVOKE_CTOR();
@@ -38,6 +40,7 @@ namespace Qosmetics
         PointStart = pointStart;
         PointEnd = pointEnd;
         MyMaterial = material;
+        
         MyColor = initData.TrailColor;
         Granularity = initData.Granularity;
         TrailLength = initData.TrailLength;
@@ -63,6 +66,7 @@ namespace Qosmetics
     void AltTrail::OnDisable()
     {
         if (vertexPool) vertexPool->SetMeshObjectActive(false);
+        Collapse();
     }
 
     void AltTrail::OnEnable()
@@ -86,27 +90,7 @@ namespace Qosmetics
         if (frameNum == skipFirstFrames + 1)
         {
             vertexPool->SetMeshObjectActive(true);
-
-            spline->Granularity = Granularity;
-            spline->Clear();
-
-            for (int i = 0; i < TrailLength; i++)
-            {
-                spline->AddControlPoint(get_CurHeadPos(), Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
-            }
-
-            // if snapshot list contains elements, that is an issue, remove them!
-            if (snapshotList.size() > 0)
-            {
-                for (auto snap : snapshotList)
-                {
-                    elemPool->Release(snap);
-                }
-                snapshotList.clear();
-            }
-
-            snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
-            snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
+            Reset(true);
         }
         else if (frameNum < (skipFirstFrames + 1)) return;
 
@@ -267,8 +251,64 @@ namespace Qosmetics
         }
     }
 
+    void AltTrail::SetColor(Color color)
+    {
+        color.a *= trailIntensity;
+        MyColor = color;
+    }
+
     void AltTrail::dtor()
     {
 
+    }
+
+    void AltTrail::Reset(bool addNewElemsToSnap)
+    {
+        if (!spline) spline = new Spline();
+        bool poolExisted = elemPool;
+        if (!poolExisted)
+        {
+            elemPool = new ElementPool(TrailLength);
+        }
+
+        spline->Granularity = Granularity;
+        spline->Clear();
+
+        for (int i = 0; i < TrailLength; i++)
+        {
+            spline->AddControlPoint(get_CurHeadPos(), Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
+        }
+
+        // if snapshot list contains elements, that is an issue, remove them!
+        if (snapshotList.size() > 0)
+        {
+            for (auto snap : snapshotList)
+            {
+                elemPool->Release(snap);
+            }
+            snapshotList.clear();
+        }
+
+        if (poolExisted && !addNewElemsToSnap)
+        {
+            snapshotList.push_back(elemPool->Get());
+            snapshotList.push_back(elemPool->Get());
+        }
+        else
+        {
+            snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
+            snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
+        }
+
+    }
+
+    void AltTrail::Collapse()
+    {
+        // makes all parts of the trail end up at the same place, making it basically 0 length
+        for (auto snap : snapshotList)
+        {
+            snap->pointStart = PointStart->get_position();
+            snap->pointEnd = PointEnd->get_position();
+        }
     }
 }

@@ -27,6 +27,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, LateUpdate);
     DECLARE_INSTANCE_METHOD(void, OnDisable);
     DECLARE_INSTANCE_METHOD(void, OnEnable);
+    DECLARE_INSTANCE_METHOD(void, Reset, bool addNewElemsToSnap);
 
     DECLARE_CTOR(ctor);
     DECLARE_DTOR(dtor);
@@ -39,7 +40,9 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
         static bool CapFps;
         UnityEngine::Vector3 get_CurHeadPos();
         void Setup(TrailInitData& initData, UnityEngine::Transform* pointStart, UnityEngine::Transform* pointEnd, UnityEngine::Material* material, bool editor);
-
+        void SetColor(UnityEngine::Color color);
+        void Collapse();
+        static float trailIntensity;
     private:
         float get_TrailWidth();
         std::vector<Element*> snapshotList;

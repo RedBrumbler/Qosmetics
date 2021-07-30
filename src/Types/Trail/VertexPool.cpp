@@ -164,6 +164,8 @@ namespace Qosmetics
         //meshrenderer->set_sortingLayerName(this->owner->SortingLayerName);
         meshrenderer->set_sortingOrder(this->owner->SortingOrder);
         _meshFilter->set_sharedMesh(Mesh::New_ctor());
+
+        SetMeshObjectActive(false);
     }
 
     void VertexPool::InitArrays()

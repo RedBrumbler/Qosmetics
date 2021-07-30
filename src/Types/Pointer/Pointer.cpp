@@ -261,6 +261,8 @@ namespace Qosmetics
 
     void Pointer::OnApplicationFocus(bool hasFocus)
     {
+        INFO("VRController: %p", vrController);
+        
         if (!vrController) return;
         bool isLeft = vrController->get_node().value == 4;
         Transform* oldPointer = isLeft ? get_transform()->Find(LeftPointer) : get_transform()->Find(RightPointer);
