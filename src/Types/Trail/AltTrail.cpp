@@ -1,6 +1,10 @@
 #include "Types/Trail/AltTrail.hpp"
 
 #include "UnityEngine/Time.hpp"
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("AltTrail").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("AltTrail").error(value)
 
 DEFINE_TYPE(Qosmetics, AltTrail);
 
@@ -9,7 +13,13 @@ using namespace UnityEngine;
 namespace Qosmetics
 {
     bool AltTrail::CapFps = false;
-    
+    void AltTrail::ctor()
+    {
+        INVOKE_CTOR();
+        spline = new Spline();
+        frameNum = 0;
+    }
+
     void AltTrail::Setup(TrailInitData& initData, UnityEngine::Transform* pointStart, UnityEngine::Transform* pointEnd, UnityEngine::Material* material, bool editor)
     {
         PointStart = pointStart;
@@ -21,9 +31,12 @@ namespace Qosmetics
 
         get_gameObject()->set_layer(12);
         if(editor) SortingOrder = 3;
-
+        
         elemPool = new ElementPool(TrailLength);
         vertexPool = *il2cpp_utils::New<VertexPool*>(MyMaterial, this);
+
+        INFO("Granularity: %d", Granularity);
+
         vertexSegment = vertexPool->GetVertices(Granularity * 3, (Granularity - 1) * 12);
         UpdateIndices();
 
@@ -80,7 +93,7 @@ namespace Qosmetics
             snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
             snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
         }
-        else if (frameNum < skipFirstFrames + 1) return;
+        else if (frameNum < (skipFirstFrames + 1)) return;
 
         
         UpdateHeadElem();
@@ -232,6 +245,6 @@ namespace Qosmetics
 
     void AltTrail::dtor()
     {
-
+        delete (spline);
     }
 }

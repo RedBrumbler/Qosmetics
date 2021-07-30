@@ -101,8 +101,7 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoord
         GameObject* newObj = GameObject::New_ctor();
         Object::DontDestroyOnLoad(newObj);
 
-        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(newObj->get_transform(), "fuckoff", [](){});
-        Object::DontDestroyOnLoad(button->get_gameObject());
+        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(newObj->get_transform(), "fuckoff");
         button->get_gameObject()->set_name(il2cpp_utils::newcsstr("QosmeticsTemplateButton"));
     }
 }

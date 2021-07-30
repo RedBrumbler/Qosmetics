@@ -31,7 +31,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, VertexPool, Il2CppObject,
 
     DECLARE_CTOR(ctor, UnityEngine::Material* material, AltTrail* owner);
     public:
-
         bool IndiceChanged = false;
         bool ColorChanged = false;
         bool UVChanged = false;
@@ -53,11 +52,11 @@ DECLARE_CLASS_CODEGEN(Qosmetics, VertexPool, Il2CppObject,
         void LateUpdate();
 
     private:
-        int _vertexTotal;
-        int _vertexUsed;
-        int _indexTotal;
-        int _indexUsed;
-        bool _vertCountChanged;
+        int vertexTotal = 0;
+        int vertexUsed = 0;
+        int indexTotal = 0;
+        int indexUsed = 0;
+        bool vertCountChanged;
 
         Qosmetics::AltTrail* owner;
         

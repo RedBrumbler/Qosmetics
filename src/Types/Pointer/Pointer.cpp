@@ -10,6 +10,7 @@
 #include "Utils/UnityUtils.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/AltTrail.hpp"
 #include "chroma/shared/SaberAPI.hpp"
 
 DEFINE_TYPE(Qosmetics, Pointer);
@@ -189,14 +190,15 @@ namespace Qosmetics
 
         if (oldPointer) SaberUtils::SetColors(oldPointer->get_gameObject(), thisColor, otherColor);
 
-        Array<Qosmetics::QosmeticsTrail*>* trails = GetComponentsInChildren<Qosmetics::QosmeticsTrail*>(true);
+        //Array<Qosmetics::QosmeticsTrail*>* trails = GetComponentsInChildren<Qosmetics::QosmeticsTrail*>(true);
+        Array<Qosmetics::AltTrail*>* trails = GetComponentsInChildren<Qosmetics::AltTrail*>(true);
 
         int trailCount = trails->Length();
         for (int i = 0; i < trailCount; i++)
         {
-            Qosmetics::QosmeticsTrail* trail = trails->values[i];
+            auto trail = trails->values[i];
             if (!trail) continue;
-            trail->UpdateColors();
+            //trail->UpdateColors();
         }
     }
 
@@ -241,9 +243,19 @@ namespace Qosmetics
             Il2CppString* trailPath = trail.get_name();
             Transform* trailObj = oldPointer->Find(trailPath);
             if (!trailObj) continue;
+            auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
+            auto initData = TrailInitData(trail);
+            initData.TrailColor = colorManager->ColorForTrailType(isLeft);
+                    
+            static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
+            static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
+
+            altTrail->Setup(initData, trailObj->Find(bottomTransformName), trailObj->Find(topTransformName), trailObj->GetComponent<Renderer*>()->get_material(), false);
+            /*
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
             trailComponent->SetColorManager(colorManager);
             trailComponent->SetTrailConfig(&trail);
+            */
         }
     }
 

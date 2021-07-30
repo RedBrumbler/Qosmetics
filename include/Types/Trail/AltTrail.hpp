@@ -20,6 +20,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD(UnityEngine::Transform*, PointStart);
     DECLARE_INSTANCE_FIELD(UnityEngine::Transform*, PointEnd);
     DECLARE_INSTANCE_FIELD(UnityEngine::Material*, MyMaterial);
+    
     DECLARE_INSTANCE_FIELD(Qosmetics::VertexPool*, vertexPool);
 
     DECLARE_INSTANCE_METHOD(void, OnDestroy);
@@ -27,6 +28,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, OnDisable);
     DECLARE_INSTANCE_METHOD(void, OnEnable);
 
+    DECLARE_CTOR(ctor);
     DECLARE_DTOR(dtor);
     public:
         int SortingOrder;

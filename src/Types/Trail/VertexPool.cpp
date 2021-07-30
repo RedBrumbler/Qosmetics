@@ -8,16 +8,23 @@
 
 #include "Types/Trail/AltTrail.hpp"
 
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("VertexPool").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("VertexPool").error(value)
+
 DEFINE_TYPE(Qosmetics, VertexPool);
 
+#define LOGINT(val) INFO("%s: %d", #val, val)
 using namespace UnityEngine;
 
 namespace Qosmetics
 {
     void VertexPool::ctor(Material* material, AltTrail* owner)
     {
-        _vertexTotal = _vertexUsed = 0;
-        _vertCountChanged = false;
+        INVOKE_CTOR();
+        vertexTotal = vertexUsed = indexUsed = indexTotal = 0;
+        vertCountChanged = false;
         this->owner = owner;
         CreateMeshObj(owner, material);
         _material = material;
@@ -50,49 +57,83 @@ namespace Qosmetics
 
     VertexSegment VertexPool::GetVertices(int vcount, int icount)
     {
+        LOGINT(vcount);
+        LOGINT(vertexUsed);
+        LOGINT(vertexTotal);
+
+        LOGINT(icount);
+        LOGINT(indexUsed);
+        LOGINT(indexTotal);
+
         int vertNeed = 0;
         int indexNeed = 0;
-        if (_vertexUsed + vcount >= _vertexTotal)
+        if ((vertexUsed + vcount) >= vertexTotal)
         {
-            vertNeed = (vcount / BlockSize + 1) * BlockSize;
+            INFO("calculating vertneed");
+            LOGINT((vcount / BlockSize));
+            LOGINT((((vcount / BlockSize) + 1) * BlockSize));
+            vertNeed = ((vcount / BlockSize) + 1) * BlockSize;
         }
-        if (_indexUsed + icount >= _indexTotal)
+
+        if ((indexUsed + icount) >= indexTotal)
         {
-            indexNeed = (icount / BlockSize + 1) * BlockSize;
+            INFO("calculating indexNeed");
+            LOGINT((icount / BlockSize));
+            LOGINT((((icount / BlockSize) + 1) * BlockSize));
+            indexNeed = ((icount / BlockSize) + 1) * BlockSize;
         }
-        _vertexUsed += vcount;
-        _indexUsed += icount;
+
+        vertexUsed += vcount;
+        indexUsed += icount;
+
+        INFO("vertNeed: %d, indexNeed: %d", vertNeed, indexNeed);
         if (vertNeed != 0 || indexNeed != 0)
         {
             EnlargeArrays(vertNeed, indexNeed);
-            _vertexTotal += vertNeed;
-            _indexTotal += indexNeed;
+            vertexTotal += vertNeed;
+            indexTotal += indexNeed;
         }
-        return VertexSegment(_vertexUsed - vcount, vcount, _indexUsed - icount, icount, this);
+        return VertexSegment(vertexUsed - vcount, vcount, indexUsed - icount, icount, this);
     }
 
     void VertexPool::EnlargeArrays(int count, int icount)
     {
+        INFO("Enlarging Arrays...");
+        int length = Vertices->Length();
         auto tempVertices = Vertices;
-        Vertices = Array<Vector3>::NewLength(Vertices->Length() + count);
+        Vertices = reinterpret_cast<Array<Vector3>*>(il2cpp_functions::array_new(classof(Vector3), length + count));//Array<Vector3>::NewLength(length + count);
+        for (auto i = 0; i < length; i++) Vertices->values[i] = tempVertices->values[i];
         tempVertices->CopyTo(Vertices, 0);
 
+        INFO("Vertices: %p", Vertices);
+        INFO("Length: %lu", Vertices->Length());
+
+
+        length = UVs->Length();
         auto tempUVs = UVs;
-        UVs = Array<Vector2>::NewLength(UVs->Length() + count);
-        tempUVs->CopyTo(UVs, 0);
+        UVs = reinterpret_cast<Array<Vector2>*>(il2cpp_functions::array_new(classof(Vector2), length + count));//Array<Vector2>::NewLength(length + count);
+        for (auto i = 0; i < length; i++) UVs->values[i] = tempUVs->values[i];
+        //tempUVs->CopyTo(UVs, 0);
+
+        length = Colors->Length();
         auto tempColors = Colors;
-        Colors = Array<Color>::NewLength(Colors->Length() + count);
-        tempColors->CopyTo(Colors, 0);
+        Colors = reinterpret_cast<Array<Color>*>(il2cpp_functions::array_new(classof(Color), length + count));//Array<Color>::NewLength(length + count);
+        for (auto i = 0; i < length; i++) Colors->values[i] = tempColors->values[i];
+        //tempColors->CopyTo(Colors, 0);
+
+        length = Indices->Length();
         auto tempIndices = Indices;
-        Indices = Array<int>::NewLength(Indices->Length() + icount);
-        tempIndices->CopyTo(Indices, 0);
+        Indices = reinterpret_cast<Array<int>*>(il2cpp_functions::array_new(classof(int), length + icount));//Array<int>::NewLength(length + icount);
+        for (auto i = 0; i < length; i++) Indices->values[i] = tempIndices->values[i];
+        //tempIndices->CopyTo(Indices, 0);
         
-        _vertCountChanged = true;
+        vertCountChanged = true;
         IndiceChanged = true;
         ColorChanged = true;
         UVChanged = true;
         VertChanged = true;
         UV2Changed = true;
+        INFO("Enlarged Arrays!");
     }
 
     void VertexPool::LateUpdate()
@@ -100,7 +141,12 @@ namespace Qosmetics
         auto mymesh = get_MyMesh();
         if (!mymesh) return;
 
-        if (_vertCountChanged) mymesh->Clear();
+        //if (vertCountChanged) mymesh->Clear();
+
+        INFO("Mesh: %p", mymesh);
+        INFO("Vertices: %p", Vertices);
+        INFO("Bounds: %p", Vertices->bounds);
+        INFO("Length: %lu", Vertices->bounds ? Vertices->bounds->length : Vertices->max_length);
 
         mymesh->set_vertices(Vertices);
         if (UVChanged) mymesh->set_uv(UVs);
@@ -118,7 +164,7 @@ namespace Qosmetics
         if (ElapsedTime > BoundsScheduleTime)
             FirstUpdate = false;
         
-        _vertCountChanged = false;
+        vertCountChanged = false;
         IndiceChanged = false;
         ColorChanged = false;
         UVChanged = false;
@@ -147,11 +193,11 @@ namespace Qosmetics
 
     void VertexPool::InitArrays()
     {
-        Vertices = Array<Vector3>::NewLength(4);
-        UVs = Array<Vector2>::NewLength(4);
-        Colors = Array<Color>::NewLength(4);
-        Indices = Array<int>::NewLength(6);
-        _vertexTotal = 4;
-        _indexTotal = 6;
+        Vertices = reinterpret_cast<Array<Vector3>*>(il2cpp_functions::array_new(classof(Vector3), 4));//Array<Vector3>::NewLength(4);
+        UVs = reinterpret_cast<Array<Vector2>*>(il2cpp_functions::array_new(classof(Vector2), 4));//Array<Vector2>::NewLength(4);
+        Colors = reinterpret_cast<Array<Color>*>(il2cpp_functions::array_new(classof(Color), 4));//Array<Color>::NewLength(4);
+        Indices = reinterpret_cast<Array<int>*>(il2cpp_functions::array_new(classof(int), 6));//Array<int>::NewLength(6);
+        vertexTotal = 4;
+        indexTotal = 6;
     }
 }
