@@ -189,13 +189,13 @@ void Spline::RefreshDistance()
 void Spline::RefreshSpline()
 {
     segments.clear();
-
-    for (int i = 0; i < controlPoints.size(); i++)
+    int size = 0;
+    for (auto point : controlPoints)
     {
-        if (controlPoints[i]->IsValid())
+        if (point->IsValid())
         {
-            segments.push_back(controlPoints[i]);
-            controlPoints[i]->SegmentIndex = segments.size() - 1;
+            segments.push_back(point);
+            point->SegmentIndex = size++;
         }
     }
 

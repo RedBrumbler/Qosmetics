@@ -20,10 +20,9 @@ struct ElementPool {
 
         ~ElementPool()
         {
-            Element* element;
-            while ((element = stack.top()))
+            while (stack.size() > 0)
             {
-                delete (element);
+                delete (stack.top());
                 stack.pop();
             }
         }

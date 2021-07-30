@@ -245,12 +245,12 @@ namespace Qosmetics
             if (!trailObj) continue;
             auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
             auto initData = TrailInitData(trail);
-            initData.TrailColor = colorManager->ColorForTrailType(isLeft);
+            initData.TrailColor = colorManager->ColorForTrailType(!isLeft);
                     
             static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
             static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
 
-            altTrail->Setup(initData, trailObj->Find(bottomTransformName), trailObj->Find(topTransformName), trailObj->GetComponent<Renderer*>()->get_material(), false);
+            altTrail->Setup(initData, trailObj->Find(bottomTransformName), trailObj->Find(topTransformName), trailObj->GetComponent<Renderer*>()->get_material(), true);
             /*
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
             trailComponent->SetColorManager(colorManager);

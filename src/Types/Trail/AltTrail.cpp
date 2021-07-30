@@ -6,6 +6,7 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("AltTrail").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("AltTrail").error(value)
 
+#define LOGCOLOR(color) INFO("%s, %.2f, %.2f, %.2f, %.2f", #color, color.r, color.g, color.b, color.a)
 DEFINE_TYPE(Qosmetics, AltTrail);
 
 using namespace UnityEngine;
@@ -25,12 +26,14 @@ namespace Qosmetics
         PointStart = pointStart;
         PointEnd = pointEnd;
         MyMaterial = material;
+        MyColor = initData.TrailColor;
         Granularity = initData.Granularity;
         TrailLength = initData.TrailLength;
         WhiteStep = initData.Whitestep;
 
         get_gameObject()->set_layer(12);
         if(editor) SortingOrder = 3;
+        else SortingOrder = 0;
         
         elemPool = new ElementPool(TrailLength);
         vertexPool = *il2cpp_utils::New<VertexPool*>(MyMaterial, this);
@@ -107,6 +110,12 @@ namespace Qosmetics
     {
         if (!inited || !vertexPool) return;
         vertexPool->Destroy();
+        
+        for (auto snap : snapshotList)
+        {
+            elemPool->Release(snap);
+        }
+        snapshotList.clear();
         delete (elemPool);
     }
 
@@ -128,7 +137,6 @@ namespace Qosmetics
         {
             controlPoints[index]->Position = snap->get_pos();
             controlPoints[index]->Normal = snap->pointEnd - snap->pointStart;
-
             index++;
         }
 
