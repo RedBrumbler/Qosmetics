@@ -11,6 +11,7 @@
 #include "UnityEngine/Resources.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
 #include "Types/Trail/AltTrail.hpp"
+#include "Types/Trail/TrailHelper.hpp"
 #include "chroma/shared/SaberAPI.hpp"
 
 DEFINE_TYPE(Qosmetics, Pointer);
@@ -244,13 +245,11 @@ namespace Qosmetics
             Transform* trailObj = oldPointer->Find(trailPath);
             if (!trailObj) continue;
             auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
-            auto initData = TrailInitData(trail);
-            initData.TrailColor = colorManager->ColorForTrailType(!isLeft);
-                    
-            static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
-            static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
+            auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
+            helper->set_trailConfig(&trail);
+            helper->Init(colorManager);
+            helper->TrailSetup();
 
-            altTrail->Setup(initData, trailObj->Find(bottomTransformName), trailObj->Find(topTransformName), trailObj->GetComponent<Renderer*>()->get_material(), true);
             /*
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
             trailComponent->SetColorManager(colorManager);

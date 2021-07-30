@@ -58,7 +58,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, VertexPool, Il2CppObject,
         int indexUsed = 0;
         bool vertCountChanged;
 
-        Qosmetics::AltTrail* owner;
+        Qosmetics::AltTrail* owner = nullptr;
         
         void CreateMeshObj(AltTrail* owner, UnityEngine::Material* material);
         void InitArrays();

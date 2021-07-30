@@ -6,6 +6,7 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("AltTrail").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("AltTrail").error(value)
 
+#define LOGPTR(pointer) INFO("%s, %p", #pointer, pointer)
 #define LOGCOLOR(color) INFO("%s, %.2f, %.2f, %.2f, %.2f", #color, color.r, color.g, color.b, color.a)
 DEFINE_TYPE(Qosmetics, AltTrail);
 
@@ -31,8 +32,6 @@ namespace Qosmetics
     void AltTrail::ctor()
     {
         INVOKE_CTOR();
-        spline = new Spline();
-        frameNum = 0;
     }
 
     void AltTrail::Setup(TrailInitData& initData, UnityEngine::Transform* pointStart, UnityEngine::Transform* pointEnd, UnityEngine::Material* material, bool editor)
@@ -40,6 +39,10 @@ namespace Qosmetics
         PointStart = pointStart;
         PointEnd = pointEnd;
         MyMaterial = material;
+        
+        LOGPTR(PointStart);
+        LOGPTR(PointEnd);
+        LOGPTR(MyMaterial);
         
         MyColor = initData.TrailColor;
         Granularity = initData.Granularity;
@@ -50,10 +53,12 @@ namespace Qosmetics
         if(editor) SortingOrder = 3;
         else SortingOrder = 0;
         
-        elemPool = new ElementPool(TrailLength);
-        vertexPool = *il2cpp_utils::New<VertexPool*>(MyMaterial, this);
+        if (inited) return;
+        
+        if (!spline) spline = new Spline();
+        if (!elemPool) elemPool = new ElementPool(TrailLength);
+        if (!vertexPool) vertexPool = *il2cpp_utils::New<VertexPool*>(MyMaterial, this);
 
-        INFO("Granularity: %d", Granularity);
 
         vertexSegment = vertexPool->GetVertices(Granularity * 3, (Granularity - 1) * 12);
         UpdateIndices();
@@ -89,8 +94,8 @@ namespace Qosmetics
 
         if (frameNum == skipFirstFrames + 1)
         {
-            vertexPool->SetMeshObjectActive(true);
             Reset(true);
+            vertexPool->SetMeshObjectActive(true);
         }
         else if (frameNum < (skipFirstFrames + 1)) return;
 
@@ -198,6 +203,7 @@ namespace Qosmetics
 
     void AltTrail::UpdateIndices()
     {
+        INFO("Updating indices");
         auto* pool = vertexSegment.Pool;
 
         for (int i = 0; i < Granularity - 1; i++)

@@ -35,7 +35,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
         int SortingOrder;
         int TrailLength = 30;
         int Granularity = 60;
-        float WhiteStep;
+        float WhiteStep = 0.2f;
         UnityEngine::Color MyColor = {1.0f, 1.0f, 1.0f, 1.0f};
         static bool CapFps;
         UnityEngine::Vector3 get_CurHeadPos();
@@ -46,13 +46,13 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
     private:
         float get_TrailWidth();
         std::vector<Element*> snapshotList;
-        ElementPool* elemPool;
-        Spline* spline;
+        ElementPool* elemPool = nullptr;
+        Spline* spline = nullptr;
         VertexSegment vertexSegment;
-        bool inited;
+        bool inited = false;
         int skipFirstFrames = 4;
-        int frameNum;
-        float time;
+        int frameNum = 0;
+        float time = 0.0f;
 
         void RefreshSpline();
         void UpdateVertex();

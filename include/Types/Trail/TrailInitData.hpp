@@ -4,13 +4,12 @@
 
 struct TrailInitData
 {
-    int TrailLength;
-    float Whitestep;
-    UnityEngine::Color TrailColor;
-    int Granularity;
-    int SamplingFrequency;
-    float SamplingStepMultiplier;
+    int TrailLength = 30;
+    float Whitestep = 0.2f;
+    UnityEngine::Color TrailColor = {1.0f, 1.0f, 1.0f, 1.0f};
+    int Granularity = 80;
 
+    TrailInitData() {};
     TrailInitData(Qosmetics::TrailConfig& config)
     {
         TrailLength = config.get_length();

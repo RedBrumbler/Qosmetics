@@ -1,7 +1,13 @@
+#include "Config.hpp"
 #include "Types/Trail/TrailHelper.hpp"
 #include "Utils/ChromaUtils.hpp"
 #include "chroma/shared/SaberAPI.hpp"
-#include "Config.hpp"
+
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("TrailHelper").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("TrailHelper").error(value)
+
 DEFINE_TYPE(Qosmetics, TrailHelper);
 
 using namespace UnityEngine;
@@ -18,22 +24,24 @@ namespace Qosmetics
 
     void TrailHelper::TrailSetup()
     {
-        static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
-        static Il2CppString* customTransformName = il2cpp_utils::createcsstr("CustomTrailStart", il2cpp_utils::StringType::Manual);
+        INFO("instance ptr: %p, trail Config ptr: %p", trailInstance, trailConfig);
+
         static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
+        static Il2CppString* customTransformName = il2cpp_utils::createcsstr("CustomTrailStart", il2cpp_utils::StringType::Manual);
+        static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
         
         Transform* topTransform = get_transform()->Find(topTransformName);
-        Transform* bottomTransform = get_transform()->Find(customTransformName);
-        
+        Transform* bottomTransform = get_transform()->Find(bottomTransformName);
+
         if (config.saberConfig.overrideTrailWidth)
         {
-            Transform* = customBottomTransform = get_transform()->Find(customTransformName);
+            Transform* customBottomTransform = get_transform()->Find(customTransformName);
 
             if (!customBottomTransform)
             {
                 customBottomTransform = GameObject::New_ctor()->get_transform();
                 customBottomTransform->SetParent(get_transform());
-		        customBottomTransform->set_name(customBottomTransformName);
+		        customBottomTransform->set_name(customTransformName);
             }
 
 			UnityEngine::Vector3 newPos = UnityEngine::Vector3::Lerp(topTransform->get_localPosition(), bottomTransform->get_localPosition(), config.saberConfig.trailWidth);
@@ -47,7 +55,8 @@ namespace Qosmetics
         initData.TrailColor = {1.0f, 1.0f, 1.0f, 1.0f};
         initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10.0f) ? initData.TrailLength / 10.0f : 1.0f));;
 
-        trailInstance->Setup(initData, bottomTransform, topTransform, trailObj->GetComponent<Renderer*>()->get_material(), false);
+        trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), false);
+        INFO("Trail is Setup");
     }
 
     void TrailHelper::SetTrailActive(bool active)

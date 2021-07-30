@@ -3,6 +3,7 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
 #include "Types/Trail/AltTrail.hpp"
+#include "Types/Trail/TrailHelper.hpp"
 
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -164,7 +165,7 @@ namespace Qosmetics
                     Transform* trailObj = customSaber->Find(trailPath);
                     if (!trailObj) continue;
                     auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
-                    auto helper = trailObj->AddComponent<Qosmetics::TrailHelper*>();
+                    auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
                     helper->set_trailConfig(&trail);
                     helper->Init(colorManager);
                     helper->TrailSetup();
