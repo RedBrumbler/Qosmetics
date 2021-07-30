@@ -11,6 +11,18 @@ DEFINE_TYPE(Qosmetics, AltTrail);
 
 using namespace UnityEngine;
 
+static constexpr const float frameRateTreshold = 1.0f / 90.0f;
+
+static inline Vector3 Vector3Sub(Vector3& first, Vector3& second)
+{
+    return Vector3(first.x - second.x, first.y - second.y, first.z - second.z);
+}
+
+static inline Vector3 Vector3SubVal(Vector3 first, Vector3 second)
+{
+    return Vector3Sub(first, second);
+}
+
 namespace Qosmetics
 {
     bool AltTrail::CapFps = false;
@@ -65,7 +77,7 @@ namespace Qosmetics
         if (CapFps)
         {
             time += Time::get_deltaTime();
-            if (time < 1.0f / 90) return;
+            if (time < frameRateTreshold) return;
             time  = 0.0f;
         }
 
@@ -80,7 +92,7 @@ namespace Qosmetics
 
             for (int i = 0; i < TrailLength; i++)
             {
-                spline->AddControlPoint(get_CurHeadPos(), PointStart->get_position() - PointEnd->get_position());
+                spline->AddControlPoint(get_CurHeadPos(), Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
             }
 
             // if snapshot list contains elements, that is an issue, remove them!
@@ -111,22 +123,27 @@ namespace Qosmetics
         if (!inited || !vertexPool) return;
         vertexPool->Destroy();
         
+        // empty snapshot list
         for (auto snap : snapshotList)
         {
             elemPool->Release(snap);
         }
         snapshotList.clear();
+
+        // delete pool
         delete (elemPool);
+        // delete spline
+        delete (spline);
     }
 
     float AltTrail::get_TrailWidth()
     {
-        return (PointStart->get_position() - PointEnd->get_position()).get_magnitude();
+        return Vector3SubVal(PointStart->get_position(), PointEnd->get_position()).get_magnitude();
     }
     
     UnityEngine::Vector3 AltTrail::get_CurHeadPos()
     {
-        return (PointStart->get_position() - PointEnd->get_position()) / 2.0f;
+        return Vector3SubVal(PointStart->get_position(), PointEnd->get_position()) / 2.0f;
     }
 
     void AltTrail::RefreshSpline()
@@ -136,7 +153,7 @@ namespace Qosmetics
         for (auto snap : snapshotList)
         {
             controlPoints[index]->Position = snap->get_pos();
-            controlPoints[index]->Normal = snap->pointEnd - snap->pointStart;
+            controlPoints[index]->Normal = Vector3Sub(snap->pointEnd, snap->pointStart);
             index++;
         }
 
@@ -167,8 +184,7 @@ namespace Qosmetics
             {
                 color = Color::LerpUnclamped(Color::get_white(), MyColor, uvSegment / WhiteStep);
             }
-
-
+            
             // pos0
             pool->Vertices->values[baseIdx] = pos0;
             pool->Colors->values[baseIdx] = color;
@@ -253,6 +269,6 @@ namespace Qosmetics
 
     void AltTrail::dtor()
     {
-        delete (spline);
+
     }
 }
