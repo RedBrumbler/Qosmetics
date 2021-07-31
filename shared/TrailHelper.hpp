@@ -57,13 +57,13 @@ namespace Qosmetics
             #else
             void SetTrailActive(bool active)
             {
-                static auto function = CondDep::Find<Il2CppObject*, bool>("questcosmetics", "SetTrailActive");
+                static auto function = CondDep::Find<void, Il2CppObject*, bool>("questcosmetics", "SetTrailActive");
                 if (!function) return;
 
                 function.value()(this, active);
             }
             #endif
-            
+
             void UpdateColors()
             {
                 auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "UpdateColors", 0);
