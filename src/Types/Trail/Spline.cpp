@@ -103,17 +103,17 @@ SplineControlPoint* Spline::LenToSegment(float t, float& localF)
 
 Vector3 Spline::CatmulRom(Vector3 T0, Vector3 P0, Vector3 P1, Vector3 T1, float f)
 {
-    double DT1 = -0.5; 
-    double DT2 = 1.5; 
-    double DT3 = -1.5; 
-    double DT4 = 0.5;
+    static constexpr const double DT1 = -0.5; 
+    static constexpr const double DT2 = 1.5; 
+    static constexpr const double DT3 = -1.5; 
+    static constexpr const double DT4 = 0.5;
 
-    double DE2 = -2.5; 
-    double DE3 = 2; 
-    double DE4 = -0.5;
+    static constexpr const double DE2 = -2.5; 
+    static constexpr const double DE3 = 2; 
+    static constexpr const double DE4 = -0.5;
 
-    double DV1 = -0.5;
-    double DV3 = 0.5;
+    static constexpr const double DV1 = -0.5;
+    static constexpr const double DV3 = 0.5;
 
     double FAX = DT1 * T0.x + DT2 * P0.x + DT3 * P1.x + DT4 * T1.x;
     double FBX = T0.x + DE2 * P0.x + DE3 * P1.x + DE4 * T1.x;
@@ -170,6 +170,7 @@ void Spline::Clear()
     }
 
     controlPoints.clear();
+    segments.clear();
 }
 
 void Spline::RefreshDistance()
@@ -181,7 +182,7 @@ void Spline::RefreshDistance()
 
     for (int i = 1; i < segments.size(); i++)
     {
-        float prevLen = (segments[i]->Position - segments[i - 1]->Position).get_magnitude();
+        float prevLen = Vector3::Magnitude(segments[i]->Position - segments[i - 1]->Position);
         segments[i]->Dist = segments[i - 1]->Dist + prevLen;
     }
 }

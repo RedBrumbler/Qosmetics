@@ -244,17 +244,10 @@ namespace Qosmetics
             Il2CppString* trailPath = trail.get_name();
             Transform* trailObj = oldPointer->Find(trailPath);
             if (!trailObj) continue;
-            auto altTrail = UnityUtils::GetAddComponent<Qosmetics::AltTrail*>(trailObj->get_gameObject());
             auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
             helper->set_trailConfig(&trail);
-            helper->Init(colorManager);
+            helper->Init(colorManager, nullptr);
             helper->TrailSetup();
-
-            /*
-            QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
-            trailComponent->SetColorManager(colorManager);
-            trailComponent->SetTrailConfig(&trail);
-            */
         }
     }
 

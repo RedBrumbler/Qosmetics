@@ -1,7 +1,7 @@
 #include <stack>
 #include "Element.hpp"
 
-struct ElementPool {
+class ElementPool {
 
     private: std::stack<Element*> stack = {};
     private: int count = 0;

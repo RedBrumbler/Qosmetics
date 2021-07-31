@@ -8,23 +8,41 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("TrailHelper").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("TrailHelper").error(value)
 
+#define LOGINT(val) INFO("%s: %d", #val, val)
 DEFINE_TYPE(Qosmetics, TrailHelper);
 
 using namespace UnityEngine;
 
 namespace Qosmetics
 {
-    void TrailHelper::Init(Qosmetics::ColorManager* colorManager)
+    void TrailHelper::GetOrAddTrail(bool remake)
+    {
+        // if not set, get it
+        if (!trailInstance)
+            trailInstance = GetComponent<AltTrail*>();
+
+        // if still not set, it didn't exist, add it
+        if (!trailInstance)
+            trailInstance = get_gameObject()->AddComponent<AltTrail*>();
+        // if set, check if inited, if so reset by deleting and adding new
+        else if (trailInstance->get_inited() && remake)
+        {
+            Object::DestroyImmediate(trailInstance);
+            trailInstance = get_gameObject()->AddComponent<AltTrail*>();
+        }
+    }
+
+    void TrailHelper::Init(Qosmetics::ColorManager* colorManager, GlobalNamespace::SaberModelController* parentModelController)
     {
         this->colorManager = colorManager;
-        trailInstance = GetComponent<AltTrail*>();
-
+        this->parentModelController = parentModelController;
         ChromaUtils::registerSaberCallback({&TrailHelper::UpdateChromaColors, this});
+        GetOrAddTrail(false);
     }
 
     void TrailHelper::TrailSetup()
     {
-        if (!trailInstance) trailInstance = GetComponent<AltTrail*>();
+        GetOrAddTrail(true);
 
         static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
         static Il2CppString* customTransformName = il2cpp_utils::createcsstr("CustomTrailStart", il2cpp_utils::StringType::Manual);
@@ -50,10 +68,18 @@ namespace Qosmetics
         }
 
         TrailInitData initData;
-        initData.TrailLength = config.saberConfig.overrideTrailLength ? config.saberConfig.trailLength : trailConfig->get_length();;
+        // override set trail length?
+        initData.TrailLength = config.saberConfig.overrideTrailLength ? config.saberConfig.trailLength : trailConfig->get_length();
+        initData.TrailLength = initData.TrailLength >= 4 ? initData.TrailLength : 4;
+
+        LOGINT(initData.TrailLength);
+        // override set trail whitestep?
         initData.Whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep : trailConfig->get_whiteStep();
         initData.TrailColor = {1.0f, 1.0f, 1.0f, 1.0f};
-        initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10.0f) ? initData.TrailLength / 10.0f : 1.0f));;
+        
+        // calculate granularity
+        initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10) ? (float)initData.TrailLength / 10.0f : 1.0f));;
+        LOGINT(initData.Granularity);
 
         trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), false);
         INFO("Trail is Setup");
@@ -62,7 +88,7 @@ namespace Qosmetics
     void TrailHelper::SetTrailActive(bool active)
     {
         // if state differs, apply it
-        if (!trailInstance) trailInstance = GetComponent<AltTrail*>();
+        GetOrAddTrail(false);
         if (trailInstance->get_enabled() ^ active) trailInstance->set_enabled(active);
     }
 
@@ -99,13 +125,13 @@ namespace Qosmetics
 	    	color = trailConfig->get_color();
         }
         
-        if (!trailInstance) trailInstance = GetComponent<AltTrail*>();
+        GetOrAddTrail(false);
         trailInstance->SetColor(color);
     }
 
-    void TrailHelper::UpdateChromaColors(int, GlobalNamespace::SaberModelController*, UnityEngine::Color)
+    void TrailHelper::UpdateChromaColors(int saberType, GlobalNamespace::SaberModelController* saberModelController, UnityEngine::Color color)
     {
-        UpdateColors();
+        if (saberModelController->Equals(parentModelController)) UpdateColors();
     }
 
     void TrailHelper::set_trailConfig(Qosmetics::TrailConfig* trailConfig)

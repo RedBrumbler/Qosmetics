@@ -43,6 +43,8 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
         void SetColor(UnityEngine::Color color);
         void Collapse();
         static float trailIntensity;
+        bool get_inited();
+        
     private:
         float get_TrailWidth();
         std::vector<Element*> snapshotList;
@@ -54,6 +56,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
         int frameNum = 0;
         float time = 0.0f;
 
+        void UpdateTrailData();
         void RefreshSpline();
         void UpdateVertex();
         void UpdateIndices();

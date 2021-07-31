@@ -2,9 +2,10 @@
 
 #include "UnityEngine/Vector3.hpp"
 
-struct Spline;
+class Spline;
 
-struct SplineControlPoint {
+class SplineControlPoint {
+    public:
         int ControlPointIndex = -1;
         float Dist;
 
@@ -27,5 +28,4 @@ struct SplineControlPoint {
         UnityEngine::Vector3 Interpolate(float localF);
         UnityEngine::Vector3 InterpolateNormal(float localF);
         void Init(Spline* owner);
-
 };

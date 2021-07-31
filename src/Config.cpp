@@ -131,7 +131,8 @@ bool LoadSaberConfig(rapidjson::Value& configValue, config_t& config)
         foundEverything = false;
     } 
     if(configValue.HasMember("trailLength") && configValue["trailLength"].IsDouble()){
-        config.saberConfig.trailLength = configValue["trailLength"].GetDouble();    
+        config.saberConfig.trailLength = configValue["trailLength"].GetDouble();  
+        if (config.saberConfig.trailLength <= 1.0) config.saberConfig.trailLength = 1.0;
     }else{
         foundEverything = false;
     }

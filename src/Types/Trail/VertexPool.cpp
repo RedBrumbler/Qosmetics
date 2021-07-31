@@ -86,25 +86,21 @@ namespace Qosmetics
         int length = Vertices->Length();
         auto tempVertices = Vertices;
         Vertices = Array<Vector3>::NewLength(length + count);
-        //for (auto i = 0; i < length; i++) Vertices->values[i] = tempVertices->values[i];
         tempVertices->CopyTo(Vertices, 0);
 
         length = UVs->Length();
         auto tempUVs = UVs;
         UVs = Array<Vector2>::NewLength(length + count);
-        //for (auto i = 0; i < length; i++) UVs->values[i] = tempUVs->values[i];
         tempUVs->CopyTo(UVs, 0);
 
         length = Colors->Length();
         auto tempColors = Colors;
         Colors = Array<Color>::NewLength(length + count);
-        //for (auto i = 0; i < length; i++) Colors->values[i] = tempColors->values[i];
         tempColors->CopyTo(Colors, 0);
 
         length = Indices->Length();
         auto tempIndices = Indices;
         Indices = Array<int>::NewLength(length + icount);
-        //for (auto i = 0; i < length; i++) Indices->values[i] = tempIndices->values[i];
         tempIndices->CopyTo(Indices, 0);
         
         vertCountChanged = true;
@@ -176,5 +172,14 @@ namespace Qosmetics
         Indices = Array<int>::NewLength(6);
         vertexTotal = 4;
         indexTotal = 6;
+    }
+
+    void VertexPool::SetMaterial(Material* material)
+    {
+        if (_gameObject)
+        {
+            _material = material;
+            _gameObject->GetComponent<Renderer*>()->set_sharedMaterial(material);
+        }
     }
 }

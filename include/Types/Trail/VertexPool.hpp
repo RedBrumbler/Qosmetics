@@ -50,6 +50,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, VertexPool, Il2CppObject,
         VertexSegment GetVertices(int vcount, int icount);
         void EnlargeArrays(int count, int icount);
         void LateUpdate();
+        void SetMaterial(UnityEngine::Material* material);
 
     private:
         int vertexTotal = 0;
