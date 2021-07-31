@@ -61,8 +61,12 @@ namespace Qosmetics
             }
 
         private:
-            // Qosmetics::TrailConfig (cpp type but is pointer) 
-            void* trailConfig;
+            int colorType;
+            UnityEngine::Color color;
+            UnityEngine::Color multiplier;
+            int length;
+            float whiteStep;
+
     };
 }
 

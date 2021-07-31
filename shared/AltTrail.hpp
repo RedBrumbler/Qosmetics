@@ -36,7 +36,7 @@ namespace Qosmetics
 
             void Reset(bool addNewElemsToSnap)
             {
-                static auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "AltTrail", "Reset", 1);
+                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "AltTrail", "Reset", 1);
                 if (ptr) il2cpp_utils::RunMethod(this, ptr, addNewElemsToSnap);
             }
 

@@ -245,7 +245,7 @@ namespace Qosmetics
             Transform* trailObj = oldPointer->Find(trailPath);
             if (!trailObj) continue;
             auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
-            helper->set_trailConfig(&trail);
+            helper->set_trailConfig(trail);
             helper->Init(colorManager, nullptr);
             helper->TrailSetup();
         }

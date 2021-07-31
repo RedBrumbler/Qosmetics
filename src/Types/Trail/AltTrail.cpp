@@ -15,6 +15,10 @@ using namespace UnityEngine;
 
 static constexpr const float frameRateTreshold = 1.0f / 90.0f;
 
+static inline Vector3 Vector3Add(Vector3& first, Vector3& second) {
+    return Vector3(first.x + second.x, first.y + second.y, first.z + second.z);
+}
+
 static inline Vector3 Vector3Sub(Vector3& first, Vector3& second) {
     return Vector3(first.x - second.x, first.y - second.y, first.z - second.z);
 }
@@ -25,6 +29,18 @@ static inline Vector3 Vector3SubVal(Vector3 first, Vector3 second) {
 
 static inline Vector3 Vector3Div(Vector3& vec, float val) {
     return Vector3(vec.x / val, vec.y / val, vec.z / val);
+}
+
+static inline Vector3 Vector3Mul(Vector3& first, Vector3& second) {
+    return Vector3(first.x * second.x, first.y * second.y, first.z * second.z);
+}
+
+static inline Vector3 Vector3Mul(Vector3& vec, float val) {
+    return Vector3(vec.x * val, vec.y * val, vec.z * val);
+}
+
+static inline Vector3 Vector3MulVal(Vector3 vec, float val) {
+    return Vector3(vec.x * val, vec.y * val, vec.z * val);
 }
 
 template<typename T>
@@ -175,13 +191,6 @@ namespace Qosmetics
         UpdateVertex();
 
         vertexPool->LateUpdate();
-
-        timer++;
-        if (timer > 200)
-        {
-            timer = 0;
-            Collapse();
-        } 
     }
 
     void AltTrail::OnDestroy()
@@ -204,7 +213,7 @@ namespace Qosmetics
 
     float AltTrail::get_TrailWidth()
     {
-        return MagnitudeVal(Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
+        return MagnitudeVal(Vector3SubVal(PointStart->get_position(), PointEnd->get_position())) * 0.5f;
     }
     
     UnityEngine::Vector3 AltTrail::get_CurHeadPos()
@@ -245,12 +254,6 @@ namespace Qosmetics
 
             float uvSegment = (float) i / Granularity;
 
-            auto pos = spline->InterpolateByLen(uvSegment);
-
-            auto up = NormalizeVal(spline->InterpolateNormalByLen(uvSegment));
-            auto pos0 = pos + up * get_TrailWidth() * 0.5f;
-            auto pos1 = pos - up * get_TrailWidth() * 0.5f;
-
             Color color = MyColor;
 
             if (uvSegment < WhiteStep)
@@ -258,14 +261,20 @@ namespace Qosmetics
                 static Color white = {1.0f, 1.0f, 1.0f, 1.0f};
                 color = LerpUnclamped(white, MyColor, uvSegment / WhiteStep);
             }
-            
-            pool->Vertices->values[baseIdx] = pos0;
+
+            auto pos = spline->InterpolateByLen(uvSegment);
+            auto mul = Vector3MulVal(NormalizeVal(spline->InterpolateNormalByLen(uvSegment)), get_TrailWidth());
+
+            // offset half a trail width from pos
+            pool->Vertices->values[baseIdx] = Vector3Add(pos, mul);;
             pool->UVs->values[baseIdx].x = 0.0f;
 
+            // center
             pool->Vertices->values[baseIdx + 1] = pos;
             pool->UVs->values[baseIdx + 1].x = 0.5f;
 
-            pool->Vertices->values[baseIdx + 2] = pos1;
+            // offset half a trail width from pos
+            pool->Vertices->values[baseIdx + 2] = Vector3Sub(pos, mul);;
             pool->UVs->values[baseIdx + 2].x = 1.0f;
 
             pool->Colors->values[baseIdx] = pool->Colors->values[baseIdx + 1] = pool->Colors->values[baseIdx + 2] = color;

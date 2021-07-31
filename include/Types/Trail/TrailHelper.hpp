@@ -22,7 +22,11 @@ DECLARE_CLASS_CODEGEN(Qosmetics, TrailHelper, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int saberType, GlobalNamespace::SaberModelController* saberModelController, UnityEngine::Color color);
 
     public:
-        void set_trailConfig(Qosmetics::TrailConfig* trailConfig);
+        void set_trailConfig(Qosmetics::TrailConfig& trailConfig);
     private:
-        TrailConfig* trailConfig;
+        int colorType;
+        UnityEngine::Color color;
+        UnityEngine::Color multiplier;
+        int length;
+        float whiteStep;
 )

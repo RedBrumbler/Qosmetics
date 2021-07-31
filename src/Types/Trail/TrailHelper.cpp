@@ -49,7 +49,24 @@ namespace Qosmetics
         static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
         
         Transform* topTransform = get_transform()->Find(topTransformName);
+        
+        if (!topTransform)
+        {
+            topTransform = GameObject::New_ctor()->get_transform();
+            topTransform->SetParent(get_transform());
+            topTransform->set_localPosition({0.0f, 0.0f, 1.0f});
+            topTransform->get_gameObject()->set_name(topTransformName);
+        }
+
         Transform* bottomTransform = get_transform()->Find(bottomTransformName);
+
+        if (!bottomTransform)
+        {
+            bottomTransform = GameObject::New_ctor()->get_transform();
+            bottomTransform->SetParent(get_transform());
+            bottomTransform->set_localPosition({0.0f, 0.0f, 0.0f});
+            bottomTransform->get_gameObject()->set_name(bottomTransformName);
+        }
 
         if (config.saberConfig.overrideTrailWidth)
         {
@@ -69,19 +86,19 @@ namespace Qosmetics
 
         TrailInitData initData;
         // override set trail length?
-        initData.TrailLength = config.saberConfig.overrideTrailLength ? config.saberConfig.trailLength : trailConfig->get_length();
+        initData.TrailLength = config.saberConfig.overrideTrailLength ? config.saberConfig.trailLength : length;
         initData.TrailLength = initData.TrailLength >= 4 ? initData.TrailLength : 4;
 
         LOGINT(initData.TrailLength);
         // override set trail whitestep?
-        initData.Whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep : trailConfig->get_whiteStep();
+        initData.Whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep : whiteStep;
         initData.TrailColor = {1.0f, 1.0f, 1.0f, 1.0f};
         
         // calculate granularity
         initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10) ? (float)initData.TrailLength / 10.0f : 1.0f));;
         LOGINT(initData.Granularity);
 
-        trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), false);
+        trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), true);
         INFO("Trail is Setup");
         UpdateColors(); 
     }
@@ -95,14 +112,8 @@ namespace Qosmetics
 
     void TrailHelper::UpdateColors()
     {
-        if (!trailConfig) 
-        {
-            ERROR("Updating colors with nullptr trailconfig, returning!");
-            return;
-        }
-
         GetOrAddTrail(false);
-        trailInstance->SetColor(GetColor(trailConfig->get_colorType()));
+        trailInstance->SetColor(GetColor(colorType));
     }
 
     Color TrailHelper::GetColor(int colorType)
@@ -111,28 +122,20 @@ namespace Qosmetics
         {
             return {1.0f, 1.0f, 1.0f, 1.0f};
         }
-        Color color;
 
+        Color color = this->color;
         // colortype can only be 0, 1 or 2, meaning 0b0, 0b1 or 0b10, if ^0b10 makes it false then it's 2, else 0 ro 1
         if (colorType ^ 0b10)
         {
             std::optional<UnityEngine::Color> saberColor = Chroma::SaberAPI::getGlobalSaberColorSafe(colorType);
             if (saberColor)
             {
-                color = (*saberColor) * trailConfig->get_multiplierColor();
+                color = (*saberColor) * multiplier;
             }
             else if (colorManager)
             {
-	    	    color = colorManager->ColorForTrailType(colorType) * trailConfig->get_multiplierColor();
+	    	    color = colorManager->ColorForTrailType(colorType) * multiplier;
             }
-            else
-            {
-	    	    color = trailConfig->get_color();
-            }
-        }
-        else
-        {
-	    	color = trailConfig->get_color();
         }
         return color;
     }
@@ -142,8 +145,12 @@ namespace Qosmetics
         if (saberModelController->Equals(parentModelController)) UpdateColors();
     }
 
-    void TrailHelper::set_trailConfig(Qosmetics::TrailConfig* trailConfig)
+    void TrailHelper::set_trailConfig(Qosmetics::TrailConfig& trailConfig)
     {
-        this->trailConfig = trailConfig;
+        colorType = trailConfig.get_colorType();
+        color = trailConfig.get_color();
+        multiplier = trailConfig.get_multiplierColor();
+        length = trailConfig.get_length();
+        whiteStep = trailConfig.get_whiteStep();
     }
 }

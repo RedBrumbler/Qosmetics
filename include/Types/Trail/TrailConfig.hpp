@@ -15,6 +15,17 @@ namespace Qosmetics
             custom
         };
         public:
+            TrailConfig(int colorType, UnityEngine::Color trailColor, UnityEngine::Color multiplier, int length, int whiteStep) : TrailConfig((trailColorType)colorType, trailColor, multiplier, length, whiteStep) {};
+
+            TrailConfig(trailColorType colorType, UnityEngine::Color trailColor, UnityEngine::Color multiplier, int length, int whiteStep)
+            {
+                this->colorType = colorType;
+                this->trailColor = trailColor;
+                this->multiplier = multiplier;
+                this->length = length;
+                this->whiteStep = whiteStep;
+            }
+
             TrailConfig(const rapidjson::Value& val)
             {
                 std::string name = val["name"].GetString();
@@ -56,9 +67,9 @@ namespace Qosmetics
                 return length;
             }
 
-            int get_whiteStep()
+            float get_whiteStep()
             {
-                return whiteStep;
+                return (float)whiteStep / (float)length;
             }
             
         private:
