@@ -87,5 +87,8 @@ namespace Qosmetics
                 delete[](array);
                 return std::make_optional(function.value()());
             }
+
+            /// @brief sets the specific passed trail active
+            static void SetTrailActive(Il2CppObject*);
     };
 }

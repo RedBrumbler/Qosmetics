@@ -3,6 +3,13 @@
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Color.hpp"
 
+
+
+#if defined __has_include && __has_include ("conditional-dependencies/shared/main.hpp")
+#include "conditional-dependencies/shared/main.hpp"
+#define HAS_CONDEP
+#endif
+
 #if defined __has_include && __has_include ("AltTrail.hpp")
 #include "AltTrail.hpp"
 #endif
@@ -41,12 +48,22 @@ namespace Qosmetics
                 if (ptr) il2cpp_utils::RunMethod(this, ptr);
             }
 
+            #ifndef HAS_CONDEP
             void SetTrailActive(bool active)
             {
                 auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "SetTrailActive", 1);
                 if (ptr) il2cpp_utils::RunMethod(this, ptr, active);
             }
+            #else
+            void SetTrailActive(bool active)
+            {
+                static auto function = CondDep::Find<Il2CppObject*, bool>("questcosmetics", "SetTrailActive");
+                if (!function) return;
 
+                function.value()(this, active);
+            }
+            #endif
+            
             void UpdateColors()
             {
                 auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "UpdateColors", 0);

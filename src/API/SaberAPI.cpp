@@ -5,6 +5,7 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Data/Descriptor.hpp"
 #include "static-defines.hpp"
+#include "Types/Trail/TrailHelper.hpp"
 
 using namespace Qosmetics;
 
@@ -47,6 +48,10 @@ EXPOSE_API(GetSaberFolder, char*) {
     char* temp = new char[SABERPATH.size() + 1];
     strcpy(temp, SABERPATH.c_str());
     return temp;
+}
+
+EXPOSE_API(SetTrailActive, void, Il2CppObject* trailHelper, bool active) {
+    ((Qosmetics::TrailHelper*)trailHelper)->SetTrailActive(active);
 }
 
 #undef SABERMANAGER
