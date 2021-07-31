@@ -55,7 +55,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
         int skipFirstFrames = 4;
         int frameNum = 0;
         float time = 0.0f;
-
+        int timer = 0;
         void UpdateTrailData();
         void RefreshSpline();
         void UpdateVertex();

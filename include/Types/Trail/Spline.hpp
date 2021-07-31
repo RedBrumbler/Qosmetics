@@ -10,7 +10,7 @@ class Spline {
         std::vector<SplineControlPoint*> controlPoints;
         std::vector<SplineControlPoint*> segments;
         int Granularity = 20;
-    
+        Spline(int preCount);
         SplineControlPoint* operator[](int index);
         std::vector<SplineControlPoint*>& get_ControlPoints();
         SplineControlPoint* NextControlPoint(SplineControlPoint* controlPoint);

@@ -83,12 +83,13 @@ namespace Qosmetics
 
         trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), false);
         INFO("Trail is Setup");
+        UpdateColors(); 
     }
 
     void TrailHelper::SetTrailActive(bool active)
     {
-        // if state differs, apply it
         GetOrAddTrail(false);
+        // if state differs, apply it
         if (trailInstance->get_enabled() ^ active) trailInstance->set_enabled(active);
     }
 
@@ -100,9 +101,18 @@ namespace Qosmetics
             return;
         }
 
+        GetOrAddTrail(false);
+        trailInstance->SetColor(GetColor(trailConfig->get_colorType()));
+    }
+
+    Color TrailHelper::GetColor(int colorType)
+    {
+        if (config.saberConfig.whiteTrail)
+        {
+            return {1.0f, 1.0f, 1.0f, 1.0f};
+        }
         Color color;
-        int colorType = trailConfig->get_colorType();
-        
+
         // colortype can only be 0, 1 or 2, meaning 0b0, 0b1 or 0b10, if ^0b10 makes it false then it's 2, else 0 ro 1
         if (colorType ^ 0b10)
         {
@@ -124,9 +134,7 @@ namespace Qosmetics
         {
 	    	color = trailConfig->get_color();
         }
-        
-        GetOrAddTrail(false);
-        trailInstance->SetColor(color);
+        return color;
     }
 
     void TrailHelper::UpdateChromaColors(int saberType, GlobalNamespace::SaberModelController* saberModelController, UnityEngine::Color color)

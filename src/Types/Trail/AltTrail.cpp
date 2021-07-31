@@ -52,7 +52,6 @@ static inline Vector3 NormalizeVal(Vector3 vec) {
     return Normalize(vec);
 }
 
-
 static inline Color ColorAdd(Color& first, Color& second) {
     return Color(first.r + second.r, first.g + second.g, first.b + second.b, first.a + second.a);
 }
@@ -106,7 +105,7 @@ namespace Qosmetics
         if(editor) SortingOrder = 3;
         else SortingOrder = 0;
         
-        if (!spline) spline = new Spline();
+        if (!spline) spline = new Spline(TrailLength);
         if (!elemPool) elemPool = new ElementPool(TrailLength);
         if (!vertexPool) vertexPool = *il2cpp_utils::New<VertexPool*>(MyMaterial, this);
         snapshotList.reserve(TrailLength);
@@ -159,7 +158,14 @@ namespace Qosmetics
         if (frameNum == skipFirstFrames + 1)
         {
             Reset(true);
+            UpdateHeadElem();
+            RecordCurElem();
+            RefreshSpline();
+            UpdateVertex();
+
+            vertexPool->LateUpdate();
             vertexPool->SetMeshObjectActive(true);
+            return;
         }
         else if (frameNum < (skipFirstFrames + 1)) return;
         
@@ -169,6 +175,13 @@ namespace Qosmetics
         UpdateVertex();
 
         vertexPool->LateUpdate();
+
+        timer++;
+        if (timer > 200)
+        {
+            timer = 0;
+            Collapse();
+        } 
     }
 
     void AltTrail::OnDestroy()
@@ -257,35 +270,6 @@ namespace Qosmetics
 
             pool->Colors->values[baseIdx] = pool->Colors->values[baseIdx + 1] = pool->Colors->values[baseIdx + 2] = color;
             pool->UVs->values[baseIdx].y = pool->UVs->values[baseIdx + 1].y = pool->UVs->values[baseIdx + 2].y = uvSegment;
-
-            /*
-            // pos0
-            pool->Vertices->values[baseIdx] = pos0;
-            pool->Colors->values[baseIdx] = color;
-            //uvCoord.x = 0.0f;
-            //uvCoord.y = uvSegment;
-            //pool->UVs->values[baseIdx] = uvCoord;
-            pool->UVs->values[baseIdx].x = 0.0f;
-            pool->UVs->values[baseIdx].y = uvSegment;`
-
-            //pos
-            pool->Vertices->values[baseIdx + 1] = pos;
-            pool->Colors->values[baseIdx + 1] = color;
-            //uvCoord.x = 0.5f;
-            //uvCoord.y = uvSegment;
-            //pool->UVs->values[baseIdx + 1] = uvCoord;
-            pool->UVs->values[baseIdx].x = 0.0f;
-            pool->UVs->values[baseIdx].y = uvSegment;
-
-            //pos1
-            pool->Vertices->values[baseIdx + 2] = pos1;
-            pool->Colors->values[baseIdx + 2] = color;
-            //uvCoord.x = 1.0f;
-            //uvCoord.y = uvSegment;
-            //pool->UVs->values[baseIdx + 2] = uvCoord;
-            pool->UVs->values[baseIdx + 2].x = 0.0f;
-            pool->UVs->values[baseIdx + 2].y = uvSegment;
-            */
         }
 
         vertexSegment.Pool->UVChanged = true;
@@ -326,27 +310,35 @@ namespace Qosmetics
 
     void AltTrail::UpdateHeadElem()
     {
+        // update the first element
         snapshotList.front()->pointStart = PointStart->get_position();
         snapshotList.front()->pointEnd = PointEnd->get_position();
     }
 
     void AltTrail::RecordCurElem()
     {
+        // get an element
         Element* elem = elemPool->Get();
 
+        // set it to the current position
         elem->pointStart = PointStart->get_position();
         elem->pointEnd = PointEnd->get_position();
 
+        // if list is small
         if (snapshotList.size() < TrailLength)
         {
+            // add it after the first element
             snapshotList.insert((snapshotList.begin()++), elem);
         }
+        // if list too big, just release the back element
         else if (snapshotList.size() > TrailLength)
         {
+            elemPool->Release(elem);
             elemPool->Release(snapshotList.back());
             snapshotList.pop_back();
         }
-        else
+        // if list exactly right, remove the last list element and put the new element after the first
+        else // if (snapshotList.size() == TrailLength)
         {
             elemPool->Release(snapshotList.back());
             snapshotList.pop_back();
@@ -367,7 +359,7 @@ namespace Qosmetics
 
     void AltTrail::Reset(bool addNewElemsToSnap)
     {
-        if (!spline) spline = new Spline();
+        if (!spline) spline = new Spline(TrailLength);
         bool poolExisted = elemPool;
         if (!poolExisted)
         {
@@ -377,6 +369,7 @@ namespace Qosmetics
         spline->Granularity = Granularity;
         spline->Clear();
 
+        // make sure the spline contains enough control points for the trail length
         for (int i = 0; i < TrailLength; i++)
         {
             spline->AddControlPoint(get_CurHeadPos(), Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
@@ -393,27 +386,39 @@ namespace Qosmetics
             snapshotList.reserve(TrailLength);
         }
 
+        // if hte pool already existed and we dont want to force new elements in, use this
         if (poolExisted && !addNewElemsToSnap)
         {
-            snapshotList.push_back(elemPool->Get());
-            snapshotList.push_back(elemPool->Get());
+            auto elem = elemPool->Get();
+            elem->pointStart = PointStart->get_position();
+            elem->pointStart = PointEnd->get_position();
+            snapshotList.push_back(elem);
+
+            elem = elemPool->Get();
+            elem->pointStart = PointStart->get_position();
+            elem->pointStart = PointEnd->get_position();
+            snapshotList.push_back(elem);
         }
         else
         {
             snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
             snapshotList.push_back(new Element(PointStart->get_position(), PointEnd->get_position()));
         }
-        
+        // collapse the trail to be basically 0 length
         Collapse();
     }
 
     void AltTrail::Collapse()
     {
+        Vector3 start = PointStart->get_position();
+        Vector3 end = PointEnd->get_position();
         // makes all parts of the trail end up at the same place, making it basically 0 length
         for (auto snap : snapshotList)
         {
-            snap->pointStart = PointStart->get_position();
-            snap->pointEnd = PointEnd->get_position();
+            snap->pointStart = start;
+            snap->pointEnd = end;
         }
+
+        RefreshSpline();
     }
 }

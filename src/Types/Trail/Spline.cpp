@@ -3,6 +3,12 @@
 
 using namespace UnityEngine;
 
+Spline::Spline(int preCount)
+{
+    controlPoints.reserve(preCount);
+    segments.reserve(preCount);
+}
+
 SplineControlPoint* Spline::operator[](int index)
 {
     if (index > -1 && index < segments.size())
