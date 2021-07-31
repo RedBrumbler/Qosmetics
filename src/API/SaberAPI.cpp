@@ -7,6 +7,14 @@
 #include "static-defines.hpp"
 #include "Types/Trail/TrailHelper.hpp"
 
+#include "Utils/SaberUtils.hpp"
+
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("SaberAPI").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("SaberAPI").error(value)
+#define LOGPTR(pointer) INFO("%s, %p", #pointer, pointer)
+
 using namespace Qosmetics;
 
 #define SABERMANAGER SingletonContainer::get_saberManager()
@@ -14,6 +22,10 @@ using namespace Qosmetics;
 
 EXPOSE_API(GetActiveSaberModel, UnityEngine::GameObject*) {
     return SABERMANAGER->GetActivePrefab();
+}
+
+EXPOSE_API(GetDummySaber, UnityEngine::Transform*, int type) {
+    return SaberUtils::MakeDummySaber(type);
 }
 
 EXPOSE_API(get_saber, UnityEngine::Transform*, int type) {

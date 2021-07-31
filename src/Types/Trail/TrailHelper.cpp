@@ -8,6 +8,7 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("TrailHelper").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("TrailHelper").error(value)
 
+#define LOGPTR(pointer) INFO("%s, %p", #pointer, pointer)
 #define LOGINT(val) INFO("%s: %d", #val, val)
 DEFINE_TYPE(Qosmetics, TrailHelper);
 
@@ -34,9 +35,11 @@ namespace Qosmetics
 
     void TrailHelper::Init(Qosmetics::ColorManager* colorManager, GlobalNamespace::SaberModelController* parentModelController)
     {
+        LOGPTR(this);
         this->colorManager = colorManager;
         this->parentModelController = parentModelController;
-        ChromaUtils::registerSaberCallback({&TrailHelper::UpdateChromaColors, this});
+        // if not set, no use in registering callback
+        if (parentModelController) ChromaUtils::registerSaberCallback({&TrailHelper::UpdateChromaColors, this});
         GetOrAddTrail(false);
     }
 

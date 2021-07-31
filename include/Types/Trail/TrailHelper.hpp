@@ -23,7 +23,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, TrailHelper, UnityEngine::MonoBehaviour,
 
     public:
         void set_trailConfig(Qosmetics::TrailConfig& trailConfig);
-    private:
         int colorType;
         UnityEngine::Color color;
         UnityEngine::Color multiplier;

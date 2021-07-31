@@ -77,7 +77,6 @@ namespace Qosmetics
                 else return {1.0f, 1.0f, 1.0f, 1.0f};
             }
 
-        private:
             int colorType;
             UnityEngine::Color color;
             UnityEngine::Color multiplier;
