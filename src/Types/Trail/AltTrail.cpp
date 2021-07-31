@@ -149,12 +149,13 @@ namespace Qosmetics
 
     void AltTrail::OnDisable()
     {
-        if (vertexPool) vertexPool->SetMeshObjectActive(false);
         Collapse();
+        if (vertexPool) vertexPool->SetMeshObjectActive(false);
     }
 
     void AltTrail::OnEnable()
     {
+        Collapse();
         if (vertexPool) vertexPool->SetMeshObjectActive(true);
     }
 
