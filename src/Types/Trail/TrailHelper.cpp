@@ -24,7 +24,7 @@ namespace Qosmetics
 
     void TrailHelper::TrailSetup()
     {
-        INFO("instance ptr: %p, trail Config ptr: %p", trailInstance, trailConfig);
+        if (!trailInstance) trailInstance = GetComponent<AltTrail*>();
 
         static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
         static Il2CppString* customTransformName = il2cpp_utils::createcsstr("CustomTrailStart", il2cpp_utils::StringType::Manual);
@@ -62,15 +62,22 @@ namespace Qosmetics
     void TrailHelper::SetTrailActive(bool active)
     {
         // if state differs, apply it
+        if (!trailInstance) trailInstance = GetComponent<AltTrail*>();
         if (trailInstance->get_enabled() ^ active) trailInstance->set_enabled(active);
     }
 
     void TrailHelper::UpdateColors()
     {
+        if (!trailConfig) 
+        {
+            ERROR("Updating colors with nullptr trailconfig, returning!");
+            return;
+        }
+
         Color color;
         int colorType = trailConfig->get_colorType();
         
-        // colortype can only be 0, 1 or 2, meaning 0b0, 0b1 or 0b10, if ^0b10 makes it false then it's 0 or 1
+        // colortype can only be 0, 1 or 2, meaning 0b0, 0b1 or 0b10, if ^0b10 makes it false then it's 2, else 0 ro 1
         if (colorType ^ 0b10)
         {
             std::optional<UnityEngine::Color> saberColor = Chroma::SaberAPI::getGlobalSaberColorSafe(colorType);
@@ -78,9 +85,13 @@ namespace Qosmetics
             {
                 color = (*saberColor) * trailConfig->get_multiplierColor();
             }
-            else
+            else if (colorManager)
             {
 	    	    color = colorManager->ColorForTrailType(colorType) * trailConfig->get_multiplierColor();
+            }
+            else
+            {
+	    	    color = trailConfig->get_color();
             }
         }
         else
@@ -88,6 +99,7 @@ namespace Qosmetics
 	    	color = trailConfig->get_color();
         }
         
+        if (!trailInstance) trailInstance = GetComponent<AltTrail*>();
         trailInstance->SetColor(color);
     }
 
