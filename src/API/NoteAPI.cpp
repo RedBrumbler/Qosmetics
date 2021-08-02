@@ -65,11 +65,8 @@ EXPOSE_API(GetNoteIsCustom, bool) {
     return NOTEMANAGER->get_item().get_descriptor().isValid();
 }
 
-EXPOSE_API(GetNoteFolder, char*) {
-    char* temp = new char[NOTEPATH.size() + 1];
-    strcpy(temp, NOTEPATH.c_str());
-    return temp;
+EXPOSE_API(GetNoteFolder, void, std::string& result) {
+    result = NOTEPATH;
 }
-
 #undef NOTEMANAGER
 #undef NOTECONFIG

@@ -44,6 +44,16 @@
       "id": "codegen",
       "versionRange": "*",
       "additionalData": {}
+    },
+    {
+      "id": "libcurl",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "sombrero",
+      "versionRange": "*",
+      "additionalData": {}
     }
   ],
   "additionalData": {}

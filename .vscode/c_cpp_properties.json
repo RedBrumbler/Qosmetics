@@ -1,30 +1,27 @@
 {
-    "configurations": [
-        {
-            "defines": [
-                "MOD_ID=\"QuestCosmetics\"",
-                "VERSION=\"1.0.4\"",
-                "__GNUC__",
-                "__aarch64__",
-                "ID=\"Qosmetics\""
-            ],
-            "includePath": [
-                "${workspaceFolder}/",
-                "${workspaceFolder}/extern/libil2cpp/il2cpp/libil2cpp",
-                "D:/NDK/android-ndk-r22b/",
-                "D:/NDK/android-ndk-r22b/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include",
-                "D:/NDK/android-ndk-r22b/sources/cxx-stl/llvm-libc++/include",
-                "D:/NDK/android-ndk-r22b/sources/cxx-stl/llvm-libc++abi/include",
-                "${workspaceFolder}/shared/",
-                "${workspaceFolder}/include/",
-                "${workspaceFolder}/extern/",
-                "${workspaceFolder}/extern/codegen/include/"
-            ],
-            "name": "Quest",
-            "cStandard": "c11",
-            "cppStandard": "c++20",
-            "intelliSenseMode": "clang-x64"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "defines": [
+        "MOD_ID=\"Qosmetics\"",
+        "VERSION=\"1.3.0\"",
+        "__GNUC__",
+        "__aarch64__",
+        "ID=\"Qosmetics\""
+      ],
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/extern/libil2cpp/il2cpp/libil2cpp",
+        "D:/NDK/android-ndk-r22b-windows-x86_64/android-ndk-r22b/**",
+        "${workspaceFolder}/shared/**",
+        "${workspaceFolder}/include/**",
+        "${workspaceFolder}/extern/**",
+        "${workspaceFolder}/extern/codegen/include/**"
+      ],
+      "name": "Quest",
+      "cStandard": "c11",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "gcc-x64"
+    }
+  ],
+  "version": 4
 }

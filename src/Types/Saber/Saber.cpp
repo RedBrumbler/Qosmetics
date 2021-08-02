@@ -2,7 +2,10 @@
 #include "Types/Saber/Saber.hpp"
 #include "Types/Saber/SaberItem.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/AltTrail.hpp"
+#include "Types/Trail/TrailHelper.hpp"
 
+#include "UnityEngine/MeshRenderer.hpp"
 #include "GlobalNamespace/Saber.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "Utils/UnityUtils.hpp"
@@ -13,6 +16,7 @@
 
 #include "chroma/shared/SaberAPI.hpp"
 #include "beatsaber-hook/shared/utils/typedefs-wrappers.hpp"
+
 
 DEFINE_TYPE(Qosmetics, Saber);
 
@@ -161,28 +165,56 @@ namespace Qosmetics
                     Il2CppString* trailPath = trail.get_name();
                     Transform* trailObj = customSaber->Find(trailPath);
                     if (!trailObj) continue;
-                    QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
-                    trailComponent->attachedSaberModelController = modelController;
-                    trailComponent->SetColorManager(colorManager);
-                    trailComponent->SetTrailConfig(&trail);
+                    
+                    auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
+                    helper->set_trailConfig(trail);
+                    helper->Init(colorManager, modelController);
+                    helper->TrailSetup();
                 }
             }
             else if (config.saberConfig.trailType != TrailType::none && customSaber && basicSaberModel)// there were no trails, or base game was configured
             {
                 INFO("Putting base game trails on custom saber");
+                GlobalNamespace::SaberTrail* orig = basicSaberModel->GetComponent<GlobalNamespace::SaberTrail*>();
+		        UnityEngine::Material* mat = orig->trailRendererPrefab->meshRenderer->get_material();
+                
+                customSaber->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
+                auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(customSaber->get_gameObject());
+                static Color white = {1.0f, 1.0f, 1.0f, 1.0f};
+                TrailConfig trail(saberType.value, orig->color, white, 20, 4);
+
+                helper->set_trailConfig(trail);
+                helper->Init(colorManager, modelController);
+                helper->TrailSetup();
+                
+                /*
                 QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(customSaber->get_gameObject());
                 trailComponent->attachedSaberModelController = modelController;
                 trailComponent->SetColorManager(colorManager);
                 trailComponent->InitFromDefault(basicSaberModel);
+                */
             }
         }
         else if (config.saberConfig.trailType != TrailType::none && basicSaberModel)
         {
             INFO("Changing base game trails on base game saber");
+            GlobalNamespace::SaberTrail* orig = basicSaberModel->GetComponent<GlobalNamespace::SaberTrail*>();
+		    UnityEngine::Material* mat = orig->trailRendererPrefab->meshRenderer->get_material();
+            
+            basicSaberModel->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
+            auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(basicSaberModel->get_gameObject());
+            static Color white = {1.0f, 1.0f, 1.0f, 1.0f};
+            TrailConfig trail(saberType.value, orig->color, white, 20, 4);
+
+            helper->set_trailConfig(trail);
+            helper->Init(colorManager, modelController);
+            helper->TrailSetup();
+            /*
             QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(basicSaberModel->get_gameObject());
             trailComponent->attachedSaberModelController = modelController;
             trailComponent->SetColorManager(colorManager);
             trailComponent->InitFromDefault(basicSaberModel);
+            */
         }
         TrailUtils::RemoveTrail(basicSaberModel);
     }

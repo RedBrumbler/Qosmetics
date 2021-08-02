@@ -18,6 +18,7 @@
 #include "Utils/UnityUtils.hpp"
 #include "Utils/PlayerSettings.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/AltTrail.hpp"
 
 #include "Types/Qosmetic/Qosmetic.hpp"
 
@@ -141,7 +142,7 @@ MAKE_HOOK_MATCH(StandardLevelScenesTransitionSetupDataSO_Init, &GlobalNamespace:
     StandardLevelScenesTransitionSetupDataSO_Init(self, gameMode, difficultyBeatmap, previewBeatmapLevel, overrideEnvironmentSettings, overrideColorScheme, gamePlayModifiers, playerSpecificSettings, practiceSettings, backButtonText, useTestNoteCutSoundEffects);
     PlayerSettings::CheckForIllegalModifiers(gamePlayModifiers);
     PlayerSettings::CheckReducedDebris(playerSpecificSettings);
-    Qosmetics::QosmeticsTrail::trailIntensity = playerSpecificSettings->get_saberTrailIntensity();
+    Qosmetics::QosmeticsTrail::trailIntensity = Qosmetics::AltTrail::trailIntensity = playerSpecificSettings->get_saberTrailIntensity();
 }
 
 MAKE_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTransitionsHelper::RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, System::Action_1<Zenject::DiContainer*>* finishCallback)

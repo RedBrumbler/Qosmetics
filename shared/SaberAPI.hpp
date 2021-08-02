@@ -27,7 +27,19 @@ namespace Qosmetics
                 return std::make_optional(result);
             }
 
-            /// @brief returns a copy of the left or right saber depending on the type you give
+            /// @brief returns a copy of the left or right saber depending on the type you give, with trails!
+            /// @param type 0 or 1 for left or right
+            /// @return transform of a COPY of the left or right saber with trails, nullopt on nonexistent, nullptr on default
+            static std::optional<UnityEngine::Transform*> GetDummySaber(int type) noexcept
+            {
+                if (type < 0 || type > 1) return std::nullopt;
+                static auto function = CondDep::Find<UnityEngine::Transform*, int>(qosm_id, "GetDummySaber");
+                if (!function) return std::nullopt;
+                UnityEngine::Transform* result = function.value()(type);
+                return std::make_optional(result);
+            }
+
+            /// @brief returns a copy of the left or right saber depending on the type you give, no trails!
             /// @param type 0 or 1 for left or right
             /// @return transform of a COPY of the left or right saber, nullopt on nonexistent, nullptr on default
             static std::optional<UnityEngine::Transform*> get_saber(int type) noexcept
@@ -80,12 +92,14 @@ namespace Qosmetics
             /// @return string folder path, or nullopt for not installed
             static std::optional<std::string> GetSaberFolder()
             {
-                static auto function = CondDep::Find<char*>(qosm_id, "GetSaberFolder");
+                static auto function = CondDep::Find<void, std::string&>(qosm_id, "GetSaberFolder");
                 if (!function) return std::nullopt;
-                char* array = function.value()();
-                std::string result(array);
-                delete[](array);
-                return std::make_optional(function.value()());
+                std::string result = "";
+                function.value()(result);
+                return std::make_optional(result);
             }
+
+            /// @brief sets the specific passed trail active
+            static void SetTrailActive(Il2CppObject*);
     };
 }

@@ -73,7 +73,7 @@ addr2line.bat
 *.~hpp
 PhotoshopFiles/
 log.bat
-
+tombstone_*
 # =============== #
 # Unity generated #
 # =============== #

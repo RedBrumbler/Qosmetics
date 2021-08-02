@@ -113,12 +113,11 @@ namespace Qosmetics
             /// @return string folder path, or nullopt for not installed
             static std::optional<std::string> GetNoteFolder()
             {
-                static auto function = CondDep::Find<char*>(qosm_id, "GetNoteFolder");
+                static auto function = CondDep::Find<void, std::string&>(qosm_id, "GetNoteFolder");
                 if (!function) return std::nullopt;
-                char* array = function.value()();
-                std::string result(array);
-                delete[](array);
-                return std::make_optional(function.value()());
+                std::string result = "";
+                function.value()(result);
+                return std::make_optional(result);
             }
     };
 }

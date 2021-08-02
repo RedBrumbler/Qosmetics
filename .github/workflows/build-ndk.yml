@@ -1,0 +1,215 @@
+# workflow name
+name: NDK build
+
+# set env variables
+env:
+    ndkname: android-ndk-r22
+    module_id: questcosmetics
+    qmodName: Qosmetics
+
+# run this workflow when
+on:
+  # user requests it ran manually
+  workflow_dispatch:
+  # there is files pushed
+  push:
+    # on branch master
+    branches: master
+    # ignore these  files
+    paths-ignore:
+      # ignore all .yml files
+      - '**.yml'
+      # dont ignore this specific file
+      - '!.github/workflows/build-ndk.yml'
+      # ignore all .json files
+      - '**.json'
+      # dont ignore this specific file
+      - '!qpm.json'
+      # ignore all .ps1 files
+      - '**.ps1'
+      # dont ignore these specific files
+      - '!build.ps1'
+      - '!buildQMOD.ps1'
+      - '!CreateQmod.ps1'
+      # ignore all .md files
+      - '**.md'
+      # ignore the gitignore file
+      - '.gitignore'
+      - 'shared/*'
+    # run this on a pr 
+  pull_request:
+    # on branch master
+    branches: master
+
+
+
+# building a mod consists of a few steps
+
+# what the fuck do we do
+jobs:
+  build:
+    # os this runs on
+    runs-on: ubuntu-latest
+    
+    # every step taken to complete this action
+    # every - is a step that is traceable to a step on the github website
+    steps:
+      # tell the program it uses the checkout for actions (?)
+    - uses: actions/checkout@v2
+      name: Checkout
+      with:
+        submodules: true
+        lfs: true
+    # powershell is needed
+    - name: Install Powershell
+      run: sudo apt-get install -y powershell
+    
+    # unpack the cache to see if ndk is available on it
+    - name: Cache Android NDK
+      id: cache-ndk
+      # this step uses the actions cache
+      uses: actions/cache@v2
+      env:
+        # name of cached ndk
+        cache-name: cache-ndk
+      with:
+        path: ndk
+        key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.ndkname }}
+        restore-keys: |
+          ${{ runner.os }}-${{ env.cache-name }}-${{ env.ndkname }}
+
+    - name: Install Android NDK
+      # if not available, install the ndk so we can build
+      if: steps.cache-ndk.outputs.cache-hit != 'true'
+      # if the if was true, do this:
+      run: |
+        wget -q -O ndk.zip https://dl.google.com/android/repository/${ndkname}-linux-x86_64.zip
+        unzip -q ndk.zip
+        mv ${ndkname} ndk
+      # download ndk.zip from google, unzip and move into ndk cache folder
+
+      # create the ndkpath.txt file needed in our own compile scripts
+    - name: Create ndkpath.txt
+      run: |
+        cd ndk
+        pwd > ${GITHUB_WORKSPACE}/ndkpath.txt
+      # just "cat" the path into the ndkpath.txt
+
+
+      # qpm caching, same as ndk but unused I assume
+#     - name: Cache QPM
+#       id: cache-qpm
+#       uses: actions/cache@v2
+#       env:
+#         cache-name: cache-qpm
+#       with:
+#         path: QPM
+#         key: ${{ runner.os }}-${{ env.cache-name }}-2
+#         restore-keys: |
+#           ${{ runner.os }}-${{ env.cache-name }}-2
+      
+    # we need qpm to even compile mods, since that is what we use to get packages
+    - name: Get QPM
+      # if it wasn't found in the cache
+      if: steps.cache-qpm.outputs.cache-hit != 'true'
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        # download from the github actions
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        workflow: main.yml
+        name: QPM-ubuntu-x64
+        path: QPM
+        repo: sc2ad/QuestPackageManager
+      
+    # collect all dependencies, I assume for reading back what was used to build a specific .so
+    - name: QPM Collect
+      run: |
+        chmod +x ./QPM/QPM
+        ./QPM/QPM collect
+
+    # unpack the cached QPM dependencies (packages)
+    - name: QPM Dependencies Cache
+      id: cache-qpm-deps
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-qpm-deps
+      with:
+        path: QPM_Temp
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('qpm.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+      
+    # run qpm restore
+    - name: QPM Restore
+#       if: steps.cache-qpm-deps.outputs.cache-hit != 'true'
+      run: ./QPM/QPM restore
+    
+    #list what files are in the extern folder and in qpm temp folder
+    - name: List Post Restore
+      run: |
+        ls -la ${GITHUB_WORKSPACE}/extern/
+        ls -la QPM_Temp
+
+#    - name: CD to bs-hook src
+#      run: |
+#        cd ${GITHUB_WORKSPACE}/extern/beatsaber-hook/src/inline-hook
+#        ls ./
+
+    - name: Check Inline Hook existence
+      id: check_files
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "extern/beatsaber-hook/src/inline-hook/And64InlineHook.cpp, extern/beatsaber-hook/src/inline-hook/inlineHook.c, extern/beatsaber-hook/src/inline-hook/relocate.c"
+        allow_failure: false
+
+    - name: Files Exist
+      if: steps.check_files.outputs.files_exists == 'false'
+      run: |
+          exit 1
+
+    # actually run the build script
+    - name: Build
+      run: |
+        cd ${GITHUB_WORKSPACE}
+        pwsh -Command ./build.ps1
+
+    - name: Create Qmod
+      run: |
+        cd ${GITHUB_WORKSPACE}
+        pwsh -Command ./CreateQmod.ps1
+    # get the library name, by checking against the module ID
+    - name: Get Library Name
+      id: libname
+      run: |
+        cd ./libs/arm64-v8a/
+        pattern="lib${module_id}*.so"
+        files=( $pattern )
+        echo ::set-output name=NAME::"${files[0]}"
+    #upload the normal .so
+    - name: Upload non-debug artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.libname.outputs.NAME }}
+        path: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
+        # if not found error obviously
+        if-no-files-found: error
+    #upload the debug .so
+    - name: Upload debug artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: debug_${{ steps.libname.outputs.NAME }}
+        path: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
+        # if not found error obviously
+        if-no-files-found: error
+        
+    - name: Upload qmod artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.qmodName }}.qmod
+        path: ./${{ env.qmodName }}.qmod
+        # if not found error obviously
+        if-no-files-found: error
+
+    # TODO: Add auto-populating releases, auto update versions, auto publish package on release

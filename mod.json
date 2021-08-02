@@ -14,10 +14,8 @@
     "libquestcosmetics.so"
   ],
   "libraryFiles": [
-    "libbeatsaber-hook_2_2_2.so",
-    "libbs-utils.so",
-    "libcodegen_0_12_3.so",
-    "libcustom-types.so"
+    "libbeatsaber-hook_2_2_4.so",
+    "libbs-utils.so"
   ],
   "fileCopies": [
     {

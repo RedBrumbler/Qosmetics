@@ -1,3 +1,5 @@
+param($p1)
+
 $NDKPath = Get-Content $PSScriptRoot/ndkpath.txt
 
 $buildScript = "$NDKPath/build/ndk-build"
@@ -32,4 +34,11 @@ if (-not $coreCount)
 
 $msg = "Building with " + $coreCount + " Cores!"
 echo $msg
-return & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount
+if ($p1 -eq "test")
+{
+    & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/AndroidTest.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Onone
+}
+else
+{
+    & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Onone
+}

@@ -10,6 +10,8 @@
 #include "Utils/UnityUtils.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "Types/Trail/QosmeticsTrail.hpp"
+#include "Types/Trail/AltTrail.hpp"
+#include "Types/Trail/TrailHelper.hpp"
 #include "chroma/shared/SaberAPI.hpp"
 
 DEFINE_TYPE(Qosmetics, Pointer);
@@ -189,14 +191,15 @@ namespace Qosmetics
 
         if (oldPointer) SaberUtils::SetColors(oldPointer->get_gameObject(), thisColor, otherColor);
 
-        Array<Qosmetics::QosmeticsTrail*>* trails = GetComponentsInChildren<Qosmetics::QosmeticsTrail*>(true);
+        //Array<Qosmetics::QosmeticsTrail*>* trails = GetComponentsInChildren<Qosmetics::QosmeticsTrail*>(true);
+        Array<Qosmetics::AltTrail*>* trails = GetComponentsInChildren<Qosmetics::AltTrail*>(true);
 
         int trailCount = trails->Length();
         for (int i = 0; i < trailCount; i++)
         {
-            Qosmetics::QosmeticsTrail* trail = trails->values[i];
+            auto trail = trails->values[i];
             if (!trail) continue;
-            trail->UpdateColors();
+            //trail->UpdateColors();
         }
     }
 
@@ -241,14 +244,17 @@ namespace Qosmetics
             Il2CppString* trailPath = trail.get_name();
             Transform* trailObj = oldPointer->Find(trailPath);
             if (!trailObj) continue;
-            QosmeticsTrail* trailComponent = UnityUtils::GetAddComponent<Qosmetics::QosmeticsTrail*>(trailObj->get_gameObject());
-            trailComponent->SetColorManager(colorManager);
-            trailComponent->SetTrailConfig(&trail);
+            auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
+            helper->set_trailConfig(trail);
+            helper->Init(colorManager, nullptr);
+            helper->TrailSetup();
         }
     }
 
     void Pointer::OnApplicationFocus(bool hasFocus)
     {
+        INFO("VRController: %p", vrController);
+        
         if (!vrController) return;
         bool isLeft = vrController->get_node().value == 4;
         Transform* oldPointer = isLeft ? get_transform()->Find(LeftPointer) : get_transform()->Find(RightPointer);

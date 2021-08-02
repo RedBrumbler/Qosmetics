@@ -5,6 +5,14 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Data/Descriptor.hpp"
 #include "static-defines.hpp"
+#include "Types/Trail/TrailHelper.hpp"
+
+#include "Utils/SaberUtils.hpp"
+
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("SaberAPI").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("SaberAPI").error(value)
 
 using namespace Qosmetics;
 
@@ -13,6 +21,10 @@ using namespace Qosmetics;
 
 EXPOSE_API(GetActiveSaberModel, UnityEngine::GameObject*) {
     return SABERMANAGER->GetActivePrefab();
+}
+
+EXPOSE_API(GetDummySaber, UnityEngine::Transform*, int type) {
+    return SaberUtils::MakeDummySaber(type);
 }
 
 EXPOSE_API(get_saber, UnityEngine::Transform*, int type) {
@@ -43,10 +55,12 @@ EXPOSE_API(GetSaberIsCustom, bool) {
     return SABERMANAGER->get_item().get_descriptor().isValid();
 }
 
-EXPOSE_API(GetSaberFolder, char*) {
-    char* temp = new char[SABERPATH.size() + 1];
-    strcpy(temp, SABERPATH.c_str());
-    return temp;
+EXPOSE_API(GetSaberFolder, void, std::string& result) {
+    result = SABERPATH;
+}
+
+EXPOSE_API(SetTrailActive, void, Il2CppObject* trailHelper, bool active) {
+    ((Qosmetics::TrailHelper*)trailHelper)->SetTrailActive(active);
 }
 
 #undef SABERMANAGER

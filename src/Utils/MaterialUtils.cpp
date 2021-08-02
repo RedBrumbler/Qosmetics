@@ -180,7 +180,9 @@ void MaterialUtils::ReplaceMaterialsForGameObject(GameObject* object)
     for (int i = 0; i < matCount; i++)
     {
         Material* material = allMaterials->values[i];
+        if (!material) continue;
         Il2CppString* materialNameCS = material->get_name();
+        if (!materialNameCS) continue;
         std::string materialName = to_utf8(csstrtostr(materialNameCS));
         if (materialName == "") continue;
         // names with _replace are custom materials, they can be skipped

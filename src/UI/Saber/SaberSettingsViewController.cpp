@@ -100,7 +100,7 @@ namespace Qosmetics::UI
             });
         co_yield nullptr;
 
-        auto trailLengthSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Trail Length", 0, 1.0f, config.saberConfig.trailLength, 0.0f, 1000.0f, [this](float value) {
+        auto trailLengthSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Trail Length", 0, 1.0f, config.saberConfig.trailLength, 1.0f, 1000.0f, [this](float value) {
                 config.saberConfig.trailLength = value;
                 this->previewViewController->UpdatePreview();
                 SaveConfig();
