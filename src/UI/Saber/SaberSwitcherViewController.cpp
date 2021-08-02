@@ -89,6 +89,14 @@ namespace Qosmetics::UI
                     switcherInfo* info = new switcherInfo(cache, containerT);
                     StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SetupSelectionsRoutine(info))));
                 });
+
+            auto modal = CreateModal(get_transform(), Vector2(80.0f, 60.0f), [&](HMUI::ModalView*){
+                // cancel when dismissed (assume someone clicked accidentally)
+                deletionElement->Cancel();
+            }, false);
+
+            deletionElement = modal->get_gameObject()->AddComponent<SaberDeletionElement*>();
+            deletionElement->Setup();
         }
 
         Cache& cache = DescriptorCache::GetCache(ItemType::saber);
@@ -121,7 +129,7 @@ namespace Qosmetics::UI
             // create horizontal layout that houses the entire selection thing
             HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
             SaberSelectionElement* element = layout->get_gameObject()->AddComponent<SaberSelectionElement*>();
-            element->Init(this->modelManager, this->previewViewController);
+            element->Init(this->modelManager, this->previewViewController, this);
             element->SetDescriptor(&info->it->second);
             layout->get_gameObject()->set_name(il2cpp_utils::newcsstr(info->it->second.GetFileName()));
 
@@ -137,5 +145,10 @@ namespace Qosmetics::UI
     {
         this->modelManager = saberManager;
         this->previewViewController = previewViewController;
+    }
+
+    void SaberSwitcherViewController::AttemptDeletion(Qosmetics::SaberSelectionElement* elem)
+    {
+        
     }
 }

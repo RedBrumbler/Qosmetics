@@ -7,12 +7,14 @@
 #include "Types/Saber/SaberManager.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
+#include "UI/Saber/SaberSwitcherViewController.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSelectionElement, UnityEngine::MonoBehaviour, 
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(SaberPreviewViewController*, previewViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(SaberSwitcherViewController*, switcherViewController, nullptr);
 
-    DECLARE_INSTANCE_METHOD(void, Init, SaberManager* saberManager, SaberPreviewViewController* previewViewController);
+    DECLARE_INSTANCE_METHOD(void, Init, SaberManager* saberManager, SaberPreviewViewController* previewViewController, SaberSwitcherViewController* switcherViewController);
     public:
         void Select();
         void SetupButtons();
