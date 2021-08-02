@@ -51,10 +51,8 @@ EXPOSE_API(GetWallIsCustom, bool) {
     return WALLMANAGER->get_item().get_descriptor().isValid();
 }
 
-EXPOSE_API(GetWallFolder, char*) {
-    char* temp = new char[WALLPATH.size() + 1];
-    strcpy(temp, WALLPATH.c_str());
-    return temp;
+EXPOSE_API(GetWallFolder, void, std::string& result) {
+    result = WALLPATH;
 }
 
 #undef WALLMANAGER

@@ -2,15 +2,22 @@
 
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #include "UnityEngine/MonoBehaviour.hpp"
-#include "UnityEngine/Color.hpp"
 
-#if defined __has_include && __has_include ("conditional-dependencies/shared/main.hpp")
-#include "conditional-dependencies/shared/main.hpp"
-#define HAS_CONDEP
+#if defined __has_include && __has_include("sombrero/shared/ColorUtils.hpp")
+#include "sombrero/shared/ColorUtils.hpp"
+#define SOMBRERO
+#else
+#include "UnityEngine/Color.hpp"
 #endif
 
 #if defined __has_include && __has_include ("AltTrail.hpp")
 #include "AltTrail.hpp"
+#endif
+
+#ifdef SOMBRERO
+#define COLOR Sombrero::FastColor
+#else
+#define COLOR UnityEngine::Color
 #endif
 
 namespace Qosmetics
@@ -31,54 +38,64 @@ namespace Qosmetics
             
             void GetOrAddTrail(bool remake)
             {
-                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "GetOrAddTrail", 1);
-                if (ptr) il2cpp_utils::RunMethod(this, ptr, remake);
+                static auto function = CondDep::Find<void, Il2CppObject*, bool>("questcosmetics", "TrailHelper_GetOrAddTrail");
+                if (!function) return;
+
+                function.value()(this, remake);
             }
 
-            void Init(Il2CppObject* colorManager)
+            void Init(Il2CppObject* colorManager, Il2CppObject* saberModelController)
             {
-                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "Init", 1);
-                if (ptr) il2cpp_utils::RunMethod(this, ptr, colorManager);
+                static auto function = CondDep::Find<void, Il2CppObject*, , Il2CppObject*, , Il2CppObject*>("questcosmetics", "TrailHelper_Init");
+                if (!function) return;
+
+                function.value()(this, colorManager, saberModelController);
             }
 
             void TrailSetup()
             {
-                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "TrailSetup", 0);
-                if (ptr) il2cpp_utils::RunMethod(this, ptr);
+                static auto function = CondDep::Find<void, Il2CppObject*>("questcosmetics", "TrailHelper_TrailSetup");
+                if (!function) return;
+
+                function.value()(this);
             }
 
-            #ifndef HAS_CONDEP
             void SetTrailActive(bool active)
             {
-                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "SetTrailActive", 1);
-                if (ptr) il2cpp_utils::RunMethod(this, ptr, active);
-            }
-            #else
-            void SetTrailActive(bool active)
-            {
-                static auto function = CondDep::Find<void, Il2CppObject*, bool>("questcosmetics", "SetTrailActive");
+                static auto function = CondDep::Find<void, Il2CppObject*, bool>("questcosmetics", "TrailHelper_SetTrailActive");
                 if (!function) return;
 
                 function.value()(this, active);
             }
-            #endif
 
             void UpdateColors()
             {
-                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "UpdateColors", 0);
-                if (ptr) il2cpp_utils::RunMethod(this, ptr);
+                static auto function = CondDep::Find<void, Il2CppObject*>("questcosmetics", "TrailHelper_UpdateColors");
+                if (!function) return;
+
+                function.value()(this);
             }
 
-            UnityEngine::Color GetColor(int colorType)
+            COLOR GetColor(int colorType)
             {
-                auto* ptr = il2cpp_utils::FindMethodUnsafe("Qosmetics", "TrailHelper", "GetColor", 1);
-                if (ptr) return il2cpp_utils::RunMethod<UnityEngine::Color>(this, ptr, colorType);
-                else return {1.0f, 1.0f, 1.0f, 1.0f};
+                static auto function = CondDep::Find<void, Il2CppObject*, int, COLOR&>("questcosmetics", "TrailHelper_GetColor");
+                if (!function) return;
+                COLOR out;
+                function.value()(this, colorType, out);
+                return out;
+            }
+
+            void SetColors(const COLOR& leftColor, const COLOR& rightColor)
+            {
+                static auto function = CondDep::Find<void, Il2CppObject*, const COLOR&, const COLOR&>("questcosmetics", "TrailHelper_SetColors");
+                if (!function) return;
+                
+                function.value()(this, leftColor, rightColor);
             }
 
             int colorType;
-            UnityEngine::Color color;
-            UnityEngine::Color multiplier;
+            COLOR color;
+            COLOR multiplier;
             int length;
             float whiteStep;
 

@@ -15,8 +15,7 @@
   ],
   "libraryFiles": [
     "libbeatsaber-hook_2_2_4.so",
-    "libbs-utils.so",
-    "libcodegen_0_12_5.so"
+    "libbs-utils.so"
   ],
   "fileCopies": [
     {

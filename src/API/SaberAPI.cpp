@@ -55,10 +55,8 @@ EXPOSE_API(GetSaberIsCustom, bool) {
     return SABERMANAGER->get_item().get_descriptor().isValid();
 }
 
-EXPOSE_API(GetSaberFolder, char*) {
-    char* temp = new char[SABERPATH.size() + 1];
-    strcpy(temp, SABERPATH.c_str());
-    return temp;
+EXPOSE_API(GetSaberFolder, void, std::string& result) {
+    result = SABERPATH;
 }
 
 EXPOSE_API(SetTrailActive, void, Il2CppObject* trailHelper, bool active) {
