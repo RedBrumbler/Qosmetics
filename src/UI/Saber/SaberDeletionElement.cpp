@@ -1,5 +1,5 @@
 #include "UI/Saber/SaberDeletionElement.hpp"
-#include "UI/Saber/SaberSeletionElement.hpp"
+#include "UI/Saber/SaberSelectionElement.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 
 DEFINE_TYPE(Qosmetics::UI, SaberDeletionElement);
@@ -12,7 +12,7 @@ namespace Qosmetics::UI
     void SaberDeletionElement::Show(Qosmetics::UI::SaberSelectionElement* toDelete)
     {
         this->toDelete = toDelete;
-        objectName->set_text(toDelete->)
+        objectName->set_text(il2cpp_utils::createcsstr("<i>" + toDelete->get_descriptor().get_name() + "</i>"));
         modal->Show(true, true, nullptr);
     }
 

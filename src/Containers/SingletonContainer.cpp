@@ -12,7 +12,7 @@ using namespace UnityEngine;
 namespace Qosmetics
 {
     //SafePtr<SingletonContainer>* SingletonContainer::instance = nullptr;
-    SingletonContainer* SingletonContainer::instance = nullptr;
+    //SingletonContainer* SingletonContainer::instance = nullptr;
     void SingletonContainer::ctor()
     {
         qosmeticsFlowCoordinator = nullptr;
@@ -41,6 +41,7 @@ namespace Qosmetics
 
     void SingletonContainer::Delete()
     {
+        auto instance = SingletonContainer::instance();
         instance->qosmeticsFlowCoordinator = nullptr;
         instance->saberSwitcherViewController = nullptr;
         instance->saberSettingsViewController = nullptr;
@@ -70,18 +71,18 @@ namespace Qosmetics
     void SingletonContainer::Init()
     {
         //if (!instance) instance = new SafePtr<SingletonContainer>();
-        if (!instance) instance = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
+        if (!instance()) instance() = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
     }
 
     SingletonContainer* SingletonContainer::get_instance()
     {
-        if (!instance)// || !instance->operator bool())
+        if (!instance())// || !()->operator bool())
         {
             //if (!instance) instance = new SafePtr<SingletonContainer>();
-            instance = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
+            instance() = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
         }
 
-        return (SingletonContainer*)instance;
+        return (SingletonContainer*)instance();
     }
     
     Qosmetics::UI::QosmeticsFlowCoordinator* SingletonContainer::get_qosmeticsFlowCoordinator()

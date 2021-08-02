@@ -147,8 +147,8 @@ namespace Qosmetics::UI
         this->previewViewController = previewViewController;
     }
 
-    void SaberSwitcherViewController::AttemptDeletion(Qosmetics::SaberSelectionElement* elem)
+    void SaberSwitcherViewController::AttemptDeletion(Qosmetics::UI::SaberSelectionElement* elem)
     {
-        
+        deletionElement->Show(elem);
     }
 }

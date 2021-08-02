@@ -25,5 +25,5 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSwitcherViewController, HMUI::ViewCont
     
     public:
         custom_types::Helpers::Coroutine SetupSelectionsRoutine(switcherInfo* info);
-        void AttemptDeletion(Qosmetics::SaberSelectionElement* elem);
+        void AttemptDeletion(Qosmetics::UI::SaberSelectionElement* elem);
 )

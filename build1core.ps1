@@ -1,7 +1,12 @@
 $NDKPath = Get-Content $PSScriptRoot/ndkpath.txt
 
 $buildScript = "$NDKPath/build/ndk-build"
-if (-not ($PSVersionTable.PSEdition -eq "Core")) {
+
+$OS = $PSVersionTable.OS
+$windows = $OS.Contains("Windows")
+
+# when core, or when on windows we want to add .cmd to the end
+if ((-not ($PSVersionTable.PSEdition -eq "Core")) -or $windows) {
     $buildScript += ".cmd"
 }
 

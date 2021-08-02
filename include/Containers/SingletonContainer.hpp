@@ -22,6 +22,42 @@
 #include "UI/General/QosmeticsViewController.hpp"
 #include "UI/General/UserProfileViewController.hpp"
 
+namespace Qosmetics {
+    class SingletonContainer;
+}
+
+#define MY_DECLARE_STATIC_FIELD(type_, name_) \
+private: \
+struct ___StaticFieldRegistrator_##name_ : ::custom_types::StaticFieldRegistrator { \
+    size_t oft; \
+    ___StaticFieldRegistrator_##name_() { \
+        oft = ___TargetType::___TypeRegistration::addStaticField(size()); \
+        ___TargetType::___TypeRegistration::addStaticFieldInstance(this); \
+    } \
+    constexpr const char* name() const override { \
+        return #name_; \
+    } \
+    const Il2CppType* type() const override { \
+        ::il2cpp_functions::Init(); \
+        return ::il2cpp_functions::class_get_type(___TypeRegistration::klass_ptr); \
+    } \
+    constexpr uint16_t fieldAttributes() const override { \
+        return FIELD_ATTRIBUTE_PUBLIC | FIELD_ATTRIBUTE_STATIC; \
+    } \
+    constexpr size_t size() const override { \
+        return sizeof(type_); \
+    } \
+    int32_t offset() const override { \
+        return oft; \
+    } \
+}; \
+static inline ___StaticFieldRegistrator_##name_ ___##name_##_StaticFieldRegistrator; \
+public: \
+static type_& name_() { \
+    CRASH_UNLESS(___TargetType::___TypeRegistration::st_fields); \
+    return *reinterpret_cast<type_*>(&___TargetType::___TypeRegistration::st_fields[___##name_##_StaticFieldRegistrator.offset()]); \
+}
+
 DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
     DECLARE_INSTANCE_FIELD(Qosmetics::UI::QosmeticsFlowCoordinator*, qosmeticsFlowCoordinator);
     DECLARE_INSTANCE_FIELD(Qosmetics::SaberManager*, saberManager);
@@ -70,12 +106,13 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
     DECLARE_STATIC_METHOD(Qosmetics::UI::FloorLogoViewController*, get_floorLogoViewController);
     DECLARE_STATIC_METHOD(Qosmetics::UI::UserProfileViewController*, get_userProfileViewController);
 
+    MY_DECLARE_STATIC_FIELD(Qosmetics::SingletonContainer*, instance);
+
     DECLARE_CTOR(ctor);
 
     public:
         static void Init();
         static void Delete();
     private:
-        static SingletonContainer* instance;
         //static SafePtr<SingletonContainer>* instance;
 )
