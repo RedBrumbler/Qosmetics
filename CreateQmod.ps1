@@ -22,7 +22,7 @@ $cover = "./" + $modJson.coverImage
 
 $fileList = @($cover, $mod)
 
-$bannedLibList = @("modloader", "questui")
+$bannedLibList = @("modloader", "questui", "custom-types")
 
 $modlib = @()
 
@@ -123,14 +123,6 @@ $qpm = "./qpm.json"
 $qpmJson = Get-Content $qpm | ConvertFrom-Json 
 $modJson.version = $qpmJson.info.version
 
-
-#echo "Adding extra libs to file list!"
-#
-#$fileList += ,"./extern/libbeatsaber-hook_2_2_1.so"
-#$libs += ,"libbeatsaber-hook_2_2_1.so"
-#$fileList += ,"./extern/libbeatsaber-hook_2_2_2.so"
-#$libs += ,"libbeatsaber-hook_2_2_2.so"
-
 # add the thing to the libs list because we don't need it as a mod file
 $modJson.modFiles = $modlib
 $modJson.libraryFiles = $libs
@@ -143,7 +135,7 @@ if (Test-Path $qmod)
 {
     if ($p1 -and $p1.Contains("y"))
     {
-        echo "param y passed, deleting previous existant qmod"
+        echo "param y passed, deleting previous existent qmod"
         remove-item $qmod
     }
     else
