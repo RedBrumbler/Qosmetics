@@ -1,7 +1,7 @@
 #include "Types/Trail/Spline.hpp"
 #include "Types/Trail/SplineControlPoint.hpp"
 
-using namespace UnityEngine;
+using namespace Sombrero;
 
 Spline::Spline(int preCount)
 {
@@ -41,7 +41,7 @@ SplineControlPoint* Spline::PreviousControlPoint(SplineControlPoint* controlPoin
     return controlPoints[i];
 }
 
-Vector3 Spline::NextPosition(SplineControlPoint* controlPoint)
+FastVector3 Spline::NextPosition(SplineControlPoint* controlPoint)
 {
     int i = controlPoint->ControlPointIndex + 1;
     if (i >= controlPoints.size())
@@ -49,7 +49,7 @@ Vector3 Spline::NextPosition(SplineControlPoint* controlPoint)
     return controlPoints[i]->Position;
 }
 
-Vector3 Spline::PreviousPosition(SplineControlPoint* controlPoint)
+FastVector3 Spline::PreviousPosition(SplineControlPoint* controlPoint)
 {
     int i = controlPoint->ControlPointIndex - 1;
     if (i < 0)
@@ -57,7 +57,7 @@ Vector3 Spline::PreviousPosition(SplineControlPoint* controlPoint)
     return controlPoints[i]->Position;
 }
 
-Vector3 Spline::NextNormal(SplineControlPoint* controlPoint)
+FastVector3 Spline::NextNormal(SplineControlPoint* controlPoint)
 {
     int i = controlPoint->ControlPointIndex + 1;
     if (i >= controlPoints.size())
@@ -65,7 +65,7 @@ Vector3 Spline::NextNormal(SplineControlPoint* controlPoint)
     return controlPoints[i]->Normal;
 }
 
-Vector3 Spline::PreviousNormal(SplineControlPoint* controlPoint)
+FastVector3 Spline::PreviousNormal(SplineControlPoint* controlPoint)
 {
     int i = controlPoint->ControlPointIndex - 1;
     if (i < 0)
@@ -77,11 +77,7 @@ SplineControlPoint* Spline::LenToSegment(float t, float& localF)
 {
     SplineControlPoint* seg = nullptr;
     
-    // clamp between 0 and 1
-    t = (t > 1.0f ? 1.0f : t);
-    t = (t < 0.0f ? 0.0f : t);
-
-    float len = t * segments.back()->Dist;
+    float len = Sombrero::Clamp01(t) * segments.back()->Dist;
 
     int index = 0;
     for (auto test : segments)
@@ -107,7 +103,7 @@ SplineControlPoint* Spline::LenToSegment(float t, float& localF)
     return prevSeg;
 }
 
-Vector3 Spline::CatmulRom(Vector3 T0, Vector3 P0, Vector3 P1, Vector3 T1, float f)
+FastVector3 Spline::CatmulRom(const FastVector3& T0, const FastVector3& P0, const FastVector3& P1, const FastVector3& T1, float f)
 {
     static constexpr const double DT1 = -0.5; 
     static constexpr const double DT2 = 1.5; 
@@ -140,24 +136,24 @@ Vector3 Spline::CatmulRom(Vector3 T0, Vector3 P0, Vector3 P1, Vector3 T1, float 
     float FY = (float)(((FAY * f + FBY) * f + FCY) * f + FDY);
     float FZ = (float)(((FAZ * f + FBZ) * f + FCZ) * f + FDZ);
 
-    return Vector3(FX, FY, FZ);
+    return FastVector3(FX, FY, FZ);
 }
 
-Vector3 Spline::InterpolateByLen(float tl)
+FastVector3 Spline::InterpolateByLen(float tl)
 {
     float localF;
     SplineControlPoint* seg = LenToSegment(tl, localF);
     return seg->Interpolate(localF);
 }
 
-Vector3 Spline::InterpolateNormalByLen(float tl)
+FastVector3 Spline::InterpolateNormalByLen(float tl)
 {
     float localF;
     SplineControlPoint* seg = LenToSegment(tl, localF);
     return seg->InterpolateNormal(localF);
 }
 
-SplineControlPoint* Spline::AddControlPoint(Vector3 pos, Vector3 up)
+SplineControlPoint* Spline::AddControlPoint(FastVector3 pos, FastVector3 up)
 {
     SplineControlPoint* cp = new SplineControlPoint();
     cp->Init(this);
@@ -188,7 +184,7 @@ void Spline::RefreshDistance()
 
     for (int i = 1; i < segments.size(); i++)
     {
-        float prevLen = Vector3::Magnitude(segments[i]->Position - segments[i - 1]->Position);
+        float prevLen = (segments[i]->Position - segments[i - 1]->Position).Magnitude();
         segments[i]->Dist = segments[i - 1]->Dist + prevLen;
     }
 }

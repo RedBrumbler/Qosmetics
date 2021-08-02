@@ -1,6 +1,6 @@
 #pragma once
 
-#include "extern/beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/utils/typedefs.h"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Material.hpp"
@@ -18,7 +18,7 @@
 
 namespace Qosmetics
 {
-    class AltTrail : UnityEngine::MonoBehaviour
+    class AltTrail : public UnityEngine::MonoBehaviour
     {
         public:
             Il2CppString* SortingLayerName;

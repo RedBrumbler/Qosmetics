@@ -15,8 +15,8 @@
 
 DEFINE_TYPE(Qosmetics, VertexPool);
 
-#define LOGINT(val) INFO("%s: %d", #val, val)
 using namespace UnityEngine;
+using namespace Sombrero;
 
 namespace Qosmetics
 {
@@ -85,17 +85,17 @@ namespace Qosmetics
     {
         int length = Vertices->Length();
         auto tempVertices = Vertices;
-        Vertices = Array<Vector3>::NewLength(length + count);
+        Vertices = Array<Sombrero::FastVector3>::NewLength(length + count);
         tempVertices->CopyTo(Vertices, 0);
 
         length = UVs->Length();
         auto tempUVs = UVs;
-        UVs = Array<Vector2>::NewLength(length + count);
+        UVs = Array<Sombrero::FastVector2>::NewLength(length + count);
         tempUVs->CopyTo(UVs, 0);
 
         length = Colors->Length();
         auto tempColors = Colors;
-        Colors = Array<Color>::NewLength(length + count);
+        Colors = Array<Sombrero::FastColor>::NewLength(length + count);
         tempColors->CopyTo(Colors, 0);
 
         length = Indices->Length();
@@ -118,9 +118,9 @@ namespace Qosmetics
 
         if (vertCountChanged) mymesh->Clear();
 
-        mymesh->set_vertices(Vertices);
-        if (UVChanged) mymesh->set_uv(UVs);
-        if (ColorChanged) mymesh->set_colors(Colors);
+        mymesh->set_vertices(reinterpret_cast<Array<Vector3>*>(Vertices));
+        if (UVChanged) mymesh->set_uv(reinterpret_cast<Array<Vector2>*>(UVs));
+        if (ColorChanged) mymesh->set_colors(reinterpret_cast<Array<Color>*>(Colors));
         if (IndiceChanged) mymesh->set_triangles(Indices);
 
         ElapsedTime += Time::get_deltaTime();
@@ -150,7 +150,7 @@ namespace Qosmetics
         _meshFilter = _gameObject->AddComponent<MeshFilter*>();
         auto meshrenderer = _gameObject->AddComponent<MeshRenderer*>();
 
-        _gameObject->get_transform()->set_position(Vector3::get_zero());
+        _gameObject->get_transform()->set_position(FastVector3::zero());
         _gameObject->get_transform()->set_rotation(Quaternion::get_identity());
         
         meshrenderer->set_shadowCastingMode(UnityEngine::Rendering::ShadowCastingMode::Off);
@@ -166,9 +166,9 @@ namespace Qosmetics
 
     void VertexPool::InitArrays()
     {
-        Vertices = Array<Vector3>::NewLength(4);
-        UVs = Array<Vector2>::NewLength(4);
-        Colors = Array<Color>::NewLength(4);
+        Vertices = Array<Sombrero::FastVector3>::NewLength(4);
+        UVs = Array<Sombrero::FastVector2>::NewLength(4);
+        Colors = Array<Sombrero::FastColor>::NewLength(4);
         Indices = Array<int>::NewLength(6);
         vertexTotal = 4;
         indexTotal = 6;

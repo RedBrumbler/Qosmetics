@@ -1,12 +1,12 @@
 #pragma once
 
-#include "UnityEngine/Vector3.hpp"
+#include "sombrero/shared/Vector3Utils.hpp"
 
 struct Element {
-    UnityEngine::Vector3 pointStart;
-    UnityEngine::Vector3 pointEnd;
-    UnityEngine::Vector3 get_pos() { return UnityEngine::Vector3((pointStart.x + pointEnd.x) / 2.0f, (pointStart.y + pointEnd.y) / 2.0f, (pointStart.z + pointEnd.z) / 2.0f); }
+    Sombrero::FastVector3 pointStart;
+    Sombrero::FastVector3 pointEnd;
+    Sombrero::FastVector3 get_pos() { return (pointStart + pointEnd) * 0.5f; }
 
     Element() {}
-    Element(UnityEngine::Vector3 start, UnityEngine::Vector3 end) : pointStart(start), pointEnd(end) {};
+    Element(Sombrero::FastVector3 start, Sombrero::FastVector3 end) : pointStart(start), pointEnd(end) {};
 };

@@ -17,9 +17,7 @@
     "libbeatsaber-hook_2_2_4.so",
     "libbs-utils.so",
     "libcodegen_0_12_5.so",
-    "libcustom-types.so",
-    "libbeatsaber-hook_2_2_1.so",
-    "libbeatsaber-hook_2_2_2.so"
+    "libcustom-types.so"
   ],
   "fileCopies": [
     {

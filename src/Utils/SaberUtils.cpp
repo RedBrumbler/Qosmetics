@@ -9,6 +9,7 @@
 #include "Types/Saber/SaberManager.hpp"
 #include "Types/Trail/TrailHelper.hpp"
 #include "Types/Trail/AltTrail.hpp"
+#include "Types/Colors/ColorComponent.hpp"
 
 #include "QosmeticsLogger.hpp"
 
@@ -138,6 +139,10 @@ namespace SaberUtils
                 helper->TrailSetup();
             }
         }   
+
+        auto colorComponent = customSaber->get_gameObject()->AddComponent<Qosmetics::ColorComponent*>();
+        colorComponent->Init(colorManager, 0, saberType);
+        colorComponent->UpdateSaberColors();
 
         return customSaber;
     }

@@ -9,7 +9,8 @@
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Material.hpp"
-#include "UnityEngine/Color.hpp"
+
+#include "sombrero/shared/ColorUtils.hpp"
 
 #include "Types/Trail/TrailConfig.hpp"
 #include "Types/Trail/TrailInitData.hpp"
@@ -36,11 +37,11 @@ DECLARE_CLASS_CODEGEN(Qosmetics, AltTrail, UnityEngine::MonoBehaviour,
         int TrailLength = 30;
         int Granularity = 60;
         float WhiteStep = 0.2f;
-        UnityEngine::Color MyColor = {1.0f, 1.0f, 1.0f, 1.0f};
+        Sombrero::FastColor MyColor = {1.0f, 1.0f, 1.0f, 1.0f};
         static bool CapFps;
-        UnityEngine::Vector3 get_CurHeadPos();
+        Sombrero::FastVector3 get_CurHeadPos();
         void Setup(TrailInitData& initData, UnityEngine::Transform* pointStart, UnityEngine::Transform* pointEnd, UnityEngine::Material* material, bool editor);
-        void SetColor(UnityEngine::Color color);
+        void SetColor(Sombrero::FastColor color);
         void Collapse();
         static float trailIntensity;
         bool get_inited();

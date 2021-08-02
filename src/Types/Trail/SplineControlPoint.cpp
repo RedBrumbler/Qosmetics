@@ -1,7 +1,8 @@
 #include "Types/Trail/SplineControlPoint.hpp"
 #include "Types/Trail/Spline.hpp"
+#include "sombrero/shared/MiscUtils.hpp"
 
-using Vector3 = UnityEngine::Vector3;
+using namespace Sombrero;
 
 SplineControlPoint* SplineControlPoint::NextControlPoint()
 {
@@ -13,22 +14,22 @@ SplineControlPoint* SplineControlPoint::PreviousControlPoint()
     return spline->PreviousControlPoint(this);
 }
 
-Vector3 SplineControlPoint::NextPosition()
+FastVector3 SplineControlPoint::NextPosition()
 {
     return spline->NextPosition(this);
 }
 
-Vector3 SplineControlPoint::PreviousPosition()
+FastVector3 SplineControlPoint::PreviousPosition()
 {
     return spline->PreviousPosition(this);
 }
 
-Vector3 SplineControlPoint::NextNormal()
+FastVector3 SplineControlPoint::NextNormal()
 {
     return spline->NextNormal(this);
 }
 
-Vector3 SplineControlPoint::PreviousNormal()
+FastVector3 SplineControlPoint::PreviousNormal()
 {
     return spline->PreviousNormal(this);
 }
@@ -38,7 +39,7 @@ bool SplineControlPoint::IsValid()
     return NextControlPoint();
 }
 
-Vector3 SplineControlPoint::GetNext2Position()
+FastVector3 SplineControlPoint::GetNext2Position()
 {
     auto cp = NextControlPoint();
     if (cp)
@@ -46,7 +47,7 @@ Vector3 SplineControlPoint::GetNext2Position()
     return NextPosition();
 }
 
-Vector3 SplineControlPoint::GetNext2Normal()
+FastVector3 SplineControlPoint::GetNext2Normal()
 {
     auto cp = NextControlPoint();
     if (cp)
@@ -54,18 +55,14 @@ Vector3 SplineControlPoint::GetNext2Normal()
     return NextNormal();
 }
 
-Vector3 SplineControlPoint::Interpolate(float localF)
+FastVector3 SplineControlPoint::Interpolate(float localF)
 {
-    localF = localF > 1.0f ? 1.0f : localF;
-    localF = localF < 0.0f ? 0.0f : localF;
-    return Spline::CatmulRom(PreviousPosition(), Position, NextPosition(), GetNext2Position(), localF);
+    return Spline::CatmulRom(PreviousPosition(), Position, NextPosition(), GetNext2Position(), Clamp01(localF));
 }
 
-Vector3 SplineControlPoint::InterpolateNormal(float localF)
+FastVector3 SplineControlPoint::InterpolateNormal(float localF)
 {
-    localF = localF > 1.0f ? 1.0f : localF;
-    localF = localF < 0.0f ? 0.0f : localF;
-    return Spline::CatmulRom(PreviousNormal(), Normal, NextNormal(), GetNext2Normal(), localF);
+    return Spline::CatmulRom(PreviousNormal(), Normal, NextNormal(), GetNext2Normal(), Clamp01(localF));
 }
 
 void SplineControlPoint::Init(Spline* owner)

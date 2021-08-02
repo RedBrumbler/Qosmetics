@@ -6,83 +6,12 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("AltTrail").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("AltTrail").error(value)
 
-#define LOGFLOAT(float) INFO("%s, %F", #float, float)
-#define LOGPTR(pointer) INFO("%s, %p", #pointer, pointer)
-#define LOGCOLOR(color) INFO("%s, %.2f, %.2f, %.2f, %.2f", #color, color.r, color.g, color.b, color.a)
 DEFINE_TYPE(Qosmetics, AltTrail);
 
 using namespace UnityEngine;
+using namespace Sombrero;
 
 static constexpr const float frameRateTreshold = 1.0f / 90.0f;
-
-static inline Vector3 Vector3Add(Vector3& first, Vector3& second) {
-    return Vector3(first.x + second.x, first.y + second.y, first.z + second.z);
-}
-
-static inline Vector3 Vector3Sub(Vector3& first, Vector3& second) {
-    return Vector3(first.x - second.x, first.y - second.y, first.z - second.z);
-}
-
-static inline Vector3 Vector3SubVal(Vector3 first, Vector3 second) {
-    return Vector3Sub(first, second);
-}
-
-static inline Vector3 Vector3Div(Vector3& vec, float val) {
-    return Vector3(vec.x / val, vec.y / val, vec.z / val);
-}
-
-static inline Vector3 Vector3Mul(Vector3& first, Vector3& second) {
-    return Vector3(first.x * second.x, first.y * second.y, first.z * second.z);
-}
-
-static inline Vector3 Vector3Mul(Vector3& vec, float val) {
-    return Vector3(vec.x * val, vec.y * val, vec.z * val);
-}
-
-static inline Vector3 Vector3MulVal(Vector3 vec, float val) {
-    return Vector3(vec.x * val, vec.y * val, vec.z * val);
-}
-
-template<typename T>
-requires(std::is_arithmetic_v<T>)
-static inline T sqr(T a)
-{
-    return a * a;
-} 
-
-static inline float Magnitude(Vector3& vec) {
-    return sqrtf(sqr(vec.x) + sqr(vec.y) + sqr(vec.z));
-}
-
-static inline float MagnitudeVal(Vector3 vec) {
-    return Magnitude(vec);
-}
-
-static inline Vector3 Normalize(Vector3& vec) {
-    float magnitude = Magnitude(vec);
-    if (magnitude == 0.0f) return {0.0f, 0.0f, 0.0f};
-    return Vector3Div(vec, magnitude);
-}
-
-static inline Vector3 NormalizeVal(Vector3 vec) {
-    return Normalize(vec);
-}
-
-static inline Color ColorAdd(Color& first, Color& second) {
-    return Color(first.r + second.r, first.g + second.g, first.b + second.b, first.a + second.a);
-}
-
-static inline Color ColorAddVal(Color first, Color second) {
-    return ColorAdd(first, second);
-}
-
-static inline Color ColorMul(Color& col, float val) {
-    return Color(col.r * val, col.g * val, col.b * val, col.a * val);
-}
-
-static inline Color LerpUnclamped(Color& first, Color& second, float t) {
-    return ColorAddVal(ColorMul(first, (1.0f - t)), ColorMul(second, t));
-}
 
 namespace Qosmetics
 {
@@ -216,31 +145,33 @@ namespace Qosmetics
 
     float AltTrail::get_TrailWidth()
     {
-        return MagnitudeVal(Vector3SubVal(PointStart->get_position(), PointEnd->get_position())) * 0.5f;
+        return ((FastVector3)PointStart->get_position() - (FastVector3)PointEnd->get_position()).Magnitude() * 0.5f;
     }
     
-    UnityEngine::Vector3 AltTrail::get_CurHeadPos()
+    Sombrero::FastVector3 AltTrail::get_CurHeadPos()
     {
-        return Vector3SubVal(PointStart->get_position(), PointEnd->get_position()) / 2.0f;
+        return ((FastVector3)PointStart->get_position() - (FastVector3)PointEnd->get_position()) / 2.0f;
     }
 
     void AltTrail::RefreshSpline()
     {
         auto& controlPoints = spline->get_ControlPoints();
         int diff = snapshotList.size() - controlPoints.size();
-
+        
+        
         // if control points smaller than snapshots, add new control points
         while (diff > 0)
         {
-            spline->AddControlPoint(get_CurHeadPos(), Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
+            spline->AddControlPoint(get_CurHeadPos(), (FastVector3)PointStart->get_position() - (FastVector3)PointEnd->get_position());
             diff--;
         }
+        
 
         int index = 0;
         for (auto snap : snapshotList)
         {
             controlPoints[index]->Position = snap->get_pos();
-            controlPoints[index]->Normal = Vector3Sub(snap->pointEnd, snap->pointStart);
+            controlPoints[index]->Normal = snap->pointEnd - snap->pointStart;
             index++;
         }
 
@@ -257,19 +188,18 @@ namespace Qosmetics
 
             float uvSegment = (float) i / Granularity;
 
-            Color color = MyColor;
+            FastColor color = MyColor;
 
             if (uvSegment < WhiteStep)
             {
-                static Color white = {1.0f, 1.0f, 1.0f, 1.0f};
-                color = LerpUnclamped(white, MyColor, uvSegment / WhiteStep);
+                color = FastColor::LerpUnclamped(FastColor::white(), MyColor, uvSegment / WhiteStep);
             }
 
-            auto pos = spline->InterpolateByLen(uvSegment);
-            auto mul = Vector3MulVal(NormalizeVal(spline->InterpolateNormalByLen(uvSegment)), get_TrailWidth());
+            FastVector3 pos = spline->InterpolateByLen(uvSegment);
+            FastVector3 mul = FastVector3::Normalize(spline->InterpolateNormalByLen(uvSegment)) * get_TrailWidth();//(NormalizeVal(spline->InterpolateNormalByLen(uvSegment)), get_TrailWidth());
 
             // offset half a trail width from pos
-            pool->Vertices->values[baseIdx] = Vector3Add(pos, mul);;
+            pool->Vertices->values[baseIdx] = pos + mul;;
             pool->UVs->values[baseIdx].x = 0.0f;
 
             // center
@@ -277,7 +207,7 @@ namespace Qosmetics
             pool->UVs->values[baseIdx + 1].x = 0.5f;
 
             // offset half a trail width from pos
-            pool->Vertices->values[baseIdx + 2] = Vector3Sub(pos, mul);;
+            pool->Vertices->values[baseIdx + 2] = pos - mul;
             pool->UVs->values[baseIdx + 2].x = 1.0f;
 
             pool->Colors->values[baseIdx] = pool->Colors->values[baseIdx + 1] = pool->Colors->values[baseIdx + 2] = color;
@@ -358,7 +288,7 @@ namespace Qosmetics
         }
     }
 
-    void AltTrail::SetColor(Color color)
+    void AltTrail::SetColor(FastColor color)
     {
         color.a *= trailIntensity;
         MyColor = color;
@@ -384,7 +314,7 @@ namespace Qosmetics
         // make sure the spline contains enough control points for the trail length
         for (int i = 0; i < TrailLength; i++)
         {
-            spline->AddControlPoint(get_CurHeadPos(), Vector3SubVal(PointStart->get_position(), PointEnd->get_position()));
+            spline->AddControlPoint(get_CurHeadPos(), (FastVector3)PointStart->get_position() - (FastVector3)PointEnd->get_position());
         }
 
         // if snapshot list contains elements, that is an issue, remove them!
@@ -422,8 +352,8 @@ namespace Qosmetics
 
     void AltTrail::Collapse()
     {
-        Vector3 start = PointStart->get_position();
-        Vector3 end = PointEnd->get_position();
+        FastVector3 start = PointStart->get_position();
+        FastVector3 end = PointEnd->get_position();
         // makes all parts of the trail end up at the same place, making it basically 0 length
         for (auto snap : snapshotList)
         {

@@ -1,9 +1,8 @@
 #pragma once
 
+#include "beatsaber-hook/shared/utils/typedefs.h"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Color.hpp"
-
-
 
 #if defined __has_include && __has_include ("conditional-dependencies/shared/main.hpp")
 #include "conditional-dependencies/shared/main.hpp"
@@ -16,7 +15,7 @@
 
 namespace Qosmetics
 {
-    class TrailHelper : UnityEngine::MonoBehaviour
+    class TrailHelper : public UnityEngine::MonoBehaviour
     {
         public:
             #if defined __has_include && __has_include ("AltTrail.hpp")

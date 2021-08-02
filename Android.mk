@@ -37,7 +37,7 @@ LOCAL_MODULE := codegen_0_12_5
 LOCAL_EXPORT_C_INCLUDES := extern/codegen
 LOCAL_SRC_FILES := extern/libcodegen_0_12_5.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: custom-types - version: 0.12.5
+# Creating prebuilt for dependency: custom-types - version: 0.12.6
 include $(CLEAR_VARS)
 LOCAL_MODULE := custom-types
 LOCAL_EXPORT_C_INCLUDES := extern/custom-types
@@ -49,15 +49,12 @@ LOCAL_MODULE := questui
 LOCAL_EXPORT_C_INCLUDES := extern/questui
 LOCAL_SRC_FILES := extern/libquestui.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: bs-utils - version: 0.6.1
+# Creating prebuilt for dependency: bs-utils - version: 0.6.2
 include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
 LOCAL_SRC_FILES := extern/libbs-utils.so
 include $(PREBUILT_SHARED_LIBRARY)
-# If you would like to use more shared libraries (such as custom UI, utils, or more) add them here, following the format above.
-# In addition, ensure that you add them to the shared library build below.
-
 # Creating prebuilt for dependency: libcurl - version: 7.78.0
 include $(CLEAR_VARS)
 LOCAL_MODULE := curl.a
@@ -76,6 +73,7 @@ LOCAL_SHARED_LIBRARIES += codegen_0_12_5
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_SHARED_LIBRARIES += questui
 LOCAL_SHARED_LIBRARIES += bs-utils
+LOCAL_SHARED_LIBRARIES += curl.a
 LOCAL_LDLIBS += -llog -lz
 LOCAL_CFLAGS += -DID='"Qosmetics"' -DVERSION='"1.3.0"' -I'./shared' -I'./extern' -Wno-inaccessible-base -O2
 LOCAL_C_INCLUDES += ./include ./src ./extern ./extern/codegen/include ./extern/libil2cpp/il2cpp/libil2cpp ./shared

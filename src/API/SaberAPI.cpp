@@ -13,7 +13,6 @@
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("SaberAPI").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("SaberAPI").error(value)
-#define LOGPTR(pointer) INFO("%s, %p", #pointer, pointer)
 
 using namespace Qosmetics;
 

@@ -178,7 +178,7 @@ namespace Qosmetics
                 GlobalNamespace::SaberTrail* orig = basicSaberModel->GetComponent<GlobalNamespace::SaberTrail*>();
 		        UnityEngine::Material* mat = orig->trailRendererPrefab->meshRenderer->get_material();
                 
-                get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
+                customSaber->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
                 auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(customSaber->get_gameObject());
                 static Color white = {1.0f, 1.0f, 1.0f, 1.0f};
                 TrailConfig trail(saberType.value, orig->color, white, 20, 4);
@@ -201,7 +201,7 @@ namespace Qosmetics
             GlobalNamespace::SaberTrail* orig = basicSaberModel->GetComponent<GlobalNamespace::SaberTrail*>();
 		    UnityEngine::Material* mat = orig->trailRendererPrefab->meshRenderer->get_material();
             
-            get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
+            basicSaberModel->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
             auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(basicSaberModel->get_gameObject());
             static Color white = {1.0f, 1.0f, 1.0f, 1.0f};
             TrailConfig trail(saberType.value, orig->color, white, 20, 4);

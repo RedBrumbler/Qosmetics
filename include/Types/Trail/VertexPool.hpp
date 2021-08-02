@@ -3,9 +3,15 @@
 #include "VertexSegment.hpp"
 #include "custom-types/shared/macros.hpp"
 
-#include "UnityEngine/Vector3.hpp"
-#include "UnityEngine/Vector2.hpp"
-#include "UnityEngine/Color.hpp"
+//#include "UnityEngine/Vector3.hpp"
+//#include "UnityEngine/Vector2.hpp"
+//#include "UnityEngine/Color.hpp"
+
+#include "sombrero/shared/Vector3Utils.hpp"
+#include "sombrero/shared/Vector2Utils.hpp"
+#include "sombrero/shared/ColorUtils.hpp"
+
+
 #include "UnityEngine/MeshFilter.hpp"
 #include "UnityEngine/Mesh.hpp"
 #include "UnityEngine/Material.hpp"
@@ -20,10 +26,10 @@ namespace Qosmetics {
 
 DECLARE_CLASS_CODEGEN(Qosmetics, VertexPool, Il2CppObject,
 
-    DECLARE_INSTANCE_FIELD(Array<UnityEngine::Vector3>*, Vertices);
+    DECLARE_INSTANCE_FIELD(Array<Sombrero::FastVector3>*, Vertices);
     DECLARE_INSTANCE_FIELD(Array<int>*, Indices);
-    DECLARE_INSTANCE_FIELD(Array<UnityEngine::Vector2>*, UVs);
-    DECLARE_INSTANCE_FIELD(Array<UnityEngine::Color>*, Colors);
+    DECLARE_INSTANCE_FIELD(Array<Sombrero::FastVector2>*, UVs);
+    DECLARE_INSTANCE_FIELD(Array<Sombrero::FastColor>*, Colors);
 
     DECLARE_INSTANCE_FIELD(UnityEngine::MeshFilter*, _meshFilter);
     DECLARE_INSTANCE_FIELD(UnityEngine::Material*, _material);

@@ -8,14 +8,17 @@
 #define INFO(value...) QosmeticsLogger::GetContextLogger("TrailHelper").info(value)
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("TrailHelper").error(value)
 
-#define LOGPTR(pointer) INFO("%s, %p", #pointer, pointer)
-#define LOGINT(val) INFO("%s: %d", #val, val)
 DEFINE_TYPE(Qosmetics, TrailHelper);
 
 using namespace UnityEngine;
 
 namespace Qosmetics
 {
+    void TrailHelper::ctor()
+    {
+        trailInstance = nullptr;
+    }
+
     void TrailHelper::GetOrAddTrail(bool remake)
     {
         // if not set, get it
@@ -100,7 +103,7 @@ namespace Qosmetics
         // calculate granularity
         initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10) ? (float)initData.TrailLength / 10.0f : 1.0f));;
         LOGINT(initData.Granularity);
-
+        LOGPTR(trailInstance);
         trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), true);
         INFO("Trail is Setup");
         UpdateColors(); 
@@ -111,6 +114,16 @@ namespace Qosmetics
         GetOrAddTrail(false);
         // if state differs, apply it
         if (trailInstance->get_enabled() ^ active) trailInstance->set_enabled(active);
+    }
+
+    void TrailHelper::SetColors(const UnityEngine::Color& leftColor, const UnityEngine::Color& rightColor)
+    {
+        if (colorType ^ 0b10)
+        {
+            GetOrAddTrail(false);
+            trailInstance->SetColor(colorType == 0 ? leftColor : rightColor);
+        }
+        // if not left or right color type, just do nothing
     }
 
     void TrailHelper::UpdateColors()
