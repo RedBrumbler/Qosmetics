@@ -90,7 +90,7 @@ namespace Qosmetics::UI
                     StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SetupSelectionsRoutine(info))));
                 });
 
-            auto modal = CreateModal(get_transform(), Vector2(80.0f, 60.0f), [&](HMUI::ModalView*){
+            auto modal = CreateModal(get_transform(), Vector2(60.0f, 30.0f), [&](HMUI::ModalView*){
                 // cancel when dismissed (assume someone clicked accidentally)
                 deletionElement->Cancel();
             }, false);

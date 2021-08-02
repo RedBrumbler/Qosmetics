@@ -1,7 +1,6 @@
 #include "UI/Saber/SaberDeletionElement.hpp"
 #include "UI/Saber/SaberSelectionElement.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
-
 DEFINE_TYPE(Qosmetics::UI, SaberDeletionElement);
 
 using namespace QuestUI;
@@ -31,11 +30,16 @@ namespace Qosmetics::UI
     {
         modal = GetComponent<HMUI::ModalView*>();
 
-        CreateText(get_transform(), "Are you sure you want to delete");
+        //UnityEngine::GameObject* container = CreateScrollableModalContainer(modal);
+        auto wrapper = CreateHorizontalLayoutGroup(get_transform());
+        auto container = CreateVerticalLayoutGroup(wrapper->get_transform());
+        container->set_childAlignment(UnityEngine::TextAnchor::MiddleCenter);
+        CreateText(container->get_transform(), "Are you sure you want to delete")->set_alignment(TMPro::TextAlignmentOptions::Center);
 
-        objectName = CreateText(get_transform(), "PLACEHOLDER");
+        objectName = CreateText(container->get_transform(), "PLACEHOLDER");
+        objectName->set_alignment(TMPro::TextAlignmentOptions::Center);
 
-        auto horizon = CreateHorizontalLayoutGroup(get_transform());
+        auto horizon = CreateHorizontalLayoutGroup(container->get_transform());
 
         CreateUIButton(horizon->get_transform(), "<color=#ff0000>confirm</color>", [this]() -> void {
             this->Confirm();

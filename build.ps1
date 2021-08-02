@@ -36,9 +36,9 @@ $msg = "Building with " + $coreCount + " Cores!"
 echo $msg
 if ($p1 -eq "test")
 {
-    & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/AndroidTest.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Onone
+    & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/AndroidTest.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Oline
 }
 else
 {
-    & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Onone
+    & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Oline
 }

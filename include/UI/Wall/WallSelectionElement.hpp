@@ -7,12 +7,14 @@
 #include "Types/Wall/WallManager.hpp"
 #include "UI/Wall/WallPreviewViewController.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
+#include "UI/Wall/WallSwitcherViewController.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics::UI, WallSelectionElement, UnityEngine::MonoBehaviour, 
     DECLARE_INSTANCE_FIELD_DEFAULT(WallManager*, modelManager, nullptr);
     DECLARE_INSTANCE_FIELD_DEFAULT(WallPreviewViewController*, previewViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(WallSwitcherViewController*, switcherViewController, nullptr);
 
-    DECLARE_INSTANCE_METHOD(void, Init, WallManager* wallManager, WallPreviewViewController* previewViewController);
+    DECLARE_INSTANCE_METHOD(void, Init, WallManager* wallManager, WallPreviewViewController* previewViewController, WallSwitcherViewController* switcherViewController);
     public:
         void Select();
         void SetupButtons();

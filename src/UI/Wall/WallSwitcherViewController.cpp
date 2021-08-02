@@ -64,6 +64,14 @@ namespace Qosmetics::UI
                     switcherInfo* info = new switcherInfo(cache, containerT);
                     StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SetupSelectionsRoutine(info))));
                 });
+
+            auto modal = CreateModal(get_transform(), Vector2(60.0f, 30.0f), [&](HMUI::ModalView*){
+                // cancel when dismissed (assume someone clicked accidentally)
+                deletionElement->Cancel();
+            }, false);
+
+            deletionElement = modal->get_gameObject()->AddComponent<WallDeletionElement*>();
+            deletionElement->Setup();
         }
 
         
@@ -95,7 +103,7 @@ namespace Qosmetics::UI
 
             HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(info->layout);
             WallSelectionElement* element = layout->get_gameObject()->AddComponent<WallSelectionElement*>();
-            element->Init(this->modelManager, this->previewViewController);
+            element->Init(this->modelManager, this->previewViewController, this);
             element->SetDescriptor(&info->it->second);
             layout->get_gameObject()->set_name(il2cpp_utils::newcsstr(info->it->second.GetFileName()));
 
@@ -111,5 +119,10 @@ namespace Qosmetics::UI
     {
         this->modelManager = wallManager;
         this->previewViewController = previewViewController;
+    }
+
+    void WallSwitcherViewController::AttemptDeletion(Qosmetics::UI::WallSelectionElement* elem)
+    {
+        deletionElement->Show(elem);
     }
 }

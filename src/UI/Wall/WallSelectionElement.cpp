@@ -71,7 +71,7 @@ static void SetupSelect(HorizontalLayoutGroup* layout, WallSelectionElement* sel
 static void SetupDelete(HorizontalLayoutGroup* layout, WallSelectionElement* self)
 {
     Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", "QosmeticsTemplateButton", [self]{
-        self->Delete();
+        self->switcherViewController->AttemptDeletion(self);
     });
 }
 
@@ -82,10 +82,11 @@ static void SetupDescription(HorizontalLayoutGroup* layout, std::string descript
 
 namespace Qosmetics::UI
 {
-    void WallSelectionElement::Init(WallManager* wallManager, WallPreviewViewController* previewViewController)
+    void WallSelectionElement::Init(WallManager* wallManager, WallPreviewViewController* previewViewController, WallSwitcherViewController* switcherViewController)
     {
         modelManager = wallManager;
         this->previewViewController = previewViewController;
+        this->switcherViewController = switcherViewController;
         if (!textLayoutName) textLayoutName = il2cpp_utils::createcsstr("TextLayout", il2cpp_utils::StringType::Manual);
     }
 

@@ -72,7 +72,7 @@ static void SetupSelect(HorizontalLayoutGroup* layout, NoteSelectionElement* sel
 static void SetupDelete(HorizontalLayoutGroup* layout, NoteSelectionElement* self)
 {
     Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", "QosmeticsTemplateButton", [self]{
-        self->Delete();
+        self->switcherViewController->AttemptDeletion(self);
     });
 }
 
@@ -83,10 +83,11 @@ static void SetupDescription(HorizontalLayoutGroup* layout, std::string descript
 
 namespace Qosmetics::UI
 {
-    void NoteSelectionElement::Init(NoteManager* noteManager, NotePreviewViewController* previewViewController)
+    void NoteSelectionElement::Init(NoteManager* noteManager, NotePreviewViewController* previewViewController, NoteSwitcherViewController* switcherViewController)
     {
         modelManager = noteManager;
         this->previewViewController = previewViewController;
+        this->switcherViewController = switcherViewController;
         if (!textLayoutName) textLayoutName = il2cpp_utils::createcsstr("TextLayout", il2cpp_utils::StringType::Manual);
     }
 
