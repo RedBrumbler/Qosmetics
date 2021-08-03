@@ -19,6 +19,9 @@ using namespace Qosmetics;
 #define SABERMANAGER SingletonContainer::get_saberManager()
 #define CONFIG SABERMANAGER->get_item().get_config()
 
+#pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
+#pragma GCC diagnostic push
+
 EXPOSE_API(GetActiveSaberModel, UnityEngine::GameObject*) {
     return SABERMANAGER->GetActivePrefab();
 }
@@ -63,5 +66,6 @@ EXPOSE_API(SetTrailActive, void, Il2CppObject* trailHelper, bool active) {
     ((Qosmetics::TrailHelper*)trailHelper)->SetTrailActive(active);
 }
 
+#pragma GCC diagnostic pop
 #undef SABERMANAGER
 #undef CONFIG

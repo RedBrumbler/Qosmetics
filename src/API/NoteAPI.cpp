@@ -11,6 +11,9 @@ using namespace Qosmetics;
 #define NOTEMANAGER SingletonContainer::get_noteManager()
 #define NOTECONFIG NOTEMANAGER->get_item().get_config()
 
+#pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
+#pragma GCC diagnostic push
+
 EXPOSE_API(GetActiveNoteModel, UnityEngine::GameObject*) {
     return NOTEMANAGER->GetActivePrefab();
 }
@@ -68,5 +71,6 @@ EXPOSE_API(GetNoteIsCustom, bool) {
 EXPOSE_API(GetNoteFolder, void, std::string& result) {
     result = NOTEPATH;
 }
+#pragma GCC diagnostic pop
 #undef NOTEMANAGER
 #undef NOTECONFIG

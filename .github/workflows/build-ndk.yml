@@ -35,7 +35,8 @@ on:
       - '**.md'
       # ignore the gitignore file
       - '.gitignore'
-      - 'shared/*'
+      # don't ignore shared
+      - '!shared/*'
     # run this on a pr 
   pull_request:
     # on branch master
@@ -203,13 +204,14 @@ jobs:
         path: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
         # if not found error obviously
         if-no-files-found: error
-        
-    - name: Upload qmod artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.qmodName }}.qmod
-        path: ./${{ env.qmodName }}.qmod
-        # if not found error obviously
-        if-no-files-found: error
+
+       # Disabling qmod upload becasue people are getting qmods from GH actions when they should not
+#    - name: Upload qmod artifact
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: ${{ env.qmodName }}.qmod
+#        path: ./${{ env.qmodName }}.qmod
+#        # if not found error obviously
+#        if-no-files-found: error
 
     # TODO: Add auto-populating releases, auto update versions, auto publish package on release

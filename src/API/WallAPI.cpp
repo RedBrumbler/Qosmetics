@@ -11,6 +11,9 @@ using namespace Qosmetics;
 #define WALLMANAGER SingletonContainer::get_wallManager()
 #define WALLCONFIG WALLMANAGER->get_item().get_config()
 
+#pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
+#pragma GCC diagnostic push
+
 EXPOSE_API(GetActiveWallModel, UnityEngine::GameObject*) {
     return WALLMANAGER->GetActivePrefab();
 }
@@ -55,5 +58,6 @@ EXPOSE_API(GetWallFolder, void, std::string& result) {
     result = WALLPATH;
 }
 
+#pragma GCC diagnostic pop
 #undef WALLMANAGER
 #undef WALLCONFIG

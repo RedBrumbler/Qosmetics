@@ -1,5 +1,8 @@
 #include "conditional-dependencies/shared/main.hpp"
 #include "Types/Trail/TrailHelper.hpp"
+#include "GlobalNamespace/BeatmapLevelPackCollectionSO.hpp"
+#pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
+#pragma GCC diagnostic push
 
 EXPOSE_API(TrailHelper_GetOrAddTrail, void, Il2CppObject* trailHelper, bool remake) {
     ((Qosmetics::TrailHelper*)trailHelper)->GetOrAddTrail(remake);
@@ -28,3 +31,4 @@ EXPOSE_API(TrailHelper_GetColor, void, Il2CppObject* trailHelper, int colorType,
 EXPOSE_API(TrailHelper_SetColors, void, Il2CppObject* trailHelper, const UnityEngine::Color& leftColor, const UnityEngine::Color& rightColor) {
     ((Qosmetics::TrailHelper*)trailHelper)->SetColors(leftColor, rightColor);
 }
+#pragma GCC diagnostic pop
