@@ -8,7 +8,6 @@
   "packageVersion": "1.16.4",
   "coverImage": "cover.gif",
   "description": "Quest Cosmetics on a whole new level!",
-  "type": "Gameplay",
   "dependencies": [],
   "modFiles": [
     "libquestcosmetics.so"
