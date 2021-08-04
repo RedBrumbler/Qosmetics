@@ -6,7 +6,7 @@
 #include "Types/Colors/ColorManager.hpp"
 
 #include "GlobalNamespace/SaberModelController.hpp"
-#include "UnityEngine/Color.hpp"
+#include "sombrero/shared/ColorUtils.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, TrailHelper, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD(Qosmetics::AltTrail*, trailInstance);
@@ -17,17 +17,17 @@ DECLARE_CLASS_CODEGEN(Qosmetics, TrailHelper, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, Init, Qosmetics::ColorManager* colorManager, GlobalNamespace::SaberModelController* saberModelController);
     DECLARE_INSTANCE_METHOD(void, TrailSetup);
     DECLARE_INSTANCE_METHOD(void, SetTrailActive, bool active);
-    DECLARE_INSTANCE_METHOD(UnityEngine::Color, GetColor, int colorType);
+    DECLARE_INSTANCE_METHOD(Sombrero::FastColor, GetColor, int colorType);
     DECLARE_INSTANCE_METHOD(void, UpdateColors);
     DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int saberType, GlobalNamespace::SaberModelController* saberModelController, UnityEngine::Color color);
 
     DECLARE_CTOR(ctor);
     public:
-        void SetColors(const UnityEngine::Color& leftColor, const UnityEngine::Color& rightColor);
+        void SetColors(const Sombrero::FastColor& leftColor, const Sombrero::FastColor& rightColor);
         void set_trailConfig(Qosmetics::TrailConfig& trailConfig);
         int colorType;
-        UnityEngine::Color color;
-        UnityEngine::Color multiplier;
+        Sombrero::FastColor color;
+        Sombrero::FastColor multiplier;
         int length;
         float whiteStep;
 )

@@ -116,7 +116,7 @@ namespace Qosmetics
         if (trailInstance->get_enabled() ^ active) trailInstance->set_enabled(active);
     }
 
-    void TrailHelper::SetColors(const UnityEngine::Color& leftColor, const UnityEngine::Color& rightColor)
+    void TrailHelper::SetColors(const Sombrero::FastColor& leftColor, const Sombrero::FastColor& rightColor)
     {
         if (colorType ^ 0b10)
         {
@@ -132,14 +132,14 @@ namespace Qosmetics
         trailInstance->SetColor(GetColor(colorType));
     }
 
-    Color TrailHelper::GetColor(int colorType)
+    Sombrero::FastColor TrailHelper::GetColor(int colorType)
     {
         if (config.saberConfig.whiteTrail)
         {
             return {1.0f, 1.0f, 1.0f, 1.0f};
         }
 
-        Color color = this->color;
+        Sombrero::FastColor color = this->color;
         // colortype can only be 0, 1 or 2, meaning 0b0, 0b1 or 0b10, if ^0b10 makes it false then it's 2, else 0 ro 1
         if (colorType ^ 0b10)
         {

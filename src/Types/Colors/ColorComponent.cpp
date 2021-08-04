@@ -1,4 +1,5 @@
 #include "Types/Colors/ColorComponent.hpp"
+#include "Types/Trail/TrailHelper.hpp"
 
 #include "chroma/shared/SaberAPI.hpp"
 #include "chroma/shared/NoteAPI.hpp"
@@ -72,6 +73,13 @@ namespace Qosmetics
         else
         {
             SaberUtils::SetColors(get_gameObject(), leftColor, rightColor);
+        }
+
+        auto trails = get_gameObject()->GetComponentsInChildren<Qosmetics::TrailHelper*>();
+        int length = trails->Length();
+        for (int i = 0; i < length; i++)
+        {
+            trails->values[i]->SetColors(leftColor, rightColor);
         }
     }
 
