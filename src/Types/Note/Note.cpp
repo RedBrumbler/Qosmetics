@@ -49,7 +49,7 @@ namespace Qosmetics
     void Note::Replace()
     {
         CustomNoteType noteType = GetNoteType(gameNoteController);
-        if (!modelManager || modelManager->get_type() != ItemType::note || modelManager->get_item().get_type() != ItemType::note)
+        if (!modelManager || modelManager->get_type() != ItemType::note)
         {
             // dont do the size setting again
             if (get_replaced(noteType)) return;

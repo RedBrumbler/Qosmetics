@@ -30,7 +30,7 @@ namespace Qosmetics
 
     void Wall::OnEnable()
     {
-        Replace();
+        UpdateModel();
     }
 
     void Wall::Replace()
@@ -41,9 +41,9 @@ namespace Qosmetics
             return;
         }
 
-        if (!modelManager || modelManager->get_type() != ItemType::wall || modelManager->get_item().get_type() != ItemType::wall)
+        if (!modelManager || modelManager->get_type() != ItemType::wall)
         {
-            ERROR("Wall model manager was nullptr or itemtype was invalid");
+            ERROR("Wall model manager was %p or itemtype was invalid", modelManager);
             replaced = true;
             return;
         }
@@ -123,10 +123,11 @@ namespace Qosmetics
 
     void Wall::UpdateColors()
     {
+        INFO("Updating Wall colors");
         auto optionalColor = Chroma::ObstacleAPI::getObstacleControllerColorSafe(obstacleController);
 
         Color color = optionalColor ? *optionalColor : colorManager->ColorForObstacle();
-
+        INFO("Chroma color: %d, Color: { %.2f, %.2f, %.2f }", (bool)optionalColor, color.r, color.g, color.b);
         GlobalNamespace::StretchableObstacle* stretchableObstacle = obstacleController->stretchableObstacle;
         GlobalNamespace::ParametricBoxFrameController* frameController = stretchableObstacle->obstacleFrame;
 
@@ -141,6 +142,7 @@ namespace Qosmetics
 
     void Wall::Init(WallManager* modelManager, ColorManager* colorManager)
     {
+        INFO("Wall init modelManager: %p, colorManager: %p", modelManager, colorManager);
         this->modelManager = modelManager;
         this->colorManager = colorManager;
     }

@@ -110,7 +110,7 @@ namespace Qosmetics
     
     ItemType WallManager::get_type()
     {
-        return ItemType::wall; 
+        return activeItem->get_type();
     }
 
     Material* WallManager::get_coreMaterial()

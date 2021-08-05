@@ -129,14 +129,17 @@ namespace SaberUtils
             if (saber)
             {
                 auto origHelper = saber->GetComponent<Qosmetics::TrailHelper*>();
-                // setup material reference
-                customSaber->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(origHelper->trailInstance->MyMaterial);
-                
-                TrailConfig trail(origHelper->colorType, origHelper->color, origHelper->multiplier, origHelper->length, origHelper->whiteStep * origHelper->length);
-                auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(customSaber->get_gameObject());
-                helper->set_trailConfig(trail);
-                helper->Init(colorManager, nullptr);
-                helper->TrailSetup();
+                if (origHelper && origHelper->trailInstance)
+                {
+                    // setup material reference
+                    customSaber->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(origHelper->trailInstance->MyMaterial);
+
+                    TrailConfig trail(origHelper->colorType, origHelper->color, origHelper->multiplier, origHelper->length, origHelper->whiteStep * origHelper->length);
+                    auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(customSaber->get_gameObject());
+                    helper->set_trailConfig(trail);
+                    helper->Init(colorManager, nullptr);
+                    helper->TrailSetup();
+                }
             }
         }   
 

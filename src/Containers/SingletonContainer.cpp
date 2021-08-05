@@ -71,15 +71,15 @@ namespace Qosmetics
     void SingletonContainer::Init()
     {
         //if (!instance) instance = new SafePtr<SingletonContainer>();
-        if (!instance()) instance() = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
+        if (!instance()) instance() = *il2cpp_utils::New<SingletonContainer*>();
     }
 
     SingletonContainer* SingletonContainer::get_instance()
     {
-        if (!instance())// || !()->operator bool())
+        if (!instance())
         {
             //if (!instance) instance = new SafePtr<SingletonContainer>();
-            instance() = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
+            instance() = *il2cpp_utils::New<SingletonContainer*>();
         }
 
         return (SingletonContainer*)instance();
@@ -116,7 +116,7 @@ namespace Qosmetics
         SingletonContainer* instance = get_instance();
         if (!instance->saberManager)
         {
-            instance->saberManager = CRASH_UNLESS(il2cpp_utils::New<SaberManager*, il2cpp_utils::CreationType::Manual>());
+            instance->saberManager = CRASH_UNLESS(il2cpp_utils::New<SaberManager*>());
         }
 
         return instance->saberManager;
@@ -127,7 +127,7 @@ namespace Qosmetics
         SingletonContainer* instance = get_instance();
         if (!instance->noteManager)
         {
-            instance->noteManager = CRASH_UNLESS(il2cpp_utils::New<NoteManager*, il2cpp_utils::CreationType::Manual>());
+            instance->noteManager = CRASH_UNLESS(il2cpp_utils::New<NoteManager*>());
         }
         
         return instance->noteManager;
@@ -138,7 +138,7 @@ namespace Qosmetics
         SingletonContainer* instance = get_instance();
         if (!instance->wallManager)
         {
-            instance->wallManager = CRASH_UNLESS(il2cpp_utils::New<WallManager*, il2cpp_utils::CreationType::Manual>());
+            instance->wallManager = CRASH_UNLESS(il2cpp_utils::New<WallManager*>());
         }
         
         return instance->wallManager;
@@ -149,7 +149,7 @@ namespace Qosmetics
         SingletonContainer* instance = get_instance();
         if (!instance->colorManager)
         {
-            instance->colorManager = CRASH_UNLESS(il2cpp_utils::New<ColorManager*, il2cpp_utils::CreationType::Manual>());
+            instance->colorManager = CRASH_UNLESS(il2cpp_utils::New<ColorManager*>());
         }
         
         return instance->colorManager;

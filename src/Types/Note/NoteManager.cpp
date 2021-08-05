@@ -115,7 +115,7 @@ namespace Qosmetics
     
     ItemType NoteManager::get_type()
     {
-        return ItemType::note; 
+        return activeItem->get_type();
     }
 
     Transform* NoteManager::get_leftArrow()

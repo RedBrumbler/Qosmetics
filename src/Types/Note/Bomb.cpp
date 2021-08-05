@@ -36,7 +36,7 @@ namespace Qosmetics
         NoteUtils::SetBombSize(mesh);
         if (replaced) return;
 
-        if (!modelManager || modelManager->get_type() != ItemType::note || modelManager->get_item().get_type() != ItemType::note)
+        if (!modelManager || modelManager->get_type() != ItemType::note)
         {
             ERROR("Note model manager was nullptr or itemtype was invalid");
             replaced = true;
