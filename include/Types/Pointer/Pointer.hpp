@@ -14,7 +14,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, Pointer, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD_DEFAULT(GlobalNamespace::SaberType, pointerType, GlobalNamespace::SaberType::SaberA);
     DECLARE_INSTANCE_FIELD_DEFAULT(bool, replaced, false);
     
-    DECLARE_INSTANCE_METHOD(void, Awake);
+    DECLARE_CTOR(ctor);
     DECLARE_STATIC_METHOD(void, AddToAll);
     DECLARE_STATIC_METHOD(void, UpdateAll, bool reinstantiate = false);
     DECLARE_INSTANCE_METHOD(void, Replace, bool reinstantiate = false);

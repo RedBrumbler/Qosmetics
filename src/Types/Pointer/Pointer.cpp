@@ -25,7 +25,7 @@ static Il2CppString* LeftPointer = nullptr;
 static Il2CppString* RightPointer = nullptr;
 namespace Qosmetics
 {
-    void Pointer::Awake()
+    void Pointer::ctor()
     {
         modelManager = nullptr;
         colorManager = nullptr;
