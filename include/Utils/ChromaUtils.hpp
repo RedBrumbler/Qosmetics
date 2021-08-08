@@ -5,6 +5,8 @@
 #include "chroma/shared/ObstacleAPI.hpp"
 #include "chroma/shared/NoteAPI.hpp"
 
+#include "sombrero/shared/ColorUtils.hpp"
+
 namespace GlobalNamespace {
     class SaberModelController;
 }
@@ -14,7 +16,7 @@ namespace GlobalNamespace {
 
 namespace ChromaUtils
 {
-    inline void registerSaberCallback(const ThinVirtualLayer<void (void*, int, GlobalNamespace::SaberModelController*, UnityEngine::Color)>& callback)
+    inline void registerSaberCallback(const ThinVirtualLayer<void(void *, int, GlobalNamespace::SaberModelController *, Sombrero::FastColor)> &callback)
     {
         auto ev = Chroma::SaberAPI::getSaberChangedColorCallbackSafe();
 
@@ -23,6 +25,18 @@ namespace ChromaUtils
             auto& callbackEvent = (*ev).get();
 
             callbackEvent += callback;
+        }
+    }
+
+    inline void unregisterSaberCallback(const ThinVirtualLayer<void(void *, int, GlobalNamespace::SaberModelController *, Sombrero::FastColor)> &callback)
+    {
+        auto ev = Chroma::SaberAPI::getSaberChangedColorCallbackSafe();
+
+        if (ev)
+        {
+            auto &callbackEvent = (*ev).get();
+
+            callbackEvent -= callback;
         }
     }
 

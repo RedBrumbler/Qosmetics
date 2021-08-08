@@ -156,7 +156,7 @@ namespace Qosmetics
         return color;
     }
 
-    void TrailHelper::UpdateChromaColors(int saberType, GlobalNamespace::SaberModelController* saberModelController, UnityEngine::Color color)
+    void TrailHelper::UpdateChromaColors(int saberType, GlobalNamespace::SaberModelController *saberModelController, Sombrero::FastColor color)
     {
         if (saberModelController->Equals(parentModelController)) UpdateColors();
     }
