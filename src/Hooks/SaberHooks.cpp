@@ -59,6 +59,7 @@ MAKE_HOOK_MATCH(SaberModelContainer_Start, &GlobalNamespace::SaberModelContainer
         INFO("Replacing...");
         Qosmetics::Saber* customSaber = UnityUtils::GetAddComponent<Qosmetics::Saber*>(self->saber->get_gameObject());
         customSaber->Init(SingletonContainer::get_saberManager(), SingletonContainer::get_colorManager());
+        customSaber->Replace();
     }
 }
 
