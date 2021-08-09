@@ -70,7 +70,6 @@ namespace Qosmetics
 
 
         replaced = false;
-        Replace();
     }
     
     void Saber::OnDestroy()
@@ -120,7 +119,7 @@ namespace Qosmetics
     {
         if (!replaced) return;
         Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
-        if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), false, false);
+        if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), false, true);
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
         modelObject = get_transform()->Find(saberName);
         if (modelObject)
