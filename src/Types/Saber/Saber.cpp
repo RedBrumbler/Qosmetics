@@ -68,8 +68,6 @@ namespace Qosmetics
             ChromaUtils::registerSaberCallback({&Saber::UpdateChromaColors, this});
         }
 
-        Il2CppString *saberName = (saberType.value == 1) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-        modelObject = get_transform()->Find(saberName);
 
         replaced = false;
         Replace();
@@ -125,7 +123,8 @@ namespace Qosmetics
         if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), false, false);
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
         modelObject = get_transform()->Find(saberName);
-        if (saber) modelObject->get_gameObject()->SetActive(false);
+        if (modelObject)
+            modelObject->get_gameObject()->SetActive(false);
         replaced = false;
     }
 
