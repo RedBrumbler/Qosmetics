@@ -7,6 +7,7 @@
 
 #include "UnityEngine/MeshRenderer.hpp"
 #include "GlobalNamespace/Saber.hpp"
+#include "GlobalNamespace/SaberManager.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "Utils/UnityUtils.hpp"
 #include "Utils/SaberUtils.hpp"
@@ -49,18 +50,32 @@ namespace Qosmetics
             saberType = gameSaber->get_saberType();
 
         modelController = GetComponentInChildren<GlobalNamespace::SaberModelController*>(true);
+
+        // Pass in through constructor to avoid redoing?
+        GlobalNamespace::SaberManager *saberManager = FindObjectOfType<GlobalNamespace::SaberManager *>();
+
+        if (saberManager) {
+            auto otherSaber = saberType.value == 0 ? saberManager->leftSaber : saberManager->rightSaber;
+            if (otherSaber) {
+                otherModelController = otherSaber->GetComponentInChildren<GlobalNamespace::SaberModelController *>(true);
+            }
+        }
+        INFO("Going to register Chroma! %i", saberType.value);
         if (modelManager->get_item().get_type() != ItemType::invalid)
         {
+            INFO("Going to register Chroma! v2 %i", saberType.value);
             ChromaUtils::setSaberColoredByChroma(modelController, false);
             ChromaUtils::registerSaberCallback({&Saber::UpdateChromaColors, this});
         }
-        
+
+
         replaced = false;
     }
     
     void Saber::OnDestroy()
     {
         ChromaUtils::setSaberColoredByChroma(modelController, true);
+        ChromaUtils::unregisterSaberCallback({&Saber::UpdateChromaColors, this});
     }
 
     void Saber::Awake()
@@ -78,6 +93,8 @@ namespace Qosmetics
         else if (modelManager)// we actually ARE using a custom saber
         {
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
+            modelObject = get_transform()->Find(saberName);
+
             Transform* customSaber = get_transform()->Find(saberName);
             SaberUtils::SetSaberSize(customSaber);
             UpdateColors();
@@ -104,8 +121,9 @@ namespace Qosmetics
         Transform* basicSaberModel = get_transform()->Find(modelManager->get_basicSaberModelName());
         if (basicSaberModel) SaberUtils::HideObjects(basicSaberModel->get_gameObject(), false, true);
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-        Transform* saber = get_transform()->Find(saberName);
-        if (saber) saber->get_gameObject()->SetActive(false);
+        modelObject = get_transform()->Find(saberName);
+        if (modelObject)
+            modelObject->get_gameObject()->SetActive(false);
         replaced = false;
     }
 
@@ -120,7 +138,7 @@ namespace Qosmetics
         }
         
         Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-        Transform* prefab = get_transform()->Find(saberName);
+        Transform *prefab = modelObject;
         if (!prefab)
         {
             Transform* prefab = (saberType == 0) ? modelManager->get_leftSaber() : modelManager->get_rightSaber();        
@@ -134,6 +152,7 @@ namespace Qosmetics
             prefab->get_gameObject()->set_name(saberName);
             prefab->set_rotation(get_transform()->get_rotation());
             prefab->set_position(get_transform()->get_position());
+            modelObject = prefab;
         }
         else prefab->get_gameObject()->SetActive(true);
 
@@ -155,7 +174,7 @@ namespace Qosmetics
 
             std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
             Il2CppString* saberName = (saberType == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-            Transform* customSaber = get_transform()->Find(saberName);
+            Transform *customSaber = modelObject;
             if (trails.size() > 0 && config.saberConfig.trailType == TrailType::custom && customSaber)
             {
                 INFO("Putting custom trails on custom saber");
@@ -241,16 +260,16 @@ namespace Qosmetics
                 break;
         }
 
-        INFO(sabersColorOptional.first ? "using chroma color" : "using normal color");
+        INFO(sabersColorOptional.first ? "using chroma color %i" : "using normal color %i", saberType.value);
 
-        Il2CppString* saberName = (saberType.value == 0) ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
-
-        SaberUtils::SetColors(get_transform()->Find(saberName)->get_gameObject(), thisColor, otherColor);
+        SaberUtils::SetColors(modelObject->get_gameObject(), thisColor, otherColor);
     }
 
-    void Saber::UpdateChromaColors(int saberTypePassed, GlobalNamespace::SaberModelController* modelController, UnityEngine::Color)
+    void Saber::UpdateChromaColors(int saberTypePassed, GlobalNamespace::SaberModelController *modelController, Sombrero::FastColor)
     {
-        if(modelController->Equals(this->modelController)) UpdateColors(); 
+        INFO("Saber updated %i: %p, our saber %p and other saber %p", saberType.value, modelController, this->modelController, this->otherModelController);
+        if (modelController == this->modelController || modelController == this->otherModelController)
+            UpdateColors();
     }
 
 }

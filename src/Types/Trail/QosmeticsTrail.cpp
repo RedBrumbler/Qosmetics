@@ -251,7 +251,7 @@ namespace Qosmetics
         this->color.a *= trailIntensity;
     }
 
-    void QosmeticsTrail::UpdateChromaColors(int colorType, GlobalNamespace::SaberModelController* modelController, UnityEngine::Color color)
+    void QosmeticsTrail::UpdateChromaColors(int colorType, GlobalNamespace::SaberModelController *modelController, Sombrero::FastColor color)
     {
         if(modelController->Equals(this->attachedSaberModelController))
             UpdateColors(); 

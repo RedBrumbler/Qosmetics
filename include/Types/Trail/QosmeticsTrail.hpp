@@ -10,6 +10,8 @@
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/Transform.hpp"
 
+#include "sombrero/shared/ColorUtils.hpp"
+
 #include "custom-types/shared/macros.hpp"
 
 DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
@@ -41,7 +43,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, QosmeticsTrail, GlobalNamespace::SaberTrail,
     DECLARE_INSTANCE_METHOD(void, Reset);
     DECLARE_INSTANCE_METHOD(void, UpdateTrail);
     DECLARE_INSTANCE_METHOD(void, UpdateColors);
-    DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int, GlobalNamespace::SaberModelController* modelController, UnityEngine::Color color);
+    DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int, GlobalNamespace::SaberModelController* modelController, Sombrero::FastColor color);
     DECLARE_INSTANCE_METHOD(void, SetColorManager, ColorManager* colorManager);
     DECLARE_INSTANCE_METHOD(GlobalNamespace::SaberTrailRenderer*, NewTrailRenderer);
 

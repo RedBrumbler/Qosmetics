@@ -19,7 +19,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, TrailHelper, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, SetTrailActive, bool active);
     DECLARE_INSTANCE_METHOD(Sombrero::FastColor, GetColor, int colorType);
     DECLARE_INSTANCE_METHOD(void, UpdateColors);
-    DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int saberType, GlobalNamespace::SaberModelController* saberModelController, UnityEngine::Color color);
+    DECLARE_INSTANCE_METHOD(void, UpdateChromaColors, int saberType, GlobalNamespace::SaberModelController* saberModelController, Sombrero::FastColor color);
 
     DECLARE_CTOR(ctor);
     public:
