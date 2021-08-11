@@ -144,6 +144,7 @@ FastVector3 Spline::InterpolateByLen(float tl)
 {
     float localF;
     SplineControlPoint* seg = LenToSegment(tl, localF);
+    if (!seg) return FastVector3::zero(); 
     return seg->Interpolate(localF);
 }
 
@@ -151,6 +152,7 @@ FastVector3 Spline::InterpolateNormalByLen(float tl)
 {
     float localF;
     SplineControlPoint* seg = LenToSegment(tl, localF);
+    if (!seg) return FastVector3::up(); 
     return seg->InterpolateNormal(localF);
 }
 
