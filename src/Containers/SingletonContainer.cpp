@@ -41,7 +41,7 @@ namespace Qosmetics
 
     void SingletonContainer::Delete()
     {
-        auto instance = SingletonContainer::instance();
+        auto instance = SingletonContainer::get_instance();
         instance->qosmeticsFlowCoordinator = nullptr;
         instance->saberSwitcherViewController = nullptr;
         instance->saberSettingsViewController = nullptr;
@@ -71,18 +71,18 @@ namespace Qosmetics
     void SingletonContainer::Init()
     {
         //if (!instance) instance = new SafePtr<SingletonContainer>();
-        if (!instance()) instance() = *il2cpp_utils::New<SingletonContainer*>();
+        if (!instance) instance = *il2cpp_utils::New<SingletonContainer*>();
     }
 
     SingletonContainer* SingletonContainer::get_instance()
     {
-        if (!instance())
+        if (!instance)
         {
             //if (!instance) instance = new SafePtr<SingletonContainer>();
-            instance() = *il2cpp_utils::New<SingletonContainer*>();
+            instance = *il2cpp_utils::New<SingletonContainer*>();
         }
 
-        return (SingletonContainer*)instance();
+        return (SingletonContainer*)instance;
     }
     
     Qosmetics::UI::QosmeticsFlowCoordinator* SingletonContainer::get_qosmeticsFlowCoordinator()

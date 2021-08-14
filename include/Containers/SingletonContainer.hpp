@@ -106,7 +106,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
     DECLARE_STATIC_METHOD(Qosmetics::UI::FloorLogoViewController*, get_floorLogoViewController);
     DECLARE_STATIC_METHOD(Qosmetics::UI::UserProfileViewController*, get_userProfileViewController);
 
-    MY_DECLARE_STATIC_FIELD(Qosmetics::SingletonContainer*, instance);
+    //MY_DECLARE_STATIC_FIELD(Qosmetics::SingletonContainer*, instance);
 
     DECLARE_CTOR(ctor);
 
@@ -114,5 +114,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
         static void Init();
         static void Delete();
     private:
+        static inline SingletonContainer* instance = nullptr;
         //static SafePtr<SingletonContainer>* instance;
 )

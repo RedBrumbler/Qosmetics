@@ -90,27 +90,7 @@ if (Test-Path "./ExtraFiles")
             continue
         }
 
-        # if not a dir
-        if (-not $entry.Directory.Name.Contains("ExtraFiles"))
-        {
-            $dir = $entry.Directory
-            $folderPath = $dir.Name + "/" + $entry.Name
-            while (($dir.Directory) -and (-not $dir.Directory.Name.Contains("ExtraFiles")))
-            {
-                $folderPath = $dir.Directory.Name + "/" + $folderPath
-            }
-
-            $extraFiles += ,$folderPath
-        }
-        else
-        {
-            $extraFiles += ,$entry.Name
-        }
-    }
-
-    foreach ($file in $extraFiles)
-    {
-        $path = "./ExtraFiles/" + $file
+        $path = $entry | Select -expand fullname
         $fileList += ,$path
     } 
 }
