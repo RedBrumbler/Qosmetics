@@ -69,22 +69,27 @@ std::string activeSceneName = "";
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output);
 void makeFolder(std::string directory);
 
+extern bool atLeastMenu;
 bool firstWarmup = true;
 MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::SetActiveScene, bool, UnityEngine::SceneManagement::Scene scene)
 {
     getSceneName(scene, activeSceneName);
     INFO("Found scene %s", activeSceneName.c_str());
     bool result = SceneManager_SetActiveScene(scene);
+    INFO("got result %d", result);
 
     if (firstWarmup && activeSceneName == "ShaderWarmup")
     {
+        INFO("warmup");
         // when settings get reset it goes through shaderwarmup again
         firstWarmup = false;
 
         // async pog
         CreatorCache::Download();
+        INFO("downloading creator stuff");
         // async pog
         PatronCache::Download();
+        INFO("downloading patreon stuff");
     }
 
     if (activeSceneName == "GameCore")
@@ -125,7 +130,9 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
     }
 
     // clear all callbacks
-    SingletonContainer::get_colorManager()->ClearCallbacks();
+    INFO("clearing callbacks");
+    if (atLeastMenu) SingletonContainer::get_colorManager()->ClearCallbacks();
+    INFO("Returning result");
     return result;
 }
                                                                                                                        
@@ -147,6 +154,8 @@ MAKE_HOOK_MATCH(StandardLevelScenesTransitionSetupDataSO_Init, &GlobalNamespace:
 
 MAKE_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTransitionsHelper::RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, System::Action_1<Zenject::DiContainer*>* finishCallback)
 {
+    INFO("Game is soft restarting, handling it by throwing away pointers!");
+    atLeastMenu = false;
     SingletonContainer::Delete();
     MenuTransitionsHelper_RestartGame(self, finishCallback);
 }

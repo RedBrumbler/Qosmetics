@@ -114,6 +114,7 @@ DECLARE_CLASS_CODEGEN(Qosmetics, SingletonContainer, Il2CppObject,
         static void Init();
         static void Delete();
     private:
-        static inline SingletonContainer* instance = nullptr;
+        //static SafePtr<SingletonContainer> instance;
+        static SingletonContainer* instance;
         //static SafePtr<SingletonContainer>* instance;
 )

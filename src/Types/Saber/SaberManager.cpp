@@ -141,6 +141,8 @@ namespace Qosmetics
 
     ItemType SaberManager::get_type()
     {
+        INFO("this ptr: %p, item ptr: %p", this, activeItem);
+        if (!activeItem) return ItemType::invalid;
         return activeItem->get_type();
     }
     

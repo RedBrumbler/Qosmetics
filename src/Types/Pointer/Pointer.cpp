@@ -70,9 +70,11 @@ namespace Qosmetics
 
     void Pointer::Replace(bool reinstantiate)
     {
-        if (!modelManager || (modelManager->get_type() != ItemType::saber && modelManager->get_type() != ItemType::pointer) || (modelManager->get_item().get_type() != ItemType::saber && modelManager->get_item().get_type() != ItemType::pointer) || !config.saberConfig.enableMenuPointer)
+        INFO("ModelManager: %p", modelManager);
+        auto type = modelManager ? modelManager->get_type() : ItemType::invalid; 
+        if (!modelManager || (type != ItemType::saber && type != ItemType::pointer) || !config.saberConfig.enableMenuPointer)
         {
-            ERROR("Modelmanager was nullptr, or wrong type");
+            ERROR("Modelmanager was %p, or wrong type", modelManager);
             replaced = true;
             Restore();
             return;

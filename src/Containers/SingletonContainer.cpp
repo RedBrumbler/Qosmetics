@@ -12,7 +12,8 @@ using namespace UnityEngine;
 namespace Qosmetics
 {
     //SafePtr<SingletonContainer>* SingletonContainer::instance = nullptr;
-    //SingletonContainer* SingletonContainer::instance = nullptr;
+    //SafePtr<SingletonContainer> SingletonContainer::instance;
+    SingletonContainer* SingletonContainer::instance;
     void SingletonContainer::ctor()
     {
         qosmeticsFlowCoordinator = nullptr;
@@ -59,24 +60,18 @@ namespace Qosmetics
         instance->patronViewController = nullptr;
         instance->floorLogoViewController = nullptr;
         instance->userProfileViewController = nullptr;
-
-        /*
-        if (instance)
-        {
-            free(instance);
-            instance = nullptr;
-        }
-        */
+        //SingletonContainer::instance.emplace(nullptr);
+        instance = nullptr;
     }
+
     void SingletonContainer::Init()
     {
-        //if (!instance) instance = new SafePtr<SingletonContainer>();
-        if (!instance) instance = *il2cpp_utils::New<SingletonContainer*>();
+        instance = *il2cpp_utils::New<SingletonContainer*>();
     }
 
     SingletonContainer* SingletonContainer::get_instance()
     {
-        if (!instance)
+        if (!instance || !(SingletonContainer*)instance)
         {
             //if (!instance) instance = new SafePtr<SingletonContainer>();
             instance = *il2cpp_utils::New<SingletonContainer*>();
