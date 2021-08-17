@@ -17,6 +17,8 @@
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
 #include "Utils/UnityUtils.hpp"
 
+#include "Containers/SingletonContainer.hpp"
+
 #include <sstream>
 
 using namespace HMUI;
@@ -79,10 +81,8 @@ namespace Qosmetics::UI
             HMUI::SimpleTextDropdown* trailDropdown = BeatSaberUI::CreateDropdown(container->get_transform(), "User", masterConfig.lastUsedConfig, Config::get_configNames(), [this](std::string value){
                 if (value == masterConfig.lastUsedConfig) return;
                 Config::LoadConfig(value);
-
-                masterConfig.saberConfigRedo = true;
-                masterConfig.noteConfigRedo = true;
-                masterConfig.wallConfigRedo = true;
+                
+                SingletonContainer::ResetSelectionUI();
 
                 // update all the models too
                 if (config.lastActiveSaber != "")
@@ -113,6 +113,8 @@ namespace Qosmetics::UI
                 std::vector<std::string>& configs = Config::get_configNames();
                 Il2CppString* newUserCS = textField->get_text();
                 std::string newUser = to_utf8(csstrtostr(newUserCS));
+                // min user name length of 3 letters
+                if (newUser.size() < 3) return;
                 textField->ClearInput();
                 std::vector<std::string>::iterator it = std::find(configs.begin(), configs.end(), newUser);
                 if (it == configs.end())

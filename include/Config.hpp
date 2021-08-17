@@ -55,9 +55,6 @@ typedef struct _config {
 
 struct MasterConfig {
     config_t config;
-    bool saberConfigRedo = false;
-    bool wallConfigRedo = false;
-    bool noteConfigRedo = false;
     std::string lastUsedConfig = "Default";
 };
 

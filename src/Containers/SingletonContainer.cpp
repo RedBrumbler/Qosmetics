@@ -61,12 +61,69 @@ namespace Qosmetics
         instance->floorLogoViewController = nullptr;
         instance->userProfileViewController = nullptr;
         //SingletonContainer::instance.emplace(nullptr);
+        instance->Finalize();
         instance = nullptr;
     }
 
     void SingletonContainer::Init()
     {
-        instance = *il2cpp_utils::New<SingletonContainer*>();
+        instance = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
+    }
+
+    void SingletonContainer::ResetSelectionUI()
+    {
+        auto instance = get_instance();
+
+        if (instance->saberSwitcherViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->saberSwitcherViewController->get_gameObject());
+            instance->saberSwitcherViewController = nullptr;
+        }
+        if (instance->saberSettingsViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->saberSettingsViewController->get_gameObject());
+            instance->saberSettingsViewController = nullptr;
+        }
+        if (instance->saberPreviewViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->saberPreviewViewController->get_gameObject());
+            instance->saberPreviewViewController = nullptr;
+        }
+        if (instance->noteSwitcherViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->noteSwitcherViewController->get_gameObject());
+            instance->noteSwitcherViewController = nullptr;
+        }
+        if (instance->noteSettingsViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->noteSettingsViewController->get_gameObject());
+            instance->noteSettingsViewController = nullptr;
+        }
+        if (instance->notePreviewViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->notePreviewViewController->get_gameObject());
+            instance->notePreviewViewController = nullptr;
+        }
+        if (instance->wallSwitcherViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->wallSwitcherViewController->get_gameObject());
+            instance->wallSwitcherViewController = nullptr;
+        }
+        if (instance->wallSettingsViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->wallSettingsViewController->get_gameObject());
+            instance->wallSettingsViewController = nullptr;
+        }
+        if (instance->wallPreviewViewController) {
+            UnityEngine::Object::DestroyImmediate(instance->wallPreviewViewController->get_gameObject());
+            instance->wallPreviewViewController = nullptr;
+        }
+
+        instance->qosmeticsFlowCoordinator->Init(   get_saberSwitcherViewController(), 
+                                                    get_saberSettingsViewController(), 
+                                                    get_saberPreviewViewController(), 
+                                                    get_noteSwitcherViewController(),
+                                                    get_noteSettingsViewController(),
+                                                    get_notePreviewViewController(),
+                                                    get_wallSwitcherViewController(),
+                                                    get_wallSettingsViewController(),
+                                                    get_wallPreviewViewController(),
+                                                    get_patronViewController(),
+                                                    get_qosmeticsViewController(),
+                                                    get_floorLogoViewController(),
+                                                    get_userProfileViewController());
     }
 
     SingletonContainer* SingletonContainer::get_instance()
@@ -74,7 +131,7 @@ namespace Qosmetics
         if (!instance || !(SingletonContainer*)instance)
         {
             //if (!instance) instance = new SafePtr<SingletonContainer>();
-            instance = *il2cpp_utils::New<SingletonContainer*>();
+            instance = *il2cpp_utils::New<SingletonContainer*, il2cpp_utils::CreationType::Manual>();
         }
 
         return (SingletonContainer*)instance;

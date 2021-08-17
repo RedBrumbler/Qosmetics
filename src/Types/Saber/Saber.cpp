@@ -43,7 +43,7 @@ namespace Qosmetics
         this->modelManager = modelManager;
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &Saber::UpdateColors, this );
-        this->colorManager->RegisterCallback(callback, callbackType::saber);
+        //this->colorManager->RegisterCallback(callback, callbackType::saber);
         
         GlobalNamespace::Saber* gameSaber = GetComponent<GlobalNamespace::Saber*>();
         if (gameSaber)

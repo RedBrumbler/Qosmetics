@@ -77,8 +77,7 @@ namespace Qosmetics::UI
             imageView->curvedCanvasSettingsHelper->Reset();
         }
         
-        UpdatePreview(masterConfig.saberConfigRedo);
-        masterConfig.saberConfigRedo = false;
+        UpdatePreview(firstActivation);
     }
 
     void NotePreviewViewController::Init(NoteManager* noteManager, ColorManager* colorManager)

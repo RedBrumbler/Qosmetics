@@ -75,8 +75,7 @@ namespace Qosmetics::UI
             imageView->curvedCanvasSettingsHelper->Reset();
         }
         
-        UpdatePreview(masterConfig.saberConfigRedo);
-        masterConfig.saberConfigRedo = false;
+        UpdatePreview(firstActivation);
     }
 
     void SaberPreviewViewController::Init(SaberManager* saberManager, ColorManager* colorManager)

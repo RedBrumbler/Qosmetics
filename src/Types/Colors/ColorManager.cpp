@@ -119,11 +119,13 @@ namespace Qosmetics
 
     void ColorManager::UpdateAllColors()
     {
+        /*
         RunCallbacks(saberCallbacks);
         RunCallbacks(trailCallbacks);
         RunCallbacks(noteCallbacks);
         RunCallbacks(wallCallbacks);
         RunCallbacks(pointerCallbacks);
+        */
     }
 
     Color ColorManager::ColorForNoteType(GlobalNamespace::ColorType type)

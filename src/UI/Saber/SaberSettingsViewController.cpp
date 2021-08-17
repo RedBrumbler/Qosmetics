@@ -47,17 +47,7 @@ namespace Qosmetics::UI
 
     void SaberSettingsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
-        if (masterConfig.saberConfigRedo)
-        {
-            int childCount = get_transform()->get_childCount();
-
-            for (int i = 0; i < childCount; i++)
-            {
-                Object::DestroyImmediate(get_transform()->GetChild(i));
-            }
-        }
-
-        if (firstActivation || masterConfig.saberConfigRedo)
+        if (firstActivation)
         {
             //UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
@@ -71,8 +61,6 @@ namespace Qosmetics::UI
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
 
             StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SettingsSetupRoutine(container)))); 
-
-            masterConfig.saberConfigRedo = false;  
         }
     }
 

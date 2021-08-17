@@ -30,7 +30,7 @@ namespace Qosmetics
         this->colorManager = colorManager;
 
         std::function<void()> callback = std::bind(&Note::UpdateColors, this );
-        this->colorManager->RegisterCallback(callback, callbackType::note);
+        //this->colorManager->RegisterCallback(callback, callbackType::note);
     }
 
     void Note::OnEnable()

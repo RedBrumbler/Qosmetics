@@ -268,7 +268,7 @@ namespace Qosmetics
     {
         this->colorManager = colorManager;
         std::function<void()> callback = std::bind( &QosmeticsTrail::UpdateColors, this );
-        this->colorManager->RegisterCallback(callback, callbackType::trail);
+        //this->colorManager->RegisterCallback(callback, callbackType::trail);
         //ChromaUtils::registerSaberCallback({+[this](int, GlobalNamespace::SaberModelController* modelController, Color) -> void { if(modelController->Equals(this->attachedSaberModelController)) UpdateColors(); }, this});
         ChromaUtils::registerSaberCallback({&QosmeticsTrail::UpdateChromaColors, this});
         UpdateColors();
