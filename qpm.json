@@ -4,24 +4,16 @@
   "info": {
     "name": "Qosmetics",
     "id": "Qosmetics",
-    "version": "1.1.3",
+    "version": "1.3.0",
     "url": null,
-    "additionalData": {}
+    "additionalData": {
+      "overrideSoName": "libquestcosmetics.so"
+    }
   },
   "dependencies": [
     {
-      "id": "codegen",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
-      "id": "bs-utils",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
       "id": "beatsaber-hook",
-      "versionRange": "^1.0.0",
+      "versionRange": "*",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -35,6 +27,31 @@
     },
     {
       "id": "custom-types",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "conditional-dependencies",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "bs-utils",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "codegen",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "libcurl",
+      "versionRange": "*",
+      "additionalData": {}
+    },
+    {
+      "id": "sombrero",
       "versionRange": "*",
       "additionalData": {}
     }

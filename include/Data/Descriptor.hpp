@@ -1,137 +1,123 @@
 #pragma once
-#include "custom-types/shared/types.hpp"
-#include "custom-types/shared/macros.hpp"
-#include "beatsaber-hook/shared/utils/typedefs.h"
-
-#include "UnityEngine/Texture2D.hpp"
-#include "UnityEngine/Object.hpp"
 #include <string>
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
 
-typedef enum _qosmeticsType {
-    saber,          // 0
-    note,           // 1
-    wall,           // 2
-    menupointer,    // 3
-    platform,       // 4
-    invalid = 1000
-} qosmeticsType;
-
 namespace Qosmetics
 {
-    class Descriptor 
+    enum ItemType {
+        saber,
+        note,
+        wall,
+        pointer,
+        platform,
+        invalid = 1000
+    };
+
+    class Descriptor
     {
         public:
-            bool valid = true;
+            Descriptor() {};
 
-            Descriptor() {}
-
-            Descriptor(qosmeticsType theType)
+            Descriptor (ItemType type)
             {
-                if (theType == qosmeticsType::invalid)
+                if (type == ItemType::invalid)
                 {
-                    valid = false;
-                    name = "invalid";
                     author = "invalid";
-                    description = "invalid";
+                    name = "invalid";
                     filePath = "invalid";
-                    type = qosmeticsType::invalid;
+                    description = "invalid";
                 }
+
+                this->type = type;
             }
-            
+
             Descriptor(std::string filePath)
             {
                 this->filePath = filePath;
-            }
-            Descriptor(const Descriptor& orig)
-            {
-                Descriptor(orig.name, orig.author, orig.description, orig.filePath, orig.type, orig.coverImage);
+                this->type = GetTypeFromName(filePath);
             }
 
-            Descriptor(const rapidjson::Document &config, const std::string &filePath = "", const qosmeticsType &type = saber)
+            Descriptor(std::string author, std::string name, std::string description, std::string filePath)
             {
-                this->name = config["objectName"].GetString();
-                this->author = config["authorName"].GetString();
-                this->description = config["description"].GetString();
-                this->filePath = filePath;
-                this->type = type;
-            }
-
-            Descriptor(const std::string &name, const std::string &author, const std::string &description, const std::string &filePath = "", const qosmeticsType &type = saber, UnityEngine::Texture2D* image = nullptr)
-            {
-                this->name = name;
                 this->author = author;
+                this->name = name;
                 this->description = description;
-                this->coverImage = image; 
                 this->filePath = filePath;
-                this->type = type;
+                this->type = GetTypeFromName(filePath);
             }
 
-            void SetCoverImage(UnityEngine::Texture2D* image)
+            Descriptor(rapidjson::Value& val)
             {
-                this->coverImage = image;
-                this->coverImage->DontDestroyOnLoad(coverImage);
+                author = val["author"].GetString();
+                name = val["name"].GetString();
+                description = val["description"].GetString();
+                type = (ItemType)val["type"].GetInt();
+                filePath = val["filePath"].GetString();
             }
 
-            const qosmeticsType get_type() const
+            Descriptor(rapidjson::Value& val, std::string filePath)
             {
-                return type;
+                author = val["authorName"].GetString();
+                name = val["objectName"].GetString();
+                description = val["description"].GetString();
+                type = GetTypeFromName(filePath);
+                this->filePath = filePath;
             }
 
-            const std::string get_name() const
+            static ItemType GetTypeFromName(std::string name);
+            
+            std::string GetFileName(bool removeExtension = false);
+
+            bool isValid() 
             {
-                return name;
+                return type != invalid;
             }
 
-            const std::string get_author() const
+            const std::string& get_author()
             {
                 return author;
             }
 
-            const std::string get_description() const
+            const std::string& get_name()
+            {
+                return name;
+            }
+
+            const std::string& get_description()
             {
                 return description;
             }
 
-            const UnityEngine::Texture2D* get_coverImage() const
-            {
-                return coverImage;
-            }
-
-            const std::string get_filePath() const
+            const std::string& get_filePath()
             {
                 return filePath;
             }
 
-            const std::string get_fileName() const
+            ItemType get_type()
             {
-                if(filePath.find_last_of("/") != std::string::npos)
-                    return filePath.substr(filePath.find_last_of("/")+1);
-                return filePath;
+                return type;
             }
 
-            void Copy(const Descriptor& orig)
+            bool isType(ItemType type)
             {
-                this->name = orig.name;
-                this->author = orig.author;
-                this->description = orig.description;
-                this->coverImage = orig.coverImage;
-                this->filePath = orig.filePath;
-                this->type = orig.type;
-                this->valid = true;
+                return this->type == type;
             }
 
-            bool operator<(const Descriptor& other) const
+            void CopyFrom(Descriptor& descriptor)
             {
-                return this->name < other.name;
+                author = descriptor.author;
+                name = descriptor.name;
+                description = descriptor.description;
+                filePath = descriptor.filePath;
             }
+    
+            rapidjson::Value ToVal(rapidjson::Document::AllocatorType& allocator);
 
         private:
+            std::string author = "---";
             std::string name = "";
-            std::string author = "";
             std::string description = "";
             std::string filePath = "";
-            UnityEngine::Texture2D* coverImage = nullptr;
-            qosmeticsType type = qosmeticsType::invalid;
+            ItemType type = invalid;
     };
 }

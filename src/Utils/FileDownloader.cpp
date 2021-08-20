@@ -3,11 +3,10 @@
 #include "UnityEngine/AsyncOperation.hpp"
 #include "System/Action_1.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-utils-methods.hpp"
-#include "Logging/GenericLogger.hpp"
+#include "QosmeticsLogger.hpp"
 
-#define INFO(value...) Qosmetics::GenericLogger::GetLogger().WithContext("File Downloader").info(value);
-#define ERROR(value...) Qosmetics::GenericLogger::GetLogger().WithContext("File Downloader").error(value);
+#define INFO(value...) QosmeticsLogger::GetContextLogger("File Downloader").info(value);
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("File Downloader").error(value);
 
 using namespace UnityEngine::Networking;
 
@@ -19,7 +18,7 @@ void FileDownloader::Download()
     this->request->SetRequestHeader(il2cpp_utils::createcsstr("User-Agent"), il2cpp_utils::createcsstr(useragent));
     this->asyncOP = this->request->SendWebRequest();
 
-    QuestUI::CustomDataType* data = CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*, il2cpp_utils::CreationType::Manual>(classof(QuestUI::CustomDataType*)));
+    QuestUI::CustomDataType* data = CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>());
     data->SetDataPointer(this);
 
     asyncOP->add_completed(il2cpp_utils::MakeDelegate<System::Action_1<UnityEngine::AsyncOperation*>*>(classof(System::Action_1<UnityEngine::AsyncOperation*>*), data, WebRequestComplete));
@@ -33,9 +32,14 @@ void FileDownloader::SetCallback(FileDownloaderCallback callback)
 
 void FileDownloader::WebRequestComplete(QuestUI::CustomDataType* data, UnityWebRequestAsyncOperation* asyncOP)
 {
+    INFO("data ptr: %p", data);
     FileDownloader* instance = (FileDownloader*)data->data;
+
     data->data = nullptr;
-    free(data);
+    //data->Finalize();
+    
+    //data->data = nullptr;
+    //delete(data);
 
     INFO("Request to URL %s complete!", instance->url.c_str());
 

@@ -1,22 +1,26 @@
 #pragma once
-#include "custom-types/shared/types.hpp"
 #include "custom-types/shared/macros.hpp"
+#include "custom-types/shared/coroutine.hpp"
+#include "Types/Wall/WallManager.hpp"
+#include "UI/Wall/WallPreviewViewController.hpp"
+#include "UI/Wall/WallDeletionElement.hpp"
 
-#include "TMPro/TextMeshProUGUI.hpp"
 #include "HMUI/ViewController.hpp"
-#include "UnityEngine/Sprite.hpp"
-#include "UnityEngine/Transform.hpp"
-namespace Qosmetics {class Descriptor;}
 
-DECLARE_CLASS_CODEGEN(Qosmetics, WallSwitcherViewController, HMUI::ViewController,
+struct switcherInfo;
+namespace Qosmetics::UI {
+    class WallSelectionElement;
+}
+
+DECLARE_CLASS_CODEGEN(Qosmetics::UI, WallSwitcherViewController, HMUI::ViewController,
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::WallManager*, modelManager, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::WallPreviewViewController*, previewViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::WallDeletionElement*, deletionElement, nullptr);
+
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    DECLARE_OVERRIDE_METHOD(void, DidDeactivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidDeactivate", 2), bool removedFromHierarchy, bool screenSystemDisabling);
+    DECLARE_INSTANCE_METHOD(void, Init, Qosmetics::WallManager* modelManager, Qosmetics::UI::WallPreviewViewController* previewViewController);
 
-    void AddButtonsForDescriptor(UnityEngine::Transform* layout, Descriptor* descriptor);
-    void AddTextForDescriptor(UnityEngine::Transform* layout, Descriptor* descriptor);
-
-    REGISTER_FUNCTION(WallSwitcherViewController,
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(DidDeactivate);
-    )
+    public:    
+        custom_types::Helpers::Coroutine SetupSelectionsRoutine(switcherInfo* info);
+        void AttemptDeletion(Qosmetics::UI::WallSelectionElement* elem);
 )

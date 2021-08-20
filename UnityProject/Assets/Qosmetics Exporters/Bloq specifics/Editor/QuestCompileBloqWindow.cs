@@ -328,7 +328,7 @@ public class QuestCompileBloqWindow : EditorWindow
         //string bmbfmodJson = JsonUtility.ToJson(bloq.bmbfmod, true);
         //TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
-        string descriptorString = JsonUtility.ToJson(new Descriptor(bloq.bmbfmod.author, bloq.bmbfmod.name, bloq.bmbfmod.description[0]), true);
+        string descriptorString = JsonUtility.ToJson(bloq.descriptor, true);
         TextAsset descriptor = new TextAsset(descriptorString);
 
         string bloqName = bloq.descriptor.objectName + "." + extension;
@@ -503,7 +503,7 @@ public class QuestCompileBloqWindow : EditorWindow
         string bmbfmodJson = JsonUtility.ToJson(bloq.bmbfmod, true);
         TextAsset bmbfmod = new TextAsset(bmbfmodJson);
 
-        string descriptorString = JsonUtility.ToJson(new Descriptor(bloq.bmbfmod.author, bloq.bmbfmod.name, bloq.bmbfmod.description[0]), true);
+        string descriptorString = JsonUtility.ToJson(bloq.descriptor, true);
         TextAsset descriptor = new TextAsset(descriptorString);
 
         string zipname = bloq.bmbfmod.name + "V" + bloq.bmbfmod.version + ".zip";

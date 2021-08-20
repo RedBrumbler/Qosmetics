@@ -1,204 +1,123 @@
+#include "Config.hpp"
 #include "UI/Wall/WallPreviewViewController.hpp"
-#include "config.hpp"
-#include "Data/Descriptor.hpp"
-
-#include "UnityEngine/RectOffset.hpp"
-#include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Rect.hpp"
-#include "UnityEngine/Vector2.hpp"
-#include "UnityEngine/UI/Image.hpp"
-#include "UnityEngine/UI/Toggle.hpp"
-#include "UnityEngine/UI/Toggle_ToggleEvent.hpp"
-#include "UnityEngine/UI/LayoutElement.hpp"
-#include "UnityEngine/Events/UnityAction.hpp"
-#include "UnityEngine/Events/UnityAction_1.hpp"
-#include "HMUI/ScrollView.hpp"
-#include "HMUI/ModalView.hpp"
+#include "UI/Wall/WallPreviewElement.hpp"
+#include "questui/shared/BeatSaberUI.hpp" 
 #include "HMUI/Touchable.hpp"
-#include "HMUI/InputFieldView.hpp"
 
-#include "questui/shared/BeatSaberUI.hpp"
-#include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
+#include "Types/Wall/WallItem.hpp"
+#include "Utils/UIUtils.hpp"
+#include "Utils/UnityUtils.hpp"
+#include "Utils/TextUtils.hpp"
+#include "Utils/DateUtils.hpp"
+
+#include "UnityEngine/GameObject.hpp"
+#include "QosmeticsLogger.hpp"
+#include "HMUI/ImageView.hpp"
+#include "HMUI/CurvedCanvasSettingsHelper.hpp"
+
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
-#include "Logging/UILogger.hpp"
-#include <map>
-
-#include "Data/WallData.hpp"
-#include "Qosmetic/QuestWall.hpp"
-#include "Utils/WallUtils.hpp"
-
-#include "UnityEngine/MeshRenderer.hpp"
-#include "UnityEngine/Material.hpp"
-#include "UnityEngine/Shader.hpp"
-#include "UnityEngine/Vector4.hpp"
-
-#define INFO(value...) UILogger::GetLogger().WithContext("Wall Preview").info(value)
-#define ERROR(value...) UILogger::GetLogger().WithContext("Wall Preview").error(value)
-extern config_t config;
-DEFINE_CLASS(Qosmetics::WallPreviewViewController);
-
-using namespace QuestUI;
-using namespace UnityEngine;
-using namespace UnityEngine::UI;
-using namespace UnityEngine::Events;
 using namespace HMUI;
+using namespace UnityEngine;
+using namespace UnityEngine::Events;
+using namespace UnityEngine::UI;
+using namespace QuestUI;
+using namespace QuestUI::BeatSaberUI;
+using namespace Qosmetics;
+using namespace Qosmetics::UI;
+using namespace TMPro;
 
-std::map<std::string, int> wallNameToNumber = {
-    {
-        "Core",
-        0
-    },
-    {
-        "Frame",
-        1
-    }
-};
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Wall Preview").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Wall Preview").error(value)
 
-namespace Qosmetics
+DEFINE_TYPE(Qosmetics::UI, WallPreviewViewController);
+
+using namespace Qosmetics;
+using namespace UnityEngine;
+
+namespace Qosmetics::UI
 {
     void WallPreviewViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
-        if (previewprefab) 
-        {
-            Object::Destroy(previewprefab);
-            previewprefab = nullptr;
-        }
+        WallPreviewElement* previewElement = GetComponentInChildren<WallPreviewElement*>();
+        if (previewElement) previewElement->ClearPreview();
     }
 
     void WallPreviewViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         if (firstActivation)
         {
-            VerticalLayoutGroup* textlayout = BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
+            //UIUtils::SetupViewController(this);
+            get_gameObject()->AddComponent<Touchable*>();
+            title = UIUtils::AddHeader(get_transform(), "WallNameHere", Color::get_magenta());
 
-            title = BeatSaberUI::CreateText(textlayout->get_transform(), "placeholder text");
-            title->set_fontSize(10.0f);
+            GameObject* preview = GameObject::New_ctor();
+            preview->get_transform()->SetParent(get_transform());
+            WallPreviewElement* previewElement = preview->AddComponent<WallPreviewElement*>();
+            previewElement->Init(modelManager, colorManager);
+
+            //GameObject* container = CreateScrollableSettingsContainer(get_transform());
+            VerticalLayoutGroup* layout = CreateVerticalLayoutGroup(get_transform());
+            LayoutElement* layoutelem = UnityUtils::GetAddComponent<LayoutElement*>(layout->get_gameObject());
+            layoutelem->set_preferredWidth(100.0f);
+
+            Backgroundable* bg = UnityUtils::GetAddComponent<Backgroundable*>(layout->get_gameObject());
+            bg->ApplyBackgroundWithAlpha(il2cpp_utils::createcsstr("title-gradient"), 1.0f);
+
+            ImageView* imageView = bg->get_gameObject()->GetComponent<ImageView*>();
+            imageView->gradient = true;
+            imageView->gradientDirection = 1;
+            imageView->set_color(Color::get_white());
+            Color color = Color::get_black();
+            color.a = 0.3f;
+            imageView->set_color0(color);
+            color.a = 0.7f;
+            imageView->set_color1(color);
+            imageView->curvedCanvasSettingsHelper->Reset();
         }
-        title = get_transform()->Find(il2cpp_utils::createcsstr("QuestUIVerticalLayoutGroup/QuestUIText"))->get_gameObject()->GetComponent<TMPro::TextMeshProUGUI*>();
-        UpdatePreview();
+        
+        UpdatePreview(firstActivation);
     }
 
-    void WallPreviewViewController::Update()
+    void WallPreviewViewController::Init(WallManager* wallManager, ColorManager* colorManager)
     {
-        if (updateView)
-        {
-            updateView = false;
-            UpdatePreview();
-        }
+        this->modelManager = wallManager;
+        this->colorManager = colorManager;
     }
 
-    void WallPreviewViewController::UpdatePreview()
+    void WallPreviewViewController::ShowLoading()
+    {   
+        TextMeshProUGUI* title = GetComponentInChildren<TextMeshProUGUI*>();
+        WallPreviewElement* previewElement = GetComponentInChildren<WallPreviewElement*>();
+        title->set_text(il2cpp_utils::createcsstr("<i>Loading Wall...</i>"));
+        previewElement->ClearPreview();
+    }
+
+    void WallPreviewViewController::UpdatePreview(bool reinstantiate)
     {
-        if (QuestWall::GetActiveWall())
+        INFO("Updating preview");
+        if (!modelManager)
         {
-            if (QuestWall::DidSelectDifferentWall() && previewprefab) 
-            {
-                Object::Destroy(previewprefab);
-                previewprefab = nullptr;
-            }
-            WallData& selected = *QuestWall::GetActiveWall();
-            Descriptor& wallDescriptor = *selected.get_descriptor();
-            bool loadComplete = selected.get_complete();
-            if (!loadComplete)
-            {
-                title->set_text(il2cpp_utils::createcsstr("Loading .qwall File"));
-                std::thread waitForLoadedPrefab([]{
-                    bool complete = false;
-                    while (!complete)
-                    {
-                        if (QuestWall::GetActiveWall())
-                        {
-                            complete = QuestWall::GetActiveWall()->get_complete();
-                        }
-                        usleep(1000);
-                    }
-                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
-                    if (previewController) previewController->updateView = true;
-                    else ERROR("Couldn't find preview controller");
-                });
-                waitForLoadedPrefab.detach();
-                return;
-            }
-
-            if (!loadComplete) return;
-            selected.FindPrefab();
-            bool wasInstantiated = false;
-            if (QuestWall::DidSelectDifferentWall() || !previewprefab)
-            {
-                WallUtils::SetObstacleColors(selected);
-
-                std::string name = wallDescriptor.get_name();
-                if (name == "")
-                {
-                    name = wallDescriptor.get_fileName();
-                    if (name != "" && name.find(".") != std::string::npos) name.erase(name.find_last_of("."));
-                }
-                title->set_text(il2cpp_utils::createcsstr(name));
-
-                GameObject* prefab = selected.get_wallPrefab();
-                if (!prefab) return;
-
-                previewprefab = Object::Instantiate(prefab, get_transform());
-                previewprefab->SetActive(true);
-                wasInstantiated = true;
-            }
-
-            //previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(2.1f, 1.2f, 1.1f));
-            previewprefab->get_transform()->set_localPosition(UnityEngine::Vector3(-30.0f, 0.0f, -75.0f));
-            previewprefab->get_transform()->set_localEulerAngles(UnityEngine::Vector3(0.0f, 150.0f, 0.0f));
-            previewprefab->get_transform()->set_localScale(UnityEngine::Vector3(0.5f, 1.0f, 1.5f) * 50.0f);
-            if (wasInstantiated)
-            {
-                Array<MeshRenderer*>* meshrenderers = previewprefab->GetComponentsInChildren<MeshRenderer*>(true);
-
-                typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
-                auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
-
-                UnityEngine::Vector4 sizeParams = UnityEngine::Vector4(previewprefab->get_transform()->get_localScale().x * 0.5f, previewprefab->get_transform()->get_localScale().y * 0.5f, previewprefab->get_transform()->get_localScale().z * 0.5f, 0.05f);
-
-                int paramsID = Shader::PropertyToID(il2cpp_utils::createcsstr("_SizeParams"));
-                int edgeID = Shader::PropertyToID(il2cpp_utils::createcsstr("_EdgeSize"));
-
-                for (int i = 0; i < meshrenderers->Length(); i++)
-                {
-                    Array<Material*>* materials = GetMaterialArray(meshrenderers->values[i]);
-                    for (int j = 0; j < materials->Length(); j++)
-                    {
-                        if (materials->values[j]->HasProperty(paramsID)) materials->values[j]->SetVector(paramsID, sizeParams);
-                        if (materials->values[j]->HasProperty(edgeID)) materials->values[j]->SetFloat(edgeID, materials->values[j]->GetFloat(edgeID) * 50.0f);
-                    }
-                }
-            }
-
-            for (int i = 0; i < previewprefab->get_transform()->get_childCount(); i++)
-            {
-                Transform* child = previewprefab->get_transform()->GetChild(i);
-                std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
-
-                if (wallNameToNumber.find(name) == wallNameToNumber.end()) continue;
-                switch(wallNameToNumber[name])
-                {
-                    case 0: // Core
-                        WallUtils::HideRenderer(child->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceCoreOff);
-                        break;
-                    case 1: // Frame
-                        WallUtils::HideRenderer(child->get_gameObject()->GetComponent<MeshRenderer*>(), config.wallConfig.forceFrameOff);
-                        break;
-                    default:
-                        Object::Destroy(child->get_gameObject());
-                        break;
-                }
-            }
+            ERROR("model Manager was nullptr, returning!");
+            return;
         }
-        else 
+        
+        WallPreviewElement* previewElement = GetComponentInChildren<WallPreviewElement*>();
+        WallItem& item = modelManager->get_item();
+
+        if (item.get_descriptor().isValid())
         {
-            if (previewprefab) 
-            {
-                Object::Destroy(previewprefab);
-                previewprefab = nullptr;
-            }
-            title->set_text(il2cpp_utils::createcsstr("Default walls (no preview)"));
+            std::string itemName = DateUtils::get_isMonth(6) ? "<i>" + TextUtils::rainbowify(item.get_descriptor().get_name()) + "</i>" : "<i>" + item.get_descriptor().get_name() + "</i>";
+            title->set_text(il2cpp_utils::createcsstr(itemName));
+            previewElement->ClearPreview();
+            previewElement->UpdatePreview(reinstantiate);
+        }
+        else // default wall
+        {
+            std::string itemName = DateUtils::get_isMonth(6) ? "<i>" + TextUtils::rainbowify("Default Wall (no preview)") + "</i>" : "<i>Default Wall (no preview)</i>";
+            title->set_text(il2cpp_utils::createcsstr(itemName));
+            previewElement->ClearPreview();
         }
     }
 }

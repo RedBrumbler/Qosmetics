@@ -1,138 +1,59 @@
 #include "Utils/TrailUtils.hpp"
-#include "Data/QosmeticsTrail.hpp"
+#include "GlobalNamespace/SaberTrail.hpp"
+#include "Types/Trail/QosmeticsTrail.hpp"
+#include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Transform.hpp"
+#include "UnityEngine/MeshFilter.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "QosmeticsLogger.hpp"
 
-namespace Qosmetics
+using namespace UnityEngine;
+using namespace Qosmetics;
+
+static Il2CppString* trailName = nullptr;
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("Trail Utils").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("Trail Utils").error(value)
+
+GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
 {
-    void TrailUtils::ResetTrails()
+    // make a new gameobject to house the prefab on
+    GameObject* newPrefab = GameObject::New_ctor();
+    newPrefab->set_layer(12);
+    
+    // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
+    newPrefab->AddComponent<MeshFilter*>();
+    newPrefab->AddComponent<MeshRenderer*>();
+    
+    GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = newPrefab->AddComponent<GlobalNamespace::SaberTrailRenderer*>();
+
+    // set the material
+    trailRendererPrefab->meshRenderer->set_material(mat);      
+    // give it a good name, for identification I guess
+    if (!trailName) trailName = il2cpp_utils::createcsstr("Trail", il2cpp_utils::StringType::Manual);
+    newPrefab->set_name(trailName);
+    // return the trail renderer pointer
+    return trailRendererPrefab;
+}
+
+void TrailUtils::RemoveTrail(Transform* obj)
+{
+    if (!obj) return;
+    Array<GlobalNamespace::SaberTrail*>* trails = obj->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
+
+    if (trails)
     {
-        Array<GlobalNamespace::SaberTrail*>* trails = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::SaberTrail*>();
-        for(int i = 0; i < trails->Length(); i++)
+        QosmeticsTrail* customTrail = obj->get_gameObject()->GetComponent<QosmeticsTrail*>();
+        for (int i = 0; i < trails->Length(); i++)
         {
-            CRASH_UNLESS(il2cpp_utils::SetFieldValue(trails->values[i], "_trailWidth", 0.0f)); 
-        }
-    }
-
-    void TrailUtils::MoveTrail(UnityEngine::Transform* basicSaberModel, UnityEngine::Transform* customSaber)
-    {
-        if (customSaber == nullptr) 
-        {
-            getLogger().error("customSaber was null, not moving trail...");
-            return;
-        }
-        if (basicSaberModel == nullptr)
-        {
-            getLogger().error("basicSaberModel was null, not moving trail...");
-            return;
-        }
-
-        getLogger().info("Attempting to move base game trail into the custom saber per request of michaelzoller");
-        GlobalNamespace::SaberTrail* trailComponent = basicSaberModel->get_gameObject()->GetComponent<GlobalNamespace::SaberTrail*>();
-
-        UnityEngine::Transform* trailStart = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor(), customSaber)->get_transform();
-        trailStart->get_gameObject()->set_name(il2cpp_utils::createcsstr("TrailStart"));
-        trailStart->set_localPosition(UnityEngine::Vector3::get_zero());
-
-        UnityEngine::Transform* trailEnd = UnityEngine::Object::Instantiate(UnityEngine::GameObject::New_ctor(), customSaber)->get_transform();
-        trailEnd->get_gameObject()->set_name(il2cpp_utils::createcsstr("TrailEnd"));
-        trailEnd->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, 1.0f));
-
-        if (trailComponent == nullptr) 
-        {
-            getLogger().error("Tried moving trail but trailcomponent was nullptr, skipping...");
-            return;
-        }
-        else
-        {
-            getLogger().info("Found trail Component!");
-        }
-                
-        // add new trail script into which stuff will be moved
-        UnityEngine::GameObject* saberGO = customSaber->get_gameObject();
-        if (saberGO == nullptr) return;
-        QosmeticsTrail* newTrail = saberGO->AddComponent<QosmeticsTrail*>()->CopyFromBase(trailComponent);
-
-        if (newTrail == nullptr)
-        {
-            getLogger().error("Adding new trail component failed, skipping move trail...");
-            return;
-        }
-        
-        // relocate children from basicsabermodel into LeftSaber.Leftsaber (or right)
-        std::vector<UnityEngine::Transform*> children;
-        int childCount = basicSaberModel->get_childCount();
-        for (int i = 0; i < childCount; i++)
-        {
-            UnityEngine::Transform* child = basicSaberModel->GetChild(i);
-            children.push_back(child);
-        }
-        
-        for (UnityEngine::Transform* child : children)
-        {
-            if (child != nullptr)
+            GlobalNamespace::SaberTrail* trail = trails->values[i];
+            if (trail && trail != customTrail)
             {
-                std::string name = to_utf8(csstrtostr(child->get_gameObject()->get_name()));
-                //getLogger().info("%s pointer address: %p", name.c_str(), child);
-                child->SetParent(customSaber);
-            } 
-            else getLogger().error("A child was nullptr, not setting parent...");
-        }
-        
-        // yeet original trail
-        RemoveTrail(basicSaberModel);
-    }
-
-    void TrailUtils::AddTrail(Qosmetics::CustomTrail &trail, UnityEngine::Transform* customSaber)
-    {
-        if (customSaber == nullptr)
-        {
-            getLogger().error("Custom Saber nullptr, not adding trail");
-            return;
-        }
-        // find the trail object
-        UnityEngine::Transform* trailTransform = customSaber->Find(il2cpp_utils::createcsstr(trail.get_objectPath()));
-        
-        // add weapon trail component to it
-        QosmeticsTrail::AddTrailAndSetup(trailTransform, trail);
-    }
-
-    void TrailUtils::RemoveTrail(UnityEngine::Transform* basicSaberModel)
-    {
-        getLogger().info("RemoveTrail");
-        if (basicSaberModel == nullptr)
-        {
-            getLogger().error("basicSaberModel was null, not removing trail");
-            return;
-        }
-
-        Array<GlobalNamespace::SaberTrail*>* trailComponents = basicSaberModel->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
-        Qosmetics::QosmeticsTrail* qosmTrail = basicSaberModel->get_gameObject()->GetComponent<Qosmetics::QosmeticsTrail*>();
-
-        GlobalNamespace::SaberTrail* trailComponent = nullptr;
-        for (int i = 0; i < trailComponents->Length(); i++)
-        {
-            if (trailComponents->values[i] != qosmTrail) 
-            {
-                trailComponent = trailComponents->values[i];
-                break;
+                trail->trailDuration = 0.0f;
+                trail->whiteSectionMaxDuration = 0.0f;
+                trail->set_enabled(false);
             }
         }
-        
-        if (trailComponent == nullptr)
-        {
-            getLogger().error("Finding weapontrail failed, skipping remove trail...");
-            return;
-        }
-        
-        // disabled component
-        if (trailComponent->trailRenderer == nullptr)
-        {
-            getLogger().error("trailRenderer was nullptr, couldn't disable it");
-            return;
-        }
-        
-        trailComponent->trailDuration = 0.0f;
-        trailComponent->whiteSectionMaxDuration = 0.0f;
-        trailComponent->set_enabled(false);
-    }
-
+    }    
 }

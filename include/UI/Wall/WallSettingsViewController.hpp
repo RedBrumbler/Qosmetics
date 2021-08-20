@@ -1,18 +1,15 @@
 #pragma once
-#include "custom-types/shared/types.hpp"
 #include "custom-types/shared/macros.hpp"
+#include "custom-types/shared/coroutine.hpp"
 
-#include "TMPro/TextMeshProUGUI.hpp"
 #include "HMUI/ViewController.hpp"
-#include "UnityEngine/Sprite.hpp"
-namespace Qosmetics {class Descriptor;}
+#include "UI/Wall/WallPreviewViewController.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, WallSettingsViewController, HMUI::ViewController,
+DECLARE_CLASS_CODEGEN(Qosmetics::UI, WallSettingsViewController, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    DECLARE_OVERRIDE_METHOD(void, DidDeactivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidDeactivate", 2), bool removedFromHierarchy, bool screenSystemDisabling);
-
-    REGISTER_FUNCTION(WallSettingsViewController,
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(DidDeactivate);
-    )
+    DECLARE_INSTANCE_METHOD(void, Init, WallPreviewViewController* previewViewController);
+    DECLARE_INSTANCE_FIELD_DEFAULT(WallPreviewViewController*, previewViewController, nullptr);
+    
+    public:
+        custom_types::Helpers::Coroutine SettingsSetupRoutine(UnityEngine::GameObject* container);
 )

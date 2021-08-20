@@ -1,69 +1,70 @@
-#include "../include/Utils/FileUtils.hpp"
-#include "UnityEngine/Texture2D.hpp"
-#include "UnityEngine/ImageConversion.hpp"
-#include "UnityEngine/SpriteMeshType.hpp"
-#include "UnityEngine/Vector2.hpp"
-#include "UnityEngine/Vector4.hpp"
-#include "UnityEngine/Rect.hpp"
-#include "UnityEngine/TextureFormat.hpp"
+#include "Utils/FileUtils.hpp"
+
 #include <dirent.h>
 #include <stdio.h>
 #include <fstream>
-//#define CPPHTTPLIB_OPENSSL_SUPPORT
-#include "UnityEngine/Networking/UnityWebRequest.hpp"
-#include "UnityEngine/Networking/UnityWebRequestAsyncOperation.hpp"
-#include "Logging/GenericLogger.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "QosmeticsLogger.hpp"
 
-#define INFO(value...) Qosmetics::GenericLogger::GetLogger().WithContext("File Utils").info(value)
+#define INFO(value...) QosmeticsLogger::GetContextLogger("File Utils").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("File Utils").error(value)
 
-std::string GetFileExtension(const std::string& FileName)
+void FileUtils::makeFolder(std::string directory)
 {
-    if(FileName.find_last_of(".") != std::string::npos)
-        return FileName.substr(FileName.find_last_of(".")+1);
+    if (!direxists(directory.c_str()))
+    {
+        int makePath = mkpath(directory.data());
+        if (makePath == -1)
+        {
+            ERROR("Failed to make path %s", directory.c_str());
+        }
+    }
+}
+
+std::string FileUtils::GetFileName(std::string path, bool removeExtension)
+{
+    std::string result = "";
+    if(path.find_last_of("/") != std::string::npos)
+        result = path.substr(path.find_last_of("/")+1);
+    else result = path;
+    if (removeExtension) result = RemoveExtension(result);
+    return result;;
+}
+
+std::string FileUtils::RemoveExtension(std::string path)
+{
+    if(path.find_last_of(".") != std::string::npos)
+        return path.substr(0, path.find_last_of("."));
+    return path;
+}
+
+std::string FileUtils::GetExtension(std::string path)
+{
+    if(path.find_last_of(".") != std::string::npos)
+        return path.substr(path.find_last_of(".")+1);
     return "";
 }
 
-std::string FileUtils::GetFileName(const std::string& FilePath)
-{
-    if(FilePath.find_last_of("/") != std::string::npos)
-        return FilePath.substr(FilePath.find_last_of("/")+1);
-    return "";
-}
-
- bool FileUtils::getFileNamesInDir(std::string extension, std::string dir, std::vector<std::string> &fileNames)
+bool FileUtils::GetFilesInFolderPath(std::string extension, std::string filePath, std::vector<std::string>& out)
 {
     bool foundTheExtension = false; 
-    DIR* fileDir = opendir(dir.data());
+    struct DIR* fileDir = opendir(filePath.data());
     struct dirent *files;
     if(fileDir != NULL)
     {
         while((files = readdir(fileDir)) != NULL)
         {
-            std::string foundExtension = GetFileExtension(files->d_name);
-            if(foundExtension == extension)
+            std::string fileName = files->d_name;
+            if (fileName == "." || fileName == "..") continue;
+            std::string foundExtension = GetExtension(fileName);
+            if(foundExtension.find(extension) != std::string::npos)
             {
-                fileNames.push_back(std::string(files->d_name));
+                out.push_back(fileName);
                 foundTheExtension = true; 
             }
         }
         closedir(fileDir);
-        if(!foundTheExtension) return false; 
-        return true;
-    } else return false;
-
-}
-
-std::string FileUtils::rainbowIfy(std::string input)
-{
-    std::string result = "";
-
-    for (auto c : input)
-    {
-        result += string_format("<color=%s>%c</color>", colors[rainbowIndex].c_str(), c);
-        rainbowIndex++;
-        rainbowIndex %= 12;
     }
+    return foundTheExtension;
+}        
 
-    return result;
-}

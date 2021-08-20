@@ -1,22 +1,29 @@
 #pragma once
-#include "custom-types/shared/types.hpp"
 #include "custom-types/shared/macros.hpp"
+#include "custom-types/shared/coroutine.hpp"
 
-#include "TMPro/TextMeshProUGUI.hpp"
 #include "HMUI/ViewController.hpp"
-#include "UnityEngine/Sprite.hpp"
-#include "UnityEngine/Transform.hpp"
-namespace Qosmetics {class Descriptor;}
+#include "Types/Saber/SaberManager.hpp"
+#include "UI/Saber/SaberPreviewViewController.hpp"
+#include "UI/Saber/SaberDeletionElement.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, SaberSwitcherViewController, HMUI::ViewController,
+#include "Types/Colors/ColorManager.hpp"
+#include "Zenject/DiContainer.hpp"
+
+struct switcherInfo;
+namespace Qosmetics::UI {
+    class SaberSelectionElement;
+}
+
+DECLARE_CLASS_CODEGEN(Qosmetics::UI, SaberSwitcherViewController, HMUI::ViewController,
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::SaberManager*, modelManager, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::SaberPreviewViewController*, previewViewController, nullptr);
+    DECLARE_INSTANCE_FIELD_DEFAULT(Qosmetics::UI::SaberDeletionElement*, deletionElement, nullptr);
+    
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    DECLARE_OVERRIDE_METHOD(void, DidDeactivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidDeactivate", 2), bool removedFromHierarchy, bool screenSystemDisabling);
-
-    static void AddButtonsForDescriptor(UnityEngine::Transform* layout, Descriptor* descriptor);
-    static void AddTextForDescriptor(UnityEngine::Transform* layout, Descriptor* descriptor);
-
-    REGISTER_FUNCTION(SaberSwitcherViewController,
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(DidDeactivate);
-    )
+    DECLARE_INSTANCE_METHOD(void, Init, Qosmetics::SaberManager* modelManager, Qosmetics::UI::SaberPreviewViewController* previewViewController);
+    
+    public:
+        custom_types::Helpers::Coroutine SetupSelectionsRoutine(switcherInfo* info);
+        void AttemptDeletion(Qosmetics::UI::SaberSelectionElement* elem);
 )

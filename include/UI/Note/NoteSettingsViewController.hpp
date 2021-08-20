@@ -1,18 +1,15 @@
 #pragma once
-#include "custom-types/shared/types.hpp"
 #include "custom-types/shared/macros.hpp"
+#include "custom-types/shared/coroutine.hpp"
 
-#include "TMPro/TextMeshProUGUI.hpp"
 #include "HMUI/ViewController.hpp"
-#include "UnityEngine/Sprite.hpp"
-namespace Qosmetics {class Descriptor;}
+#include "UI/Note/NotePreviewViewController.hpp"
 
-DECLARE_CLASS_CODEGEN(Qosmetics, NoteSettingsViewController, HMUI::ViewController,
+DECLARE_CLASS_CODEGEN(Qosmetics::UI, NoteSettingsViewController, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
-    DECLARE_OVERRIDE_METHOD(void, DidDeactivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidDeactivate", 2), bool removedFromHierarchy, bool screenSystemDisabling);
-
-    REGISTER_FUNCTION(NoteSettingsViewController,
-        REGISTER_METHOD(DidActivate);
-        REGISTER_METHOD(DidDeactivate);
-    )
+    DECLARE_INSTANCE_METHOD(void, Init, NotePreviewViewController* previewViewController);
+    DECLARE_INSTANCE_FIELD_DEFAULT(NotePreviewViewController*, previewViewController, nullptr);
+    
+    public:
+        custom_types::Helpers::Coroutine SettingsSetupRoutine(UnityEngine::GameObject* container);
 )

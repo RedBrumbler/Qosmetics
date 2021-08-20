@@ -1,333 +1,158 @@
-#include "config.hpp"
-#include "include/Utils/SaberUtils.hpp"
-#include "Qosmetic/QosmeticsColorManager.hpp"
-#include "Data/SaberData.hpp"
-#include "Utils/TrailUtils.hpp"
+#include "Utils/SaberUtils.hpp"
+#include "UnityEngine/MeshFilter.hpp"
+#include "Utils/MaterialUtils.hpp"
+#include "Utils/UnityUtils.hpp"
+#include "Config.hpp"
+
+#include "Containers/SingletonContainer.hpp"
+#include "Types/Saber/Saber.hpp"
+#include "Types/Saber/SaberManager.hpp"
+#include "Types/Trail/TrailHelper.hpp"
+#include "Types/Trail/AltTrail.hpp"
+#include "Types/Colors/ColorComponent.hpp"
+#include "GlobalNamespace/SaberTrail.hpp"
+#include "GlobalNamespace/SaberTrailRenderer.hpp"
+
+#include "QosmeticsLogger.hpp"
+
+#define INFO(value...) QosmeticsLogger::GetContextLogger("TrailHelper").info(value)
+#define ERROR(value...) QosmeticsLogger::GetContextLogger("TrailHelper").error(value)
+
+
+
+
+using namespace UnityEngine;
+
 extern config_t config;
 
-namespace Qosmetics
+static void DisableMesh(Array<MeshFilter*>* filters, bool enableFakeGlow, bool doHide)
 {
-    void SaberUtils::ReplaceSaber(GlobalNamespace::Saber* gameSaber, UnityEngine::GameObject* customSaber)
-    {
-        getLogger().info("Replacing Saber");
-        UnityEngine::GameObject* gameSaberGO = gameSaber->get_gameObject();
-        UnityEngine::Transform* customSaberTransform = customSaber->get_transform();
-        
-        GlobalNamespace::SaberType saberType = gameSaber->get_saberType();
-        
-        Il2CppString* saberName = il2cpp_utils::createcsstr((saberType.value == 0 ? "LeftSaber" : "RightSaber"));
-        
-        UnityEngine::Transform* saberTransform = customSaberTransform->Find(saberName);
-        UnityEngine::Transform* gameSaberTransform = gameSaberGO->get_transform();
-        
-        UnityEngine::Vector3 gameSaberPos = gameSaberTransform->get_position();
-        UnityEngine::Quaternion gameSaberRot = gameSaberTransform->get_rotation();
+    if (!filters) return;
 
-        auto meshFilterType = il2cpp_utils::GetSystemType("UnityEngine", "MeshFilter");
+    for(int i = 0; i < filters->Length(); i++)
+    {
+        MeshFilter* filter = filters->values[i];
         
-        Array<UnityEngine::MeshFilter*>* meshFilters = *il2cpp_utils::RunMethod<Array<UnityEngine::MeshFilter*>*>(gameSaberTransform, "GetComponentsInChildren", meshFilterType, false);
-        /*if (meshFilters != nullptr) // if meshfilters is not nullptr, disable them
-            //DisableMesh(meshFilters);
-        else // if they are nullptr, log it and move on
-            getLogger().error("meshfilter array was nullptr, not disabling original saber");
-        */
-        saberTransform->set_parent(gameSaberTransform);
-        saberTransform->set_position(gameSaberPos);
-        saberTransform->set_rotation(gameSaberRot);
+        GameObject* filterGO = nullptr;
         
-        SetCustomColor(saberTransform, saberType);
+        if(filter)
+            filterGO = filter->get_gameObject();
+        
+        if(filterGO)
+        {
+            std::string name = to_utf8(csstrtostr(filterGO->get_name()));
+            if (enableFakeGlow && (name == "FakeGlow0" || name == "FakeGlow1")) continue;
+            filterGO->SetActive(!doHide);
+        }
+    }
+}
+
+namespace SaberUtils
+{
+    void HideObjects(GameObject* object, bool enableFakeGlow, bool doHide)
+    {
+        Array<MeshFilter*>* filters = object->GetComponentsInChildren<MeshFilter*>(true);
+        DisableMesh(filters, enableFakeGlow, doHide);
     }
 
-    void SaberUtils::AddSaber(GlobalNamespace::Saber* saberScript, Qosmetics::SaberData& customSaberData)
+    void SetColors(GameObject* object, Color color, Color otherColor)
     {
-        getLogger().info("Adding Saber");
-        if (saberScript == nullptr)
+        MaterialUtils::SetColors(object, color, otherColor);
+    }
+
+    void SetSaberSize(Transform* saber)
+    {
+        if (!saber) return;
+        saber->set_localScale(Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
+    }
+
+    UnityEngine::Transform* MakeDummySaber(int saberType)
+    {
+        using namespace Qosmetics;
+
+        if (saberType != 0 && saberType != 1) return nullptr;
+
+        Qosmetics::SaberManager* modelManager = Qosmetics::SingletonContainer::get_saberManager();
+        if (!modelManager || modelManager->get_type() != Qosmetics::ItemType::saber)
         {
-            getLogger().error("given saberscript was nullptr, not adding saber");
-            return;
+            ERROR("Saber Model Manager was not found, or item was not saber (default)");
+            return nullptr;
         }
 
-        UnityEngine::Transform* gameSaber = saberScript->get_transform();
-        UnityEngine::Transform* basicSaberModel = gameSaber->Find(il2cpp_utils::createcsstr("BasicSaberModel(Clone)"));
-
-        if (basicSaberModel == nullptr)
-        {
-            getLogger().error("Couldn't find basicsabermodel in AddSaber");
-            return;
-        }
-
-        Array<UnityEngine::MeshFilter*>* meshFilters = saberScript->GetComponentsInChildren<UnityEngine::MeshFilter*>();
+        UnityEngine::Transform* customSaber = saberType == 0 ? modelManager->get_leftSaber() : modelManager->get_rightSaber();
+        if (!customSaber) return nullptr;
         
-        if (meshFilters != nullptr)
-            DisableMesh(meshFilters, customSaberData.saberConfig->get_enableFakeGlow());
-        else
-            getLogger().error("meshFilters were null so didn't disable");
+        Il2CppString* saberName = saberType == 0 ? modelManager->get_leftSaberName() : modelManager->get_rightSaberName();
+        customSaber->get_gameObject()->set_name(saberName);
+
+        Qosmetics::SaberItem& item = modelManager->get_item();
+        Qosmetics::SaberConfig& itemConfig = item.get_config();
+
+        auto colorManager = Qosmetics::SingletonContainer::get_colorManager();
+
+        // if custom trail is selected, and custom trails on saber
+        if (config.saberConfig.trailType == TrailType::custom && itemConfig.get_hasCustomTrails())
+        {
+            std::vector<TrailConfig>& trails = (saberType == 0) ? itemConfig.get_leftTrails() : itemConfig.get_rightTrails();
             
-        // actually start adding the sabers
-        GlobalNamespace::SaberType saberType = saberScript->get_saberType();
-
-        UnityEngine::GameObject* prefab = nullptr;
-        std::string name = "";
-
-        if (saberType.value == 0) // LeftSaber
-        {
-            prefab = customSaberData.get_leftSaber();
-            name = "LeftSaber";
+            INFO("Putting custom trails on custom saber");
+            for (auto& trail : trails)
+            {
+                Il2CppString* trailPath = trail.get_name();
+                Transform* trailObj = customSaber->Find(trailPath);
+                if (!trailObj) continue;
+                
+                auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(trailObj->get_gameObject());
+                helper->set_trailConfig(trail);
+                helper->Init(colorManager, nullptr);
+                helper->TrailSetup();
+            }
         }
-        else // RightSaber
+        // if trail type was not none
+        else if (config.saberConfig.trailType != TrailType::none)
         {
-            prefab = customSaberData.get_rightSaber();
-            name = "RightSaber";
-        }
-
-        if (prefab != nullptr)
-        {
-            UnityEngine::GameObject* customGO = UnityEngine::Object::Instantiate(prefab, gameSaber);
-            customGO->SetActive(false);
-            customGO->set_name(il2cpp_utils::createcsstr(name));
-            SetCustomColor(customGO->get_transform(), saberType);
-
-            customGO->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
-            customGO->get_transform()->set_rotation(gameSaber->get_transform()->get_rotation());
-            customGO->get_transform()->set_position(gameSaber->get_transform()->get_position());
-            customGO->SetActive(true);
-        }
-        else
-        {
-            getLogger().error("Custom saber prefab was nullptr, not instantiating");
-        }
-    }
+            // get original saber for copying over orig trail stuff
+            Array<Qosmetics::Saber*>* sabers = Resources::FindObjectsOfTypeAll<Qosmetics::Saber*>();
+            Qosmetics::Saber* saber = nullptr;
     
-    void SaberUtils::DisableMesh(Array<UnityEngine::MeshFilter*>* meshFilters, bool enableFakeGlow)
-    {
-        for(int i = 0; i < meshFilters->Length(); i++)
-        {
-            UnityEngine::MeshFilter* filter = meshFilters->values[i];
-            
-            UnityEngine::GameObject* filterGO = nullptr;
-            
-            if(filter != nullptr)
-                filterGO = filter->get_gameObject();
-            
-
-            if(filterGO != nullptr)
+            int length = sabers->Length();
+    
+            for (int i = 0; i < length; i++)
             {
-                std::string name = to_utf8(csstrtostr(filterGO->get_name()));
-                getLogger().info("found object with name %s in saber", name.c_str());
-                if (enableFakeGlow && (name == "FakeGlow0" || name == "FakeGlow1")) continue;
-
-                filterGO->SetActive(false);
-            }
-        }
-    }
-
-    void SaberUtils::SetCustomColor(UnityEngine::Transform* transform, GlobalNamespace::SaberType saberType)
-    {
-        if (transform == nullptr)
-        {
-            getLogger().error("Tried setting colors on nullptr transform, not setting saber colors...");
-            return;
-        }
-
-        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
-        
-        if (colorManager == nullptr)
-        {
-            getLogger().error("colorManager was nullptr, skipping custom saber colors...");
-            return;
-        }
-
-        // make all the strings
-        Il2CppString* colorString = il2cpp_utils::createcsstr("_Color");
-        Il2CppString* otherColorString = il2cpp_utils::createcsstr("_OtherColor");
-
-        UnityEngine::Color saberColor = colorManager->ColorForSaberType(saberType.value);
-        UnityEngine::Color otherSaberColor = (saberType.value == 0) ? colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) : colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberA);
-        
-        auto rendererType = il2cpp_utils::GetSystemType("UnityEngine", "Renderer");
-        Array<UnityEngine::Renderer*>* renderers = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<UnityEngine::Renderer*>*>(transform, "GetComponentsInChildren", rendererType, true));
-
-        typedef function_ptr_t<Array<UnityEngine::Material*>*, UnityEngine::Renderer*> GetMaterialArrayFunctionType;
-        auto GetMaterialArray = *reinterpret_cast<GetMaterialArrayFunctionType>(il2cpp_functions::resolve_icall("UnityEngine.Renderer::GetMaterialArray"));
-
-        for(int i = 0; i < renderers->Length(); i++)
-        {
-            Array<UnityEngine::Material*>* materials = GetMaterialArray(renderers->values[i]);
-            for(int j = 0; j < materials->Length(); j++)
-            {
-                if(materials->values[j] == nullptr) continue;
-                UnityEngine::Material* currentMaterial = materials->values[j];
-                bool setColor = ShouldChangeSaberMaterialColor(materials->values[j]);
-
-                if(setColor)
+                auto currentSaber = sabers->values[i];
+                if (currentSaber->saberType.value == saberType) 
                 {
-                    if (currentMaterial->HasProperty(colorString)) 
-                        // if material has _Color property
-                        currentMaterial->SetColor(colorString, saberColor); // set the saber color on _Color
-                    if (currentMaterial->HasProperty(otherColorString)) 
-                        // if material has _OtherColor property
-                        currentMaterial->SetColor(otherColorString, otherSaberColor); // set the other saber color on _OtherColor
+                    saber = currentSaber;
+                    break;
                 }
             }
-        }
-    }
 
-    void SaberUtils::SetCustomColor(std::vector<UnityEngine::Material*>& vector, GlobalNamespace::SaberType saberType)
-    {
-        if (vector.size() == 0) return;
-        auto colorManagerType = il2cpp_utils::GetSystemType("", "ColorManager");
-        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
-        
-        if (colorManager == nullptr)
-        {
-            getLogger().error("colorManager was nullptr, skipping custom saber colors...");
-            return;
-        }
-
-        // make all the strings
-        Il2CppString* colorString = il2cpp_utils::createcsstr("_Color");
-        Il2CppString* otherColorString = il2cpp_utils::createcsstr("_OtherColor");
-
-        UnityEngine::Color saberColor = colorManager->ColorForSaberType(saberType.value);
-        UnityEngine::Color otherSaberColor = (saberType.value == 0) ? colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberB) : colorManager->ColorForSaberType(GlobalNamespace::SaberType::SaberA);
-        for(UnityEngine::Material* mat : vector)
-        {
-            bool setColor = ShouldChangeSaberMaterialColor(mat);
-            if(setColor)
+            // if we found an original to copy
+            if (saber)
             {
-                if (mat->HasProperty(colorString)) 
-                    // if material has _Color property
-                    mat->SetColor(colorString, saberColor); // set the saber color on _Color
-                if (mat->HasProperty(otherColorString)) 
-                    // if material has _OtherColor property
-                    mat->SetColor(otherColorString, otherSaberColor); // set the other saber color on _OtherColor
-            }
-        }
-    }
-
-    void SaberUtils::HandleColorsDidUpdateEvent(Qosmetics::SaberData& customSaberData)
-    {
-        Array<GlobalNamespace::Saber*>* sabers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::Saber*>();
-
-        for (int i = 0; i < sabers->Length(); i++)
-        {
-            GlobalNamespace::Saber* saber = sabers->values[i];
-
-            UnityEngine::Transform* gameSaber = saber->get_transform();
-            Il2CppString* saberName = saber->get_saberType().value == 0 ? il2cpp_utils::createcsstr("LeftSaber") : il2cpp_utils::createcsstr("RightSaber");
-            UnityEngine::Transform* customSaber = gameSaber->Find(saberName);
-
-            if (customSaber) SetCustomColor(customSaber, saber->get_saberType());
-        }
-
-        Array<QosmeticsTrail*>* trails = UnityEngine::Object::FindObjectsOfType<QosmeticsTrail*>();
-
-        for (int i = 0; i < trails->Length(); i++)
-        {
-            trails->values[i]->UpdateColors();
-        }
-    }
-
-    bool SaberUtils::ShouldChangeSaberMaterialColor(UnityEngine::Material* mat)
-    {
-        bool hasCustomColors = mat->HasProperty(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
-        if (hasCustomColors) /// if there is a _CustomColors property
-        {
-            float customFLoat = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_CustomColors")));
-            if (customFLoat > 0.0f) return true;
-        }
-        else // if that property does not exist
-        {
-            bool hasGlow = mat->HasProperty(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
-            if(hasGlow) // if there is a _Glow property
-            {
-                float glowFloat = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Glow")));
-                if(glowFloat > 0.0f) return true; 
-            }
-            else // if that property does not exist
-            {
-                bool hasBloom = mat->HasProperty(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
-                if(hasBloom) /// if there is a _Bloom property
+                auto origHelper = saber->GetComponent<Qosmetics::TrailHelper*>();
+                Transform* basicSaberModel = saber->get_transform()->Find(modelManager->get_basicSaberModelName());
+                if (origHelper)
                 {
-                    float bloomFloat = mat->GetFloat(UnityEngine::Shader::PropertyToID(il2cpp_utils::createcsstr("_Bloom")));
-                    if(bloomFloat > 0.0f) return true; 
+                    GlobalNamespace::SaberTrail* orig = basicSaberModel->GetComponent<GlobalNamespace::SaberTrail*>();
+		            UnityEngine::Material* mat = orig->trailRendererPrefab->meshRenderer->get_material();
+
+                    // setup material reference
+                    customSaber->get_gameObject()->AddComponent<MeshRenderer*>()->set_material(mat);
+
+                    TrailConfig trail(origHelper->colorType, origHelper->color, origHelper->multiplier, origHelper->length, origHelper->whiteStep * origHelper->length);
+                    auto helper = UnityUtils::GetAddComponent<Qosmetics::TrailHelper*>(customSaber->get_gameObject());
+                    helper->set_trailConfig(trail);
+                    helper->Init(colorManager, nullptr);
+                    helper->TrailSetup();
                 }
             }
-        }
-        return false;
-    }
+        }   
 
-    void SaberUtils::AddMenuPointerSaber(UnityEngine::Transform* parent, bool isLeft, SaberData& saberData)
-    {
-        if (!parent) 
-        {
-            getLogger().error("Tried adding menu pointer to nullptr parent");
-            return;
-        }
-        UnityEngine::GameObject* prefab = isLeft ? saberData.get_leftSaber() : saberData.get_rightSaber();
-        std::string name = isLeft ? "CustomLeftPointer" : "CustomRightPointer";
+        auto colorComponent = customSaber->get_gameObject()->AddComponent<Qosmetics::ColorComponent*>();
+        colorComponent->Init(colorManager, 0, saberType);
+        colorComponent->UpdateSaberColors();
 
-        Array<UnityEngine::MeshFilter*>* meshFilters = parent->get_gameObject()->GetComponentsInChildren<UnityEngine::MeshFilter*>();
-
-        if (prefab)
-        {
-            if (meshFilters != nullptr)
-                DisableMesh(meshFilters, false);
-            else
-                getLogger().error("meshFilters were null so didn't disable");
-
-            UnityEngine::GameObject* instantiated = UnityEngine::Object::Instantiate(prefab, parent);
-            instantiated->set_name(il2cpp_utils::createcsstr(name));
-            instantiated->get_transform()->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f) * config.saberConfig.menuPointerSize);
-            instantiated->get_transform()->set_localPosition(UnityEngine::Vector3(0.0f, 0.0f, -0.1f * (1.0f - config.saberConfig.menuPointerSize)));
-            instantiated->get_transform()->set_localEulerAngles(UnityEngine::Vector3::get_zero());
-
-            SetCustomColor(instantiated->get_transform(), isLeft ? 0 : 1);
-
-            if (saberData.saberConfig->get_hasCustomTrails())
-            {
-                if (isLeft)
-                {
-                    for (auto& trail : *saberData.saberConfig->get_leftTrails())
-                    {
-                        TrailUtils::AddTrail(trail, instantiated->get_transform());
-                    }
-                }
-                else
-                {
-                    for (auto& trail : *saberData.saberConfig->get_rightTrails())
-                    {
-                        TrailUtils::AddTrail(trail, instantiated->get_transform());
-                    }
-                }
-            }
-        }
-    }
-
-    void SaberUtils::RevertMenuPointer(UnityEngine::Transform* controller, UnityEngine::XR::XRNode node)
-    {
-        bool isLeft = node.value == 4;
-        std::string menuHandle = "MenuHandle";
-        std::string name = isLeft ? "MenuHandle/CustomLeftPointer" : "MenuHandle/CustomRightPointer";
-
-        if (UnityEngine::Transform* oldPointer = controller->Find(il2cpp_utils::createcsstr(name)))
-        {
-            UnityEngine::Object::DestroyImmediate(oldPointer->get_gameObject());
-        }
-
-        UnityEngine::Transform* handle = controller->Find(il2cpp_utils::createcsstr(menuHandle));
-        if (!handle) return;
-        Array<UnityEngine::MeshFilter*>* meshFilters = handle->get_gameObject()->GetComponentsInChildren<UnityEngine::MeshFilter*>(true);
-
-        for (int i = 0; i < meshFilters->Length(); i++)
-        {
-            meshFilters->values[i]->get_gameObject()->SetActive(true);
-        } 
-    }
-
-    void SaberUtils::SetSaberSize(UnityEngine::Transform* object)
-    {
-        if (!object) return;
-        object->set_localScale(UnityEngine::Vector3(config.saberConfig.saberWidth, config.saberConfig.saberWidth, 1.0f));
+        return customSaber;
     }
 }

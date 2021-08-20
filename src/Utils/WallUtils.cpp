@@ -1,329 +1,90 @@
 #include "Utils/WallUtils.hpp"
-#include "Qosmetic/QosmeticsColorManager.hpp"
+#include "Utils/MaterialUtils.hpp"
+#include "UnityEngine/Shader.hpp"
 
-void WallUtils::SetObstacleColors(Qosmetics::WallData &customWall)
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+static Il2CppString* ObstacleCore = nullptr;
+static Il2CppString* DepthWrite = nullptr;
+static Il2CppString* FakeGlowWrapperObstacleFakeGlow = nullptr;
+static Il2CppString* ObstacleFrame = nullptr;
+static Il2CppString* ObstacleCoreLWInside = nullptr;
+
+static int _SizeParams = 0;
+static int _EdgeSize = 0;
+
+using namespace UnityEngine;
+
+namespace WallUtils
 {
-    getLogger().info("Setting obstacle colors");
-    auto config = *customWall.get_config();
-    if (config.get_moreThan1CoreMat()) // if true, array is used
+    void SetSizeParams(GameObject* object, Vector3 localScale, float edgeSize)
     {
-        auto array = customWall.get_coreSharedMaterials();
+        if (!_SizeParams) _SizeParams = Shader::PropertyToID(il2cpp_utils::createcsstr("_SizeParams"));
+        if (!_EdgeSize) _EdgeSize = Shader::PropertyToID(il2cpp_utils::createcsstr("_EdgeSize"));
 
-        for (int i = 0; i < array->Length(); i++) // for each material in the array
+        Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+        localScale = localScale * 0.5f;
+        Vector4 sizeParams = UnityEngine::Vector4(localScale.x, localScale.y, localScale.z, 0.05f);
+
+        int rendererCount = renderers->Length();
+        for (int i = 0; i < rendererCount; i++)
         {
-            SetObstacleColor(array->values[i]);
+            Renderer* renderer = renderers->values[i];
+
+            Array<Material*>* materials = MaterialUtils::GetMaterials(renderer);
+            int materialCount = materials->Length();
+            for (int j = 0; j < materialCount; j++)
+            {
+                Material* material = materials->values[j];
+
+                if (material->HasProperty(_SizeParams)) material->SetVector(_SizeParams, sizeParams);
+                if (edgeSize && material->HasProperty(_EdgeSize)) material->SetFloat(_EdgeSize, edgeSize);
+            }
         }
     }
-    else // if only 1 material
+
+    WallReferences GatherReferences(UnityEngine::Transform* obstacle)
     {
-        auto coreMat = customWall.get_coreMaterial();
-        SetObstacleColor(coreMat);
-    }
+        if (!ObstacleCore) ObstacleCore = il2cpp_utils::createcsstr("ObstacleCore", il2cpp_utils::StringType::Manual);
+        if (!DepthWrite) DepthWrite = il2cpp_utils::createcsstr("DepthWrite", il2cpp_utils::StringType::Manual);
 
-    if (config.get_moreThan1FrameMat()) // if true, array is used
-    {
-        auto array = customWall.get_frameSharedMaterials();
+        UnityEngine::Transform* obstacleCore = obstacle ? obstacle->Find(ObstacleCore) : nullptr;
 
-        for (int i = 0; i < array->Length(); i++) // for each material in the array
-        {
-            SetObstacleColor(array->values[i]);
-        }
-    }
-    else // if only 1 material
-    {
-        auto frameMat = customWall.get_frameMaterial();
-        SetObstacleColor(frameMat);
-    }
-}
+        if (!FakeGlowWrapperObstacleFakeGlow) FakeGlowWrapperObstacleFakeGlow = il2cpp_utils::createcsstr("FakeGlowWrapper/ObstacleFakeGlow", il2cpp_utils::StringType::Manual);
+        UnityEngine::Transform* obstacleFakeGlow = obstacle ? obstacle->Find(FakeGlowWrapperObstacleFakeGlow) : nullptr;
 
-void WallUtils::SetObstacleColor(UnityEngine::Material* material)
-    {
-        // if material happens to be a nullptr, just return
-        if (material == nullptr) 
-        {
-            getLogger().error("Attempted to set color on nullptr material, skipping...");
-            return;
-        }
-
-        // if the material doesnt even have a _Color property there is no reason to go through the trouble of determining if it should get color, it just won't work
-        bool hasColorProperty = MaterialUtils::MatHasProperty(material, "_Color");
-        if (!hasColorProperty) 
-        {
-            getLogger().error("Material did not have a \'_Color\' property, skipping...");
-            return;
-        }
-
-        Qosmetics::ColorManager* colorManager = UnityEngine::Object::FindObjectOfType<Qosmetics::ColorManager*>();
-        if (colorManager == nullptr) 
-        {
-            getLogger().error("ColorManager was not found, skipping...");
-            return;
-        }
-
-        UnityEngine::Color wallColor = colorManager->ColorForObstacle();
-
-        bool setColor = false;
-        bool hasCustomColor = MaterialUtils::MatHasProperty(material, "_CustomColors");
-        std::string matName = to_utf8(csstrtostr(material->get_name()));
+        Renderer* fakeGlowRenderer = obstacleFakeGlow ? obstacleFakeGlow->get_gameObject()->GetComponent<Renderer*>() : nullptr;
         
-        if (hasCustomColor)
-        {
-            float customColor = MaterialUtils::GetMaterialFloat(material, "_CustomColors");
-            if (customColor > 0.0f) setColor = true;
-        }
-        else
-        {
-            bool hasGlow = MaterialUtils::MatHasProperty(material, "_Glow");
+        if (!ObstacleFrame) ObstacleFrame = il2cpp_utils::createcsstr("ObstacleFrame", il2cpp_utils::StringType::Manual);
+        UnityEngine::Transform* obstacleFrame = obstacle ? obstacle->Find(ObstacleFrame) : nullptr;
+        
+        Renderer* frameRenderer = obstacleFrame ? obstacleFrame->get_gameObject()->GetComponent<Renderer*>() : nullptr;
+        MeshFilter* frameFilter = obstacleFrame ? obstacleFrame->get_gameObject()->GetComponent<MeshFilter*>() : nullptr;
 
-            if (hasGlow)
-            {
-                float customColor = MaterialUtils::GetMaterialFloat(material, "_Glow");
-                if (customColor > 0.0f) setColor = true;
-            }
-            else
-            {
-                bool hasBloom = MaterialUtils::MatHasProperty(material, "_Bloom");
+        //if (!ObstacleCoreLWInside) ObstacleCoreLWInside = il2cpp_utils::createcsstr("ObstacleCoreLWInside", il2cpp_utils::StringType::Manual);
+        //UnityEngine::Transform* obstacleCoreInside = obstacleCore->Find(ObstacleCoreLWInside);
 
-                if (hasBloom)
-                {
-                    float customColor = MaterialUtils::GetMaterialFloat(material, "_Bloom");
-                    if (customColor > 0.0f) setColor = true;
-                }
-                else // if that property does not exist
-                {
-                    bool hasReplaceName = (matName.find("_replace") != std::string::npos); // if material has _replace in the name
-                    if (hasReplaceName)
-                    {
-                        if (matName.find("_noCC") == std::string::npos) // if the mat does not have "_noCC" in its name
-                            setColor = true;
-                    }
-                }
-                
-            }
-                
-        }
-        if (setColor)
-            material->SetColor(il2cpp_utils::createcsstr("_Color"), wallColor);
+        Renderer* coreRenderer = obstacleCore ? obstacleCore->get_gameObject()->GetComponent<Renderer*>() : nullptr;//obstacleCoreInside->get_gameObject()->GetComponent<Renderer*>();
+        MeshFilter* coreFilter = obstacleCore ? obstacleCore->get_gameObject()->GetComponent<MeshFilter*>() : nullptr;//obstacleCoreInside->get_gameObject()->GetComponent<MeshFilter*>();
+
+        return {coreRenderer, frameRenderer, fakeGlowRenderer, coreFilter, frameFilter};
     }
 
-void WallUtils::DisableFakeGlow(UnityEngine::Transform* obstacle)
-{
-    UnityEngine::Transform* obstacleFakeGlow = obstacle->Find(il2cpp_utils::createcsstr("FakeGlowWrapper/ObstacleFakeGlow"));
-    if (obstacleFakeGlow == nullptr)
+    WallReferences PrepareAndGatherReferences(UnityEngine::Transform* obstacle)
     {
-        getLogger().error("trying to find the obstacle fake glow returned nullptr, skipping fake glow disable");
-        return;
-    }
-    UnityEngine::MeshRenderer* obstacleFakeGlowRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleFakeGlow->get_gameObject(), "MeshRenderer");
-    
-    HideRenderer(obstacleFakeGlowRenderer);
-}
+        if (!ObstacleCore) ObstacleCore = il2cpp_utils::createcsstr("ObstacleCore", il2cpp_utils::StringType::Manual);
+        if (!DepthWrite) DepthWrite = il2cpp_utils::createcsstr("DepthWrite", il2cpp_utils::StringType::Manual);
 
-void WallUtils::DisableDefaults(UnityEngine::Transform* obstacle)
-{
-    UnityEngine::Transform* obstacleDepthWrite = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore/DepthWrite"));
-    UnityEngine::Transform* obstacleCore = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore"));
+        UnityEngine::Transform* obstacleCore = obstacle->Find(ObstacleCore);
+        UnityEngine::Transform* obstacleDepthWrite = obstacleCore ? obstacleCore->Find(DepthWrite) : nullptr;
 
-    if (!obstacleDepthWrite)
-    {
-        getLogger().error("trying to find the obstacle depth write returned nullptr, skipping depth write disable");
+        //obstacleCore->get_gameObject()->GetComponent<Renderer*>()->set_enabled(false);
+        if (obstacleDepthWrite) obstacleDepthWrite->get_gameObject()->GetComponent<Renderer*>()->set_enabled(false);
+
+        return GatherReferences(obstacle);
     }
-    else
+
+    void SetColors(UnityEngine::GameObject* obstacle, UnityEngine::Color color, int renderQueue)
     {
-        UnityEngine::MeshRenderer* obstacleDepthWriteRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleDepthWrite->get_gameObject(), "MeshRenderer");
-        HideRenderer(obstacleDepthWriteRenderer);
-    }
-    
-    if (!obstacleCore)
-    {
-        getLogger().error("trying to find the obstacle Core returned nullptr, skipping Core disable");
-    }
-    else
-    {
-        UnityEngine::MeshRenderer* obstacleCoreRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleCore->get_gameObject(), "MeshRenderer");
-        HideRenderer(obstacleCoreRenderer);
+        MaterialUtils::SetColors(obstacle, color, false, renderQueue);
     }
 }
-
-void WallUtils::ReplaceFrameMaterial(UnityEngine::Transform* obstacle, UnityEngine::Material* material)
-{
-    if (!material) 
-    {
-        getLogger().error("Tried setting frame material with a nullptr material, skipping...");
-        return;
-    }
-
-    UnityEngine::Transform* obstacleFrame = obstacle->Find(il2cpp_utils::createcsstr("ObstacleFrame"));
-
-    if (!obstacleFrame) 
-    {
-        getLogger().error("Tried setting frame material on nullptr obstacleFrame, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshRenderer* obstacleFrameRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleFrame->get_gameObject(), "MeshRenderer");
-
-    if (!obstacleFrameRenderer)
-    {
-        getLogger().error("couldn't find obstacle frame mesh renderer, skipping...");
-        return;
-    }
-
-    obstacleFrameRenderer->set_material(material);
-}   
-
-void WallUtils::ReplaceFrameMesh(UnityEngine::Transform* obstacle, UnityEngine::Mesh* mesh)
-{
-    if (mesh == nullptr) 
-    {
-        getLogger().error("Tried setting frame mesh with a nullptr mesh, skipping...");
-        return;
-    }
-
-    UnityEngine::Transform* obstacleFrame = obstacle->Find(il2cpp_utils::createcsstr("ObstacleFrame"));
-
-    if (obstacleFrame == nullptr) 
-    {
-        getLogger().error("Tried setting frame mesh on nullptr obstacleFrame, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshFilter* obstacleFrameMeshFilter = UnityUtils::GetComponent<UnityEngine::MeshFilter*>(obstacleFrame->get_gameObject(), "MeshFilter");
-    
-    if (obstacleFrameMeshFilter == nullptr)
-    {
-        getLogger().error("couldn't find obstacle frame mesh filter, skipping...");
-        return;
-    }
-
-    obstacleFrameMeshFilter->set_mesh(mesh);
-}
-
-void WallUtils::ReplaceCoreMaterial(UnityEngine::Transform* obstacle, UnityEngine::Material* material)
-{
-    if (material == nullptr) 
-    {
-        getLogger().error("Tried setting core material with a nullptr material, skipping...");
-        return;
-    }
-
-    UnityEngine::Transform* obstacleCoreInside = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore/ObstacleCoreLWInside"));
-
-    if (obstacleCoreInside == nullptr) 
-    {
-        getLogger().error("Tried setting core material on nullptr obstacleCoreInside, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshRenderer* obstacleCoreInsideRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleCoreInside->get_gameObject(), "MeshRenderer");
-
-    if (obstacleCoreInsideRenderer == nullptr)
-    {
-        getLogger().error("couldn't find obstacle core mesh renderer, skipping...");
-        return;
-    }
-
-    obstacleCoreInsideRenderer->set_material(material);
-}
-
-void WallUtils::ReplaceCoreMesh(UnityEngine::Transform* obstacle, UnityEngine::Mesh* mesh)
-{
-    if (mesh == nullptr) 
-    {
-        getLogger().error("Tried setting material with a nullptr mesh, skipping...");
-        return;
-    }
-
-    UnityEngine::Transform* obstacleCoreInside = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore/ObstacleCoreLWInside"));
-
-    if (obstacleCoreInside == nullptr) 
-    {
-        getLogger().error("Tried setting core mesh on nullptr obstacleCoreInside, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshFilter* obstacleCoreInsideMeshFilter = UnityUtils::GetComponent<UnityEngine::MeshFilter*>(obstacleCoreInside, "MeshFilter");
-
-    if (obstacleCoreInsideMeshFilter == nullptr)
-    {
-        getLogger().error("couldn't find obstacle core mesh filter, skipping...");
-        return;
-    }
-
-    obstacleCoreInsideMeshFilter->set_mesh(mesh);
-}
-
-void WallUtils::DisableFrame(UnityEngine::Transform* obstacle)
-{
-    UnityEngine::Transform* obstacleFrame = obstacle->Find(il2cpp_utils::createcsstr("ObstacleFrame"));
-
-    if (obstacleFrame == nullptr) 
-    {
-        getLogger().error("Tried setting frame mesh on nullptr obstacleFrame, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshRenderer* obstacleFrameRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleFrame->get_gameObject(), "MeshRenderer");
-
-    if (obstacleFrameRenderer == nullptr)
-    {
-        getLogger().error("couldn't find obstacle frame mesh renderer, skipping...");
-        return;
-    }
-
-    HideRenderer(obstacleFrameRenderer);
-}
-
-void WallUtils::ReplaceCoreSharedMaterials(UnityEngine::Transform* obstacle, Array<UnityEngine::Material*>* materials)
-{
-    if (materials == nullptr) 
-    {
-        getLogger().error("Tried setting core material array with nullptr materials, skipping...");
-        return;
-    }
-    UnityEngine::GameObject* obstacleCoreInside = obstacle->Find(il2cpp_utils::createcsstr("ObstacleCore/ObstacleCoreLWInside"))->get_gameObject();
-
-    if (obstacleCoreInside == nullptr) 
-    {
-        getLogger().error("Tried setting core mesh on nullptr obstacleCoreInside, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshRenderer* obstacleCoreInsideRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleCoreInside, "MeshRenderer");
-
-    if (obstacleCoreInsideRenderer == nullptr)
-    {
-        getLogger().error("couldn't find obstacle core mesh renderer, skipping...");
-        return;
-    }
-
-    obstacleCoreInsideRenderer->SetMaterialArray(materials);
-}
-
-void WallUtils::ReplaceFrameSharedMaterials(UnityEngine::Transform* obstacle, Array<UnityEngine::Material*>* materials)
-{
-    if (materials == nullptr) 
-    {
-        getLogger().error("Tried setting frame material array with nullptr materials, skipping...");
-        return;
-    }
-
-    UnityEngine::Transform* obstacleFrame = obstacle->Find(il2cpp_utils::createcsstr("ObstacleFrame"));
-
-    if (obstacleFrame == nullptr) 
-    {
-        getLogger().error("Tried setting frame material array on nullptr obstacleFrame, skipping...");
-        return;
-    }
-
-    UnityEngine::MeshRenderer* obstacleFrameRenderer = UnityUtils::GetComponent<UnityEngine::MeshRenderer*>(obstacleFrame->get_gameObject(), "MeshRenderer");
-    
-    if (obstacleFrameRenderer == nullptr)
-    {
-        getLogger().error("couldn't find obstacle frame mesh renderer, skipping...");
-        return;
-    }
-
-    obstacleFrameRenderer->SetMaterialArray(materials);
-}
-

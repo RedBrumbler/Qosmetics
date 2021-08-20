@@ -1,82 +1,120 @@
+#include "Config.hpp"
 #include "UI/Wall/WallSettingsViewController.hpp"
-#include "config.hpp"
-#include "Data/Descriptor.hpp"
 
-#include "UnityEngine/RectOffset.hpp"
-#include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Rect.hpp"
-#include "UnityEngine/Vector2.hpp"
-#include "UnityEngine/UI/Image.hpp"
-#include "UnityEngine/UI/Toggle.hpp"
-#include "UnityEngine/UI/Toggle_ToggleEvent.hpp"
-#include "UnityEngine/UI/LayoutElement.hpp"
-#include "UnityEngine/Events/UnityAction.hpp"
-#include "UnityEngine/Events/UnityAction_1.hpp"
-#include "HMUI/ScrollView.hpp"
-#include "HMUI/ModalView.hpp"
+DEFINE_TYPE(Qosmetics::UI, WallSettingsViewController);
+
 #include "HMUI/Touchable.hpp"
-#include "HMUI/InputFieldView.hpp"
-
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/ExternalComponents.hpp"
-#include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
-#include "UI/Wall/WallPreviewViewController.hpp"
-#include "Qosmetic/QuestWall.hpp"
+#include "questui/shared/CustomTypes/Data/CustomDataType.hpp"
 
-#include "Logging/UILogger.hpp"
-#define INFO(value...) UILogger::GetLogger().WithContext("Wall Settings").info(value)
-#define ERROR(value...) UILogger::GetLogger().WithContext("Wall Settings").error(value)
-extern config_t config;
-DEFINE_CLASS(Qosmetics::WallSettingsViewController);
+#include "UnityEngine/Events/UnityAction.hpp"
+#include "UnityEngine/Events/UnityAction_1.hpp"
+#include "UnityEngine/WaitUntil.hpp"
+#include "System/Collections/IEnumerator.hpp"
+#include "System/Func_1.hpp"
 
-using namespace QuestUI;
-using namespace UnityEngine;
-using namespace UnityEngine::UI;
-using namespace UnityEngine::Events;
+#include "UnityEngine/UI/Toggle.hpp"
+
+#include "Utils/UIUtils.hpp"
+
 using namespace HMUI;
+using namespace UnityEngine;
+using namespace UnityEngine::Events;
+using namespace UnityEngine::UI;
+using namespace QuestUI;
+using namespace QuestUI::BeatSaberUI;
+using namespace Qosmetics;
+using namespace Qosmetics::UI;
+using namespace TMPro;
 
-namespace Qosmetics
+static std::vector<std::string> trailTextValues = {
+    "Custom",
+    "Default",
+    "None"
+};
+
+extern config_t config;
+
+namespace Qosmetics::UI
 {
-    void WallSettingsViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
-    {
-        SaveConfig();
-    }
+    struct settingsInfo {
+        int counter;
+        GameObject* container;
+        WallSettingsViewController* self;
+        settingsInfo(GameObject* container, WallSettingsViewController* self) : container(container), self(self), counter(0) {}
+    };
+
+    struct enumInfo {
+        WallSettingsViewController* view;
+        IncrementSetting* self;
+
+        enumInfo(WallSettingsViewController* view, IncrementSetting* self) : view(view), self(self) {}
+    };
+
+    bool coro(settingsInfo* info);
 
     void WallSettingsViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         if (firstActivation)
         {
+            //UIUtils::SetupViewController(this);
             get_gameObject()->AddComponent<Touchable*>();
-            GameObject* container = BeatSaberUI::CreateScrollableSettingsContainer(get_transform());
             
+            UIUtils::AddHeader(get_transform(), "Wall Settings", Color::get_magenta());
+
+            GameObject* container = CreateScrollableSettingsContainer(get_transform());
+
             ExternalComponents* externalComponents = container->GetComponent<ExternalComponents*>();
             RectTransform* scrollTransform = externalComponents->Get<RectTransform*>();
             scrollTransform->set_sizeDelta(UnityEngine::Vector2(0.0f, 0.0f));
-            
-            BeatSaberUI::CreateToggle(container->get_transform(), "Force Disable Fake Glow", config.wallConfig.forceFakeGlowOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
-                    config.wallConfig.forceFakeGlowOff = value;
-                    SaveConfig();
-                    QuestWall::SelectionDefinitive();
-                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
-                    if (previewController) previewController->UpdatePreview();
-                    else ERROR("Couldn't find preview controller");
-                }));
-            BeatSaberUI::CreateToggle(container->get_transform(), "Force Core Off", config.wallConfig.forceCoreOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
-                    config.wallConfig.forceCoreOff = value;
-                    SaveConfig();
-                    QuestWall::SelectionDefinitive();
-                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
-                    if (previewController) previewController->UpdatePreview();
-                    else ERROR("Couldn't find preview controller");
-                }));
-            BeatSaberUI::CreateToggle(container->get_transform(), "Force Frame Off", config.wallConfig.forceFrameOff, il2cpp_utils::MakeDelegate<UnityAction_1<bool>*>(classof(UnityAction_1<bool>*), this, +[](WallSettingsViewController* view, bool value) { 
-                    config.wallConfig.forceFrameOff = value;
-                    SaveConfig();
-                    QuestWall::SelectionDefinitive();
-                    WallPreviewViewController* previewController = Object::FindObjectOfType<WallPreviewViewController*>();//
-                    if (previewController) previewController->UpdatePreview();
-                    else ERROR("Couldn't find preview controller");
-                }));
+
+            StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(SettingsSetupRoutine(container))));   
         }
+    }
+
+    void WallSettingsViewController::Init(WallPreviewViewController* previewViewController)
+    {
+        this->previewViewController = previewViewController;
+        set_enabled(false);
+    }
+
+    custom_types::Helpers::Coroutine WallSettingsViewController::SettingsSetupRoutine(GameObject* container)
+    {
+        Transform* containerT = container->get_transform();
+        // fake glow
+        Toggle* fakeGlowToggle = BeatSaberUI::CreateToggle(containerT, "Force Fake Glow Off", config.wallConfig.forceFakeGlowOff, [&](bool value) { 
+                config.wallConfig.forceFakeGlowOff = value;
+                previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(fakeGlowToggle->get_gameObject(), "Whether to turn off the Fake glow at all times");
+        co_yield nullptr;
+
+        // core
+        Toggle* coreToggle = BeatSaberUI::CreateToggle(containerT, "Force Core Off", config.wallConfig.forceCoreOff, [&](bool value) { 
+                config.wallConfig.forceCoreOff = value;
+                previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(coreToggle->get_gameObject(), "Whether to turn off the Wall Core at all times");
+        co_yield nullptr;
+
+        // frame
+        Toggle* frameToggle = BeatSaberUI::CreateToggle(containerT, "Force Frame Off", config.wallConfig.forceFrameOff, [&](bool value) { 
+                config.wallConfig.forceFrameOff = value;
+                previewViewController->UpdatePreview();
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(frameToggle->get_gameObject(), "Whether to turn off the Wall Frame at all times");
+        co_yield nullptr;
+
+        // frame
+        Toggle* reflectionsToggle = BeatSaberUI::CreateToggle(containerT, "Disable Reflections", config.wallConfig.forceFrameOff, [&](bool value) { 
+                config.wallConfig.disableReflections = value;
+                SaveConfig();
+            });
+        BeatSaberUI::AddHoverHint(reflectionsToggle->get_gameObject(), "Whether to make base game walls be reflected");
+        co_return;
     }
 }

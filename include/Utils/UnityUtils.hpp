@@ -1,91 +1,58 @@
 #pragma once
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
-
-#include "beatsaber-hook/shared/utils/utils.h"
-#include "beatsaber-hook/shared/utils/logging.hpp"
-#include "modloader/shared/modloader.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp" 
-#include "beatsaber-hook/shared/utils/typedefs.h"
-
-// NOTE TO SELF, DON'T BE AN IDIOT AND MAKE namespace A VARIABLE NAME, THAT'S WHY IT'S nameSpace WITH A CAPITAL S
+#include "UnityEngine/Object.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/Component.hpp"
+#include "UnityEngine/Renderer.hpp"
 
 class UnityUtils
 {
     public:
-    /// @brief returns the result of running GetComponent on gameobject with the given type, nameSpace defaults to UnityEngine
-    /// @param gameObject object to run on
-    /// @param type
-    template <class Type>
-    static Type GetComponent(UnityEngine::GameObject* gameObject, std::string type)
-    {
-        return *il2cpp_utils::RunMethod<Type>((Il2CppObject*)gameObject, "GetComponent", TypeFromString(type));
-    };
 
-    /// @brief returns the result of running GetComponent on gameobject with the given type
-    /// @param gameObject object to run on
-    /// @param nameSpace
-    /// @param type
-    template <class Type>
-    static Type GetComponent(UnityEngine::GameObject* gameObject, std::string nameSpace, std::string type)
-    {
-        return *il2cpp_utils::RunMethod<Type>((Il2CppObject*)gameObject, "GetComponent", TypeFromString(nameSpace, type));
-    };
+        template<typename T>
+        static T GetAddComponent(UnityEngine::GameObject* obj)
+        {
+            static_assert(std::is_convertible_v<T, UnityEngine::Component*>);
+            T component = obj->GetComponent<T>();
+            if (!component) return obj->AddComponent<T>();
+            return component;
+        }
 
-    /// @brief returns the result of running GetComponent on gameobject with the given type, nameSpace defaults to UnityEngine
-    /// @param transform object to run on
-    /// @param type
-    template <class Type>
-    static Type GetComponent(UnityEngine::Transform* transform, std::string type)
-    {
-        UnityEngine::GameObject* object = transform->get_gameObject();
-        return *il2cpp_utils::RunMethod<Type>((Il2CppObject*)object, "GetComponent", TypeFromString(type));
-    };
+        template<typename T>
+        static T FindAddComponent(bool manual = false)
+        {
+            static_assert(std::is_convertible_v<T, UnityEngine::Component*>);
+            T component = UnityEngine::Object::FindObjectOfType<T>();
+            if (component) return component; 
+            if (manual)
+            {
+                UnityEngine::GameObject* newObj = UnityEngine::GameObject::New_ctor<il2cpp_utils::CreationType::Manual>();
+                UnityEngine::Object::DontDestroyOnLoad(newObj);
+                return newObj->AddComponent<T>();
+            } 
+            else
+            {
+                UnityEngine::GameObject* newObj = UnityEngine::GameObject::New_ctor<>();
+                return newObj->AddComponent<T>();
+            } 
+        }
 
-    /// @brief returns the result of running GetComponent on gameobject with the given type
-    /// @param transform object to run on
-    /// @param nameSpace
-    /// @param type
-    template <class Type>
-    static Type GetComponent(UnityEngine::Transform* transform, std::string nameSpace, std::string type)
-    {
-        UnityEngine::GameObject* object = transform->get_gameObject();
-        return *il2cpp_utils::RunMethod<Type>((Il2CppObject*)object, "GetComponent", TypeFromString(nameSpace, type));
-    };
+        template<typename T>
+        static T FindLastObjectOfType()
+        {
+            static_assert(std::is_convertible_v<T, UnityEngine::Object*>);
+            Array<T>* objects = UnityEngine::Resources::FindObjectsOfTypeAll<T>();
+            if (!objects || objects->Length() == 0) return nullptr;
+            else return objects->values[objects->Length() - 1];
+        }
 
-    /// @brief gets systemtype out of 1 input string, this version defaults to UnityEngine
-    /// @param type
-    static Il2CppReflectionType* TypeFromString(std::string type)
-    {
-        return CRASH_UNLESS(il2cpp_utils::GetSystemType("UnityEngine", type));
-    };
+        static void HideRenderersOnObject(UnityEngine::GameObject* obj, bool doHide = true);
+        static void HideRenderersOnObject(UnityEngine::Transform* obj, bool doHide = true);
 
-    /// @brief gets systemtype out of 2 input strings, this just saves the crash unless macro from needing to be typed all the time
-    /// @param nameSpace
-    /// @param type
-    static Il2CppReflectionType* TypeFromString(std::string nameSpace, std::string type)
-    {
-        return CRASH_UNLESS(il2cpp_utils::GetSystemType(nameSpace, type));
-    };
-    
-    /// @brief returns last object of the specified type as the given type in the template arguments
-    template <class Type>
-    static Type GetLastObjectOfType(Il2CppClass *klass) 
-    {
-        Il2CppReflectionType* klassType = il2cpp_utils::GetSystemType(klass);
-        Array<Type>* objects = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<Type>*>(il2cpp_utils::GetClassFromName("UnityEngine", "Resources"), "FindObjectsOfTypeAll", klassType));
-        if(objects == nullptr || objects->Length() == 0) return nullptr;
-        return objects->values[objects->Length() -1];
-    };
-
-    /// @brief returns first object of the specified type as the given type in the template arguments
-    template <class Type>
-    static Type GetFirstObjectOfType() 
-    {
-        Il2CppReflectionType* klassType = il2cpp_utils::GetSystemType(classof(Type));
-        Array<Type>* objects = CRASH_UNLESS(il2cpp_utils::RunMethod<Array<Type>*>(il2cpp_utils::GetClassFromName("UnityEngine", "Resources"), "FindObjectsOfTypeAll", klassType));
-        if(objects == nullptr || objects->Length() == 0) return nullptr;
-        return objects->values[0];
-    };
+        static void HideRenderer(UnityEngine::Renderer* renderer, bool doHide = true);
+        
+        static void SetLayerRecursive(UnityEngine::Transform* object, int layer);
+        static void SetLayerRecursive(UnityEngine::GameObject* object, int layer);
+        static void SanitizePrefab(UnityEngine::GameObject* prefab);
 };

@@ -25,33 +25,13 @@ class FileDownloader
             if (alsoDownload) Download();
         }
 
-        FileDownloader(std::string url, std::string filePath, bool alsoDownload = true)
+        FileDownloader(std::string url, std::string filePath, bool alsoDownload = true) : FileDownloader(url, filePath, DEFAULT_UA, alsoDownload) {}
+
+        FileDownloader(std::string url, std::string filePath, FileDownloaderCallback callback, bool alsoDownload = true) : FileDownloader(url, filePath, DEFAULT_UA, callback, alsoDownload) {}
+
+        FileDownloader(std::string url, std::string filePath, std::string useragent, FileDownloaderCallback callback, bool alsoDownload = true) : FileDownloader(url, filePath, useragent, alsoDownload)
         {
-            this->filePath = filePath;
-            this->url = url;
-            this->useragent = DEFAULT_UA;
-
-            if (alsoDownload) Download();
-        }
-
-        FileDownloader(std::string url, std::string filePath, FileDownloaderCallback callback, bool alsoDownload = true)
-        {
-            this->filePath = filePath;
-            this->url = url;
-            this->useragent = DEFAULT_UA;
-            this->SetCallback(callback);
-
-            if (alsoDownload) Download();
-        }
-
-        FileDownloader(std::string url, std::string filePath, std::string useragent, FileDownloaderCallback callback, bool alsoDownload = true)
-        {
-            this->filePath = filePath;
-            this->url = url;
-            this->useragent = useragent;
-            this->SetCallback(callback);
-
-            if (alsoDownload) Download();
+            SetCallback(callback);
         }
 
         void Download();

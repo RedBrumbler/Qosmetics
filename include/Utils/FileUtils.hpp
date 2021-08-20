@@ -1,37 +1,36 @@
 #pragma once
+#include "Data/Descriptor.hpp"
+
 #include <string>
 #include <vector>
-#include "UnityEngine/Sprite.hpp"
 
 class FileUtils
 {
     public:
-        /// @brief gets the file names with a given extension in a given directory, outputs to a vector given by reference
+        /// @brief gets the file name optionally without extension from passed in path
+        /// @param path the path to get it from
+        /// @param removeExtension if the extension should be included
+        /// @return string name
+        static std::string GetFileName(std::string path, bool removeExtension = false);
+
+        /// @brief removes the .extension from passed in string
+        /// @param path the string to remove from
+        /// @return everything up until the . in the string, if no . found just returns same value
+        static std::string RemoveExtension(std::string path);
+
+        /// @brief gets the file extension
+        /// @param the string from which to get
+        /// @return the extension, or empty if not found
+        static std::string GetExtension(std::string path);
+
+        /// @brief gets all files with extension in folder filePath, and outputs the names to vector out
         /// @param extension the extension to look for
-        /// @param directory full path to the directory (starts with /sdcard probably)
-        /// @param fileNames output vector
-        static bool getFileNamesInDir(std::string extension, std::string directory, std::vector<std::string> &fileNames);
+        /// @param filePath the folder to look in
+        /// @param out the output vector
+        /// @return bool found at least 1
+        static bool GetFilesInFolderPath(std::string extension, std::string filePath, std::vector<std::string>& out);      
 
-        /// @brief gets the full file name from a file path
-        /// @param FilePath the filepath to get the file name from
-        /// @returns File name
-        static std::string GetFileName(const std::string& FilePath);
+        static void makeFolder(std::string directory);
 
-        static std::string rainbowIfy(std::string input);
     private:
-        static inline int rainbowIndex = rand() % 12;
-        static inline const std::string colors[12] = {
-            "#ff6060",
-            "#ffa060",
-            "#ffff60",
-            "#a0ff60",
-            "#60ff60",
-            "#60ffa0",
-            "#60ffff",
-            "#60a0ff",
-            "#6060ff",
-            "#a060ff",
-            "#ff60ff",
-            "#ff60a0"
-        };
 };
