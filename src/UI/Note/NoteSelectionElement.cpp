@@ -115,7 +115,7 @@ namespace Qosmetics::UI
             previewViewController->UpdatePreview();
         }
         
-        std::string filePath = item.get_descriptor().get_filePath();
+        std::string filePath = descriptor->get_filePath();
         if (fileexists(filePath)) deletefile(filePath);
         Object::Destroy(get_gameObject());
     }

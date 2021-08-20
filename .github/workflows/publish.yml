@@ -3,7 +3,7 @@ name: Publish QPM Package
 # set env variables
 env:
     ndkname: android-ndk-r22
-    module_id: questqosmetics
+    module_id: questcosmetics
     qmodName: Qosmetics
 
 on:
@@ -80,18 +80,6 @@ jobs:
         ls -la ${GITHUB_WORKSPACE}/extern/
         ls -la QPM_Temp
         
-    - name: Check Inline Hook existence
-      id: check_files
-      uses: andstor/file-existence-action@v1
-      with:
-        files: "extern/beatsaber-hook/src/inline-hook/And64InlineHook.cpp, extern/beatsaber-hook/src/inline-hook/inlineHook.c, extern/beatsaber-hook/src/inline-hook/relocate.c"
-        allow_failure: false
-
-    - name: Files Exist
-      if: steps.check_files.outputs.files_exists == 'false'
-      run: |
-          exit 1
-
     - name: Get Tag Version
       id: get_tag_version
       run: |
@@ -162,7 +150,7 @@ jobs:
         files=( $pattern )
         echo ::set-output name=NAME::"${files[0]}"
     # Upload our release assets
-    # removed .so uploading since this is a mod, we don't need .so posting
+
     - name: Upload Qmod asset
       id: upload_qmod_asset
       uses: actions/upload-release-asset@v1
@@ -173,6 +161,14 @@ jobs:
         asset_path: ./${{ env.qmodName }}.qmod
         asset_name: ${{ env.qmodName }}.qmod
         asset_content_type: application/octet-stream
+        
+    - name: Change QPM Package Info
+      run: |
+        ./QPM/QPM package edit-extra "branchName" "version-${{ steps.get_tag_version.outputs.TAG }}"
+    - name: Commit Changed package info
+      run: |
+        git add qpm.json
+        git commit -m "Updated qpm.json"
       
     # Then, we want to use the commit we have just made, and force push our tag to that commit
     - name: Get Commit ID
@@ -189,6 +185,3 @@ jobs:
         
 #     - name: Merge this branch into whatever branch we were originally built off of.
 #       TODO
-      # we dont need to push a new qpm version since this is not on qpm
-#    - name: QPM Publish
-#      run: ./QPM/QPM publish
