@@ -54,6 +54,11 @@
       "id": "sombrero",
       "versionRange": "*",
       "additionalData": {}
+    },
+    {
+      "id": "chroma",
+      "versionRange": "*",
+      "additionalData": {}
     }
   ],
   "additionalData": {}
