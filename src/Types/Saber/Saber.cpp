@@ -263,6 +263,7 @@ namespace Qosmetics
         INFO(sabersColorOptional.first ? "using chroma color %i" : "using normal color %i", saberType.value);
 
         SaberUtils::SetColors(modelObject->get_gameObject(), thisColor, otherColor);
+        INFO("Colors finished Updating");
     }
 
     void Saber::UpdateChromaColors(int saberTypePassed, GlobalNamespace::SaberModelController *modelController, Sombrero::FastColor)
