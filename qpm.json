@@ -23,12 +23,16 @@
     {
       "id": "questui",
       "versionRange": "*",
-      "additionalData": {}
+      "additionalData": {
+        "private": true
+      }
     },
     {
       "id": "custom-types",
       "versionRange": "*",
-      "additionalData": {}
+      "additionalData": {
+        "private": true
+      }
     },
     {
       "id": "conditional-dependencies",
@@ -38,7 +42,9 @@
     {
       "id": "bs-utils",
       "versionRange": "*",
-      "additionalData": {}
+      "additionalData": {
+        "private": true
+      }
     },
     {
       "id": "codegen",
@@ -48,7 +54,9 @@
     {
       "id": "libcurl",
       "versionRange": "*",
-      "additionalData": {}
+      "additionalData": {
+        "private": true
+      }
     },
     {
       "id": "sombrero",
@@ -58,7 +66,9 @@
     {
       "id": "chroma",
       "versionRange": "*",
-      "additionalData": {}
+      "additionalData": {
+        "private": true
+      }
     }
   ],
   "additionalData": {}
