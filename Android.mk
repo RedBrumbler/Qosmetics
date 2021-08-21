@@ -60,35 +60,11 @@ LOCAL_MODULE := curl
 LOCAL_EXPORT_C_INCLUDES := extern/libcurl
 LOCAL_SRC_FILES := extern/libcurl.a
 include $(PREBUILT_STATIC_LIBRARY)
-# Creating prebuilt for dependency: custom-json-data - version: 0.11.8
-include $(CLEAR_VARS)
-LOCAL_MODULE := custom-json-data
-LOCAL_EXPORT_C_INCLUDES := extern/custom-json-data
-LOCAL_SRC_FILES := extern/libcustom-json-data.so
-include $(PREBUILT_SHARED_LIBRARY)
 # Creating prebuilt for dependency: songloader - version: 0.6.2
 include $(CLEAR_VARS)
 LOCAL_MODULE := songloader
 LOCAL_EXPORT_C_INCLUDES := extern/songloader
 LOCAL_SRC_FILES := extern/libsongloader.so
-include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: libcryptopp - version: 8.5.0
-include $(CLEAR_VARS)
-LOCAL_MODULE := cryptopp
-LOCAL_EXPORT_C_INCLUDES := extern/libcryptopp
-LOCAL_SRC_FILES := extern/libcryptopp.a
-include $(PREBUILT_STATIC_LIBRARY)
-# Creating prebuilt for dependency: tracks - version: 0.1.5
-include $(CLEAR_VARS)
-LOCAL_MODULE := tracks
-LOCAL_EXPORT_C_INCLUDES := extern/tracks
-LOCAL_SRC_FILES := extern/libtracks.so
-include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: pinkcore - version: 1.5.3
-include $(CLEAR_VARS)
-LOCAL_MODULE := pinkcore
-LOCAL_EXPORT_C_INCLUDES := extern/pinkcore
-LOCAL_SRC_FILES := extern/libpinkcore.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -102,12 +78,7 @@ LOCAL_SHARED_LIBRARIES += codegen_0_12_5
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_SHARED_LIBRARIES += questui
 LOCAL_SHARED_LIBRARIES += bs-utils
-LOCAL_SHARED_LIBRARIES += custom-json-data
-LOCAL_SHARED_LIBRARIES += songloader
-LOCAL_SHARED_LIBRARIES += tracks
-LOCAL_SHARED_LIBRARIES += pinkcore
 LOCAL_STATIC_LIBRARIES += curl
-LOCAL_STATIC_LIBRARIES += cryptopp
 LOCAL_LDLIBS += -llog -lz
 LOCAL_CFLAGS += -DID='"Qosmetics"' -DVERSION='"1.3.0"' -I'./shared' -I'./extern' -Wno-inaccessible-base -O2
 LOCAL_C_INCLUDES += ./include ./src ./extern ./extern/codegen/include ./extern/libil2cpp/il2cpp/libil2cpp ./shared

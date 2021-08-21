@@ -76,7 +76,7 @@ FastVector3 Spline::PreviousNormal(SplineControlPoint* controlPoint)
 SplineControlPoint* Spline::LenToSegment(float t, float& localF)
 {
     // init with first segment to prevent crashes, was inited with nullptr
-    SplineControlPoint* seg = segments.front();
+    SplineControlPoint* seg = nullptr;
     
     float len = Sombrero::Clamp01(t) * segments.back()->Dist;
 
