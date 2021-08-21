@@ -22,7 +22,7 @@ $cover = "./" + $modJson.coverImage
 
 $fileList = @($cover, $mod)
 
-$bannedLibList = @("modloader", "questui", "custom-types", "codegen")
+$bannedLibList = @("modloader", "questui", "custom-types", "codegen", "pinkcore", "songloader", "tracks", "custom-json-data")
 
 $modlib = @()
 

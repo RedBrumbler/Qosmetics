@@ -1,6 +1,7 @@
 #include "Config.hpp"
 #include "Utils/PointerUtils.hpp"
 #include "UnityEngine/Vector3.hpp"
+#include "UnityEngine/Collider.hpp"
 #include "Utils/UnityUtils.hpp"
 
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
@@ -27,4 +28,13 @@ namespace PointerUtils
         if (!controller) return;
         UnityUtils::HideRenderersOnObject(controller->Find(MenuHandle), doHide);
     }
+
+    void RemoveColliders(Transform* pointer)
+    {
+        auto colliders = pointer->get_gameObject()->GetComponentsInChildren<Collider*>(true);
+        
+        int length = colliders->Length();
+        for (int i; i < length; i++) Object::DestroyImmediate(colliders->values[i]);
+    }
+
 }

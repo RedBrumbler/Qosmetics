@@ -97,6 +97,7 @@ namespace Qosmetics
         if (prefab)
         {
             Il2CppString* name = isLeft ? LeftPointer : RightPointer;
+            PointerUtils::RemoveColliders(prefab);
             prefab->SetParent(get_transform());
             prefab->get_gameObject()->set_name(name);
             PointerUtils::SetPointerSize(prefab);
