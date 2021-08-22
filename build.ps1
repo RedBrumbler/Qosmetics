@@ -31,7 +31,7 @@ if ($windows)
 # if on a linux system
 else
 {
-    $coreCount = & nproc
+    $coreCount = & grep -c ^processor /proc/cpuinfo
 }
 # if all fails, just assume 4
 if (-not $coreCount)
