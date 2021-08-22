@@ -66,7 +66,7 @@ namespace Qosmetics
             virtual ~QosmeticItem()
             {
                 if (prefabWrapper)
-                    prefabWrapper = SafePtr<FuckYouGC>();
+                    prefabWrapper.emplace(nullptr);
                 //UnityEngine::Object::Destroy(prefab);
             }
             
