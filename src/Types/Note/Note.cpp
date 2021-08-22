@@ -115,6 +115,7 @@ namespace Qosmetics
             
             GlobalNamespace::MaterialPropertyBlockController* propertyController = noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
             NoteUtils::AddRenderersToPropertyBlockController(propertyController, prefab->get_gameObject());
+            propertyController->ApplyChanges();
         }
         UpdateModel();
     }
@@ -209,7 +210,7 @@ namespace Qosmetics
             Transform* theNote = noteCubeTransform->Find(name);
             if (!theNote) return;
             NoteUtils::SetColors(theNote->get_gameObject(), thisColor, otherColor, isMirror ? 1955 : 0);
-            noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>()->ApplyChanges();
+            //noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>()->ApplyChanges();
         }
     }
 
