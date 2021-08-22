@@ -61,39 +61,12 @@ jobs:
       with:
         submodules: true
         lfs: true
-    # powershell is needed
-    - name: Install Powershell
-      run: sudo apt-get install -y powershell
-    
-    # unpack the cache to see if ndk is available on it
-    - name: Cache Android NDK
-      id: cache-ndk
-      # this step uses the actions cache
-      uses: actions/cache@v2
-      env:
-        # name of cached ndk
-        cache-name: cache-ndk
-      with:
-        path: ndk
-        key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.ndkname }}
-        restore-keys: |
-          ${{ runner.os }}-${{ env.cache-name }}-${{ env.ndkname }}
-
-    - name: Install Android NDK
-      # if not available, install the ndk so we can build
-      if: steps.cache-ndk.outputs.cache-hit != 'true'
-      # if the if was true, do this:
-      run: |
-        wget -q -O ndk.zip https://dl.google.com/android/repository/${ndkname}-linux-x86_64.zip
-        unzip -q ndk.zip
-        mv ${ndkname} ndk
-      # download ndk.zip from google, unzip and move into ndk cache folder
 
       # create the ndkpath.txt file needed in our own compile scripts
     - name: Create ndkpath.txt
       run: |
-        cd ndk
-        pwd > ${GITHUB_WORKSPACE}/ndkpath.txt
+        echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
+        cat ${GITHUB_WORKSPACE}/ndkpath.txt
       # just "cat" the path into the ndkpath.txt
 
 
