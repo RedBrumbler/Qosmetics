@@ -66,7 +66,7 @@ namespace Qosmetics
             virtual ~QosmeticItem()
             {
                 if (prefabWrapper)
-                    prefabWrapper->Finalize();
+                    prefabWrapper = SafePtr<FuckYouGC>();
                 //UnityEngine::Object::Destroy(prefab);
             }
             
@@ -82,7 +82,7 @@ namespace Qosmetics
             bool ConfigLoaded = false;
             Descriptor& descriptor;
             ModelLoader modelProvider = ModelLoader(this);
-            FuckYouGC* prefabWrapper = nullptr;
+            SafePtr<FuckYouGC> prefabWrapper;
 
             //UnityEngine::GameObject* prefab = nullptr;
             ItemConfig config;
