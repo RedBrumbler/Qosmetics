@@ -82,7 +82,7 @@ namespace Qosmetics
             bool ConfigLoaded = false;
             Descriptor& descriptor;
             ModelLoader modelProvider = ModelLoader(this);
-            SafePtr<FuckYouGC> prefabWrapper;
+            FuckYouGC* prefabWrapper = nullptr;
 
             //UnityEngine::GameObject* prefab = nullptr;
             ItemConfig config;
