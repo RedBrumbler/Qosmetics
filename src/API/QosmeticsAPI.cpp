@@ -1,6 +1,6 @@
+#include "Config.hpp"
 #include "conditional-dependencies/shared/main.hpp"
 #include "Data/DescriptorCache.hpp"
-#include "Config.hpp"
 using namespace Qosmetics;
 
 #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"

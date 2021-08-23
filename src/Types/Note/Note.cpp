@@ -210,7 +210,7 @@ namespace Qosmetics
             if (!theNote) return;
             NoteUtils::SetColors(theNote->get_gameObject(), thisColor, otherColor, isMirror ? 1955 : 0);
             auto propertyController = noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
-            static auto Il2CppString* _Color = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_Color");
+            static auto _Color = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_Color");
             propertyController->get_materialPropertyBlock()->SetColor(_Color, thisColor);
             propertyController->ApplyChanges();
         }
