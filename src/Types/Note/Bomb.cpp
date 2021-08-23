@@ -55,9 +55,11 @@ namespace Qosmetics
             prefab->set_localScale(ZeroPointFour);
             prefab->set_localPosition(Vector3::get_zero());
             UnityUtils::SetLayerRecursive(prefab->get_gameObject(), 8);
-            GlobalNamespace::MaterialPropertyBlockController* propertyController = GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            GlobalNamespace::MaterialPropertyBlockController* propertyController = GetComponentInChildren<GlobalNamespace::MaterialPropertyBlockController*>();
             NoteUtils::AddRenderersToPropertyBlockController(propertyController, prefab->get_gameObject());
-            propertyController->ApplyChanges();
+            
+            if (propertyController) propertyController->ApplyChanges();
+            else ERROR("No Property block controller!");
 
             if (isMirror) MaterialUtils::SetRenderQueue(prefab->get_gameObject(), 1955);
         }
