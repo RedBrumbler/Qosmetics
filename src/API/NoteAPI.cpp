@@ -71,6 +71,12 @@ EXPOSE_API(GetNoteIsCustom, bool) {
 EXPOSE_API(GetNoteFolder, void, std::string& result) {
     result = NOTEPATH;
 }
+
+EXPOSE_API(GetActiveNoteDescriptor, Qosmetics::Descriptor) {
+    if (NOTEMANAGER->get_type() == invalid) return Qosmetics::Descriptor();
+    else return NOTEMANAGER->get_item().get_descriptor();
+}
+
 #pragma GCC diagnostic pop
 #undef NOTEMANAGER
 #undef NOTECONFIG

@@ -66,6 +66,11 @@ EXPOSE_API(SetTrailActive, void, Il2CppObject* trailHelper, bool active) {
     ((Qosmetics::TrailHelper*)trailHelper)->SetTrailActive(active);
 }
 
+EXPOSE_API(GetActiveSaberDescriptor, Qosmetics::Descriptor) {
+    if (SABERMANAGER->get_type() == invalid) return Qosmetics::Descriptor();
+    else return SABERMANAGER->get_item().get_descriptor();
+}
+
 #pragma GCC diagnostic pop
 #undef SABERMANAGER
 #undef CONFIG

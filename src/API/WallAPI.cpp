@@ -58,6 +58,11 @@ EXPOSE_API(GetWallFolder, void, std::string& result) {
     result = WALLPATH;
 }
 
+EXPOSE_API(GetActiveWallDescriptor, Qosmetics::Descriptor) {
+    if (WALLMANAGER->get_type() == invalid) return Qosmetics::Descriptor();
+    else return WALLMANAGER->get_item().get_descriptor();
+}
+
 #pragma GCC diagnostic pop
 #undef WALLMANAGER
 #undef WALLCONFIG
