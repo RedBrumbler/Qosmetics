@@ -29,7 +29,7 @@ namespace Qosmetics
         this->modelManager = modelManager;
         this->colorManager = colorManager;
 
-        std::function<void()> callback = std::bind(&Note::UpdateColors, this );
+        //std::function<void()> callback = std::bind(&Note::UpdateColors, this );
         //this->colorManager->RegisterCallback(callback, callbackType::note);
     }
 
@@ -115,7 +115,6 @@ namespace Qosmetics
             
             GlobalNamespace::MaterialPropertyBlockController* propertyController = noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
             NoteUtils::AddRenderersToPropertyBlockController(propertyController, prefab->get_gameObject());
-            propertyController->ApplyChanges();
         }
         UpdateModel();
     }
@@ -210,7 +209,10 @@ namespace Qosmetics
             Transform* theNote = noteCubeTransform->Find(name);
             if (!theNote) return;
             NoteUtils::SetColors(theNote->get_gameObject(), thisColor, otherColor, isMirror ? 1955 : 0);
-            //noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>()->ApplyChanges();
+            auto propertyController = noteCubeTransform->get_gameObject()->GetComponent<GlobalNamespace::MaterialPropertyBlockController*>();
+            static auto Il2CppString* _Color = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_Color");
+            propertyController->get_materialPropertyBlock()->SetColor(_Color, thisColor);
+            propertyController->ApplyChanges();
         }
     }
 
