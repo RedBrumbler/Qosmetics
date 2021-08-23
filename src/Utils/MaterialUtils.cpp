@@ -161,8 +161,6 @@ void MaterialUtils::SetColors(UnityEngine::GameObject* object, UnityEngine::Colo
     }
 }
 
-Array<Material*>* allMaterials = nullptr;
-
 std::string toLowerCase(std::string in)
 {
     std::string out = "";
@@ -173,7 +171,7 @@ std::string toLowerCase(std::string in)
 
 void MaterialUtils::ReplaceMaterialsForGameObject(GameObject* object)
 {
-    allMaterials = Resources::FindObjectsOfTypeAll<Material*>();
+    Array<Material*>* allMaterials = Resources::FindObjectsOfTypeAll<Material*>();
 
     int matCount = allMaterials->Length();
     INFO("Found %d materials", matCount);
