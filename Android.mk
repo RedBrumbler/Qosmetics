@@ -48,7 +48,7 @@ LOCAL_MODULE := questui
 LOCAL_EXPORT_C_INCLUDES := extern/questui
 LOCAL_SRC_FILES := extern/libquestui.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: bs-utils - version: 0.6.2
+# Creating prebuilt for dependency: bs-utils - version: 0.6.3
 include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
@@ -66,6 +66,12 @@ LOCAL_MODULE := songloader
 LOCAL_EXPORT_C_INCLUDES := extern/songloader
 LOCAL_SRC_FILES := extern/libsongloader.so
 include $(PREBUILT_SHARED_LIBRARY)
+# Creating prebuilt for dependency: libcryptopp - version: 8.5.0
+include $(CLEAR_VARS)
+LOCAL_MODULE := cryptopp
+LOCAL_EXPORT_C_INCLUDES := extern/libcryptopp
+LOCAL_SRC_FILES := extern/libcryptopp.a
+include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := questcosmetics
@@ -79,6 +85,7 @@ LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_SHARED_LIBRARIES += questui
 LOCAL_SHARED_LIBRARIES += bs-utils
 LOCAL_STATIC_LIBRARIES += curl
+LOCAL_STATIC_LIBRARIES += cryptopp
 LOCAL_LDLIBS += -llog -lz
 LOCAL_CFLAGS += -DID='"Qosmetics"' -DVERSION='"1.3.0"' -I'./shared' -I'./extern' -Wno-inaccessible-base -O2
 LOCAL_C_INCLUDES += ./include ./src ./extern ./extern/codegen/include ./extern/libil2cpp/il2cpp/libil2cpp ./shared
