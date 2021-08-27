@@ -84,10 +84,11 @@ LOCAL_SHARED_LIBRARIES += codegen_0_12_5
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_SHARED_LIBRARIES += questui
 LOCAL_SHARED_LIBRARIES += bs-utils
+LOCAL_SHARED_LIBRARIES += songloader
 LOCAL_STATIC_LIBRARIES += curl
 LOCAL_STATIC_LIBRARIES += cryptopp
 LOCAL_LDLIBS += -llog -lz
-LOCAL_CFLAGS += -DID='"Qosmetics"' -DVERSION='"1.3.0"' -I'./shared' -I'./extern' -Wno-inaccessible-base -O2
+LOCAL_CFLAGS += -DID='"Qosmetics"' -DVERSION='"1.3.1"' -I'./shared' -I'./extern' -Wno-inaccessible-base -O2
 LOCAL_C_INCLUDES += ./include ./src ./extern ./extern/codegen/include ./extern/libil2cpp/il2cpp/libil2cpp ./shared
 LOCAL_CPP_FEATURES += rtti exceptions
 include $(BUILD_SHARED_LIBRARY)
