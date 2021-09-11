@@ -103,8 +103,8 @@ $qpm = "./qpm.json"
 $qpmJson = Get-Content $qpm | ConvertFrom-Json 
 $modJson.version = $qpmJson.info.version
 
-$libs += ,"libbeatsaber-hook_2_2_5.so";
-$fileList += ,"./extern/libbeatsaber-hook_2_2_5.so";
+#$libs += ,"libbeatsaber-hook_2_2_5.so";
+#$fileList += ,"./extern/libbeatsaber-hook_2_2_5.so";
 
 # add the thing to the libs list because we don't need it as a mod file
 $modJson.modFiles = $modlib
