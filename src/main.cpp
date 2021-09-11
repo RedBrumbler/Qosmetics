@@ -12,6 +12,7 @@
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include "UnityEngine/Vector3.hpp"
+#include "UnityEngine/RectOffset.hpp"
 
 #include "TypeRegisterer.hpp"
 
@@ -41,6 +42,7 @@
 #include "Containers/SingletonContainer.hpp"
 
 #include "questui/shared/QuestUI.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
 
 #include "bs-utils/shared/utils.hpp"
 
@@ -48,6 +50,11 @@
 #include "Utils/ChromaUtils.hpp"
 
 #include "hooks.hpp"
+
+#include "HMUI/ViewController.hpp"
+#include "HMUI/FlowCoordinator.hpp"
+#include "HMUI/ViewController_AnimationType.hpp"
+#include "HMUI/ViewController_AnimationDirection.hpp"
 
 std::vector<void (*)(Logger&)> Hooks::installFuncs;
 
@@ -190,6 +197,8 @@ extern "C" void setup(ModInfo& info)
     QosmeticsLogger::GetContextLogger("Setup").info("idk why you are reading logs instead of playing the game, go hit bloq or something you dolt");
 }
 
+extern void swapButtonSprites(UnityEngine::UI::Button* button, std::string normalName, std::string selectedName);
+
 extern "C" void load()
 {
     if (!LoadConfig()) SaveConfig();
@@ -216,6 +225,57 @@ extern "C" void load()
     RegisterTypes();
 
     logger.info("Registered Custom types!");
+
+    QuestUI::Register::RegisterGameplaySetupMenu(modInfo, QuestUI::Register::MenuType::All, [](auto go, bool first){
+        if (!first) return;
+        auto vertical = QuestUI::BeatSaberUI::CreateVerticalLayoutGroup(go->get_transform());
+        vertical->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
+        vertical->get_rectTransform()->set_anchoredPosition({0, 20});
+        auto horizontal = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(vertical->get_transform());
+        horizontal->set_childAlignment(UnityEngine::TextAnchor::UpperCenter);
+        std::string mainpath = UIPATH;
+        static const constexpr float buttonSize = 25.0f;
+        static const constexpr float spacing = 4.0f;
+        horizontal->set_spacing(spacing);
+        horizontal->template GetComponent<UnityEngine::UI::LayoutElement*>()->set_preferredWidth(buttonSize * 3 + spacing * 2);
+        auto saberButton = QuestUI::BeatSaberUI::CreateUIButton(horizontal->get_transform(), "Sabers", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize),
+            [](){
+                auto currentFlowCoordinator = QuestUI::BeatSaberUI::GetMainFlowCoordinator()->YoungestChildFlowCoordinatorOrSelf();
+                auto qosFlowCoordinator = SingletonContainer::get_qosmeticsFlowCoordinator();
+                currentFlowCoordinator->PresentFlowCoordinator(qosFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, HMUI::ViewController::AnimationType::In, false);
+                qosFlowCoordinator->FastForward(ItemType::saber);
+            });
+        swapButtonSprites(saberButton, string_format("%s%s", mainpath.c_str(), "Icons/SaberIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/SaberIconSelected.png"));
+        reinterpret_cast<UnityEngine::RectTransform*>(saberButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        auto noteButton = QuestUI::BeatSaberUI::CreateUIButton(horizontal->get_transform(), "Bloqs", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize),
+            [](){
+                auto currentFlowCoordinator = QuestUI::BeatSaberUI::GetMainFlowCoordinator()->YoungestChildFlowCoordinatorOrSelf();
+                auto qosFlowCoordinator = SingletonContainer::get_qosmeticsFlowCoordinator();
+                currentFlowCoordinator->PresentFlowCoordinator(qosFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, HMUI::ViewController::AnimationType::In, false);
+                qosFlowCoordinator->FastForward(ItemType::note);
+            });
+        swapButtonSprites(noteButton, string_format("%s%s", mainpath.c_str(), "Icons/NoteIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/NoteIconSelected.png"));
+        reinterpret_cast<UnityEngine::RectTransform*>(noteButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+
+        auto wallButton = QuestUI::BeatSaberUI::CreateUIButton(horizontal->get_transform(), "Walls", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), 
+            [](){
+                auto currentFlowCoordinator = QuestUI::BeatSaberUI::GetMainFlowCoordinator()->YoungestChildFlowCoordinatorOrSelf();
+                auto qosFlowCoordinator = SingletonContainer::get_qosmeticsFlowCoordinator();
+                currentFlowCoordinator->PresentFlowCoordinator(qosFlowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, HMUI::ViewController::AnimationType::In, false);
+                qosFlowCoordinator->FastForward(ItemType::wall);
+            });
+
+        swapButtonSprites(wallButton, string_format("%s%s", mainpath.c_str(), "Icons/WallIcon.png"), string_format("%s%s", mainpath.c_str(), "Icons/WallIconSelected.png"));
+        reinterpret_cast<UnityEngine::RectTransform*>(wallButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        
+        /*
+        auto sabersBtn = QuestUI::BeatSaberUI::CreateUIButton(horizontal->get_transform(), "Sabers", "SettingsButton", Vector2(0, 0), [](){
+            QuestUI::BeatSaberUI::GetMainFlowCoordinator()->YoungestChildFlowCoordinatorOrSelf()->PresentFlowCoordinator(SingletonContainer::get_qosmeticsFlowCoordinator(), nullptr, HMUI::ViewController::AnimationDirection::Horizontal, HMUI::ViewController::AnimationType::In, false);
+        });
+
+        swapButtonSprites(btn, string_format("%s%s", UIPATH.c_str(), "Icons/MenuIcon.png"), string_format("%s%s", UIPATH.c_str(), "Icons/MenuIconSelected.png"));
+        */
+    });
 }
 
 bool getSceneName(UnityEngine::SceneManagement::Scene scene, std::string& output)

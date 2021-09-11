@@ -304,9 +304,9 @@ bool LoadConfig(rapidjson::Document& d, config_t& config)
 
 namespace Qosmetics
 {
-    bool Config::LoadConfig(std::string name)
+    bool Config::LoadConfig(std::string_view name)
     {
-        INFO("Loading config for user %s", name.c_str());
+        INFO("Loading config for user %s", name.data());
         if (name == "") 
         {
             masterConfig.lastUsedConfig = "Default";
@@ -314,7 +314,7 @@ namespace Qosmetics
             Config::SaveConfig();
         }
 
-        std::string configPath = string_format("%s%s.json", CONFIGPATH.c_str(), name.c_str());
+        std::string configPath = string_format("%s%s.json", CONFIGPATH.c_str(), name.data());
         INFO("FilePath: %s", configPath.c_str());
         if (!fileexists(configPath)) 
         {

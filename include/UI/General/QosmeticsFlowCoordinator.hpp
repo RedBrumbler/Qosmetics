@@ -68,4 +68,5 @@ DECLARE_CLASS_CODEGEN(Qosmetics::UI, QosmeticsFlowCoordinator, HMUI::FlowCoordin
     
     public:
         void SubMenuButtonWasPressed(ItemType type);
+        void FastForward(ItemType type);
 )

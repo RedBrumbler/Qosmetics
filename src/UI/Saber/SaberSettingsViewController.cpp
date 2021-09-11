@@ -149,7 +149,7 @@ namespace Qosmetics::UI
         BeatSaberUI::AddHoverHint(pointerSizeSetting->get_gameObject(), "Size of the menu pointer");
         co_yield nullptr;
 
-        auto trailDropdown = BeatSaberUI::CreateDropdown(containerT, "Trail Type", trailTextValues[(int)config.saberConfig.trailType], trailTextValues, [this](std::string value){
+        auto trailDropdown = BeatSaberUI::CreateDropdown(containerT, "Trail Type", trailTextValues[(int)config.saberConfig.trailType], trailTextValues, [this](auto value){
                 int val = 0;
                 for (auto& s : trailTextValues)
                 {

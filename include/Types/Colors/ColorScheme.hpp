@@ -16,6 +16,6 @@ DECLARE_CLASS_CODEGEN(Qosmetics, ColorScheme, GlobalNamespace::ColorScheme,
     DECLARE_INSTANCE_METHOD(void, SetLeftColor, UnityEngine::Color color);
     DECLARE_INSTANCE_METHOD(void, SetRightColor, UnityEngine::Color color);
     DECLARE_CTOR(ctor);
-    DECLARE_CTOR(ctorbasegame, GlobalNamespace::ColorScheme* scheme);
-    DECLARE_CTOR(ctorcustom, Qosmetics::ColorScheme* scheme);
+    //DECLARE_CTOR(ctorbasegame, GlobalNamespace::ColorScheme* scheme);
+    //DECLARE_CTOR(ctorcustom, Qosmetics::ColorScheme* scheme);
 )

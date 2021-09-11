@@ -115,6 +115,12 @@ namespace Qosmetics::UI
         }
     }
 
+    void QosmeticsFlowCoordinator::FastForward(ItemType type)
+    {
+        SubMenuButtonWasPressed(type);
+    }
+
+
     void QosmeticsFlowCoordinator::BackButtonWasPressed(HMUI::ViewController* topViewController)
     {
         TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();

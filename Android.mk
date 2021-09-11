@@ -24,31 +24,25 @@ LOCAL_MODULE := modloader
 LOCAL_EXPORT_C_INCLUDES := extern/modloader
 LOCAL_SRC_FILES := extern/libmodloader.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: beatsaber-hook - version: 2.2.5
+# Creating prebuilt for dependency: beatsaber-hook - version: 2.3.0
 include $(CLEAR_VARS)
-LOCAL_MODULE := beatsaber-hook_2_2_5
+LOCAL_MODULE := beatsaber-hook_2_3_0
 LOCAL_EXPORT_C_INCLUDES := extern/beatsaber-hook
-LOCAL_SRC_FILES := extern/libbeatsaber-hook_2_2_5.so
+LOCAL_SRC_FILES := extern/libbeatsaber-hook_2_3_0.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: codegen - version: 0.12.5
-include $(CLEAR_VARS)
-LOCAL_MODULE := codegen_0_12_5
-LOCAL_EXPORT_C_INCLUDES := extern/codegen
-LOCAL_SRC_FILES := extern/libcodegen_0_12_5.so
-include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: custom-types - version: 0.12.6
+# Creating prebuilt for dependency: custom-types - version: 0.12.7
 include $(CLEAR_VARS)
 LOCAL_MODULE := custom-types
 LOCAL_EXPORT_C_INCLUDES := extern/custom-types
 LOCAL_SRC_FILES := extern/libcustom-types.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: questui - version: 0.10.2
+# Creating prebuilt for dependency: questui - version: 0.11.1
 include $(CLEAR_VARS)
 LOCAL_MODULE := questui
 LOCAL_EXPORT_C_INCLUDES := extern/questui
 LOCAL_SRC_FILES := extern/libquestui.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: bs-utils - version: 0.6.3
+# Creating prebuilt for dependency: bs-utils - version: 0.6.4
 include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
@@ -60,18 +54,12 @@ LOCAL_MODULE := curl
 LOCAL_EXPORT_C_INCLUDES := extern/libcurl
 LOCAL_SRC_FILES := extern/libcurl.a
 include $(PREBUILT_STATIC_LIBRARY)
-# Creating prebuilt for dependency: songloader - version: 0.6.2
+# Creating prebuilt for dependency: codegen - version: 0.14.0
 include $(CLEAR_VARS)
-LOCAL_MODULE := songloader
-LOCAL_EXPORT_C_INCLUDES := extern/songloader
-LOCAL_SRC_FILES := extern/libsongloader.so
+LOCAL_MODULE := codegen
+LOCAL_EXPORT_C_INCLUDES := extern/codegen
+LOCAL_SRC_FILES := extern/libcodegen.so
 include $(PREBUILT_SHARED_LIBRARY)
-# Creating prebuilt for dependency: libcryptopp - version: 8.5.0
-include $(CLEAR_VARS)
-LOCAL_MODULE := cryptopp
-LOCAL_EXPORT_C_INCLUDES := extern/libcryptopp
-LOCAL_SRC_FILES := extern/libcryptopp.a
-include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := questcosmetics
@@ -79,13 +67,12 @@ LOCAL_SRC_FILES += $(call rwildcard,src/**,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.c)
 LOCAL_SHARED_LIBRARIES += modloader
-LOCAL_SHARED_LIBRARIES += beatsaber-hook_2_2_5
-LOCAL_SHARED_LIBRARIES += codegen_0_12_5
+LOCAL_SHARED_LIBRARIES += beatsaber-hook_2_3_0
 LOCAL_SHARED_LIBRARIES += custom-types
 LOCAL_SHARED_LIBRARIES += questui
 LOCAL_SHARED_LIBRARIES += bs-utils
+LOCAL_SHARED_LIBRARIES += codegen
 LOCAL_STATIC_LIBRARIES += curl
-LOCAL_STATIC_LIBRARIES += cryptopp
 LOCAL_LDLIBS += -llog -lz
 LOCAL_CFLAGS += -DID='"Qosmetics"' -DVERSION='"1.3.0"' -I'./shared' -I'./extern' -Wno-inaccessible-base -O2
 LOCAL_C_INCLUDES += ./include ./src ./extern ./extern/codegen/include ./extern/libil2cpp/il2cpp/libil2cpp ./shared

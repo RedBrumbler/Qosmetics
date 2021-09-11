@@ -66,7 +66,7 @@ namespace Qosmetics
     class Config
     {
         public:
-            static bool LoadConfig(std::string name);
+            static bool LoadConfig(std::string_view name);
             static void SaveConfig();
             static void Init();
 

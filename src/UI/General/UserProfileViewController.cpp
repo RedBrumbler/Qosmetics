@@ -73,7 +73,7 @@ namespace Qosmetics::UI
             layoutelem->set_preferredHeight(height);
             layoutelem->set_preferredWidth(70.0f);
 
-            HMUI::SimpleTextDropdown* trailDropdown = BeatSaberUI::CreateDropdown(container->get_transform(), "User", masterConfig.lastUsedConfig, Config::get_configNames(), [this](std::string value){
+            HMUI::SimpleTextDropdown* trailDropdown = BeatSaberUI::CreateDropdown(container->get_transform(), "User", masterConfig.lastUsedConfig, Config::get_configNames(), [this](auto value){
                 if (value == masterConfig.lastUsedConfig) return;
                 Config::LoadConfig(value);
                 

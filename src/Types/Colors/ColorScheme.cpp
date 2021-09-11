@@ -70,11 +70,12 @@ namespace Qosmetics
         this->trailBColor = color;
         this->noteBColor = color;
     }
+
     void ColorScheme::ctor()
     {
         CopyFromBaseGame(nullptr);
     }
-
+    /*
     void ColorScheme::ctorbasegame(GlobalNamespace::ColorScheme* scheme)
     {
         CopyFromBaseGame(scheme);
@@ -84,4 +85,5 @@ namespace Qosmetics
     {
         CopyFromCustom(scheme);
     }
+    */
 }

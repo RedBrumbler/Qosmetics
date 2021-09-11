@@ -97,7 +97,7 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoord
         SingletonContainer::get_wallManager();
 
         Qosmetics::Pointer::AddToAll();
-
+        
         GameObject* newObj = GameObject::New_ctor();
         Object::DontDestroyOnLoad(newObj);
 
@@ -105,7 +105,7 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoord
         button->get_gameObject()->set_name(il2cpp_utils::newcsstr("QosmeticsTemplateButton"));
     }
 }
-
+/*
 MAKE_HOOK_MATCH(GameplaySetupViewController_DidActivate, &GlobalNamespace::GameplaySetupViewController::DidActivate, void, GlobalNamespace::GameplaySetupViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 {
     GameplaySetupViewController_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
@@ -114,6 +114,7 @@ MAKE_HOOK_MATCH(GameplaySetupViewController_DidActivate, &GlobalNamespace::Gamep
         UISetup::SetupFlowCoordinatorAtGameplay(self);
     }
 }
+*/
 
 void InstallUIHooks(Logger& logger)
 {
@@ -121,7 +122,7 @@ void InstallUIHooks(Logger& logger)
     SIMPLE_INSTALL_HOOK(MainFlowCoordinator_DidActivate);
     SIMPLE_INSTALL_HOOK(OptionsViewController_DidActivate);
     SIMPLE_INSTALL_HOOK(MultiplayerModeSelectionFlowCoordinator_TopViewControllerWillChange);
-    SIMPLE_INSTALL_HOOK(GameplaySetupViewController_DidActivate);
+    //SIMPLE_INSTALL_HOOK(GameplaySetupViewController_DidActivate);
 }
 
 QOS_INSTALL_HOOKS(InstallUIHooks)

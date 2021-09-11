@@ -44,12 +44,16 @@ namespace Qosmetics
             GlobalNamespace::ColorManager* last = modelControllers->values[modelControllers->Length() - 1]->colorManager;
             GlobalNamespace::ColorScheme* scheme = last ? last->colorScheme : nullptr; 
             if (this->colorScheme) this->colorScheme->CopyFromBaseGame(scheme);
-            else this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>(scheme));
+            else 
+            {
+                this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>());
+                this->colorScheme->CopyFromBaseGame(scheme);
+            }
         }
         else
         {
             INFO("Didnt find any color managers...");
-            this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>((GlobalNamespace::ColorScheme*)nullptr));
+            this->colorScheme = CRASH_UNLESS(il2cpp_utils::New<Qosmetics::ColorScheme*, il2cpp_utils::CreationType::Manual>());
         }
     }
 
