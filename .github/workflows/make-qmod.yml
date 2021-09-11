@@ -1,5 +1,5 @@
 # workflow name
-name: NDK build
+name: Make Qmod
 
 # set env variables
 env:
