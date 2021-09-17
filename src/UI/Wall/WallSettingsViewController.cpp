@@ -17,6 +17,7 @@ DEFINE_TYPE(Qosmetics::UI, WallSettingsViewController);
 #include "UnityEngine/UI/Toggle.hpp"
 
 #include "Utils/UIUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -82,6 +83,13 @@ namespace Qosmetics::UI
     custom_types::Helpers::Coroutine WallSettingsViewController::SettingsSetupRoutine(GameObject* container)
     {
         Transform* containerT = container->get_transform();
+        auto disableSetting = BeatSaberUI::CreateToggle(containerT, "Complete Disable", config.wallConfig.disabled, [this](bool val){
+            config.wallConfig.disabled = val;
+            if (config.wallConfig.disabled) Disabling::RegisterDisablingInfo({ID, VERSION}, ItemType::wall);
+            else Disabling::UnregisterDisablingInfo({ID, VERSION}, ItemType::wall);
+        });
+        BeatSaberUI::AddHoverHint(disableSetting->get_gameObject(), "Completely disables all things Qosmetics does with walls");
+        co_yield nullptr;
         // fake glow
         Toggle* fakeGlowToggle = BeatSaberUI::CreateToggle(containerT, "Force Fake Glow Off", config.wallConfig.forceFakeGlowOff, [&](bool value) { 
                 config.wallConfig.forceFakeGlowOff = value;

@@ -29,6 +29,7 @@
 
 #include "Utils/UnityUtils.hpp"
 #include "Utils/PlayerSettings.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 #include "hooks.hpp"
 
@@ -42,6 +43,7 @@ MAKE_HOOK_MATCH(GameNoteController_Init, &GlobalNamespace::GameNoteController::I
 {
     GameNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, gameNoteType, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
     
+    if (!Disabling::get_enabled(ItemType::note)) return;
     if (!PlayerSettings::get_SpawnNotes()) return;
 
     Qosmetics::Note* note = self->get_gameObject()->GetComponent<Qosmetics::Note*>();
@@ -60,6 +62,7 @@ MAKE_HOOK_MATCH(TutorialNoteController_Init, &GlobalNamespace::TutorialNoteContr
 {
     TutorialNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
 
+    if (!Disabling::get_enabled(ItemType::note)) return;
     Qosmetics::Note* note = self->get_gameObject()->GetComponent<Qosmetics::Note*>();
 
     if (!note)
@@ -76,6 +79,7 @@ MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::I
 {
     BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity);
     
+    if (!Disabling::get_enabled(ItemType::note)) return;
     if (!PlayerSettings::get_SpawnNotes()) return;
 
     Qosmetics::Bomb* bomb = self->get_gameObject()->GetComponent<Qosmetics::Bomb*>();
@@ -103,6 +107,7 @@ MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteC
 {
     MirroredNoteController_1_Mirror(self, noteController);
 
+    if (!Disabling::get_enabled(ItemType::note)) return;
     if (strcmp(self->klass->name, "MirroredBombNoteController") != 0) return;
     NoteItem& item = SingletonContainer::get_noteManager()->get_item();
     if (config.noteConfig.disableReflections || (item.get_type() != ItemType::invalid && item.get_config().get_hasBomb() && !config.noteConfig.forceDefaultBombs))
@@ -132,6 +137,7 @@ MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteC
 MAKE_HOOK_MATCH(MirroredCubeNoteController_Mirror, &GlobalNamespace::MirroredCubeNoteController::Mirror, void, GlobalNamespace::MirroredCubeNoteController* self, GlobalNamespace::ICubeNoteMirrorable* noteController)
 {
     MirroredCubeNoteController_Mirror(self, noteController);
+    if (!Disabling::get_enabled(ItemType::note)) return;
     if (config.noteConfig.disableReflections || SingletonContainer::get_noteManager()->get_item().get_type() != ItemType::invalid)
     {
         self->set_enabled(false);
@@ -156,6 +162,7 @@ MAKE_HOOK_MATCH(MirroredCubeNoteController_Mirror, &GlobalNamespace::MirroredCub
 MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, GlobalNamespace::NoteDebris* self, GlobalNamespace::ColorType colorType, Vector3 notePos, Quaternion noteRot, Vector3 noteMoveVec, Vector3 noteScale, Vector3 positionOffset, Quaternion rotationOffset, Vector3 cutPoint, Vector3 cutNormal, Vector3 force, Vector3 torque, float lifeTime)
 {
     NoteDebris_Init(self, colorType, notePos, noteRot, noteMoveVec, noteScale, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
+    if (!Disabling::get_enabled(ItemType::note)) return;
     if (!PlayerSettings::get_SpawnDebris()) return;
     if (!PlayerSettings::get_SpawnNotes()) return;
 

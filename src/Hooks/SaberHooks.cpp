@@ -6,6 +6,7 @@
 #include "Types/Trail/QosmeticsTrail.hpp"
 
 #include "Utils/UnityUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 #include "UnityEngine/MeshFilter.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
@@ -46,6 +47,7 @@ MAKE_HOOK_MATCH(SaberModelContainer_Start, &GlobalNamespace::SaberModelContainer
 {
     SaberModelContainer_Start(self);
 
+    if (!Disabling::get_enabled(ItemType::saber)) return;
     INFO("SaberModelContainer");
     // if for some fucken reason the saber is nulltpr dont try to use it
     if (!self->saber) 

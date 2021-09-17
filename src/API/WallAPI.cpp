@@ -6,6 +6,8 @@
 #include "Data/Descriptor.hpp"
 #include "static-defines.hpp"
 
+#include "Utils/DisablingUtils.hpp"
+
 using namespace Qosmetics;
 
 #define WALLMANAGER SingletonContainer::get_wallManager()
@@ -51,7 +53,7 @@ EXPOSE_API(SetActiveWallFromFilePath, void, const char* path) {
 }
 
 EXPOSE_API(GetWallIsCustom, bool) {
-    return WALLMANAGER->get_item().get_descriptor().isValid();
+    return WALLMANAGER->get_item().get_descriptor().isValid() && Disabling::get_enabled(ItemType::wall);
 }
 
 EXPOSE_API(GetWallFolder, void, std::string& result) {
@@ -61,6 +63,18 @@ EXPOSE_API(GetWallFolder, void, std::string& result) {
 EXPOSE_API(GetActiveWallDescriptor, Qosmetics::Descriptor) {
     if (WALLMANAGER->get_type() == invalid) return Qosmetics::Descriptor();
     else return WALLMANAGER->get_item().get_descriptor();
+}
+
+EXPOSE_API(GetWallsDisabled, bool) {
+    return !Disabling::get_enabled(ItemType::wall);
+}
+
+EXPOSE_API(UnregisterWallDisablingInfo, void, ModInfo info) {
+    Disabling::UnregisterDisablingInfo(info, ItemType::wall);
+}
+
+EXPOSE_API(RegisterWallDisablingInfo, void, ModInfo info) {
+    Disabling::RegisterDisablingInfo(info, ItemType::wall);
 }
 
 #pragma GCC diagnostic pop

@@ -11,6 +11,7 @@
 #include "UnityEngine/Vector3.hpp"
 
 #include "Types/Wall/Wall.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 #include "Containers/SingletonContainer.hpp"
 
@@ -22,7 +23,7 @@ using namespace UnityEngine;
 MAKE_HOOK_MATCH(MirroredObstacleController_Mirror, &GlobalNamespace::MirroredObstacleController::Mirror, void, GlobalNamespace::MirroredObstacleController* self, GlobalNamespace::ObstacleController* obstacleController)
 {
     MirroredObstacleController_Mirror(self, obstacleController);
-    
+    if (!Disabling::get_enabled(ItemType::wall)) return;
     if (config.wallConfig.disableReflections || SingletonContainer::get_wallManager()->get_item().get_type() != ItemType::invalid)  
     {
         self->set_enabled(false);
@@ -45,6 +46,7 @@ MAKE_HOOK_MATCH(MirroredObstacleController_Mirror, &GlobalNamespace::MirroredObs
 MAKE_HOOK_MATCH(ObstacleController_Init, &GlobalNamespace::ObstacleController::Init, void, GlobalNamespace::ObstacleController* self, GlobalNamespace::ObstacleData* obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
 {
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
+    if (!Disabling::get_enabled(ItemType::wall)) return;
     Qosmetics::Wall* wall = self->get_gameObject()->GetComponent<Qosmetics::Wall*>();
 
     if (!wall)

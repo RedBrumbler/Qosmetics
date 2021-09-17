@@ -15,6 +15,7 @@ DEFINE_TYPE(Qosmetics::UI, SaberSettingsViewController);
 #include "System/Func_1.hpp"
 
 #include "Utils/UIUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -73,6 +74,13 @@ namespace Qosmetics::UI
     custom_types::Helpers::Coroutine SaberSettingsViewController::SettingsSetupRoutine(GameObject* container)
     {
         Transform* containerT = container->get_transform();
+        auto disableSetting = BeatSaberUI::CreateToggle(containerT, "Complete Disable", config.saberConfig.disabled, [this](bool val){
+            config.saberConfig.disabled = val;
+            if (config.saberConfig.disabled) Disabling::RegisterDisablingInfo({ID, VERSION}, ItemType::saber);
+            else Disabling::UnregisterDisablingInfo({ID, VERSION}, ItemType::saber);
+        });
+        BeatSaberUI::AddHoverHint(disableSetting->get_gameObject(), "Completely disables all things Qosmetics does with sabers");
+        co_yield nullptr;
         auto widthSetting = BeatSaberUI::CreateIncrementSetting(containerT, "Saber Width", 2, 0.05f, config.saberConfig.saberWidth, 0.0f, 10.0f, [this](float value) {
                 config.saberConfig.saberWidth = value;
                 this->previewViewController->UpdatePreview();

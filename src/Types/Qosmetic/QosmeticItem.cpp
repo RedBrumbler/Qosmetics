@@ -18,8 +18,8 @@ namespace Qosmetics
             ERROR("GameObject was nullptr");
             return;
         }
-        UnityUtils::SanitizePrefab(gameObject);
         GameObject* instantiated = Object::Instantiate(gameObject);
+        UnityUtils::SanitizePrefab(instantiated);
         Object::DontDestroyOnLoad(instantiated);
         MaterialUtils::ReplaceMaterialsForGameObject(instantiated);
         

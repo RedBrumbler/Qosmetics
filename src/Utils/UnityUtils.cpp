@@ -1,6 +1,7 @@
 #include "Utils/UnityUtils.hpp"
 #include "UnityEngine/EventSystems/EventTrigger.hpp"
 #include "UnityEngine/EventSystems/UIBehaviour.hpp"
+#include "UnityEngine/Collider.hpp"
 using namespace UnityEngine;
 
 void UnityUtils::HideRenderersOnObject(UnityEngine::GameObject* obj, bool doHide)
@@ -53,9 +54,16 @@ void UnityUtils::SanitizePrefab(GameObject* prefab)
     }
 
     Array<UnityEngine::EventSystems::UIBehaviour*>* uiBehaviours = prefab->GetComponentsInChildren<UnityEngine::EventSystems::UIBehaviour*>(true);
-    int behavioursLength = triggers->Length();
+    int behavioursLength = uiBehaviours->Length();
     for (int i = 0; i < behavioursLength; i++)
     {
             Object::DestroyImmediate(uiBehaviours->values[i]);
+    }
+
+    Array<UnityEngine::Collider*>* colliders = prefab->GetComponentsInChildren<UnityEngine::Collider*>(true);
+    int collidersLength = colliders->Length();
+    for (int i = 0; i < collidersLength; i++)
+    {
+            Object::DestroyImmediate(colliders->values[i]);
     }
 }

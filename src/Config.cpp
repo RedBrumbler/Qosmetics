@@ -3,6 +3,7 @@
 #include "static-defines.hpp"
 
 #include "Utils/FileUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 #include "beatsaber-hook/shared/utils/utils.h"
 
@@ -48,6 +49,7 @@ void SaveSaberConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocume
     saberConfigObject.AddMember("enableMenuPointer", saberConfig.enableMenuPointer, allocator);
     saberConfigObject.AddMember("menuPointerSize", saberConfig.menuPointerSize, allocator);
     saberConfigObject.AddMember("trailType", (int)saberConfig.trailType, allocator);
+    saberConfigObject.AddMember("disabled", saberConfig.disabled, allocator);
 
     configDoc.AddMember("saberConfig", saberConfigObject, allocator);
     INFO("Saber config Saved Successfully!");
@@ -63,6 +65,7 @@ void SaveWallConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     wallConfigObject.AddMember("forceCoreOff", wallConfig.forceCoreOff, allocator);
     wallConfigObject.AddMember("forceFrameOff", wallConfig.forceFrameOff, allocator);
     wallConfigObject.AddMember("disableReflections", wallConfig.disableReflections, allocator);
+    wallConfigObject.AddMember("disabled", wallConfig.disabled, allocator);
 
     configDoc.AddMember("wallConfig", wallConfigObject, allocator);
     INFO("Wall config Saved Successfully!");
@@ -80,6 +83,7 @@ void SaveNoteConfig(rapidjson::Document::AllocatorType& allocator, ConfigDocumen
     noteConfigObject.AddMember("forceDefaultBombs", noteConfig.forceDefaultBombs, allocator);
     noteConfigObject.AddMember("forceDefaultDebris", noteConfig.forceDefaultDebris, allocator);
     noteConfigObject.AddMember("disableReflections", noteConfig.disableReflections, allocator);
+    noteConfigObject.AddMember("disabled", noteConfig.disabled, allocator);
 
     configDoc.AddMember("noteConfig", noteConfigObject, allocator);
     INFO("Note config Saved Successfully!");
@@ -176,6 +180,11 @@ bool LoadSaberConfig(rapidjson::Value& configValue, config_t& config)
     }else{
         foundEverything = false;
     } 
+    if(configValue.HasMember("disabled") && configValue["disabled"].IsBool()){
+        config.saberConfig.disabled = configValue["disabled"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
     if (foundEverything) INFO("Saber config loaded successfully!");
     return foundEverything;
 }
@@ -201,6 +210,11 @@ bool LoadWallConfig(rapidjson::Value& configValue, config_t& config)
     } 
     if(configValue.HasMember("disableReflections") && configValue["disableReflections"].IsBool()){
         config.wallConfig.disableReflections = configValue["disableReflections"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
+    if(configValue.HasMember("disabled") && configValue["disabled"].IsBool()){
+        config.wallConfig.disabled = configValue["disabled"].GetBool();    
     }else{
         foundEverything = false;
     } 
@@ -239,6 +253,11 @@ bool LoadNoteConfig(rapidjson::Value& configValue, config_t& config)
     } 
     if(configValue.HasMember("disableReflections") && configValue["disableReflections"].IsBool()){
         config.noteConfig.disableReflections = configValue["disableReflections"].GetBool();    
+    }else{
+        foundEverything = false;
+    } 
+    if(configValue.HasMember("disabled") && configValue["disabled"].IsBool()){
+        config.noteConfig.disabled = configValue["disabled"].GetBool();    
     }else{
         foundEverything = false;
     } 
@@ -334,6 +353,15 @@ namespace Qosmetics
         config = masterConfig.config;
 
         INFO("Loaded Config!");
+
+        static ModInfo disablingInfo = {ID, VERSION};
+        if (config.noteConfig.disabled) Disabling::RegisterDisablingInfo(disablingInfo, ItemType::note);
+        else Disabling::UnregisterDisablingInfo(disablingInfo, ItemType::note);
+        if (config.saberConfig.disabled) Disabling::RegisterDisablingInfo(disablingInfo, ItemType::saber);
+        else Disabling::UnregisterDisablingInfo(disablingInfo, ItemType::saber);
+        if (config.wallConfig.disabled) Disabling::RegisterDisablingInfo(disablingInfo, ItemType::wall);
+        else Disabling::UnregisterDisablingInfo(disablingInfo, ItemType::wall);
+        
         return foundEverything;
     }
 

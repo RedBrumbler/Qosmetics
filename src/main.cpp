@@ -48,6 +48,7 @@
 
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/ChromaUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 #include "hooks.hpp"
 
@@ -97,7 +98,7 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
 
     if (activeSceneName == "GameCore")
     {
-        if (GetScoresDisabled())
+        if (GetScoresDisabled() && Disabling::get_enabled(ItemType::note))
         {
             bs_utils::Submission::disable(modInfo);
         }
@@ -106,7 +107,7 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
             bs_utils::Submission::enable(modInfo);
         }
 
-        if (SingletonContainer::get_noteManager()->get_item().get_descriptor().isValid())
+        if (SingletonContainer::get_noteManager()->get_item().get_descriptor().isValid() && Disabling::get_enabled(ItemType::note))
         {
             MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_noteManager()->get_item().get_prefab());
             ChromaUtils::setNoteColoredByChroma(false);
@@ -121,7 +122,7 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
             MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_saberManager()->get_item().get_prefab());
         }
 
-        if (SingletonContainer::get_wallManager()->get_item().get_descriptor().isValid())
+        if (SingletonContainer::get_wallManager()->get_item().get_descriptor().isValid() && Disabling::get_enabled(ItemType::wall))
         {
             MaterialUtils::ReplaceMaterialsForGameObject(SingletonContainer::get_wallManager()->get_item().get_prefab());
             ChromaUtils::setObstacleColoredByChroma(false);

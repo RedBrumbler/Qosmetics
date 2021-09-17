@@ -14,6 +14,7 @@ typedef struct _noteConfig {
     bool forceDefaultBombs = false;
     bool forceDefaultDebris = false;
     bool disableReflections = false;
+    bool disabled = false;
 } noteConfig_t;
 
 enum TrailType {
@@ -34,6 +35,7 @@ typedef struct _saberConfig {
     bool enableMenuPointer = false;
     double menuPointerSize = 0.4f;
     TrailType trailType = TrailType::custom;
+    bool disabled = false;
 } saberConfig_t;
 
 typedef struct _wallConfig {
@@ -41,6 +43,7 @@ typedef struct _wallConfig {
     bool forceCoreOff = false;
     bool forceFrameOff = false;
     bool disableReflections = false;
+    bool disabled = false;
 } wallConfig_t;
 
 

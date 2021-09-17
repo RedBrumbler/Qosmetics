@@ -17,6 +17,7 @@ DEFINE_TYPE(Qosmetics::UI, NoteSettingsViewController);
 #include "UnityEngine/UI/Toggle.hpp"
 
 #include "Utils/UIUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -82,6 +83,13 @@ namespace Qosmetics::UI
     custom_types::Helpers::Coroutine NoteSettingsViewController::SettingsSetupRoutine(GameObject* container)
     {
         Transform* containerT = container->get_transform();
+        auto disableSetting = BeatSaberUI::CreateToggle(containerT, "Complete Disable", config.noteConfig.disabled, [this](bool val){
+            config.noteConfig.disabled = val;
+            if (config.noteConfig.disabled) Disabling::RegisterDisablingInfo({ID, VERSION}, ItemType::note);
+            else Disabling::UnregisterDisablingInfo({ID, VERSION}, ItemType::note);
+        });
+        BeatSaberUI::AddHoverHint(disableSetting->get_gameObject(), "Completely disables all things Qosmetics does with notes");
+        co_yield nullptr;
         // note size toggle
         Toggle* noteSizeToggle = BeatSaberUI::CreateToggle(containerT, "Override Note Size", config.noteConfig.overrideNoteSize, [&](bool value) { 
                 config.noteConfig.overrideNoteSize = value;

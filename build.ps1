@@ -1,6 +1,7 @@
 param($p1)
 
 $NDKPath = Get-Content $PSScriptRoot/ndkpath.txt
+echo "NDK Path: $NDKPath"
 
 $buildScript = "$NDKPath/build/ndk-build"
 

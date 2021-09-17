@@ -5,6 +5,7 @@
 #include "Types/Saber/SaberItem.hpp"
 #include "Data/Descriptor.hpp"
 #include "static-defines.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 using namespace Qosmetics;
 
@@ -65,7 +66,7 @@ EXPOSE_API(SetActiveNoteFromFilePath, void, const char* path) {
 }
 
 EXPOSE_API(GetNoteIsCustom, bool) {
-    return NOTEMANAGER->get_item().get_descriptor().isValid();
+    return NOTEMANAGER->get_item().get_descriptor().isValid() && Disabling::get_enabled(ItemType::note);
 }
 
 EXPOSE_API(GetNoteFolder, void, std::string& result) {
@@ -75,6 +76,18 @@ EXPOSE_API(GetNoteFolder, void, std::string& result) {
 EXPOSE_API(GetActiveNoteDescriptor, Qosmetics::Descriptor) {
     if (NOTEMANAGER->get_type() == invalid) return Qosmetics::Descriptor();
     else return NOTEMANAGER->get_item().get_descriptor();
+}
+
+EXPOSE_API(GetNotesDisabled, bool) {
+    return !Disabling::get_enabled(ItemType::note);
+}
+
+EXPOSE_API(UnregisterNoteDisablingInfo, void, ModInfo info) {
+    Disabling::UnregisterDisablingInfo(info, ItemType::note);
+}
+
+EXPOSE_API(RegisterNoteDisablingInfo, void, ModInfo info) {
+    Disabling::RegisterDisablingInfo(info, ItemType::note);
 }
 
 #pragma GCC diagnostic pop

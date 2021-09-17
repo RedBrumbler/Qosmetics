@@ -8,6 +8,7 @@
 #include "Types/Trail/TrailHelper.hpp"
 
 #include "Utils/SaberUtils.hpp"
+#include "Utils/DisablingUtils.hpp"
 
 #include "QosmeticsLogger.hpp"
 
@@ -55,7 +56,7 @@ EXPOSE_API(SetActiveSaberFromFilePath, void, const char* path) {
 }
 
 EXPOSE_API(GetSaberIsCustom, bool) {
-    return SABERMANAGER->get_item().get_descriptor().isValid();
+    return SABERMANAGER->get_item().get_descriptor().isValid() && Disabling::get_enabled(ItemType::saber);
 }
 
 EXPOSE_API(GetSaberFolder, void, std::string& result) {
@@ -69,6 +70,18 @@ EXPOSE_API(SetTrailActive, void, Il2CppObject* trailHelper, bool active) {
 EXPOSE_API(GetActiveSaberDescriptor, Qosmetics::Descriptor) {
     if (SABERMANAGER->get_type() == invalid) return Qosmetics::Descriptor();
     else return SABERMANAGER->get_item().get_descriptor();
+}
+
+EXPOSE_API(GetSabersDisabled, bool) {
+    return !Disabling::get_enabled(ItemType::saber);
+}
+
+EXPOSE_API(UnregisterSaberDisablingInfo, void, ModInfo info) {
+    Disabling::UnregisterDisablingInfo(info, ItemType::saber);
+}
+
+EXPOSE_API(RegisterSaberDisablingInfo, void, ModInfo info) {
+    Disabling::RegisterDisablingInfo(info, ItemType::saber);
 }
 
 #pragma GCC diagnostic pop
