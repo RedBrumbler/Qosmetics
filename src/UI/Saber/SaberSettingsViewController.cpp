@@ -78,6 +78,7 @@ namespace Qosmetics::UI
             config.saberConfig.disabled = val;
             if (config.saberConfig.disabled) Disabling::RegisterDisablingInfo({ID, VERSION}, ItemType::saber);
             else Disabling::UnregisterDisablingInfo({ID, VERSION}, ItemType::saber);
+            SaveConfig();
         });
         BeatSaberUI::AddHoverHint(disableSetting->get_gameObject(), "Completely disables all things Qosmetics does with sabers");
         co_yield nullptr;

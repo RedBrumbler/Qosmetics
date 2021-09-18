@@ -87,6 +87,7 @@ namespace Qosmetics::UI
             config.wallConfig.disabled = val;
             if (config.wallConfig.disabled) Disabling::RegisterDisablingInfo({ID, VERSION}, ItemType::wall);
             else Disabling::UnregisterDisablingInfo({ID, VERSION}, ItemType::wall);
+            SaveConfig();
         });
         BeatSaberUI::AddHoverHint(disableSetting->get_gameObject(), "Completely disables all things Qosmetics does with walls");
         co_yield nullptr;

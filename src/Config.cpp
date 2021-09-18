@@ -357,8 +357,10 @@ namespace Qosmetics
         static ModInfo disablingInfo = {ID, VERSION};
         if (config.noteConfig.disabled) Disabling::RegisterDisablingInfo(disablingInfo, ItemType::note);
         else Disabling::UnregisterDisablingInfo(disablingInfo, ItemType::note);
+
         if (config.saberConfig.disabled) Disabling::RegisterDisablingInfo(disablingInfo, ItemType::saber);
         else Disabling::UnregisterDisablingInfo(disablingInfo, ItemType::saber);
+        
         if (config.wallConfig.disabled) Disabling::RegisterDisablingInfo(disablingInfo, ItemType::wall);
         else Disabling::UnregisterDisablingInfo(disablingInfo, ItemType::wall);
         

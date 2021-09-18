@@ -87,6 +87,7 @@ namespace Qosmetics::UI
             config.noteConfig.disabled = val;
             if (config.noteConfig.disabled) Disabling::RegisterDisablingInfo({ID, VERSION}, ItemType::note);
             else Disabling::UnregisterDisablingInfo({ID, VERSION}, ItemType::note);
+            SaveConfig();
         });
         BeatSaberUI::AddHoverHint(disableSetting->get_gameObject(), "Completely disables all things Qosmetics does with notes");
         co_yield nullptr;
