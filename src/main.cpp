@@ -49,6 +49,7 @@
 #include "Utils/MaterialUtils.hpp"
 #include "Utils/ChromaUtils.hpp"
 #include "Utils/DisablingUtils.hpp"
+#include "Utils/OnGameCoreSceneStart.hpp"
 
 #include "hooks.hpp"
 
@@ -98,6 +99,7 @@ MAKE_HOOK_MATCH(SceneManager_SetActiveScene, &SceneManagement::SceneManager::Set
 
     if (activeSceneName == "GameCore")
     {
+        GameCoreSceneStart::ExecuteCallbacks();
         if (GetScoresDisabled() && Disabling::get_enabled(ItemType::note))
         {
             bs_utils::Submission::disable(modInfo);

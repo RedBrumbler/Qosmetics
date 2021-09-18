@@ -12,10 +12,12 @@
 
 #include "Types/Wall/Wall.hpp"
 #include "Utils/DisablingUtils.hpp"
+#include "Utils/OnGameCoreSceneStart.hpp"
 
 #include "Containers/SingletonContainer.hpp"
 
 #include "hooks.hpp"
+#include <unordered_map>
 
 using namespace Qosmetics;
 using namespace UnityEngine;
@@ -43,17 +45,24 @@ MAKE_HOOK_MATCH(MirroredObstacleController_Mirror, &GlobalNamespace::MirroredObs
     wall->Replace();
 }
 
+std::unordered_map<GlobalNamespace::ObstacleController*, Qosmetics::Wall*> gameWallToWallMap = {};
 MAKE_HOOK_MATCH(ObstacleController_Init, &GlobalNamespace::ObstacleController::Init, void, GlobalNamespace::ObstacleController* self, GlobalNamespace::ObstacleData* obstacleData, float worldRotation, Vector3 startPos, Vector3 midPos, Vector3 endPos, float move1Duration, float move2Duration, float singleLineWidth, float height)
 {
     ObstacleController_Init(self, obstacleData, worldRotation, startPos, midPos, endPos, move1Duration, move2Duration, singleLineWidth, height);
     if (!Disabling::get_enabled(ItemType::wall)) return;
-    Qosmetics::Wall* wall = self->get_gameObject()->GetComponent<Qosmetics::Wall*>();
-
-    if (!wall)
+    
+    Qosmetics::Wall* wall = nullptr;
+    auto itr = gameWallToWallMap.find(self);
+    if (itr == gameWallToWallMap.end()) // didn't exist
     {
         wall = self->get_gameObject()->AddComponent<Qosmetics::Wall*>();
         wall->Init(SingletonContainer::get_wallManager(), SingletonContainer::get_colorManager());
         wall->isMirror = false;
+        gameWallToWallMap[self] = wall;
+    }
+    else
+    {
+        wall = itr->second;
     }
     
     wall->obstacleController = self;
@@ -67,3 +76,10 @@ void InstallWallHooks(Logger& logger)
 }
 
 QOS_INSTALL_HOOKS(InstallWallHooks)
+
+static void ClearOnGameCoreStart()
+{
+    gameWallToWallMap.clear();
+}
+
+ADD_GAMECORE_START(ClearOnGameCoreStart)

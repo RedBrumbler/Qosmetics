@@ -15,6 +15,8 @@
 #include "GlobalNamespace/MaterialPropertyBlockController.hpp"
 #include "UnityEngine/MaterialPropertyBlock.hpp"
 
+#include <cmath>
+
 using namespace UnityEngine;
 using namespace Qosmetics;
 
@@ -96,7 +98,7 @@ namespace NoteUtils
 
         if (magnitude > 0.04f)
         {
-            cutPoint = 0.2f * cutPoint / Mathf::Sqrt(magnitude);
+            cutPoint = 0.2f * cutPoint / std::sqrt(magnitude);
         }
 
         Vector4 slicePos(cutPoint.x, cutPoint.y, cutPoint.z, 0.0f);

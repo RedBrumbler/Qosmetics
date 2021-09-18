@@ -30,8 +30,11 @@
 #include "Utils/UnityUtils.hpp"
 #include "Utils/PlayerSettings.hpp"
 #include "Utils/DisablingUtils.hpp"
+#include "Utils/OnGameCoreSceneStart.hpp"
 
 #include "hooks.hpp"
+
+#include <unordered_map>
 
 #define INFO(value...) QosmeticsLogger::GetLogger().info(value);
 #define ERROR(value...) QosmeticsLogger::GetLogger().error(value);
@@ -39,19 +42,26 @@
 using namespace Qosmetics;
 using namespace UnityEngine;
 
+std::unordered_map<GlobalNamespace::GameNoteController*, Qosmetics::Note*> gameNoteToNoteMap = {};
 MAKE_HOOK_MATCH(GameNoteController_Init, &GlobalNamespace::GameNoteController::Init, void, GlobalNamespace::GameNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, GlobalNamespace::GameNoteController_GameNoteType gameNoteType, float cutDirectionAngleOffset, float cutAngleTolerance, float uniformScale)
 {
     GameNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, gameNoteType, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
     
     if (!Disabling::get_enabled(ItemType::note)) return;
     if (!PlayerSettings::get_SpawnNotes()) return;
-
-    Qosmetics::Note* note = self->get_gameObject()->GetComponent<Qosmetics::Note*>();
-
-    if (!note)
+    
+    Qosmetics::Note* note = nullptr;
+    auto itr = gameNoteToNoteMap.find(self);
+    if (itr == gameNoteToNoteMap.end()) // didn't exist
     {
         note = self->get_gameObject()->AddComponent<Qosmetics::Note*>();
         note->Init(SingletonContainer::get_noteManager(), SingletonContainer::get_colorManager());
+        note->isMirror = false;
+        gameNoteToNoteMap[self] = note;
+    }
+    else // existed
+    {
+        note = itr->second;
     }
 
     note->gameNoteController = self;
@@ -63,18 +73,26 @@ MAKE_HOOK_MATCH(TutorialNoteController_Init, &GlobalNamespace::TutorialNoteContr
     TutorialNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
 
     if (!Disabling::get_enabled(ItemType::note)) return;
-    Qosmetics::Note* note = self->get_gameObject()->GetComponent<Qosmetics::Note*>();
-
-    if (!note)
+    Qosmetics::Note* note = nullptr;
+    auto myself = reinterpret_cast<GlobalNamespace::GameNoteController*>(self);
+    auto itr = gameNoteToNoteMap.find(myself);
+    if (itr == gameNoteToNoteMap.end()) // didn't exist
     {
         note = self->get_gameObject()->AddComponent<Qosmetics::Note*>();
         note->Init(SingletonContainer::get_noteManager(), SingletonContainer::get_colorManager());
+        note->isMirror = false;
+        gameNoteToNoteMap[myself] = note;
+    }
+    else // existed
+    {
+        note = itr->second;
     }
 
     note->gameNoteController = self;
     note->Replace();
 }
 
+std::unordered_map<GlobalNamespace::BombNoteController*, Qosmetics::Bomb*> bombNoteToBombMap = {};
 MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity)
 {
     BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity);
@@ -82,12 +100,17 @@ MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::I
     if (!Disabling::get_enabled(ItemType::note)) return;
     if (!PlayerSettings::get_SpawnNotes()) return;
 
-    Qosmetics::Bomb* bomb = self->get_gameObject()->GetComponent<Qosmetics::Bomb*>();
-
-    if (!bomb)
+    Qosmetics::Bomb* bomb = nullptr;
+    auto itr = bombNoteToBombMap.find(self);
+    if (itr == bombNoteToBombMap.end()) // didn't exist
     {
         bomb = self->get_gameObject()->AddComponent<Qosmetics::Bomb*>();
         bomb->Init(SingletonContainer::get_noteManager(), SingletonContainer::get_colorManager());
+        bombNoteToBombMap[self] = bomb;
+    }
+    else // existed
+    {
+        bomb = itr->second;
     }
 
     bomb->Replace();
@@ -112,6 +135,7 @@ MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteC
     NoteItem& item = SingletonContainer::get_noteManager()->get_item();
     if (config.noteConfig.disableReflections || (item.get_type() != ItemType::invalid && item.get_config().get_hasBomb() && !config.noteConfig.forceDefaultBombs))
     {
+        // if disable reflections, or we have bomb and not default, disable reflections
         self->set_enabled(false);
         return;
     }
@@ -159,6 +183,7 @@ MAKE_HOOK_MATCH(MirroredCubeNoteController_Mirror, &GlobalNamespace::MirroredCub
     note->Replace();
 }
 
+std::unordered_map<GlobalNamespace::NoteDebris*, Qosmetics::Debris*> noteDebrisToDebrisMap = {};
 MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, GlobalNamespace::NoteDebris* self, GlobalNamespace::ColorType colorType, Vector3 notePos, Quaternion noteRot, Vector3 noteMoveVec, Vector3 noteScale, Vector3 positionOffset, Quaternion rotationOffset, Vector3 cutPoint, Vector3 cutNormal, Vector3 force, Vector3 torque, float lifeTime)
 {
     NoteDebris_Init(self, colorType, notePos, noteRot, noteMoveVec, noteScale, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
@@ -166,12 +191,17 @@ MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, Globa
     if (!PlayerSettings::get_SpawnDebris()) return;
     if (!PlayerSettings::get_SpawnNotes()) return;
 
-    Qosmetics::Debris* debris = self->get_gameObject()->GetComponent<Qosmetics::Debris*>();
-
-    if (!debris)
+    Qosmetics::Debris* debris = nullptr;
+    auto itr = noteDebrisToDebrisMap.find(self);
+    if (itr == noteDebrisToDebrisMap.end()) // didn't exist
     {
         debris = self->get_gameObject()->AddComponent<Qosmetics::Debris*>();
         debris->Init(SingletonContainer::get_noteManager(), SingletonContainer::get_colorManager());
+        noteDebrisToDebrisMap[self] = debris;
+    }
+    else
+    {
+        debris = itr->second;
     }
     
     debris->SetData(colorType, notePos + cutPoint, notePos + cutNormal);
@@ -189,3 +219,12 @@ void InstallNoteHooks(Logger& logger)
 }
 
 QOS_INSTALL_HOOKS(InstallNoteHooks)
+
+static void ClearOnGameCoreStart()
+{
+    gameNoteToNoteMap.clear();
+    bombNoteToBombMap.clear();
+    noteDebrisToDebrisMap.clear();
+}
+
+ADD_GAMECORE_START(ClearOnGameCoreStart)
