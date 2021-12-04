@@ -1,5 +1,6 @@
-#include "Types/Trail/TrailHelper.hpp"
 #include "Config.hpp"
+
+#include "Types/Trail/TrailHelper.hpp"
 #include "Utils/ChromaUtils.hpp"
 #include "chroma/shared/SaberAPI.hpp"
 

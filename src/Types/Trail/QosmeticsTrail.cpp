@@ -1,7 +1,8 @@
-#include "Types/Trail/QosmeticsTrail.hpp"
 #include "Config.hpp"
+
 #include "GlobalNamespace/IBladeMovementData.hpp"
 #include "GlobalNamespace/TimeHelper.hpp"
+#include "Types/Trail/QosmeticsTrail.hpp"
 
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/MeshRenderer.hpp"

@@ -1,5 +1,6 @@
-#include "UI/General/QosmeticsViewController.hpp"
 #include "Config.hpp"
+
+#include "UI/General/QosmeticsViewController.hpp"
 
 #include "questui/shared/BeatSaberUI.hpp"
 

@@ -1,5 +1,6 @@
-#include "UI/Note/NoteSelectionElement.hpp"
 #include "Config.hpp"
+
+#include "UI/Note/NoteSelectionElement.hpp"
 
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"

@@ -1,5 +1,6 @@
-#include "UI/General/UserProfileViewController.hpp"
 #include "Config.hpp"
+
+#include "UI/General/UserProfileViewController.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 
 #include "QosmeticsLogger.hpp"

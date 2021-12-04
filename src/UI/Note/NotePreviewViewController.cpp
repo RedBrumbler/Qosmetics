@@ -1,7 +1,8 @@
-#include "UI/Note/NotePreviewViewController.hpp"
 #include "Config.hpp"
+
 #include "HMUI/Touchable.hpp"
 #include "UI/Note/NotePreviewElement.hpp"
+#include "UI/Note/NotePreviewViewController.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 
 #include "TMPro/TextMeshProUGUI.hpp"
