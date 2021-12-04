@@ -13,7 +13,7 @@
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "*",
+      "versionRange": "^2.3.0",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -22,27 +22,27 @@
     },
     {
       "id": "questui",
-      "versionRange": "*",
+      "versionRange": "^0.11.1",
       "additionalData": {}
     },
     {
       "id": "custom-types",
-      "versionRange": "*",
+      "versionRange": "^0.12.7",
       "additionalData": {}
     },
     {
       "id": "conditional-dependencies",
-      "versionRange": "*",
+      "versionRange": "^0.2.0",
       "additionalData": {}
     },
     {
       "id": "bs-utils",
-      "versionRange": "*",
+      "versionRange": "^0.6.4",
       "additionalData": {}
     },
     {
       "id": "codegen",
-      "versionRange": "*",
+      "versionRange": "^0.14.0",
       "additionalData": {}
     },
     {
@@ -52,12 +52,12 @@
     },
     {
       "id": "sombrero",
-      "versionRange": "*",
+      "versionRange": "^0.1.24",
       "additionalData": {}
     },
     {
       "id": "chroma",
-      "versionRange": "*",
+      "versionRange": "^2.4.15",
       "additionalData": {}
     }
   ],
