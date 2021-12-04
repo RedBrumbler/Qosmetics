@@ -1,8 +1,9 @@
-#include "Types/Note/NoteManager.hpp"
 #include "Config.hpp"
+
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
 #include "Types/Note/NoteItem.hpp"
+#include "Types/Note/NoteManager.hpp"
 #include "UnityEngine/GameObject.hpp"
 
 DEFINE_TYPE(Qosmetics, NoteManager);

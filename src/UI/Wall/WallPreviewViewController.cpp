@@ -1,7 +1,8 @@
-#include "UI/Wall/WallPreviewViewController.hpp"
 #include "Config.hpp"
+
 #include "HMUI/Touchable.hpp"
 #include "UI/Wall/WallPreviewElement.hpp"
+#include "UI/Wall/WallPreviewViewController.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 
 #include "TMPro/TextMeshProUGUI.hpp"

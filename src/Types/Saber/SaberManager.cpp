@@ -1,8 +1,9 @@
-#include "Types/Saber/SaberManager.hpp"
 #include "Config.hpp"
+
 #include "Data/DescriptorCache.hpp"
 #include "QosmeticsLogger.hpp"
 #include "Types/Saber/SaberItem.hpp"
+#include "Types/Saber/SaberManager.hpp"
 #include "UnityEngine/Transform.hpp"
 
 DEFINE_TYPE(Qosmetics, SaberManager);

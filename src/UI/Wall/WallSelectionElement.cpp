@@ -1,6 +1,6 @@
-#include "UI/Wall/WallSelectionElement.hpp"
 #include "Config.hpp"
 
+#include "UI/Wall/WallSelectionElement.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "questui/shared/CustomTypes/Data/CustomDataType.hpp"

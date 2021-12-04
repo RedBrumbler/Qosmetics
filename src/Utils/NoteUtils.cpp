@@ -49,15 +49,19 @@ namespace NoteUtils
 
         if (!config.noteConfig.alsoChangeHitboxes)
         {
-            if (!BigCuttable) BigCuttable = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("BigCuttable", il2cpp_uti; 
-            if (!SmallCuttable) SmallCuttable = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("SmallCuttable", il2cpp_uti; 
+            if (!BigCuttable)
+                BigCuttable = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("BigCuttable");
+            if (!SmallCuttable)
+                SmallCuttable = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("SmallCuttable");
 
             Transform* bigCuttable = transform->Find(BigCuttable);
             Transform* smallCuttable = transform->Find(SmallCuttable);
 
             Vector3 othersize = Vector3::get_one() / (float)config.noteConfig.noteSize;
-            if (bigCuttable) bigCuttable->set_localScale(othersize);
-            if (smallCuttable) smallCuttable->set_localScale(othersize);
+            if (bigCuttable)
+                bigCuttable->set_localScale(othersize);
+            if (smallCuttable)
+                smallCuttable->set_localScale(othersize);
         }
     }
 
