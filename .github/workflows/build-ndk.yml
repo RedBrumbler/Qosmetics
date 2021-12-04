@@ -55,6 +55,7 @@ jobs:
     # every step taken to complete this action
     # every - is a step that is traceable to a step on the github website
     steps:
+    - uses: FranzDiebold/github-env-vars-action@v2
       # tell the program it uses the checkout for actions (?)
     - uses: actions/checkout@v2
       name: Checkout
@@ -161,22 +162,63 @@ jobs:
         pattern="lib${module_id}*.so"
         files=( $pattern )
         echo ::set-output name=NAME::"${files[0]}"
+
     #upload the normal .so
-    - name: Upload non-debug artifact
-      uses: actions/upload-artifact@v2
+#    - name: Upload non-debug artifact
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: ${{ steps.libname.outputs.NAME }}
+#        path: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
+#        # if not found error obviously
+#        if-no-files-found: error
+#    #upload the debug .so
+#    - name: Upload debug artifact
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: debug_${{ steps.libname.outputs.NAME }}
+#        path: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
+#        # if not found error obviously
+#        if-no-files-found: error
+
+    - name: Publish qmod to webhook
+      uses: tsickert/discord-webhook@v3.2.0
       with:
-        name: ${{ steps.libname.outputs.NAME }}
-        path: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
-        # if not found error obviously
-        if-no-files-found: error
-    #upload the debug .so
-    - name: Upload debug artifact
-      uses: actions/upload-artifact@v2
+        # Url is github secret, so it doesn't get leaked
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        # last commit message will be the given text
+        content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`"
+        # user is repo name
+        username: "${{ github.repository }}"
+        # avatar url is repo owner avatar
+        avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
+        # file to upload is the qmod
+        filename: ./${{ env.qmodName }}.qmod
+
+    - name: Publish release.so to webhook
+      uses: tsickert/discord-webhook@v3.2.0
       with:
-        name: debug_${{ steps.libname.outputs.NAME }}
-        path: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
-        # if not found error obviously
-        if-no-files-found: error
+        # Url is github secret, so it doesn't get leaked
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        content: "release.so"
+        # user is repo name
+        username: "${{ github.repository }}"
+        # avatar url is repo owner avatar
+        avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
+        # file to upload is the qmod
+        filename: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
+
+    - name: Publish debug.so to webhook
+      uses: tsickert/discord-webhook@v3.2.0
+      with:
+        # Url is github secret, so it doesn't get leaked
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        content: "debug.so"
+        # user is repo name
+        username: "${{ github.repository }}"
+        # avatar url is repo owner avatar
+        avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
+        # file to upload is the qmod
+        filename: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
 
        # Disabling qmod upload becasue people are getting qmods from GH actions when they should not
 #    - name: Upload qmod artifact
