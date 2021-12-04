@@ -180,26 +180,12 @@ jobs:
 #        # if not found error obviously
 #        if-no-files-found: error
 
-    - name: Publish qmod to webhook
-      uses: tsickert/discord-webhook@v3.2.0
-      with:
-        # Url is github secret, so it doesn't get leaked
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        # last commit message will be the given text
-        content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`"
-        # user is repo name
-        username: "${{ github.repository }}"
-        # avatar url is repo owner avatar
-        avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
-        # file to upload is the qmod
-        filename: ./${{ env.qmodName }}.qmod
-
     - name: Publish release.so to webhook
       uses: tsickert/discord-webhook@v3.2.0
       with:
         # Url is github secret, so it doesn't get leaked
         webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        content: "release.so"
+        content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`\nrelease.so"
         # user is repo name
         username: "${{ github.repository }}"
         # avatar url is repo owner avatar
