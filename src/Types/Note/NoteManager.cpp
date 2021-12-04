@@ -1,9 +1,9 @@
-#include "Config.hpp"
 #include "Types/Note/NoteManager.hpp"
-#include "Types/Note/NoteItem.hpp"
+#include "Config.hpp"
 #include "Data/DescriptorCache.hpp"
-#include "UnityEngine/GameObject.hpp"
 #include "QosmeticsLogger.hpp"
+#include "Types/Note/NoteItem.hpp"
+#include "UnityEngine/GameObject.hpp"
 
 DEFINE_TYPE(Qosmetics, NoteManager);
 
@@ -20,13 +20,16 @@ static inline Il2CppString* leftDebrisName = nullptr;
 static inline Il2CppString* rightDebrisName = nullptr;
 static inline Il2CppString* bombName = nullptr;
 
-#define GetNameInPrefab(name) \
-if (!activeItem) return nullptr; \
-GameObject* prefab = activeItem->get_prefab(); \
-if (!prefab) return nullptr; \
-Transform* object = prefab->get_transform()->Find(name); \
-if (!object) return nullptr; \
-return UnityEngine::Object::Instantiate(object)
+#define GetNameInPrefab(name)                                \
+    if (!activeItem)                                         \
+        return nullptr;                                      \
+    GameObject* prefab = activeItem->get_prefab();           \
+    if (!prefab)                                             \
+        return nullptr;                                      \
+    Transform* object = prefab->get_transform()->Find(name); \
+    if (!object)                                             \
+        return nullptr;                                      \
+    return UnityEngine::Object::Instantiate(object)
 
 namespace Qosmetics
 {
@@ -38,7 +41,7 @@ namespace Qosmetics
             Descriptor& descriptor = DescriptorCache::GetDescriptor(config.lastActiveNote);
             if (descriptor.isValid() && fileexists(descriptor.get_filePath()))
             {
-                SetActiveNote(config.lastActiveNote, true);    
+                SetActiveNote(config.lastActiveNote, true);
                 return;
             }
         }
@@ -47,40 +50,47 @@ namespace Qosmetics
 
     GameObject* NoteManager::GetActivePrefab()
     {
-        if (!activeItem) return nullptr;
+        if (!activeItem)
+            return nullptr;
         return activeItem->get_prefab();
     }
 
     void NoteManager::SetActiveModel(Il2CppString* csname)
     {
-        if (!csname) return;
+        if (!csname)
+            return;
         std::string name = to_utf8(csstrtostr(csname));
         internalSetActiveModel(name, true);
     }
 
     void NoteManager::FromFilePath(std::string path, bool load)
     {
-        if (getenv("notelocked")) return;
-        if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path) return;
-        
+        if (getenv("notelocked"))
+            return;
+        if (this->activeItem && this->activeItem->get_descriptor().get_filePath() == path)
+            return;
+
         Descriptor* desc = new Descriptor(path);
-        
+
         // if descriptor doesn't exist for this thing, ignore the setactive
         if (!desc->isValid())
         {
             ERROR("Item was invalid!");
-            return;  
-        } 
+            return;
+        }
 
-        if (this->activeItem) delete(this->activeItem);
+        if (this->activeItem)
+            delete (this->activeItem);
         this->activeItem = new NoteItem(*desc, false);
-        if (load) this->activeItem->Load();
+        if (load)
+            this->activeItem->Load();
         INFO("Active Item Set!");
     }
 
     void NoteManager::SetDefault()
     {
-        if (activeItem) delete (activeItem);
+        if (activeItem)
+            delete (activeItem);
         activeItem = new NoteItem(DescriptorCache::GetDescriptor(""));
     }
 
@@ -88,17 +98,20 @@ namespace Qosmetics
     {
         INFO("Setting active Note %s", name.c_str());
         // if new set is already the active one, ignore
-        if (activeItem && activeItem->get_descriptor().GetFileName() == name) return;
+        if (activeItem && activeItem->get_descriptor().GetFileName() == name)
+            return;
         Descriptor& newItem = DescriptorCache::GetDescriptor(name);
         // if descriptor doesn't exist for this thing, ignore the setactive
         if (!newItem.isValid())
         {
             ERROR("Item was invalid!");
-            return;  
-        } 
-        if (activeItem) delete(activeItem);
+            return;
+        }
+        if (activeItem)
+            delete (activeItem);
         activeItem = new NoteItem(newItem, false);
-        if (load) activeItem->Load();
+        if (load)
+            activeItem->Load();
         INFO("Active Item Set!");
     }
 
@@ -112,11 +125,12 @@ namespace Qosmetics
         CRASH_UNLESS(activeItem);
         return *activeItem;
     }
-    
+
     ItemType NoteManager::get_type()
     {
         INFO("this ptr: %p, item ptr: %p", this, activeItem);
-        if (!activeItem) return ItemType::invalid;
+        if (!activeItem)
+            return ItemType::invalid;
         return activeItem->get_type();
     }
 
@@ -157,43 +171,50 @@ namespace Qosmetics
 
     Il2CppString* NoteManager::get_leftArrowName()
     {
-        if (!leftArrowName) leftArrowName = il2cpp_utils::createcsstr("LeftArrow", il2cpp_utils::StringType::Manual);
+        if (!leftArrowName)
+            leftArrowName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("LeftArrow");
         return leftArrowName;
-    }   
+    }
 
     Il2CppString* NoteManager::get_rightArrowName()
     {
-        if (!rightArrowName) rightArrowName = il2cpp_utils::createcsstr("RightArrow", il2cpp_utils::StringType::Manual);
+        if (!rightArrowName)
+            rightArrowName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("RightArrow");
         return rightArrowName;
-    }   
+    }
 
     Il2CppString* NoteManager::get_leftDotName()
     {
-        if (!leftDotName) leftDotName = il2cpp_utils::createcsstr("LeftDot", il2cpp_utils::StringType::Manual);
+        if (!leftDotName)
+            leftDotName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("LeftDot");
         return leftDotName;
     }
 
     Il2CppString* NoteManager::get_rightDotName()
     {
-        if (!rightDotName) rightDotName = il2cpp_utils::createcsstr("RightDot", il2cpp_utils::StringType::Manual);
+        if (!rightDotName)
+            rightDotName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("RightDot");
         return rightDotName;
     }
 
     Il2CppString* NoteManager::get_leftDebrisName()
     {
-        if (!leftDebrisName) leftDebrisName = il2cpp_utils::createcsstr("LeftDebris", il2cpp_utils::StringType::Manual);
+        if (!leftDebrisName)
+            leftDebrisName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("LeftDebris");
         return leftDebrisName;
     }
 
     Il2CppString* NoteManager::get_rightDebrisName()
     {
-        if (!rightDebrisName) rightDebrisName = il2cpp_utils::createcsstr("RightDebris", il2cpp_utils::StringType::Manual);
+        if (!rightDebrisName)
+            rightDebrisName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("RightDebris");
         return rightDebrisName;
     }
 
     Il2CppString* NoteManager::get_bombName()
     {
-        if (!bombName) bombName = il2cpp_utils::createcsstr("Bomb", il2cpp_utils::StringType::Manual);
+        if (!bombName)
+            bombName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Bomb");
         return bombName;
     }
 

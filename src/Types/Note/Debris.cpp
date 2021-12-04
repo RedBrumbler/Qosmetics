@@ -1,13 +1,13 @@
 #include "Types/Note/Debris.hpp"
+#include "QosmeticsLogger.hpp"
 #include "Utils/NoteUtils.hpp"
 #include "Utils/UnityUtils.hpp"
-#include "QosmeticsLogger.hpp"
 #include "chroma/shared/NoteAPI.hpp"
 
 #include "UnityEngine/MeshRenderer.hpp"
 
-#include "UnityEngine/Transform.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Transform.hpp"
 
 DEFINE_TYPE(Qosmetics, Debris);
 
@@ -28,9 +28,11 @@ namespace Qosmetics
 
     void Debris::Replace()
     {
-        if (!NoteDebrisMeshName) NoteDebrisMeshName = il2cpp_utils::createcsstr("NoteDebrisMesh", il2cpp_utils::StringType::Manual);
+        if (!NoteDebrisMeshName)
+            NoteDebrisMeshName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("NoteDebrisMesh");
         Transform* mesh = get_transform()->Find(NoteDebrisMeshName);
-        if (!mesh) return;
+        if (!mesh)
+            return;
         NoteUtils::SetNoteSize(mesh);
 
         if (!modelManager || modelManager->get_type() != ItemType::note)
@@ -40,7 +42,7 @@ namespace Qosmetics
             return;
         }
 
-        if (replaced[colorType]) 
+        if (replaced[colorType])
         {
             UpdateModel();
             return;
@@ -54,16 +56,16 @@ namespace Qosmetics
             Il2CppString* name = nullptr;
             switch (colorType)
             {
-                case 0:
-                    name = modelManager->get_leftDebrisName();
-                    prefab = modelManager->get_leftDebris();
-                    break;
-                case 1:
-                    name = modelManager->get_rightDebrisName();
-                    prefab = modelManager->get_rightDebris();
-                    break;
-                default:
-                    break;
+            case 0:
+                name = modelManager->get_leftDebrisName();
+                prefab = modelManager->get_leftDebris();
+                break;
+            case 1:
+                name = modelManager->get_rightDebrisName();
+                prefab = modelManager->get_rightDebris();
+                break;
+            default:
+                break;
             }
 
             prefab->SetParent(mesh);
@@ -75,7 +77,7 @@ namespace Qosmetics
             UnityUtils::SetLayerRecursive(prefab->get_gameObject(), 9);
 
             NoteUtils::AddRenderersToPropertyBlockController(GetComponent<GlobalNamespace::MaterialPropertyBlockController*>(), prefab->get_gameObject());
-            
+
             replaced[colorType] = true;
             UpdateModel();
         }
@@ -87,23 +89,26 @@ namespace Qosmetics
 
     void Debris::UpdateModel()
     {
-        if (!modelManager->get_item().get_config().get_hasDebris()) return;
+        if (!modelManager->get_item().get_config().get_hasDebris())
+            return;
         Transform* mesh = get_transform()->Find(NoteDebrisMeshName);
-        if (!mesh) return;
+        if (!mesh)
+            return;
         for (int i = 0; i < 2; i++)
         {
-            if (!replaced[colorType]) continue;
+            if (!replaced[colorType])
+                continue;
             Il2CppString* name = nullptr;
-            switch(i)
+            switch (i)
             {
-                case 0:
-                    name = modelManager->get_leftDebrisName();
-                    break;
-                case 1:
-                    name = modelManager->get_rightDebrisName();
-                    break;
-                default:
-                    break;
+            case 0:
+                name = modelManager->get_leftDebrisName();
+                break;
+            case 1:
+                name = modelManager->get_rightDebrisName();
+                break;
+            default:
+                break;
             }
 
             Transform* transform = mesh->Find(name);
@@ -128,18 +133,18 @@ namespace Qosmetics
 
         Color thisColor = optionalThisColor ? *optionalThisColor : colorManager->ColorForNoteType(colorType);
         Color otherColor = optionalOtherColor ? *optionalOtherColor : colorManager->ColorForNoteType(1 - colorType);
-    
+
         Il2CppString* name = nullptr;
-        switch(colorType)
+        switch (colorType)
         {
-            case 0:
-                name = modelManager->get_leftDebrisName();
-                break;
-            case 1:
-                name = modelManager->get_rightDebrisName();
-                break;
-            default:
-                break;
+        case 0:
+            name = modelManager->get_leftDebrisName();
+            break;
+        case 1:
+            name = modelManager->get_rightDebrisName();
+            break;
+        default:
+            break;
         }
 
         Transform* mesh = get_transform()->Find(NoteDebrisMeshName);
@@ -154,7 +159,6 @@ namespace Qosmetics
 
     void Debris::Restore()
     {
-
     }
 
     void Debris::Init(NoteManager* modelManager, ColorManager* colorManager)

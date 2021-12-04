@@ -1,5 +1,5 @@
-#include "Config.hpp"
 #include "Types/Trail/TrailHelper.hpp"
+#include "Config.hpp"
 #include "Utils/ChromaUtils.hpp"
 #include "chroma/shared/SaberAPI.hpp"
 
@@ -42,7 +42,8 @@ namespace Qosmetics
         this->colorManager = colorManager;
         this->parentModelController = parentModelController;
         // if not set, no use in registering callback
-        if (parentModelController) ChromaUtils::registerSaberCallback({&TrailHelper::UpdateChromaColors, this});
+        if (parentModelController)
+            ChromaUtils::registerSaberCallback({&TrailHelper::UpdateChromaColors, this});
         GetOrAddTrail(false);
     }
 
@@ -50,12 +51,12 @@ namespace Qosmetics
     {
         GetOrAddTrail(true);
 
-        static Il2CppString* topTransformName = il2cpp_utils::createcsstr("TrailEnd", il2cpp_utils::StringType::Manual);
-        static Il2CppString* customTransformName = il2cpp_utils::createcsstr("CustomTrailStart", il2cpp_utils::StringType::Manual);
-        static Il2CppString* bottomTransformName = il2cpp_utils::createcsstr("TrailStart", il2cpp_utils::StringType::Manual);
-        
+        static Il2CppString* topTransformName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("TrailEnd");
+        static Il2CppString* customTransformName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("CustomTrailStart");
+        static Il2CppString* bottomTransformName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("TrailStart");
+
         Transform* topTransform = get_transform()->Find(topTransformName);
-        
+
         if (!topTransform)
         {
             topTransform = GameObject::New_ctor()->get_transform();
@@ -82,11 +83,11 @@ namespace Qosmetics
             {
                 customBottomTransform = GameObject::New_ctor()->get_transform();
                 customBottomTransform->SetParent(get_transform());
-		        customBottomTransform->set_name(customTransformName);
+                customBottomTransform->set_name(customTransformName);
             }
 
-			UnityEngine::Vector3 newPos = UnityEngine::Vector3::Lerp(topTransform->get_localPosition(), bottomTransform->get_localPosition(), config.saberConfig.trailWidth);
-			customBottomTransform->set_localPosition(newPos);
+            UnityEngine::Vector3 newPos = UnityEngine::Vector3::Lerp(topTransform->get_localPosition(), bottomTransform->get_localPosition(), config.saberConfig.trailWidth);
+            customBottomTransform->set_localPosition(newPos);
             bottomTransform = customBottomTransform;
         }
 
@@ -99,21 +100,23 @@ namespace Qosmetics
         // override set trail whitestep?
         initData.Whitestep = config.saberConfig.overrideWhiteStep ? config.saberConfig.whiteStep : whiteStep;
         initData.TrailColor = {1.0f, 1.0f, 1.0f, 1.0f};
-        
+
         // calculate granularity
-        initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10) ? (float)initData.TrailLength / 10.0f : 1.0f));;
+        initData.Granularity = (int)(60.0f * ((initData.TrailLength > 10) ? (float)initData.TrailLength / 10.0f : 1.0f));
+        ;
         LOGINT(initData.Granularity);
         LOGPTR(trailInstance);
         trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), true);
         INFO("Trail is Setup");
-        UpdateColors(); 
+        UpdateColors();
     }
 
     void TrailHelper::SetTrailActive(bool active)
     {
         GetOrAddTrail(false);
         // if state differs, apply it
-        if (trailInstance->get_enabled() ^ active) trailInstance->set_enabled(active);
+        if (trailInstance->get_enabled() ^ active)
+            trailInstance->set_enabled(active);
     }
 
     void TrailHelper::SetColors(const Sombrero::FastColor& leftColor, const Sombrero::FastColor& rightColor)
@@ -150,15 +153,16 @@ namespace Qosmetics
             }
             else if (colorManager)
             {
-	    	    color = colorManager->ColorForTrailType(colorType) * multiplier;
+                color = colorManager->ColorForTrailType(colorType) * multiplier;
             }
         }
         return color;
     }
 
-    void TrailHelper::UpdateChromaColors(int saberType, GlobalNamespace::SaberModelController *saberModelController, Sombrero::FastColor color)
+    void TrailHelper::UpdateChromaColors(int saberType, GlobalNamespace::SaberModelController* saberModelController, Sombrero::FastColor color)
     {
-        if (saberModelController->Equals(parentModelController)) UpdateColors();
+        if (saberModelController->Equals(parentModelController))
+            UpdateColors();
     }
 
     void TrailHelper::set_trailConfig(Qosmetics::TrailConfig& trailConfig)

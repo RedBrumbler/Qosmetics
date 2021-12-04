@@ -1,8 +1,8 @@
 #include "Types/Note/Bomb.hpp"
 #include "QosmeticsLogger.hpp"
+#include "Utils/MaterialUtils.hpp"
 #include "Utils/NoteUtils.hpp"
 #include "Utils/UnityUtils.hpp"
-#include "Utils/MaterialUtils.hpp"
 
 #include "UnityEngine/MeshRenderer.hpp"
 
@@ -29,12 +29,15 @@ namespace Qosmetics
     }
 
     void Bomb::Replace()
-    {   
-        if (!MeshName) MeshName = il2cpp_utils::createcsstr("Mesh", il2cpp_utils::StringType::Manual);
+    {
+        if (!MeshName)
+            MeshName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Mesh");
         Transform* mesh = get_transform()->Find(MeshName);
-        if (!mesh) return;
+        if (!mesh)
+            return;
         NoteUtils::SetBombSize(mesh);
-        if (replaced) return;
+        if (replaced)
+            return;
 
         if (!modelManager || modelManager->get_type() != ItemType::note)
         {
@@ -57,11 +60,14 @@ namespace Qosmetics
             UnityUtils::SetLayerRecursive(prefab->get_gameObject(), 8);
             GlobalNamespace::MaterialPropertyBlockController* propertyController = GetComponentInChildren<GlobalNamespace::MaterialPropertyBlockController*>();
             NoteUtils::AddRenderersToPropertyBlockController(propertyController, prefab->get_gameObject());
-            
-            if (propertyController) propertyController->ApplyChanges();
-            else ERROR("No Property block controller!");
 
-            if (isMirror) MaterialUtils::SetRenderQueue(prefab->get_gameObject(), 1955);
+            if (propertyController)
+                propertyController->ApplyChanges();
+            else
+                ERROR("No Property block controller!");
+
+            if (isMirror)
+                MaterialUtils::SetRenderQueue(prefab->get_gameObject(), 1955);
         }
 
         replaced = true;
@@ -69,16 +75,13 @@ namespace Qosmetics
 
     void Bomb::UpdateModel()
     {
-        
     }
 
     void Bomb::UpdateColors()
     {
-
     }
 
     void Bomb::Restore()
     {
-
     }
 }

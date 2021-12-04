@@ -1,12 +1,12 @@
 #include "Utils/TrailUtils.hpp"
 #include "GlobalNamespace/SaberTrail.hpp"
-#include "Types/Trail/QosmeticsTrail.hpp"
-#include "UnityEngine/MeshRenderer.hpp"
-#include "UnityEngine/GameObject.hpp"
-#include "UnityEngine/Transform.hpp"
-#include "UnityEngine/MeshFilter.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "QosmeticsLogger.hpp"
+#include "Types/Trail/QosmeticsTrail.hpp"
+#include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/MeshFilter.hpp"
+#include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/Transform.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
 using namespace UnityEngine;
 using namespace Qosmetics;
@@ -21,17 +21,18 @@ GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
     // make a new gameobject to house the prefab on
     GameObject* newPrefab = GameObject::New_ctor();
     newPrefab->set_layer(12);
-    
+
     // Trail renderer script holds reference to meshfilter and meshrenderer used to render the trial
     newPrefab->AddComponent<MeshFilter*>();
     newPrefab->AddComponent<MeshRenderer*>();
-    
+
     GlobalNamespace::SaberTrailRenderer* trailRendererPrefab = newPrefab->AddComponent<GlobalNamespace::SaberTrailRenderer*>();
 
     // set the material
-    trailRendererPrefab->meshRenderer->set_material(mat);      
+    trailRendererPrefab->meshRenderer->set_material(mat);
     // give it a good name, for identification I guess
-    if (!trailName) trailName = il2cpp_utils::createcsstr("Trail", il2cpp_utils::StringType::Manual);
+    if (!trailName)
+        trailName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Trail");
     newPrefab->set_name(trailName);
     // return the trail renderer pointer
     return trailRendererPrefab;
@@ -39,7 +40,8 @@ GlobalNamespace::SaberTrailRenderer* TrailUtils::NewTrailRenderer(Material* mat)
 
 void TrailUtils::RemoveTrail(Transform* obj)
 {
-    if (!obj) return;
+    if (!obj)
+        return;
     Array<GlobalNamespace::SaberTrail*>* trails = obj->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
 
     if (trails)
@@ -55,5 +57,5 @@ void TrailUtils::RemoveTrail(Transform* obj)
                 trail->set_enabled(false);
             }
         }
-    }    
+    }
 }

@@ -1,14 +1,14 @@
-#include "Config.hpp"
 #include "UI/Note/NoteSelectionElement.hpp"
+#include "Config.hpp"
 
 #include "questui/shared/BeatSaberUI.hpp"
-#include "questui/shared/CustomTypes/Data/CustomDataType.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
+#include "questui/shared/CustomTypes/Data/CustomDataType.hpp"
 
-#include "UnityEngine/Events/UnityAction.hpp"
-#include "UnityEngine/WaitUntil.hpp"
 #include "System/Collections/IEnumerator.hpp"
 #include "System/Func_1.hpp"
+#include "UnityEngine/Events/UnityAction.hpp"
+#include "UnityEngine/WaitUntil.hpp"
 
 #include "Utils/TextUtils.hpp"
 #include "Utils/UnityUtils.hpp"
@@ -43,9 +43,11 @@ using IEnumerator = System::Collections::IEnumerator;
 
 static void SetupName(VerticalLayoutGroup* layout, std::string name)
 {
-    if (TextUtils::shouldRainbow(name)) name = TextUtils::rainbowify(name);
+    if (TextUtils::shouldRainbow(name))
+        name = TextUtils::rainbowify(name);
     TextMeshProUGUI* text = CreateText(layout->get_transform(), name);
-    if (!nameName) nameName = il2cpp_utils::createcsstr("Name", il2cpp_utils::StringType::Manual);
+    if (!nameName)
+        nameName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Name");
     text->get_gameObject()->set_name(nameName);
     text->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredWidth(45.0f);
 }
@@ -53,9 +55,11 @@ static void SetupName(VerticalLayoutGroup* layout, std::string name)
 static void SetupAuthor(VerticalLayoutGroup* layout, std::string author)
 {
     Color color = CreatorCache::GetCreatorColor(author);
-    if (TextUtils::shouldRainbow(color)) author = TextUtils::rainbowify(author);
+    if (TextUtils::shouldRainbow(color))
+        author = TextUtils::rainbowify(author);
     TextMeshProUGUI* text = CreateText(layout->get_transform(), author);
-    if (!authorName) authorName = il2cpp_utils::createcsstr("Author", il2cpp_utils::StringType::Manual);
+    if (!authorName)
+        authorName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Author");
     text->get_gameObject()->set_name(authorName);
     text->set_color(color);
     text->set_fontSize(text->get_fontSize() * 0.8f);
@@ -64,16 +68,14 @@ static void SetupAuthor(VerticalLayoutGroup* layout, std::string author)
 
 static void SetupSelect(HorizontalLayoutGroup* layout, NoteSelectionElement* self)
 {
-    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#88ff88>select</color>", "QosmeticsTemplateButton", [self]{
-        self->Select();
-    });
+    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#88ff88>select</color>", "QosmeticsTemplateButton", [self]
+                                          { self->Select(); });
 }
 
 static void SetupDelete(HorizontalLayoutGroup* layout, NoteSelectionElement* self)
 {
-    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", "QosmeticsTemplateButton", [self]{
-        self->switcherViewController->AttemptDeletion(self);
-    });
+    Button* deleteButton = CreateUIButton(layout->get_transform(), "<color=#ff8888>delete</color>", "QosmeticsTemplateButton", [self]
+                                          { self->switcherViewController->AttemptDeletion(self); });
 }
 
 static void SetupDescription(HorizontalLayoutGroup* layout, std::string description)
@@ -88,7 +90,8 @@ namespace Qosmetics::UI
         modelManager = noteManager;
         this->previewViewController = previewViewController;
         this->switcherViewController = switcherViewController;
-        if (!textLayoutName) textLayoutName = il2cpp_utils::createcsstr("TextLayout", il2cpp_utils::StringType::Manual);
+        if (!textLayoutName)
+            textLayoutName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("TextLayout");
     }
 
     void NoteSelectionElement::Select()
@@ -109,17 +112,18 @@ namespace Qosmetics::UI
     {
         NoteItem& item = modelManager->get_item();
         // if selected was the current, set to default
-        if (item.get_descriptor().GetFileName() == descriptor->GetFileName()) 
+        if (item.get_descriptor().GetFileName() == descriptor->GetFileName())
         {
             modelManager->SetDefault();
             previewViewController->UpdatePreview();
         }
-        
+
         std::string filePath = descriptor->get_filePath();
-        if (fileexists(filePath)) deletefile(filePath);
+        if (fileexists(filePath))
+            deletefile(filePath);
         Object::Destroy(get_gameObject());
     }
-    
+
     void NoteSelectionElement::UpdateData()
     {
         INFO("Updating selector data");
@@ -131,21 +135,23 @@ namespace Qosmetics::UI
         Transform* name = textGroup->Find(nameName);
 
         TextMeshProUGUI* nameText = name->get_gameObject()->GetComponent<TextMeshProUGUI*>();
-        
+
         std::string nameString = descriptor.get_name();
-        if (TextUtils::shouldRainbow(nameString)) nameString = TextUtils::rainbowify(nameString);
-        nameText->set_text(il2cpp_utils::createcsstr("<i>" + nameString + "</i>"));
+        if (TextUtils::shouldRainbow(nameString))
+            nameString = TextUtils::rainbowify(nameString);
+        nameText->set_text(il2cpp_utils::newcsstr("<i>" + nameString + "</i>"));
 
         std::string authorName = descriptor.get_author();
         Color color = CreatorCache::GetCreatorColor(authorName);
-        if (TextUtils::shouldRainbow(color)) authorName = TextUtils::rainbowify(authorName);
+        if (TextUtils::shouldRainbow(color))
+            authorName = TextUtils::rainbowify(authorName);
 
         TextMeshProUGUI* authorText = author->get_gameObject()->GetComponent<TextMeshProUGUI*>();
-        authorText->set_text(il2cpp_utils::createcsstr("<i>" + authorName + "</i>"));
+        authorText->set_text(il2cpp_utils::newcsstr("<i>" + authorName + "</i>"));
         authorText->set_color(color);
-        
+
         HoverHint* hoverHint = GetComponent<HoverHint*>();
-        hoverHint->set_text(il2cpp_utils::createcsstr(descriptor.get_description()));
+        hoverHint->set_text(il2cpp_utils::newcsstr(descriptor.get_description()));
 
         previewViewController->UpdatePreview(true);
         config.lastActiveNote = descriptor.GetFileName();
@@ -169,7 +175,7 @@ namespace Qosmetics::UI
         HorizontalLayoutGroup* layout = GetComponent<HorizontalLayoutGroup*>();
         std::string name;
 
-        UnityUtils::GetAddComponent<Backgroundable*>(this->get_gameObject())->ApplyBackgroundWithAlpha(il2cpp_utils::createcsstr("round-rect-panel"), 0.5f);
+        UnityUtils::GetAddComponent<Backgroundable*>(this->get_gameObject())->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.5f);
         co_yield nullptr;
 
         textGroup = CreateVerticalLayoutGroup(this->get_transform());
@@ -177,7 +183,8 @@ namespace Qosmetics::UI
         co_yield nullptr;
 
         name = this->descriptor->get_name();
-        if (name == "") name = this->descriptor->GetFileName(true);
+        if (name == "")
+            name = this->descriptor->GetFileName(true);
         SetupName(textGroup, name);
         co_yield nullptr;
 

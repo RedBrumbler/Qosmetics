@@ -1,21 +1,21 @@
-#include "Config.hpp"
 #include "UI/Saber/SaberPreviewViewController.hpp"
-#include "UI/Saber/SaberPreviewElement.hpp"
-#include "questui/shared/BeatSaberUI.hpp" 
+#include "Config.hpp"
 #include "HMUI/Touchable.hpp"
+#include "UI/Saber/SaberPreviewElement.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
 
 #include "TMPro/TextMeshProUGUI.hpp"
-#include "Types/Saber/SaberItem.hpp"
 #include "Types/Pointer/Pointer.hpp"
+#include "Types/Saber/SaberItem.hpp"
+#include "Utils/DateUtils.hpp"
+#include "Utils/TextUtils.hpp"
 #include "Utils/UIUtils.hpp"
 #include "Utils/UnityUtils.hpp"
-#include "Utils/TextUtils.hpp"
-#include "Utils/DateUtils.hpp"
 
-#include "UnityEngine/GameObject.hpp"
-#include "QosmeticsLogger.hpp"
-#include "HMUI/ImageView.hpp"
 #include "HMUI/CurvedCanvasSettingsHelper.hpp"
+#include "HMUI/ImageView.hpp"
+#include "QosmeticsLogger.hpp"
+#include "UnityEngine/GameObject.hpp"
 
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
@@ -39,7 +39,8 @@ namespace Qosmetics::UI
     void SaberPreviewViewController::DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
         SaberPreviewElement* previewElement = GetComponentInChildren<SaberPreviewElement*>();
-        if (previewElement) previewElement->ClearPreview();
+        if (previewElement)
+            previewElement->ClearPreview();
     }
 
     void SaberPreviewViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -61,7 +62,7 @@ namespace Qosmetics::UI
             layoutelem->set_preferredWidth(100.0f);
 
             Backgroundable* bg = UnityUtils::GetAddComponent<Backgroundable*>(layout->get_gameObject());
-            bg->ApplyBackgroundWithAlpha(il2cpp_utils::createcsstr("title-gradient"), 1.0f);
+            bg->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("title-gradient"), 1.0f);
 
             ImageView* imageView = bg->get_gameObject()->GetComponent<ImageView*>();
             imageView->gradient = true;
@@ -74,7 +75,7 @@ namespace Qosmetics::UI
             imageView->set_color1(color);
             imageView->curvedCanvasSettingsHelper->Reset();
         }
-        
+
         UpdatePreview(firstActivation);
     }
 
@@ -85,10 +86,10 @@ namespace Qosmetics::UI
     }
 
     void SaberPreviewViewController::ShowLoading()
-    {   
+    {
         TextMeshProUGUI* title = GetComponentInChildren<TextMeshProUGUI*>();
         SaberPreviewElement* previewElement = GetComponentInChildren<SaberPreviewElement*>();
-        title->set_text(il2cpp_utils::createcsstr("<i>Loading Saber...</i>"));
+        title->set_text(il2cpp_utils::newcsstr("<i>Loading Saber...</i>"));
         previewElement->ClearPreview();
     }
 
@@ -100,20 +101,20 @@ namespace Qosmetics::UI
             ERROR("model Manager was nullptr, returning!");
             return;
         }
-        
+
         SaberPreviewElement* previewElement = GetComponentInChildren<SaberPreviewElement*>();
         SaberItem& item = modelManager->get_item();
 
         if (item.get_descriptor().isValid())
         {
             std::string itemName = DateUtils::get_isMonth(6) ? "<i>" + TextUtils::rainbowify(item.get_descriptor().get_name()) + "</i>" : "<i>" + item.get_descriptor().get_name() + "</i>";
-            title->set_text(il2cpp_utils::createcsstr(itemName));
+            title->set_text(il2cpp_utils::newcsstr(itemName));
             previewElement->UpdatePreview(reinstantiate);
         }
         else // default Saber
         {
             std::string itemName = DateUtils::get_isMonth(6) ? "<i>" + TextUtils::rainbowify("Default Saber (no preview)") + "</i>" : "<i>Default Saber (no preview)</i>";
-            title->set_text(il2cpp_utils::createcsstr(itemName));
+            title->set_text(il2cpp_utils::newcsstr(itemName));
             previewElement->ClearPreview();
         }
         Pointer::UpdateAll(reinstantiate);

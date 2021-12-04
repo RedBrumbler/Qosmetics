@@ -11,7 +11,7 @@ namespace Qosmetics::UI
     void WallDeletionElement::Show(Qosmetics::UI::WallSelectionElement* toDelete)
     {
         this->toDelete = toDelete;
-        objectName->set_text(il2cpp_utils::createcsstr("<i>" + toDelete->get_descriptor().get_name() + "</i>"));
+        objectName->set_text(il2cpp_utils::newcsstr("<i>" + toDelete->get_descriptor().get_name() + "</i>"));
         modal->Show(true, true, nullptr);
     }
 
@@ -41,12 +41,10 @@ namespace Qosmetics::UI
 
         auto horizon = CreateHorizontalLayoutGroup(container->get_transform());
 
-        CreateUIButton(horizon->get_transform(), "<color=#ff0000>confirm</color>", [this]() -> void {
-            this->Confirm();
-        });
+        CreateUIButton(horizon->get_transform(), "<color=#ff0000>confirm</color>", [this]() -> void
+                       { this->Confirm(); });
 
-        CreateUIButton(horizon->get_transform(), "<color=#00ff00>cancel</color>", [this]() -> void {
-            this->Cancel();
-        });
+        CreateUIButton(horizon->get_transform(), "<color=#00ff00>cancel</color>", [this]() -> void
+                       { this->Cancel(); });
     }
 }

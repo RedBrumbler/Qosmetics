@@ -2,30 +2,30 @@
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
+#include "HMUI/CurvedCanvasSettingsHelper.hpp"
+#include "HMUI/CurvedTextMeshPro.hpp"
 #include "HMUI/ImageView.hpp"
 #include "HMUI/Touchable.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
-#include "HMUI/CurvedTextMeshPro.hpp"
-#include "HMUI/CurvedCanvasSettingsHelper.hpp"
-#include "UnityEngine/Vector3.hpp"
+#include "UnityEngine/AdditionalCanvasShaderChannels.hpp"
 #include "UnityEngine/Canvas.hpp"
 #include "UnityEngine/CanvasGroup.hpp"
 #include "UnityEngine/CanvasRenderer.hpp"
 #include "UnityEngine/Object.hpp"
-#include "UnityEngine/Resources.hpp"
-#include "UnityEngine/AdditionalCanvasShaderChannels.hpp"
 #include "UnityEngine/RenderMode.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/Vector3.hpp"
 
-#include "VRUIControls/VRGraphicRaycaster.hpp"
 #include "VRUIControls/PhysicsRaycasterWithCache.hpp"
+#include "VRUIControls/VRGraphicRaycaster.hpp"
 
-#include "QosmeticsLogger.hpp"
-#include "HMUI/TitleViewController.hpp"
 #include "HMUI/ButtonStaticAnimations.hpp"
+#include "HMUI/TitleViewController.hpp"
+#include "QosmeticsLogger.hpp"
 #include "questui/shared/ArrayUtil.hpp"
 
-#include "Utils/TextUtils.hpp"
 #include "Utils/DateUtils.hpp"
+#include "Utils/TextUtils.hpp"
 
 using namespace VRUIControls;
 using namespace HMUI;
@@ -56,7 +56,8 @@ namespace UIUtils
 
     TextMeshProUGUI* AddHeader(Transform* parent, std::string title, Color leftColor, Color rightColor)
     {
-        if (DateUtils::get_isMonth(6)) title = TextUtils::rainbowify(title);
+        if (DateUtils::get_isMonth(6))
+            title = TextUtils::rainbowify(title);
 
         VerticalLayoutGroup* vertical = CreateVerticalLayoutGroup(parent);
         vertical->get_rectTransform()->set_anchoredPosition({0.0f, 45.0f});
@@ -72,7 +73,7 @@ namespace UIUtils
         layoutelem->set_preferredWidth(90.0f);
 
         Backgroundable* background = horizontal->get_gameObject()->AddComponent<Backgroundable*>();
-        background->ApplyBackgroundWithAlpha(il2cpp_utils::createcsstr("title-gradient"), 1.0f);
+        background->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("title-gradient"), 1.0f);
 
         ImageView* imageView = background->get_gameObject()->GetComponentInChildren<ImageView*>();
         imageView->gradient = true;
@@ -93,8 +94,8 @@ namespace UIUtils
         }
 
         Transform* title_T = titleView->get_transform();
-        Transform* BG_T = title_T->Find(il2cpp_utils::createcsstr("BG"));
-        Transform* BackButtonBG_T = title_T->Find(il2cpp_utils::createcsstr("BackButton/BG"));
+        Transform* BG_T = title_T->Find(il2cpp_utils::newcsstr("BG"));
+        Transform* BackButtonBG_T = title_T->Find(il2cpp_utils::newcsstr("BackButton/BG"));
 
         ImageView* imageView = BG_T->get_gameObject()->GetComponent<ImageView*>();
         Color oldColor = imageView->get_color();
@@ -114,7 +115,8 @@ namespace UIUtils
     void AddViewComponents(GameObject* go, Zenject::DiContainer* container)
     {
         Canvas* cv = go->AddComponent<Canvas*>();
-        Canvas* cvCopy = ArrayUtil::First(Resources::FindObjectsOfTypeAll<Canvas*>(), [](Canvas* x) { return to_utf8(csstrtostr(x->get_name())) == "DropdownTableView";});
+        Canvas* cvCopy = ArrayUtil::First(Resources::FindObjectsOfTypeAll<Canvas*>(), [](Canvas* x)
+                                          { return to_utf8(csstrtostr(x->get_name())) == "DropdownTableView"; });
         cv->set_additionalShaderChannels(cvCopy->get_additionalShaderChannels());
         cv->set_overrideSorting(cvCopy->get_overrideSorting());
         cv->set_pixelPerfect(cvCopy->get_pixelPerfect());
@@ -126,7 +128,8 @@ namespace UIUtils
         cv->set_worldCamera(cvCopy->get_worldCamera());
 
         VRGraphicRaycaster* rayc = container->InstantiateComponent<VRGraphicRaycaster*>(go);
-        if (!rayc) ERROR("Addcompponent VRGRaphicsRaycaster failed!");
+        if (!rayc)
+            ERROR("Addcompponent VRGRaphicsRaycaster failed!");
         go->AddComponent<CanvasGroup*>();
 
         RectTransform* rectTransform = go->GetComponent<RectTransform*>();
@@ -137,7 +140,7 @@ namespace UIUtils
         go->SetActive(false);
     }
 
-    void SetupViewController(ViewController* vc) 
+    void SetupViewController(ViewController* vc)
     {
         return;
         GameObject* go = vc->get_gameObject();

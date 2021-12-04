@@ -1,4 +1,4 @@
-#include "UI/Saber/SaberDeletionElement.hpp"
+#include "UI/Saber/SaberDelgit pulletionElement.hpp"
 #include "UI/Saber/SaberSelectionElement.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 DEFINE_TYPE(Qosmetics::UI, SaberDeletionElement);
@@ -11,7 +11,7 @@ namespace Qosmetics::UI
     void SaberDeletionElement::Show(Qosmetics::UI::SaberSelectionElement* toDelete)
     {
         this->toDelete = toDelete;
-        objectName->set_text(il2cpp_utils::createcsstr("<i>" + toDelete->get_descriptor().get_name() + "</i>"));
+        objectName->set_text(il2cpp_utils::newcsstr("<i>" + toDelete->get_descriptor().get_name() + "</i>"));
         modal->Show(true, true, nullptr);
     }
 
@@ -41,12 +41,10 @@ namespace Qosmetics::UI
 
         auto horizon = CreateHorizontalLayoutGroup(container->get_transform());
 
-        CreateUIButton(horizon->get_transform(), "<color=#ff0000>confirm</color>", [this]() -> void {
-            this->Confirm();
-        });
+        CreateUIButton(horizon->get_transform(), "<color=#ff0000>confirm</color>", [this]() -> void
+                       { this->Confirm(); });
 
-        CreateUIButton(horizon->get_transform(), "<color=#00ff00>cancel</color>", [this]() -> void {
-            this->Cancel();
-        });
+        CreateUIButton(horizon->get_transform(), "<color=#00ff00>cancel</color>", [this]() -> void
+                       { this->Cancel(); });
     }
 }

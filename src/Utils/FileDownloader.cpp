@@ -1,9 +1,9 @@
 #include "Utils/FileDownloader.hpp"
-#include "UnityEngine/Networking/DownloadHandler.hpp"
-#include "UnityEngine/AsyncOperation.hpp"
-#include "System/Action_1.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "QosmeticsLogger.hpp"
+#include "System/Action_1.hpp"
+#include "UnityEngine/AsyncOperation.hpp"
+#include "UnityEngine/Networking/DownloadHandler.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
 #define INFO(value...) QosmeticsLogger::GetContextLogger("File Downloader").info(value);
 #define ERROR(value...) QosmeticsLogger::GetContextLogger("File Downloader").error(value);
@@ -12,10 +12,10 @@ using namespace UnityEngine::Networking;
 
 void FileDownloader::Download()
 {
-    Il2CppString* urlPath = il2cpp_utils::createcsstr(url);
+    Il2CppString* urlPath = il2cpp_utils::newcsstr(url);
     this->request = UnityWebRequest::Get(urlPath);
 
-    this->request->SetRequestHeader(il2cpp_utils::createcsstr("User-Agent"), il2cpp_utils::createcsstr(useragent));
+    this->request->SetRequestHeader(il2cpp_utils::newcsstr("User-Agent"), il2cpp_utils::newcsstr(useragent));
     this->asyncOP = this->request->SendWebRequest();
 
     QuestUI::CustomDataType* data = CRASH_UNLESS(il2cpp_utils::New<QuestUI::CustomDataType*>());
@@ -27,7 +27,7 @@ void FileDownloader::Download()
 void FileDownloader::SetCallback(FileDownloaderCallback callback)
 {
     this->hasCallback = true;
-    this->callback = callback; 
+    this->callback = callback;
 }
 
 void FileDownloader::WebRequestComplete(QuestUI::CustomDataType* data, UnityWebRequestAsyncOperation* asyncOP)
@@ -37,7 +37,7 @@ void FileDownloader::WebRequestComplete(QuestUI::CustomDataType* data, UnityWebR
 
     data->data = nullptr;
     //data->Finalize();
-    
+
     //data->data = nullptr;
     //delete(data);
 
@@ -59,14 +59,16 @@ void FileDownloader::WebRequestComplete(QuestUI::CustomDataType* data, UnityWebR
     Il2CppString* resultptr = handler->GetText();
 
     instance->result = to_utf8(csstrtostr(resultptr));
-    
+
     if (instance->filePath != "" && instance->result != "")
     {
-        if (fileexists(instance->filePath)) deletefile(instance->filePath);
+        if (fileexists(instance->filePath))
+            deletefile(instance->filePath);
         writefile(instance->filePath, instance->result);
     }
 
     instance->isDone = true;
-    if (instance->hasCallback) instance->callback(*instance);
-    delete(instance);
+    if (instance->hasCallback)
+        instance->callback(*instance);
+    delete (instance);
 }

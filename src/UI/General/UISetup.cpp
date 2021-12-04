@@ -1,34 +1,34 @@
 #include "UI/General/UISetup.hpp"
 
-#include "UnityEngine/Transform.hpp"
-#include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/RectTransform.hpp"
+#include "UnityEngine/Transform.hpp"
 
-#include "TMPro/TextMeshProUGUI.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
 
-#include "questui/shared/QuestUI.hpp"
-#include "questui/shared/BeatSaberUI.hpp"
-#include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
+#include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
+#include "questui/shared/QuestUI.hpp"
 
 #include "UI/General/QosmeticsFlowCoordinator.hpp"
 
-#include "GlobalNamespace/MainFlowCoordinator.hpp"
-#include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
-#include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
 #include "GlobalNamespace/CampaignFlowCoordinator.hpp"
 #include "GlobalNamespace/GameServerLobbyFlowCoordinator.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
+#include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
+#include "GlobalNamespace/SoloFreePlayFlowCoordinator.hpp"
 //#include "GlobalNamespace/HostGameServerLobbyFlowCoordinator.hpp"
 //#include "GlobalNamespace/ClientGameServerLobbyFlowCoordinator.hpp"
 
-#include "HMUI/ViewController_AnimationType.hpp"
 #include "HMUI/ViewController_AnimationDirection.hpp"
+#include "HMUI/ViewController_AnimationType.hpp"
 
 #include "static-defines.hpp"
 
-#include "QosmeticsLogger.hpp"
 #include "Containers/SingletonContainer.hpp"
+#include "QosmeticsLogger.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -58,9 +58,8 @@ namespace Qosmetics::UI
         rectTransform->set_localScale(UnityEngine::Vector3::get_one() * 0.2f);
         INFO("GameplaySetupViewController making button");
 
-        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", [&](){
-            OnQosmeticsMenuButtonClick(nullptr);
-        });
+        UnityEngine::UI::Button* button = QuestUI::BeatSaberUI::CreateUIButton(rectTransform, "", "SettingsButton", [&]()
+                                                                               { OnQosmeticsMenuButtonClick(nullptr); });
 
         swapButtonSprites(button, string_format("%s%s", UIPATH.c_str(), "Icons/MenuIcon.png"), string_format("%s%s", UIPATH.c_str(), "Icons/MenuIconSelected.png"));
         INFO("endof GameplaySetupViewController");
@@ -71,15 +70,15 @@ namespace Qosmetics::UI
         bool questUIExists = QuestUI::GetModsCount() > 0;
         Button* baseButton = self->settingsButton;
         Button* button = Object::Instantiate(baseButton);
-        button->set_name(il2cpp_utils::createcsstr("Qosmetics Settings"));
+        button->set_name(il2cpp_utils::newcsstr("Qosmetics Settings"));
 
-        UnityEngine::Transform* wrapper = self->get_transform()->Find(il2cpp_utils::createcsstr("Wrapper"));
+        UnityEngine::Transform* wrapper = self->get_transform()->Find(il2cpp_utils::newcsstr("Wrapper"));
         button->get_transform()->SetParent(wrapper, false);
 
         if (questUIExists)
         {
             HorizontalLayoutGroup* layout = CreateHorizontalLayoutGroup(self->get_transform());
-            
+
             Transform* layoutTransform = layout->get_transform();
             self->editAvatarButton->get_transform()->SetParent(layoutTransform);
             self->playerOptionsButton->get_transform()->SetParent(layoutTransform);
@@ -93,7 +92,8 @@ namespace Qosmetics::UI
             oldLayout->get_gameObject()->GetComponent<RectTransform*>()->set_anchoredPosition(UnityEngine::Vector2(0.0f, 0.0f));
             button->get_transform()->SetAsLastSibling();
         }
-        else button->get_transform()->SetAsFirstSibling();
+        else
+            button->get_transform()->SetAsFirstSibling();
 
         button->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), (Il2CppObject*)nullptr, OnQosmeticsMenuButtonClick));
 
@@ -102,42 +102,43 @@ namespace Qosmetics::UI
 
         UnityEngine::Object::Destroy(button->GetComponentInChildren<Polyglot::LocalizedTextMeshProUGUI*>());
 
-        button->GetComponentInChildren<TMPro::TextMeshProUGUI*>()->SetText(il2cpp_utils::createcsstr("Qosmetics Settings"));
+        button->GetComponentInChildren<TMPro::TextMeshProUGUI*>()->SetText(il2cpp_utils::newcsstr("Qosmetics Settings"));
     }
-    
+
     void UISetup::OnQosmeticsMenuButtonClick(Il2CppObject* obj)
-    {        
+    {
         flowCoordinator = SingletonContainer::get_qosmeticsFlowCoordinator();
 
-        if (!flowCoordinator) 
+        if (!flowCoordinator)
         {
             ERROR("Could not find an instance of QosmeticsFlowCoordinator, returning early");
             return;
         }
-        
+
         HMUI::FlowCoordinator* currentCoordinator = nullptr;
         switch (currentFlowCoordinatorType)
         {
-            case settings:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::MainFlowCoordinator*>());
-                break;
-            case solo:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>());
-                break;
-            case party:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>());
-                break;
-            case campaign:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>());
-                break;
-            case multiHost:
-            case multiClient:
-                currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::GameServerLobbyFlowCoordinator*>());
-                break;
-            default:
-                break;
+        case settings:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::MainFlowCoordinator*>());
+            break;
+        case solo:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::SoloFreePlayFlowCoordinator*>());
+            break;
+        case party:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::PartyFreePlayFlowCoordinator*>());
+            break;
+        case campaign:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::CampaignFlowCoordinator*>());
+            break;
+        case multiHost:
+        case multiClient:
+            currentCoordinator = reinterpret_cast<HMUI::FlowCoordinator*>(UnityEngine::Object::FindObjectOfType<GlobalNamespace::GameServerLobbyFlowCoordinator*>());
+            break;
+        default:
+            break;
         }
 
-        if (currentCoordinator) currentCoordinator->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
+        if (currentCoordinator)
+            currentCoordinator->PresentFlowCoordinator(flowCoordinator, nullptr, HMUI::ViewController::AnimationDirection::Horizontal, false, false);
     }
 }

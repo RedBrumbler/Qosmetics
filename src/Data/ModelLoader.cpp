@@ -16,9 +16,9 @@ namespace Qosmetics
 {
     void ModelLoader::LoadBundle(bool alsoLoadAssets)
     {
-        if (bundle) return;
-        
-        //this->bundle = UnityEngine::AssetBundle::LoadFromFile(il2cpp_utils::createcsstr(item->get_descriptor().get_filePath()));
+        if (bundle)
+            return;
+
         std::vector<char> bytes = readbytes(item->get_descriptor().get_filePath());
         std::vector<uint8_t>& data = *((std::vector<uint8_t>*)&bytes);
         using LoadFromMemory = function_ptr_t<UnityEngine::AssetBundle*, Array<uint8_t>*, unsigned int>;
@@ -26,23 +26,10 @@ namespace Qosmetics
         Array<uint8_t>* dataArray = il2cpp_utils::vectorToArray(data);
 
         this->bundle = loadFromMemory(dataArray, 0);
-        /*
-        AssetBundle::LoadFromFileAsync(item->get_descriptor().get_filePath(), [&, alsoLoadAssets](bs_utils::AssetBundle* bundle){
-            this->bundle = bundle;
-            if (this->bundle) INFO("Bundle Loaded!");
-        });
-        */
+
         if (alsoLoadAssets)
         {
             this->LoadAssets();
-            /*std::thread assetLoad([&]{
-                while(!this->bundle) usleep(1000);
-                INFO("Loading assets directly from bundle load")
-                this->LoadAssets();
-            });
-
-            assetLoad.detach();
-            */
         }
     }
 
@@ -54,42 +41,41 @@ namespace Qosmetics
             ERROR("Bundle was nullptr");
             return;
         }
-        
+
         std::string assetName;
         switch (item->get_type())
         {
-            case ItemType::saber:
-                assetName = "_CustomSaber";
-                break;
-            case ItemType::note:
-                assetName = "_CustomBloq";
-                break;
-            case ItemType::wall:
-                assetName = "_CustomWall";
-                break;
-            case ItemType::pointer:
-                assetName = "_CustomPointer";
-                break;
-            case ItemType::platform:
-                assetName = "_CustomPlatform";
-                break;
-            default:
-                ERROR("Item was invalid type");
-                return;
+        case ItemType::saber:
+            assetName = "_CustomSaber";
+            break;
+        case ItemType::note:
+            assetName = "_CustomBloq";
+            break;
+        case ItemType::wall:
+            assetName = "_CustomWall";
+            break;
+        case ItemType::pointer:
+            assetName = "_CustomPointer";
+            break;
+        case ItemType::platform:
+            assetName = "_CustomPlatform";
+            break;
+        default:
+            ERROR("Item was invalid type");
+            return;
         }
 
         INFO("Asset name to load is %s", assetName.c_str());
 
-        
-        item->GameObjectCallback(bundle->LoadAsset<GameObject*>(il2cpp_utils::createcsstr(assetName)));
+        item->GameObjectCallback(bundle->LoadAsset<GameObject*>(il2cpp_utils::newcsstr(assetName)));
         objectLoaded = true;
         this->OnComplete();
 
-        item->ConfigCallback(bundle->LoadAsset<TextAsset*>(il2cpp_utils::createcsstr("config")));
+        item->ConfigCallback(bundle->LoadAsset<TextAsset*>(il2cpp_utils::newcsstr("config")));
         configLoaded = true;
         this->OnComplete();
 
-        item->DescriptorCallback(bundle->LoadAsset<TextAsset*>(il2cpp_utils::createcsstr("descriptor")));
+        item->DescriptorCallback(bundle->LoadAsset<TextAsset*>(il2cpp_utils::newcsstr("descriptor")));
         descriptorLoaded = true;
         this->OnComplete();
 
@@ -114,7 +100,8 @@ namespace Qosmetics
 
     void ModelLoader::OnComplete()
     {
-        if (!get_complete()) return;
+        if (!get_complete())
+            return;
         INFO("On Complete");
         DescriptorCache::Save();
         UnloadBundle();

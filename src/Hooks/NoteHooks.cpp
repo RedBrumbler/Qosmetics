@@ -1,36 +1,36 @@
 #include "Config.hpp"
 #include "QosmeticsLogger.hpp"
 
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 
-#include "Types/Note/Note.hpp"
 #include "Types/Note/Bomb.hpp"
 #include "Types/Note/Debris.hpp"
+#include "Types/Note/Note.hpp"
 
 #include "Containers/SingletonContainer.hpp"
 
+#include "UnityEngine/Quaternion.hpp"
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Vector4.hpp"
-#include "UnityEngine/Quaternion.hpp"
 
 #include "GlobalNamespace/ICubeNoteMirrorable.hpp"
 #include "GlobalNamespace/MirroredBombNoteController.hpp"
 #include "GlobalNamespace/MirroredCubeNoteController.hpp"
 #include "GlobalNamespace/MirroredNoteController_1.hpp"
 
+#include "GlobalNamespace/BeatmapObjectType.hpp"
 #include "GlobalNamespace/BombNoteController.hpp"
-#include "GlobalNamespace/TutorialNoteController.hpp"
 #include "GlobalNamespace/GameNoteController.hpp"
 #include "GlobalNamespace/GameNoteController_GameNoteType.hpp"
 #include "GlobalNamespace/NoteData.hpp"
 #include "GlobalNamespace/NoteDebris.hpp"
-#include "GlobalNamespace/BeatmapObjectType.hpp"
+#include "GlobalNamespace/TutorialNoteController.hpp"
 
-#include "Utils/UnityUtils.hpp"
-#include "Utils/PlayerSettings.hpp"
 #include "Utils/DisablingUtils.hpp"
 #include "Utils/OnGameCoreSceneStart.hpp"
+#include "Utils/PlayerSettings.hpp"
+#include "Utils/UnityUtils.hpp"
 
 #include "hooks.hpp"
 
@@ -46,10 +46,12 @@ std::unordered_map<GlobalNamespace::GameNoteController*, Qosmetics::Note*> gameN
 MAKE_HOOK_MATCH(GameNoteController_Init, &GlobalNamespace::GameNoteController::Init, void, GlobalNamespace::GameNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity, GlobalNamespace::GameNoteController_GameNoteType gameNoteType, float cutDirectionAngleOffset, float cutAngleTolerance, float uniformScale)
 {
     GameNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, gameNoteType, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
-    
-    if (!Disabling::get_enabled(ItemType::note)) return;
-    if (!PlayerSettings::get_SpawnNotes()) return;
-    
+
+    if (!Disabling::get_enabled(ItemType::note))
+        return;
+    if (!PlayerSettings::get_SpawnNotes())
+        return;
+
     Qosmetics::Note* note = nullptr;
     auto itr = gameNoteToNoteMap.find(self);
     if (itr == gameNoteToNoteMap.end()) // didn't exist
@@ -72,7 +74,8 @@ MAKE_HOOK_MATCH(TutorialNoteController_Init, &GlobalNamespace::TutorialNoteContr
 {
     TutorialNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity, cutDirectionAngleOffset, cutAngleTolerance, uniformScale);
 
-    if (!Disabling::get_enabled(ItemType::note)) return;
+    if (!Disabling::get_enabled(ItemType::note))
+        return;
     Qosmetics::Note* note = nullptr;
     auto myself = reinterpret_cast<GlobalNamespace::GameNoteController*>(self);
     auto itr = gameNoteToNoteMap.find(myself);
@@ -96,9 +99,11 @@ std::unordered_map<GlobalNamespace::BombNoteController*, Qosmetics::Bomb*> bombN
 MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::Init, void, GlobalNamespace::BombNoteController* self, GlobalNamespace::NoteData* noteData, float worldRotation, Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float jumpGravity)
 {
     BombNoteController_Init(self, noteData, worldRotation, moveStartPos, moveEndPos, jumpEndPos, moveDuration, jumpDuration, jumpGravity);
-    
-    if (!Disabling::get_enabled(ItemType::note)) return;
-    if (!PlayerSettings::get_SpawnNotes()) return;
+
+    if (!Disabling::get_enabled(ItemType::note))
+        return;
+    if (!PlayerSettings::get_SpawnNotes())
+        return;
 
     Qosmetics::Bomb* bomb = nullptr;
     auto itr = bombNoteToBombMap.find(self);
@@ -118,20 +123,24 @@ MAKE_HOOK_MATCH(BombNoteController_Init, &GlobalNamespace::BombNoteController::I
 
 static Il2CppString* MeshName = nullptr;
 
-template<>
-struct ::il2cpp_utils::il2cpp_type_check::MetadataGetter<static_cast<void (GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::*)(GlobalNamespace::INoteMirrorable*)>(&GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::Mirror)> {
-  static const MethodInfo* get() {
-    static auto* noteController = &classof(GlobalNamespace::INoteMirrorable*)->byval_arg;
-    return ::il2cpp_utils::FindMethod(classof(GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>*), "Mirror", std::vector<Il2CppClass*>(), ::std::vector<const Il2CppType*>{noteController});
-  }
+template <>
+struct ::il2cpp_utils::il2cpp_type_check::MetadataGetter<static_cast<void (GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::*)(GlobalNamespace::INoteMirrorable*)>(&GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::Mirror)>
+{
+    static const MethodInfo* get()
+    {
+        static auto* noteController = &classof(GlobalNamespace::INoteMirrorable*)->byval_arg;
+        return ::il2cpp_utils::FindMethod(classof(GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>*), "Mirror", std::vector<Il2CppClass*>(), ::std::vector<const Il2CppType*>{noteController});
+    }
 };
 
 MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>::Mirror, void, GlobalNamespace::MirroredNoteController_1<GlobalNamespace::INoteMirrorable*>* self, GlobalNamespace::INoteMirrorable* noteController)
 {
     MirroredNoteController_1_Mirror(self, noteController);
 
-    if (!Disabling::get_enabled(ItemType::note)) return;
-    if (strcmp(self->klass->name, "MirroredBombNoteController") != 0) return;
+    if (!Disabling::get_enabled(ItemType::note))
+        return;
+    if (strcmp(self->klass->name, "MirroredBombNoteController") != 0)
+        return;
     NoteItem& item = SingletonContainer::get_noteManager()->get_item();
     if (config.noteConfig.disableReflections || (item.get_type() != ItemType::invalid && item.get_config().get_hasBomb() && !config.noteConfig.forceDefaultBombs))
     {
@@ -140,11 +149,14 @@ MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteC
         return;
     }
 
-    if (!PlayerSettings::get_SpawnNotes()) return;
+    if (!PlayerSettings::get_SpawnNotes())
+        return;
 
     // only bombs have a child Mesh, this can be used to identify them
-    if (!MeshName) MeshName = il2cpp_utils::createcsstr("Mesh", il2cpp_utils::StringType::Manual);
-    if (!self->get_transform()->Find(MeshName)) return;
+    if (!MeshName)
+        MeshName = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Mesh");
+    if (!self->get_transform()->Find(MeshName))
+        return;
 
     Qosmetics::Bomb* bomb = self->get_gameObject()->GetComponent<Qosmetics::Bomb*>();
 
@@ -161,14 +173,16 @@ MAKE_HOOK_MATCH(MirroredNoteController_1_Mirror, &GlobalNamespace::MirroredNoteC
 MAKE_HOOK_MATCH(MirroredCubeNoteController_Mirror, &GlobalNamespace::MirroredCubeNoteController::Mirror, void, GlobalNamespace::MirroredCubeNoteController* self, GlobalNamespace::ICubeNoteMirrorable* noteController)
 {
     MirroredCubeNoteController_Mirror(self, noteController);
-    if (!Disabling::get_enabled(ItemType::note)) return;
+    if (!Disabling::get_enabled(ItemType::note))
+        return;
     if (config.noteConfig.disableReflections || SingletonContainer::get_noteManager()->get_item().get_type() != ItemType::invalid)
     {
         self->set_enabled(false);
         return;
     }
 
-    if (!PlayerSettings::get_SpawnNotes()) return;
+    if (!PlayerSettings::get_SpawnNotes())
+        return;
 
     Qosmetics::Note* note = self->get_gameObject()->GetComponent<Qosmetics::Note*>();
 
@@ -187,9 +201,12 @@ std::unordered_map<GlobalNamespace::NoteDebris*, Qosmetics::Debris*> noteDebrisT
 MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, GlobalNamespace::NoteDebris* self, GlobalNamespace::ColorType colorType, Vector3 notePos, Quaternion noteRot, Vector3 noteMoveVec, Vector3 noteScale, Vector3 positionOffset, Quaternion rotationOffset, Vector3 cutPoint, Vector3 cutNormal, Vector3 force, Vector3 torque, float lifeTime)
 {
     NoteDebris_Init(self, colorType, notePos, noteRot, noteMoveVec, noteScale, positionOffset, rotationOffset, cutPoint, cutNormal, force, torque, lifeTime);
-    if (!Disabling::get_enabled(ItemType::note)) return;
-    if (!PlayerSettings::get_SpawnDebris()) return;
-    if (!PlayerSettings::get_SpawnNotes()) return;
+    if (!Disabling::get_enabled(ItemType::note))
+        return;
+    if (!PlayerSettings::get_SpawnDebris())
+        return;
+    if (!PlayerSettings::get_SpawnNotes())
+        return;
 
     Qosmetics::Debris* debris = nullptr;
     auto itr = noteDebrisToDebrisMap.find(self);
@@ -203,7 +220,7 @@ MAKE_HOOK_MATCH(NoteDebris_Init, &GlobalNamespace::NoteDebris::Init, void, Globa
     {
         debris = itr->second;
     }
-    
+
     debris->SetData(colorType, notePos + cutPoint, notePos + cutNormal);
     debris->Replace();
 }

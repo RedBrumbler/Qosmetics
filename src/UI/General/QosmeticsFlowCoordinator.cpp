@@ -1,16 +1,16 @@
 #include "UI/General/QosmeticsFlowCoordinator.hpp"
 
-#include "questui/shared/BeatSaberUI.hpp"
-#include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
+#include "HMUI/ButtonStaticAnimations.hpp"
+#include "HMUI/ViewController_AnimationDirection.hpp"
+#include "HMUI/ViewController_AnimationType.hpp"
 #include "UnityEngine/RectOffset.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "HMUI/ViewController_AnimationType.hpp"
-#include "HMUI/ViewController_AnimationDirection.hpp"
-#include "HMUI/ButtonStaticAnimations.hpp"
+#include "questui/shared/BeatSaberUI.hpp"
+#include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 
-#include "Utils/UIUtils.hpp"
-#include "Utils/TextUtils.hpp"
 #include "Utils/DateUtils.hpp"
+#include "Utils/TextUtils.hpp"
+#include "Utils/UIUtils.hpp"
 
 #include "QosmeticsLogger.hpp"
 
@@ -40,7 +40,7 @@ VerticalLayoutGroup* SetupSubTitle(VerticalLayoutGroup* layout, std::string subT
 
     GameObject* layoutGameObject = layout->get_gameObject();
     layoutGameObject->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-    layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::createcsstr("round-rect-panel"));
+    layoutGameObject->AddComponent<Backgroundable*>()->ApplyBackground(il2cpp_utils::newcsstr("round-rect-panel"));
     layout->set_padding(UnityEngine::RectOffset::New_ctor(3, 4, 2, 2));
 
     if (subTitle != "")
@@ -62,11 +62,15 @@ namespace Qosmetics::UI
             std::string saberTitleCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Sabers") : "Qosmetics Sabers";
             std::string noteTitleCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Bloqs") : "Qosmetics Bloqs";
             std::string wallTitleCPP = DateUtils::get_isMonth(6) ? TextUtils::rainbowify("Qosmetics Walls") : "Qosmetics Walls";
-            
-            if (!qosmeticsSettings) qosmeticsSettings = il2cpp_utils::createcsstr(qosmeticsSettingsCPP, il2cpp_utils::StringType::Manual);
-            if (!saberTitle) saberTitle = il2cpp_utils::createcsstr(saberTitleCPP, il2cpp_utils::StringType::Manual);
-            if (!noteTitle) noteTitle = il2cpp_utils::createcsstr(noteTitleCPP, il2cpp_utils::StringType::Manual);
-            if (!wallTitle) wallTitle = il2cpp_utils::createcsstr(wallTitleCPP, il2cpp_utils::StringType::Manual);
+
+            if (!qosmeticsSettings)
+                qosmeticsSettings = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>(qosmeticsSettingsCPP);
+            if (!saberTitle)
+                saberTitle = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>(saberTitleCPP);
+            if (!noteTitle)
+                noteTitle = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>(noteTitleCPP);
+            if (!wallTitle)
+                wallTitle = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>(wallTitleCPP);
 
             SetTitle(qosmeticsSettings, ViewController::AnimationType::Out);
             showBackButton = true;
@@ -76,7 +80,7 @@ namespace Qosmetics::UI
 
             ProvideInitialViewControllers(qosmeticsViewController, userProfileViewController, patronViewController, floorLogoViewController, nullptr);
         }
-        
+
         patronViewController->get_gameObject()->SetActive(true);
         //SetRightScreenViewController(patronViewController, ViewController::AnimationType::Out);
         TitleViewController* titleView = Object::FindObjectOfType<TitleViewController*>();
@@ -89,29 +93,29 @@ namespace Qosmetics::UI
 
         switch (type)
         {
-            case saber:
-                SetTitle(saberTitle, ViewController::AnimationType::In);
-                ReplaceTopViewController(saberSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
-                SetLeftScreenViewController(saberSettingsViewController, ViewController::AnimationType::In);
-                SetRightScreenViewController(saberPreviewViewController, ViewController::AnimationType::In);
-                UIUtils::SetTitleColor(titleView, Color::get_red());
-                break;
-            case note:
-                SetTitle(noteTitle, ViewController::AnimationType::In);
-                ReplaceTopViewController(noteSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
-                SetLeftScreenViewController(noteSettingsViewController, ViewController::AnimationType::In);
-                SetRightScreenViewController(notePreviewViewController, ViewController::AnimationType::In);
-                UIUtils::SetTitleColor(titleView, Color::get_blue());
-                break;
-            case wall:
-                SetTitle(wallTitle, ViewController::AnimationType::In);
-                ReplaceTopViewController(wallSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
-                SetLeftScreenViewController(wallSettingsViewController, ViewController::AnimationType::In);
-                SetRightScreenViewController(wallPreviewViewController, ViewController::AnimationType::In);
-                UIUtils::SetTitleColor(titleView, Color::get_magenta());
-                break;
-            default:
-                break;
+        case saber:
+            SetTitle(saberTitle, ViewController::AnimationType::In);
+            ReplaceTopViewController(saberSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
+            SetLeftScreenViewController(saberSettingsViewController, ViewController::AnimationType::In);
+            SetRightScreenViewController(saberPreviewViewController, ViewController::AnimationType::In);
+            UIUtils::SetTitleColor(titleView, Color::get_red());
+            break;
+        case note:
+            SetTitle(noteTitle, ViewController::AnimationType::In);
+            ReplaceTopViewController(noteSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
+            SetLeftScreenViewController(noteSettingsViewController, ViewController::AnimationType::In);
+            SetRightScreenViewController(notePreviewViewController, ViewController::AnimationType::In);
+            UIUtils::SetTitleColor(titleView, Color::get_blue());
+            break;
+        case wall:
+            SetTitle(wallTitle, ViewController::AnimationType::In);
+            ReplaceTopViewController(wallSwitcherViewController, this, this, nullptr, ViewController::AnimationType::In, ViewController::AnimationDirection::Horizontal);
+            SetLeftScreenViewController(wallSettingsViewController, ViewController::AnimationType::In);
+            SetRightScreenViewController(wallPreviewViewController, ViewController::AnimationType::In);
+            UIUtils::SetTitleColor(titleView, Color::get_magenta());
+            break;
+        default:
+            break;
         }
     }
 
@@ -119,7 +123,6 @@ namespace Qosmetics::UI
     {
         SubMenuButtonWasPressed(type);
     }
-
 
     void QosmeticsFlowCoordinator::BackButtonWasPressed(HMUI::ViewController* topViewController)
     {
@@ -132,7 +135,7 @@ namespace Qosmetics::UI
             SetRightScreenViewController(patronViewController, ViewController::AnimationType::Out);
             UIUtils::SetTitleColor(titleView, Color(0.3f, 0.15f, 0.6f, 1.0f));
         }
-        else 
+        else
         {
             patronViewController->get_gameObject()->SetActive(false);
             SetRightScreenViewController(nullptr, ViewController::AnimationType::Out);
@@ -158,7 +161,7 @@ namespace Qosmetics::UI
         this->saberSwitcherViewController = saberSwitcherViewController;
         this->saberSettingsViewController = saberSettingsViewController;
         this->saberPreviewViewController = saberPreviewViewController;
-        
+
         this->noteSwitcherViewController = noteSwitcherViewController;
         this->noteSettingsViewController = noteSettingsViewController;
         this->notePreviewViewController = notePreviewViewController;
