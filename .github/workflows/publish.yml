@@ -59,6 +59,9 @@ jobs:
     - name: QPM Restore
       run: |
         ./QPM/qpm-rust restore
+        
+    - name: Run QPM legacy fix
+      run: ./QPM/qpm-rust cache legacy-fix
 
     - name: List Post Restore
       run: |
