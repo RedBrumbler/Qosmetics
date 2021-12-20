@@ -148,7 +148,7 @@ jobs:
         content: "debug.so"
         username: "${{ github.repository }}"
         avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
-        filename: ./build/debug${{ steps.libname.outputs.NAME }}
+        filename: ./build/debug_${{ steps.libname.outputs.NAME }}
 
     - name: Publish qmod to webhook
       uses: tsickert/discord-webhook@v3.2.0
