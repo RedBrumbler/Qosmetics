@@ -2,20 +2,17 @@
   "configurations": [
     {
       "defines": [
-        "MOD_ID=\"Qosmetics\"",
+        "ID=\"Qosmetics\"",
         "VERSION=\"1.3.0\"",
         "__GNUC__",
-        "__aarch64__",
-        "ID=\"Qosmetics\""
+        "__aarch64__"
       ],
       "includePath": [
-        "${workspaceFolder}/",
-        "${workspaceFolder}/extern/libil2cpp/il2cpp/libil2cpp",
-        "D:/NDK/android-ndk-r22b-windows-x86_64/android-ndk-r22b/",
-        "${workspaceFolder}/shared/",
-        "${workspaceFolder}/include/",
-        "${workspaceFolder}/extern/",
-        "${workspaceFolder}/extern/codegen/include/"
+        "${workspaceFolder}",
+        "${workspaceFolder}/extern/includes/*",
+        "${workspaceFolder}/shared",
+        "${workspaceFolder}/include",
+        "${workspaceFolder}/extern/libil2cpp/il2cpp/libil2cpp"
       ],
       "name": "Quest",
       "cStandard": "c11",

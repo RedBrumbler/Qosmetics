@@ -22,17 +22,17 @@
     },
     {
       "id": "questui",
-      "versionRange": "=0.11.1",
+      "versionRange": "^0.11.1",
       "additionalData": {}
     },
     {
       "id": "custom-types",
-      "versionRange": "=0.12.7",
+      "versionRange": "^0.12.7",
       "additionalData": {}
     },
     {
       "id": "conditional-dependencies",
-      "versionRange": "=0.2.0",
+      "versionRange": "^0.2.0",
       "additionalData": {}
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "id": "codegen",
-      "versionRange": "=0.14.0",
+      "versionRange": "^0.14.0",
       "additionalData": {}
     },
     {
@@ -52,12 +52,17 @@
     },
     {
       "id": "sombrero",
-      "versionRange": "=0.1.24",
+      "versionRange": "^0.1.24",
       "additionalData": {}
     },
     {
       "id": "chroma",
       "versionRange": "=2.4.15",
+      "additionalData": {}
+    },
+    {
+      "id": "modloader",
+      "versionRange": "^1.2.0",
       "additionalData": {}
     }
   ],

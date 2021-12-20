@@ -90,5 +90,5 @@
         "xtree": "cpp",
         "xutility": "cpp"
     },
-    "C_Cpp.errorSquiggles": "Disabled"
+    "editor.formatOnSave": true
 }
