@@ -138,7 +138,7 @@ jobs:
         content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`\nrelease.so"
         username: "${{ github.repository }}"
         avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
-        filename: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
+        filename: ./build/${{ steps.libname.outputs.NAME }}
 
     - name: Publish debug.so to webhook
       if: ${{ steps.webhook-set.outputs.EXISTS }}
@@ -148,8 +148,21 @@ jobs:
         content: "debug.so"
         username: "${{ github.repository }}"
         avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
-        filename: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
+        filename: ./build/debug${{ steps.libname.outputs.NAME }}
 
+    - name: Publish qmod to webhook
+      uses: tsickert/discord-webhook@v3.2.0
+      with:
+        # Url is github secret, so it doesn't get leaked
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        # last commit message will be the given text
+        content: "qmod"
+        # user is repo name
+        username: "${{ github.repository }}"
+        # avatar url is repo owner avatar
+        avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
+        # file to upload is the qmod
+        filename: ./${{ env.qmodName }}.qmod
        # Disabling qmod upload becasue people are getting qmods from GH actions when they should not
 #    - name: Upload qmod artifact
 #      uses: actions/upload-artifact@v2
