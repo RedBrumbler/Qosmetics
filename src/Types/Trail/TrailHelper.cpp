@@ -110,6 +110,7 @@ namespace Qosmetics
         trailInstance->Setup(initData, bottomTransform, topTransform, GetComponent<Renderer*>()->get_material(), true);
         INFO("Trail is Setup");
         UpdateColors();
+        INFO("Trail Colors Set");
     }
 
     void TrailHelper::SetTrailActive(bool active)
@@ -132,12 +133,15 @@ namespace Qosmetics
 
     void TrailHelper::UpdateColors()
     {
+        INFO("Getting Trail instance");
         GetOrAddTrail(false);
+        INFO("Actually setting colors");
         trailInstance->SetColor(GetColor(colorType));
     }
 
     Sombrero::FastColor TrailHelper::GetColor(int colorType)
     {
+        INFO("Getting color");
         if (config.saberConfig.whiteTrail)
         {
             return {1.0f, 1.0f, 1.0f, 1.0f};
