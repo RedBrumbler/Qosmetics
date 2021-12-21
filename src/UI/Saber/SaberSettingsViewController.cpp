@@ -1,5 +1,6 @@
-#include "UI/Saber/SaberSettingsViewController.hpp"
 #include "Config.hpp"
+
+#include "UI/Saber/SaberSettingsViewController.hpp"
 
 DEFINE_TYPE(Qosmetics::UI, SaberSettingsViewController);
 
@@ -14,6 +15,7 @@ DEFINE_TYPE(Qosmetics::UI, SaberSettingsViewController);
 #include "UnityEngine/Events/UnityAction_1.hpp"
 #include "UnityEngine/WaitUntil.hpp"
 
+#include "QosmeticsLogger.hpp"
 #include "Utils/DisablingUtils.hpp"
 #include "Utils/UIUtils.hpp"
 
@@ -26,6 +28,9 @@ using namespace QuestUI::BeatSaberUI;
 using namespace Qosmetics;
 using namespace Qosmetics::UI;
 using namespace TMPro;
+
+#define INFO(value...) QosmeticsLogger::GetLogger().WithContext("SaberSettingsViewController").info(value);
+#define ERROR(value...) QosmeticsLogger::GetLogger().WithContext("SaberSettingsViewController").error(value);
 
 static std::vector<std::string> trailTextValues = {
     "Custom",
@@ -67,6 +72,7 @@ namespace Qosmetics::UI
 
     void SaberSettingsViewController::Init(SaberPreviewViewController* previewViewController)
     {
+        INFO("SaberSettingsViewController Init: %p", this);
         this->previewViewController = previewViewController;
         set_enabled(false);
     }
