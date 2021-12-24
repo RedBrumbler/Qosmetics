@@ -74,6 +74,10 @@ addr2line.bat
 PhotoshopFiles/
 log.bat
 tombstone_*
+extern.cmake
+qpm_defines.cmake
+!CmakeLists.txt
+mod.json
 # =============== #
 # Unity generated #
 # =============== #

@@ -13,16 +13,21 @@ namespace Qosmetics
 {
     void PatronCache::Download()
     {
-        WebUtils::GetAsync("https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json", [&](long returnCode, std::string result){
-            if (returnCode != 200) return;
-            rapidjson::Document d;
-            d.Parse(result.c_str());
+        WebUtils::GetAsync("https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json", [&](long returnCode, std::string result)
+                           {
+                               if (returnCode != 200)
+                               {
+                                   getLogger().error("Patron download returned code: %ld", returnCode);
+                                   return;
+                               }
+                               rapidjson::Document d;
+                               d.Parse(result.c_str());
 
-            GetEnthusiastic(d["enthusiastic"]);
-            GetAmazing(d["amazing"]);
-            GetLegendary(d["legendary"]);
-            GetPaypal(d["paypal"]);
-        });
+                               GetEnthusiastic(d["enthusiastic"]);
+                               GetAmazing(d["amazing"]);
+                               GetLegendary(d["legendary"]);
+                               GetPaypal(d["paypal"]);
+                           });
     }
 
     void PatronCache::GetEnthusiastic(rapidjson::Value& val)
@@ -33,7 +38,7 @@ namespace Qosmetics
             enthusiastic.push_back(name.GetString());
         }
     }
-    
+
     void PatronCache::GetAmazing(rapidjson::Value& val)
     {
         assert(val.IsArray());
@@ -42,7 +47,7 @@ namespace Qosmetics
             amazing.push_back(name.GetString());
         }
     }
-    
+
     void PatronCache::GetLegendary(rapidjson::Value& val)
     {
         assert(val.IsArray());
@@ -51,7 +56,7 @@ namespace Qosmetics
             legendary.push_back(name.GetString());
         }
     }
-    
+
     void PatronCache::GetPaypal(rapidjson::Value& val)
     {
         assert(val.IsArray());
@@ -61,4 +66,3 @@ namespace Qosmetics
         }
     }
 }
-

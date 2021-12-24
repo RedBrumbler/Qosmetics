@@ -1,211 +1,168 @@
-# workflow name
 name: NDK build
 
-# set env variables
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, qpm-rust]
+    paths-ignore:
+      - '**.yml'
+      - '!.github/workflows/build-ndk.yml'
+      - '**.json'
+      - '!qpm.json'
+      - '!mod.template.json'
+      - '**.txt'
+      - '!CMakeLists.txt'
+      - '**.ps1'
+      - '!build.ps1'
+      - '!createqmod.ps1'
+      - '**.md'
+      - '.gitignore'
+  pull_request:
+    branches: master
+
 env:
     ndkname: android-ndk-r22
     module_id: questcosmetics
     qmodName: Qosmetics
 
-# run this workflow when
-on:
-  # user requests it ran manually
-  workflow_dispatch:
-  # there is files pushed
-  push:
-    # on branch master
-    branches: master
-    # ignore these  files
-    paths-ignore:
-      # ignore all .yml files
-      - '**.yml'
-      # dont ignore this specific file
-      - '!.github/workflows/build-ndk.yml'
-      # ignore all .json files
-      - '**.json'
-      # dont ignore this specific file
-      - '!qpm.json'
-      # ignore all .ps1 files
-      - '**.ps1'
-      # dont ignore these specific files
-      - '!build.ps1'
-      - '!buildQMOD.ps1'
-      - '!CreateQmod.ps1'
-      # ignore all .md files
-      - '**.md'
-      # ignore the gitignore file
-      - '.gitignore'
-      # don't ignore shared
-      - '!shared/*'
-    # run this on a pr 
-  pull_request:
-    # on branch master
-    branches: master
-
-
-
-# building a mod consists of a few steps
-
-# what the fuck do we do
 jobs:
   build:
-    # os this runs on
     runs-on: ubuntu-latest
     
-    # every step taken to complete this action
-    # every - is a step that is traceable to a step on the github website
     steps:
-    - uses: FranzDiebold/github-env-vars-action@v2
-      # tell the program it uses the checkout for actions (?)
     - uses: actions/checkout@v2
       name: Checkout
       with:
         submodules: true
         lfs: true
+    
+    - uses: seanmiddleditch/gha-setup-ninja@v3
 
-      # create the ndkpath.txt file needed in our own compile scripts
     - name: Create ndkpath.txt
       run: |
         echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
         cat ${GITHUB_WORKSPACE}/ndkpath.txt
-      # just "cat" the path into the ndkpath.txt
 
-
-      # qpm caching, same as ndk but unused I assume
-#     - name: Cache QPM
-#       id: cache-qpm
-#       uses: actions/cache@v2
-#       env:
-#         cache-name: cache-qpm
-#       with:
-#         path: QPM
-#         key: ${{ runner.os }}-${{ env.cache-name }}-2
-#         restore-keys: |
-#           ${{ runner.os }}-${{ env.cache-name }}-2
-      
-    # we need qpm to even compile mods, since that is what we use to get packages
     - name: Get QPM
-      # if it wasn't found in the cache
       if: steps.cache-qpm.outputs.cache-hit != 'true'
       uses: dawidd6/action-download-artifact@v2
       with:
-        # download from the github actions
         github_token: ${{secrets.GITHUB_TOKEN}}
-        workflow: main.yml
-        name: QPM-ubuntu-x64
+        workflow: cargo-build.yml
+        name: linux-qpm-rust
         path: QPM
-        repo: sc2ad/QuestPackageManager
-      
-    # collect all dependencies, I assume for reading back what was used to build a specific .so
-    - name: QPM Collect
+        repo: RedBrumbler/QuestPackageManager-Rust
+        
+    - name: QPM Collapse
       run: |
-        chmod +x ./QPM/QPM
-        ./QPM/QPM collect
-
-    # unpack the cached QPM dependencies (packages)
+        chmod +x ./QPM/qpm-rust
+        ./QPM/qpm-rust collapse
+    
     - name: QPM Dependencies Cache
       id: cache-qpm-deps
       uses: actions/cache@v2
       env:
         cache-name: cache-qpm-deps
       with:
-        path: QPM_Temp
+        path: /home/runner/.local/share/QPM-Rust/cache
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('qpm.json') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
-      
-    # run qpm restore
+
     - name: QPM Restore
-#       if: steps.cache-qpm-deps.outputs.cache-hit != 'true'
-      run: ./QPM/QPM restore
-    
-    #list what files are in the extern folder and in qpm temp folder
+      run: |
+        ./QPM/qpm-rust restore
+        
+    - name: Run QPM legacy fix
+      run: ./QPM/qpm-rust cache legacy-fix
+
     - name: List Post Restore
       run: |
-        ls -la ${GITHUB_WORKSPACE}/extern/
-        ls -la QPM_Temp
-
-#    - name: CD to bs-hook src
-#      run: |
-#        cd ${GITHUB_WORKSPACE}/extern/beatsaber-hook/src/inline-hook
-#        ls ./
-
-    - name: Check Inline Hook existence
-      id: check_files
-      uses: andstor/file-existence-action@v1
-      with:
-        files: "extern/beatsaber-hook/src/inline-hook/And64InlineHook.cpp, extern/beatsaber-hook/src/inline-hook/inlineHook.c, extern/beatsaber-hook/src/inline-hook/relocate.c"
-        allow_failure: false
-
-    - name: Files Exist
-      if: steps.check_files.outputs.files_exists == 'false'
-      run: |
-          exit 1
-
-    # actually run the build script
+        echo includes:
+        ls -la ${GITHUB_WORKSPACE}/extern/includes
+        echo libs:
+        ls -la ${GITHUB_WORKSPACE}/extern/libs
+        echo cache:
+        ls -la $HOME/.local/share/QPM-Rust/cache
+      
     - name: Build
       run: |
         cd ${GITHUB_WORKSPACE}
+        ./QPM/qpm-rust qmod build --include_libs lib${module_id}.so libcustom-types.so libbeatsaber-hook_2_3_2.so libbs-utils.so
         pwsh -Command ./build.ps1
 
     - name: Create Qmod
       run: |
-        cd ${GITHUB_WORKSPACE}
-        pwsh -Command ./CreateQmod.ps1
-    # get the library name, by checking against the module ID
+        pwsh -Command ./createqmod.ps1 ${{env.qmodName}}
+
     - name: Get Library Name
       id: libname
       run: |
-        cd ./libs/arm64-v8a/
+        cd ./build/
         pattern="lib${module_id}*.so"
         files=( $pattern )
         echo ::set-output name=NAME::"${files[0]}"
-
-    #upload the normal .so
+    
 #    - name: Upload non-debug artifact
 #      uses: actions/upload-artifact@v2
 #      with:
 #        name: ${{ steps.libname.outputs.NAME }}
-#        path: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
-#        # if not found error obviously
+#        path: ./build/${{ steps.libname.outputs.NAME }}
 #        if-no-files-found: error
-#    #upload the debug .so
+#
 #    - name: Upload debug artifact
 #      uses: actions/upload-artifact@v2
 #      with:
 #        name: debug_${{ steps.libname.outputs.NAME }}
-#        path: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
-#        # if not found error obviously
+#        path: ./build/debug_${{ steps.libname.outputs.NAME }}
+#        if-no-files-found: error
+#
+#    - name: Upload qmod artifact
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: ${{env.qmodName}}.qmod
+#        path: ./${{ env.qmodName }}.qmod
 #        if-no-files-found: error
 
+    - name: Check if webhook secret set
+      id: webhook-set
+      run: echo ::set-output name=EXISTS::"${{secrets.DISCORD_WEBHOOK_URL != ''}}"
+
     - name: Publish release.so to webhook
+      if: ${{ steps.webhook-set.outputs.EXISTS }}
       uses: tsickert/discord-webhook@v3.2.0
       with:
-        # Url is github secret, so it doesn't get leaked
         webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`\nrelease.so"
-        # user is repo name
         username: "${{ github.repository }}"
-        # avatar url is repo owner avatar
         avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
-        # file to upload is the qmod
-        filename: ./libs/arm64-v8a/${{ steps.libname.outputs.NAME }}
+        filename: ./build/${{ steps.libname.outputs.NAME }}
 
     - name: Publish debug.so to webhook
+      if: ${{ steps.webhook-set.outputs.EXISTS }}
+      uses: tsickert/discord-webhook@v3.2.0
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        content: "debug.so"
+        username: "${{ github.repository }}"
+        avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
+        filename: ./build/debug_${{ steps.libname.outputs.NAME }}
+
+    - name: Publish qmod to webhook
       uses: tsickert/discord-webhook@v3.2.0
       with:
         # Url is github secret, so it doesn't get leaked
         webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        content: "debug.so"
+        # last commit message will be the given text
+        content: "qmod"
         # user is repo name
         username: "${{ github.repository }}"
         # avatar url is repo owner avatar
         avatar-url: "http://github.com/${{ env.CI_REPOSITORY_OWNER }}.png"
         # file to upload is the qmod
-        filename: ./obj/local/arm64-v8a/${{ steps.libname.outputs.NAME }}
-
+        filename: ./${{ env.qmodName }}.qmod
        # Disabling qmod upload becasue people are getting qmods from GH actions when they should not
 #    - name: Upload qmod artifact
 #      uses: actions/upload-artifact@v2

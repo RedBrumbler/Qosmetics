@@ -1,11 +1,10 @@
 name: Publish QPM Package
 
-# set env variables
 env:
     ndkname: android-ndk-r22
     module_id: questcosmetics
     qmodName: Qosmetics
-
+    
 on:
   push:
     tags:
@@ -21,65 +20,58 @@ jobs:
       with:
         submodules: true
         lfs: true
-    - name: Install Powershell
-      run: sudo apt-get install -y powershell
     
-    - name: Setup NDK
-      id: setup-ndk
-      uses: nttld/setup-ndk@v1.0.3
-      with:
-        ndk-version: r22
-      
+    - uses: seanmiddleditch/gha-setup-ninja@v3
+    
     - name: Create ndkpath.txt
-      run: echo ${{ steps.setup-ndk.outputs.ndk-path }} > ${GITHUB_WORKSPACE}/ndkpath.txt
-        
-#     - name: Cache QPM
-#       id: cache-qpm
-#       uses: actions/cache@v2
-#       env:
-#         cache-name: cache-qpm
-#       with:
-#         path: QPM
-#         key: ${{ runner.os }}-${{ env.cache-name }}-2
-#         restore-keys: |
-#           ${{ runner.os }}-${{ env.cache-name }}-2
+      run: |
+        echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
+        cat ${GITHUB_WORKSPACE}/ndkpath.txt
 
     - name: Get QPM
       if: steps.cache-qpm.outputs.cache-hit != 'true'
       uses: dawidd6/action-download-artifact@v2
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
-        workflow: main.yml
-        name: QPM-ubuntu-x64
+        workflow: cargo-build.yml
+        name: linux-qpm-rust
         path: QPM
-        repo: sc2ad/QuestPackageManager
+        repo: RedBrumbler/QuestPackageManager-Rust
       
-    - name: QPM Collect
+    - name: QPM Collapse
       run: |
-        chmod +x ./QPM/QPM
-        ./QPM/QPM collect
-    
+        chmod +x ./QPM/qpm-rust
+        ./QPM/qpm-rust collapse
+
     - name: QPM Dependencies Cache
       id: cache-qpm-deps
       uses: actions/cache@v2
       env:
         cache-name: cache-qpm-deps
       with:
-        path: QPM_Temp
+        path: /home/runner/.local/share/QPM-Rust/cache
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('qpm.json') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
-      
+
     - name: QPM Restore
-#       if: steps.cache-qpm-deps.outputs.cache-hit != 'true'
-      run: ./QPM/QPM restore
+      run: |
+        ./QPM/qpm-rust restore
+        
+    - name: Run QPM legacy fix
+      run: ./QPM/qpm-rust cache legacy-fix
+
     - name: List Post Restore
       run: |
-        ls -la ${GITHUB_WORKSPACE}/extern/
-        ls -la QPM_Temp
-        
+        echo includes:
+        ls -la ${GITHUB_WORKSPACE}/extern/includes
+        echo libs:
+        ls -la ${GITHUB_WORKSPACE}/extern/libs
+        echo cache:
+        ls -la $HOME/.local/share/QPM-Rust/cache
+
     - name: Get Tag Version
       id: get_tag_version
       run: |
@@ -89,16 +81,17 @@ jobs:
       
     - name: QPM Edit Version
       run: |
-        ./QPM/QPM package edit version "${{ steps.get_tag_version.outputs.VERSION }}"
+        ./QPM/qpm-rust package edit --version "${{ steps.get_tag_version.outputs.VERSION }}"
         
     - name: Build
       run: |
         cd ${GITHUB_WORKSPACE}
+        ./QPM/qpm-rust qmod build --include_libs "lib${module_id}.so"
         pwsh -Command ./build.ps1
+    
     - name: Create Qmod
       run: |
-        cd ${GITHUB_WORKSPACE}
-        pwsh -Command ./CreateQmod.ps1
+        pwsh -Command ./createqmod.ps1 ${{env.qmodName}}
 
     # Commit the change to the package, .vscode/c_cpp_properties.json, and Android.mk
     - name: Configure commit
@@ -107,8 +100,8 @@ jobs:
         git config user.email "<>"
     - name: Commit Edit Version
       run: |
-        git add ./Android.mk qpm.json
-        git commit -m "Update Version and post restore"
+        git add ./qpm.json
+        git commit -m "Update Version and post restore" --allow-empty
     # Then, we want to use the commit we have just made, and force push our tag to that commit
     - name: Get Commit ID
       id: get_commit_id
@@ -134,6 +127,7 @@ jobs:
           repository: ${{ github.repository }}
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Get Release Upload URL
       id: get_upload_url
       run: |
@@ -142,14 +136,37 @@ jobs:
         echo "::set-output name=upload_url::$url"
       env: 
           response:  ${{ steps.get_release.outputs.data }}
+
     - name: Get Library Name
       id: libname
       run: |
-        cd ./libs/arm64-v8a/
+        cd ./build/
         pattern="lib${module_id}*.so"
         files=( $pattern )
         echo ::set-output name=NAME::"${files[0]}"
+
     # Upload our release assets
+    - name: Upload Release Asset
+      id: upload_release_asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_upload_url.outputs.upload_url }}
+        asset_path: ./build/${{ steps.libname.outputs.NAME }}
+        asset_name: ${{ steps.libname.outputs.NAME }}
+        asset_content_type: application/octet-stream
+
+    - name: Upload Debug Asset
+      id: upload_debug_asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_upload_url.outputs.upload_url }}
+        asset_path: ./build/debug_${{ steps.libname.outputs.NAME }}
+        asset_name: debug_${{ steps.libname.outputs.NAME }}
+        asset_content_type: application/octet-stream
 
     - name: Upload Qmod asset
       id: upload_qmod_asset
@@ -160,11 +177,15 @@ jobs:
         upload_url: ${{ steps.get_upload_url.outputs.upload_url }}
         asset_path: ./${{ env.qmodName }}.qmod
         asset_name: ${{ env.qmodName }}.qmod
-        asset_content_type: application/octet-stream
-        
+        asset_content_type: application/octet-stream  
+
     - name: Change QPM Package Info
       run: |
-        ./QPM/QPM package edit-extra "branchName" "version-${{ steps.get_tag_version.outputs.TAG }}"
+        ./QPM/qpm-rust package edit-extra --branchName "version-${{ steps.get_tag_version.outputs.TAG }}"
+        ./QPM/qpm-rust package edit-extra --soLink "${{ steps.upload_release_asset.outputs.browser_download_url }}"
+        ./QPM/qpm-rust package edit-extra --debugSoLink "${{ steps.upload_debug_asset.outputs.browser_download_url }}"
+        ./QPM/qpm-rust package edit-extra --modLink "${{ steps.upload_qmod_asset.outputs.browser_download_url }}"
+
     - name: Commit Changed package info
       run: |
         git add qpm.json
@@ -185,3 +206,6 @@ jobs:
         
 #     - name: Merge this branch into whatever branch we were originally built off of.
 #       TODO
+#      Not a Package  
+#    - name: QPM Publish
+#      run: ./QPM/qpm-rust publish
