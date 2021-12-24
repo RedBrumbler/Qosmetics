@@ -104,7 +104,7 @@ namespace Qosmetics
             return;
         INFO("On Complete");
         DescriptorCache::Save();
-        UnloadBundle();
+        //UnloadBundle();
     }
 
     void ModelLoader::UnloadBundle()
