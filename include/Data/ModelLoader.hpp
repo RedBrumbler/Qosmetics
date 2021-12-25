@@ -8,37 +8,38 @@ namespace Qosmetics
 
     class ModelLoader
     {
-        public:
-            ModelLoader() {};
-            ModelLoader(QosmeticItem* item) 
-            {
-                this->item = item;
-            };
+    public:
+        ModelLoader(){};
+        ModelLoader(QosmeticItem* item)
+        {
+            this->item = item;
+        };
 
-            void LoadBundle(bool alsoLoadAssets = false);
-            void LoadAssets();
-            
-            bool get_complete()
-            {
-                return objectLoaded && descriptorLoaded && configLoaded;
-            }
+        void LoadBundle(bool alsoLoadAssets = false);
+        void LoadAssets();
 
-            ~ModelLoader()
-            {
-                if (bundle) UnloadBundle();
-            }
+        bool get_complete()
+        {
+            return objectLoaded && descriptorLoaded && configLoaded;
+        }
 
-        private:
-            QosmeticItem* item = nullptr;
-            UnityEngine::AssetBundle* bundle = nullptr;
-            void OnComplete();
-            void UnloadBundle();
+        ~ModelLoader()
+        {
+            if (bundle)
+                UnloadBundle();
+        }
 
-            static inline Il2CppReflectionType* GameObjectType = nullptr;
-            static inline Il2CppReflectionType* TextAssetType = nullptr;
+    private:
+        QosmeticItem* item = nullptr;
+        UnityEngine::AssetBundle* bundle = nullptr;
+        void OnComplete();
+        void UnloadBundle();
 
-            bool objectLoaded = false;
-            bool descriptorLoaded = false;
-            bool configLoaded = false;
+        static inline Il2CppReflectionType* GameObjectType = nullptr;
+        static inline Il2CppReflectionType* TextAssetType = nullptr;
+
+        bool objectLoaded = false;
+        bool descriptorLoaded = false;
+        bool configLoaded = false;
     };
 }

@@ -109,7 +109,10 @@ namespace Qosmetics
 
     void ModelLoader::UnloadBundle()
     {
+        if (!bundle)
+            return;
         INFO("Unloading bundle, while assets will stay loaded");
-        this->bundle->Unload(false);
+        bundle->Unload(false);
+        bundle = nullptr;
     }
 }
