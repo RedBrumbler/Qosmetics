@@ -97,6 +97,9 @@ namespace Qosmetics::UI
                                                                                           wallManager->SetDefault();
 
                                                                                       Pointer::UpdateAll(true);
+
+                                                                                      masterConfig.lastUsedConfig = value;
+                                                                                      SaveConfig();
                                                                                   });
 
             layoutelem = UnityUtils::GetAddComponent<LayoutElement*>(trailDropdown->get_gameObject());
