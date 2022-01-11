@@ -119,12 +119,12 @@ namespace NoteUtils
         Vector4 slicePos(cutPoint.x, cutPoint.y, cutPoint.z, 0.0f);
         Vector4 cutPlane(cutNormal.x, cutNormal.y, cutNormal.z, 0.0f);
 
-        Array<Renderer*>* renderers = debris->GetComponentsInChildren<Renderer*>();
-        int rendererCount = renderers->Length();
+        ArrayW<Renderer*> renderers = debris->GetComponentsInChildren<Renderer*>();
+        int rendererCount = renderers.Length();
 
         for (int i = 0; i < rendererCount; i++)
         {
-            Renderer* renderer = renderers->values[i];
+            Renderer* renderer = renderers.get(i);
             Material* material = renderer->get_material();
 
             Vector3 localPosition = renderer->get_transform()->get_localPosition();
@@ -149,15 +149,15 @@ namespace NoteUtils
 
     bool anyCC(Renderer* renderer)
     {
-        Array<Material*>* materials = renderer->GetMaterialArray();
-        int materialCount = materials->Length();
+        ArrayW<Material*> materials = renderer->GetMaterialArray();
+        int materialCount = materials.Length();
         for (int i = 0; i < materialCount; i++)
         {
-            Material* material = materials->values[i];
+            Material* material = materials.get(i);
             Il2CppString* materialNameCS = material->get_name();
             std::string materialName = to_utf8(csstrtostr(materialNameCS));
 
-            if (materialName.find("_replace") != std::string::npos && MaterialUtils::ShouldCC(materials->values[i], true))
+            if (materialName.find("_replace") != std::string::npos && MaterialUtils::ShouldCC(materials.get(i), true))
                 return true;
         }
 
@@ -170,20 +170,20 @@ namespace NoteUtils
         if (!obj)
             return;
 
-        Array<Renderer*>* myRenderers = obj->GetComponentsInChildren<Renderer*>(true);
+        ArrayW<Renderer*> myRenderers = obj->GetComponentsInChildren<Renderer*>(true);
 
         std::vector<Renderer*> newRendererVector = {};
-        int rendererCount = propertyController->renderers->Length();
+        int rendererCount = propertyController->renderers.Length();
 
         for (int j = 0; j < rendererCount; j++)
         {
-            newRendererVector.push_back(propertyController->renderers->values[j]);
+            newRendererVector.push_back(propertyController->renderers.get(j));
         }
 
-        rendererCount = myRenderers->Length();
+        rendererCount = myRenderers.Length();
         for (int j = 0; j < rendererCount; j++)
         {
-            Renderer* currentRenderer = myRenderers->values[j];
+            Renderer* currentRenderer = myRenderers.get(j);
             if (anyCC(currentRenderer))
                 newRendererVector.push_back(currentRenderer);
         }

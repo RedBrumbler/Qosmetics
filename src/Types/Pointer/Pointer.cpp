@@ -34,11 +34,11 @@ namespace Qosmetics
     
     void Pointer::AddToAll()
     {
-        Array<GlobalNamespace::VRController*>* controllers = Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
-        int controllerCount = controllers->Length();
+        ArrayW<GlobalNamespace::VRController*> controllers = Resources::FindObjectsOfTypeAll<GlobalNamespace::VRController*>();
+        int controllerCount = controllers.Length();
         for (int i = 0; i < controllerCount; i++)
         {
-            GlobalNamespace::VRController* controller = controllers->values[i];
+            GlobalNamespace::VRController* controller = controllers.get(i);
             if (!controller) continue;
             if (!(controller->get_node().value == 4 || controller->get_node().value == 5)) continue;
             Qosmetics::Pointer* pointer = controller->get_gameObject()->GetComponent<Qosmetics::Pointer*>();
@@ -57,12 +57,12 @@ namespace Qosmetics
 
     void Pointer::UpdateAll(bool reinstantiate)
     {
-        Array<Qosmetics::Pointer*>* pointers = Resources::FindObjectsOfTypeAll<Qosmetics::Pointer*>();
+        ArrayW<Qosmetics::Pointer*> pointers = Resources::FindObjectsOfTypeAll<Qosmetics::Pointer*>();
 
-        int pointerCount = pointers->Length();
+        int pointerCount = pointers.Length();
         for (int i = 0; i < pointerCount; i++)
         {
-            Qosmetics::Pointer* pointer = pointers->values[i];
+            Qosmetics::Pointer* pointer = pointers.get(i);
             if (!pointer) continue;
             pointer->UpdateModel(reinstantiate);
         }
@@ -145,13 +145,13 @@ namespace Qosmetics
 
         if (!firstUpdate)
         {
-            Array<QosmeticsTrail*>* trails = GetComponentsInChildren<QosmeticsTrail*>(true);
+            ArrayW<QosmeticsTrail*> trails = GetComponentsInChildren<QosmeticsTrail*>(true);
             if (trails)
             {
-                int trailLength = trails->Length();
+                int trailLength = trails.Length();
                 for (int i = 0; i < trailLength; i++)
                 {
-                    Object::DestroyImmediate(trails->values[i]);
+                    Object::DestroyImmediate(trails.get(i));
                     //QosmeticsTrail* trail = trails->values[i];
                     //if (trail) trail->Reset();
                 }
@@ -195,12 +195,12 @@ namespace Qosmetics
         if (oldPointer) SaberUtils::SetColors(oldPointer->get_gameObject(), thisColor, otherColor);
 
         //Array<Qosmetics::QosmeticsTrail*>* trails = GetComponentsInChildren<Qosmetics::QosmeticsTrail*>(true);
-        Array<Qosmetics::AltTrail*>* trails = GetComponentsInChildren<Qosmetics::AltTrail*>(true);
+        ArrayW<Qosmetics::AltTrail*> trails = GetComponentsInChildren<Qosmetics::AltTrail*>(true);
 
-        int trailCount = trails->Length();
+        int trailCount = trails.Length();
         for (int i = 0; i < trailCount; i++)
         {
-            auto trail = trails->values[i];
+            auto trail = trails.get(i);
             if (!trail) continue;
             //trail->UpdateColors();
         }

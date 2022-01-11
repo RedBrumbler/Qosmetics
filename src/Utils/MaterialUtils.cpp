@@ -34,7 +34,7 @@ void MaterialUtils::PrewarmAllShadersOnObject(GameObject* object)
 {
     if (!object)
         return;
-    Array<UnityEngine::Renderer*>* renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>(true);
+    ArrayW<UnityEngine::Renderer*> renderers = object->GetComponentsInChildren<UnityEngine::Renderer*>(true);
 
     // get material method is stripped so resolve icall
 
@@ -54,9 +54,9 @@ void MaterialUtils::PrewarmAllShadersOnObject(GameObject* object)
     createFunc(obj);
     std::vector<Il2CppString*> temp;
     Array<Il2CppString*>* stringArr = il2cpp_utils::vectorToArray(temp);
-    for (int i = 0; i < renderers->Length(); i++)
+    for (int i = 0; i < renderers.Length(); i++)
     {
-        Array<UnityEngine::Material*>* materials = GetMaterialArrayFunc(renderers->values[i]);
+        Array<UnityEngine::Material*>* materials = GetMaterialArrayFunc(renderers.get(i));
         for (int j = 0; j < materials->Length(); j++)
         {
             addFunc(obj, materials->values[j]->get_shader(), 0, stringArr);
@@ -102,13 +102,13 @@ void MaterialUtils::SetRenderQueue(GameObject* object, int renderQueue)
 {
     if (!object)
         return;
-    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+    ArrayW<Renderer*> renderers = object->GetComponentsInChildren<Renderer*>(true);
     if (!renderers)
         return;
-    int rendererLength = renderers->Length();
+    int rendererLength = renderers.Length();
     for (int i = 0; i < rendererLength; i++)
     {
-        Renderer* currentRenderer = renderers->values[i];
+        Renderer* currentRenderer = renderers.get(i);
         if (!currentRenderer)
             continue;
         Array<Material*>* materials = MaterialUtils::GetMaterials(currentRenderer);
@@ -131,13 +131,13 @@ void MaterialUtils::SetColors(GameObject* object, Color color, Color otherColor,
         OtherColorID = Shader::PropertyToID(il2cpp_utils::newcsstr("_OtherColor"));
 
     // get all renderers on the object
-    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+    ArrayW<Renderer*> renderers = object->GetComponentsInChildren<Renderer*>(true);
     if (!renderers)
         return;
-    int rendererLength = renderers->Length();
+    int rendererLength = renderers.Length();
     for (int i = 0; i < rendererLength; i++)
     {
-        Renderer* currentRenderer = renderers->values[i];
+        Renderer* currentRenderer = renderers.get(i);
         if (!currentRenderer)
             continue;
         Array<Material*>* materials = MaterialUtils::GetMaterials(currentRenderer);
@@ -166,13 +166,13 @@ void MaterialUtils::SetColors(UnityEngine::GameObject* object, UnityEngine::Colo
         ColorID = Shader::PropertyToID(il2cpp_utils::newcsstr("_Color"));
 
     // get all renderers on the object
-    Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+    ArrayW<Renderer*> renderers = object->GetComponentsInChildren<Renderer*>(true);
     if (!renderers)
         return;
-    int rendererLength = renderers->Length();
+    int rendererLength = renderers.Length();
     for (int i = 0; i < rendererLength; i++)
     {
-        Renderer* currentRenderer = renderers->values[i];
+        Renderer* currentRenderer = renderers.get(i);
         if (!currentRenderer)
             continue;
         Array<Material*>* materials = MaterialUtils::GetMaterials(currentRenderer);
@@ -201,13 +201,13 @@ std::string toLowerCase(std::string in)
 
 void MaterialUtils::ReplaceMaterialsForGameObject(GameObject* object)
 {
-    Array<Material*>* allMaterials = Resources::FindObjectsOfTypeAll<Material*>();
+    ArrayW<Material*> allMaterials = Resources::FindObjectsOfTypeAll<Material*>();
 
-    int matCount = allMaterials->Length();
+    int matCount = allMaterials.Length();
     INFO("Found %d materials", matCount);
     for (int i = 0; i < matCount; i++)
     {
-        Material* material = allMaterials->values[i];
+        Material* material = allMaterials.get(i);
         if (!material)
             continue;
         Il2CppString* materialNameCS = material->get_name();
@@ -226,26 +226,26 @@ void MaterialUtils::ReplaceMaterialsForGameObject(GameObject* object)
 
 void MaterialUtils::ReplaceMaterialForGameObjectChildren(GameObject* gameObject, Material* material, std::string materialToReplaceName)
 {
-    Array<Renderer*>* renderers = gameObject->GetComponentsInChildren<Renderer*>(true);
+    ArrayW<Renderer*> renderers = gameObject->GetComponentsInChildren<Renderer*>(true);
 
-    int rendererCount = renderers->Length();
+    int rendererCount = renderers.Length();
 
     for (int i = 0; i < rendererCount; i++)
     {
-        ReplaceMaterialForRenderer(renderers->values[i], material, materialToReplaceName);
+        ReplaceMaterialForRenderer(renderers.get(i), material, materialToReplaceName);
     }
 }
 
 void MaterialUtils::ReplaceMaterialForRenderer(Renderer* renderer, Material* replacingMaterial, std::string materialToReplaceName)
 {
-    Array<Material*>* materials = renderer->GetMaterialArray();
+    ArrayW<Material*> materials = renderer->GetMaterialArray();
     std::vector<Material*> materialsCopy = {};
     bool materialsDidChange = false;
 
-    int materialLength = materials->Length();
+    int materialLength = materials.Length();
     for (int i = 0; i < materialLength; i++)
     {
-        Material* material = materials->values[i];
+        Material* material = materials.get(i);
         Il2CppString* materialNameCS = material->get_name();
         std::string materialName = to_utf8(csstrtostr(materialNameCS));
         materialName = toLowerCase(materialName);

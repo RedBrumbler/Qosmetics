@@ -6,11 +6,11 @@ using namespace UnityEngine;
 
 void UnityUtils::HideRenderersOnObject(UnityEngine::GameObject* obj, bool doHide)
 {
-    Array<UnityEngine::Renderer*>* renderers = obj->GetComponentsInChildren<UnityEngine::Renderer*>(true);
+    ArrayW<UnityEngine::Renderer*> renderers = obj->GetComponentsInChildren<UnityEngine::Renderer*>(true);
     if (!renderers) return;
-    for (int i = 0; i < renderers->Length(); i++)
+    for (int i = 0; i < renderers.Length(); i++)
     {
-        UnityEngine::Renderer* renderer = renderers->values[i];
+        UnityEngine::Renderer* renderer = renderers.get(i);
         if (!renderer) continue;
         HideRenderer(renderer, doHide);
     }
@@ -46,24 +46,24 @@ void UnityUtils::SetLayerRecursive(GameObject* object, int layer)
 
 void UnityUtils::SanitizePrefab(GameObject* prefab)
 {
-    Array<UnityEngine::EventSystems::EventTrigger*>* triggers = prefab->GetComponentsInChildren<UnityEngine::EventSystems::EventTrigger*>(true);
-    int triggerLength = triggers->Length();
+    ArrayW<UnityEngine::EventSystems::EventTrigger*> triggers = prefab->GetComponentsInChildren<UnityEngine::EventSystems::EventTrigger*>(true);
+    int triggerLength = triggers.Length();
     for (int i = 0; i < triggerLength; i++)
     {
-            Object::DestroyImmediate(triggers->values[i]);
+            Object::DestroyImmediate(triggers.get(i));
     }
 
-    Array<UnityEngine::EventSystems::UIBehaviour*>* uiBehaviours = prefab->GetComponentsInChildren<UnityEngine::EventSystems::UIBehaviour*>(true);
-    int behavioursLength = uiBehaviours->Length();
+    ArrayW<UnityEngine::EventSystems::UIBehaviour*> uiBehaviours = prefab->GetComponentsInChildren<UnityEngine::EventSystems::UIBehaviour*>(true);
+    int behavioursLength = uiBehaviours.Length();
     for (int i = 0; i < behavioursLength; i++)
     {
-            Object::DestroyImmediate(uiBehaviours->values[i]);
+            Object::DestroyImmediate(uiBehaviours.get(i));
     }
 
-    Array<UnityEngine::Collider*>* colliders = prefab->GetComponentsInChildren<UnityEngine::Collider*>(true);
-    int collidersLength = colliders->Length();
+    ArrayW<UnityEngine::Collider*> colliders = prefab->GetComponentsInChildren<UnityEngine::Collider*>(true);
+    int collidersLength = colliders.Length();
     for (int i = 0; i < collidersLength; i++)
     {
-            Object::DestroyImmediate(colliders->values[i]);
+            Object::DestroyImmediate(colliders.get(i));
     }
 }

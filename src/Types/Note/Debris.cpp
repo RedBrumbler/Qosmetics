@@ -128,8 +128,8 @@ namespace Qosmetics
 
     void Debris::UpdateColors()
     {
-        auto optionalThisColor = Chroma::NoteAPI::getNoteColorSafe(colorType);
-        auto optionalOtherColor = Chroma::NoteAPI::getNoteColorSafe(1 - colorType);
+        auto optionalThisColor = Chroma::NoteAPI::getGlobalNoteColorSafe(colorType);
+        auto optionalOtherColor = Chroma::NoteAPI::getGlobalNoteColorSafe(1 - colorType);
 
         Color thisColor = optionalThisColor ? *optionalThisColor : colorManager->ColorForNoteType(colorType);
         Color otherColor = optionalOtherColor ? *optionalOtherColor : colorManager->ColorForNoteType(1 - colorType);

@@ -34,14 +34,14 @@ namespace Qosmetics
     {
          //this->colorScheme = colorScheme;
         
-        Array<GlobalNamespace::SaberModelController*>* modelControllers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::SaberModelController*>();
+        ArrayW<GlobalNamespace::SaberModelController*> modelControllers = UnityEngine::Object::FindObjectsOfType<GlobalNamespace::SaberModelController*>();
 
         // if not nullptr return or 0 found
         
-        if (modelControllers && modelControllers->Length() != 0)
+        if (modelControllers && modelControllers.Length() != 0)
         {
             INFO("Did find a color manager!");
-            GlobalNamespace::ColorManager* last = modelControllers->values[modelControllers->Length() - 1]->colorManager;
+            GlobalNamespace::ColorManager* last = modelControllers.get(modelControllers.Length() - 1)->colorManager;
             GlobalNamespace::ColorScheme* scheme = last ? last->colorScheme : nullptr; 
             if (this->colorScheme) this->colorScheme->CopyFromBaseGame(scheme);
             else 

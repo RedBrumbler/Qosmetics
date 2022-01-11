@@ -33,8 +33,8 @@ namespace PointerUtils
     {
         auto colliders = pointer->get_gameObject()->GetComponentsInChildren<Collider*>(true);
         
-        int length = colliders->Length();
-        for (int i = 0; i < length; i++) Object::DestroyImmediate(colliders->values[i]);
+        int length = colliders.Length();
+        for (int i = 0; i < length; i++) Object::DestroyImmediate(colliders.get(i));
     }
 
 }
