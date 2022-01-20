@@ -15,9 +15,11 @@ $modJson = Get-Content $mod -Raw | ConvertFrom-Json
 $filelist = @($mod)
 
 $cover = "./" + $modJson.coverImage
+$fileList = @($mod)
+
 if ((-not ($cover -eq "./")) -and (Test-Path $cover))
-{ 
-    $filelist += ,$cover
+{
+    $fileList += ,$cover
 }
 
 foreach ($mod in $modJson.modFiles)
@@ -40,10 +42,9 @@ foreach ($lib in $modJson.libraryFiles)
     $filelist += $path
 }
 
-$bannedFiles = @("CreatorCache", "Patrons")
-
 if (Test-Path "./ExtraFiles")
 {
+    $extraFiles = @()
     $extraEntries = Get-ChildItem ./ExtraFiles/* -Recurse
 
     foreach ($entry in $extraEntries)
@@ -54,22 +55,31 @@ if (Test-Path "./ExtraFiles")
             continue
         }
 
-        $doContinue = 0
-        foreach ($ban in $bannedFiles)
+        # if not a dir
+        if (-not $entry.Directory.Name.Contains("ExtraFiles"))
         {
-            if ($entry.Name.Contains($ban))
+            $dir = $entry.Directory
+            $folderPath = $dir.Name + "/" + $entry.Name
+            while (($dir.Directory) -and (-not $dir.Directory.Name.Contains("ExtraFiles")))
             {
-                $doContinue = 1
-                break
+                $folderPath = $dir.Directory.Name + "/" + $folderPath
             }
-        }
 
-        if ($doContinue)
+            if ($folderPath.Contains("Icons")) 
+            {
+                continue;
+            }
+            $extraFiles += ,$folderPath
+        }
+        else
         {
-            continue
+            $extraFiles += ,$entry.Name
         }
+    }
 
-        $path = $entry | Select -expand fullname
+    foreach ($file in $extraFiles)
+    {
+        $path = "./ExtraFiles/" + $file
         $filelist += ,$path
     } 
 }
@@ -81,9 +91,12 @@ else
 $zip = $qmodName + ".zip"
 $qmod = $qmodName + ".qmod"
 
-if (($clean.IsPresent) -and (Test-Path $qmod))
-{
+if ($clean.IsPresent) {
     echo "Making Clean Qmod"
+}
+
+if ((-not ($clean.IsPresent)) -and (Test-Path $qmod))
+{
     Move-Item $qmod $zip -Force
 }
 

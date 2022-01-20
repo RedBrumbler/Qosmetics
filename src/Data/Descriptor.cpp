@@ -1,44 +1,30 @@
 #include "Data/Descriptor.hpp"
-#include "Utils/FileUtils.hpp"
-#include <map>
 
-static std::map<std::string, Qosmetics::ItemType> StringToType = {
-    { "qsaber", Qosmetics::ItemType::saber },
-    { "qbloq", Qosmetics::ItemType::note },
-    { "qwall", Qosmetics::ItemType::wall },
-    { "qpointer", Qosmetics::ItemType::pointer },
-    { "qplatform", Qosmetics::ItemType::platform }
-};
-
-
-namespace Qosmetics
+namespace Qosmetics::Core
 {
-    ItemType Descriptor::GetTypeFromName(std::string path)
+    Descriptor::Descriptor(){};
+
+    Descriptor::Descriptor(const Descriptor& other) : name(other.name), author(other.author), description(other.description), filePath(other.filePath){};
+
+    Descriptor::Descriptor(const rapidjson::Value& val, std::string_view filePath)
     {
-        std::string extension = FileUtils::GetExtension(path);
-        std::map<std::string, ItemType>::iterator it = StringToType.find(extension);
-        if (it != StringToType.end())
-        {
-            return it->second;
-        }
-        return invalid;
+        name = val["objectName"].GetString();
+        author = val["author"].GetString();
+        description = val["description"].GetString();
+        this->filePath = filePath;
     }
 
-    std::string Descriptor::GetFileName(bool removeExtension)
+    Descriptor::Descriptor(const rapidjson::Value& val)
     {
-        return FileUtils::GetFileName(filePath, removeExtension);
+        name = val["objectName"].GetString();
+        author = val["author"].GetString();
+        description = val["description"].GetString();
+        filePath = val["filePath"].GetString();
     }
 
-    rapidjson::Value Descriptor::ToVal(rapidjson::Document::AllocatorType& allocator)
-    {
-        rapidjson::Value val;
-        val.SetObject();
+    std::string_view Descriptor::get_author() { return author; }
+    std::string_view Descriptor::get_name() { return name; }
+    std::string_view Descriptor::get_description() { return description; }
+    std::string_view Descriptor::get_filePath() { return filePath; }
 
-        val.AddMember("name", rapidjson::Value(name.c_str(), name.size(), allocator), allocator);
-        val.AddMember("author", rapidjson::Value(author.c_str(), author.size(), allocator), allocator);
-        val.AddMember("description", rapidjson::Value(description.c_str(), description.size(), allocator), allocator);
-        val.AddMember("type", (int)type, allocator);
-        val.AddMember("filePath", rapidjson::Value(filePath.c_str(), filePath.size(), allocator), allocator);
-        return val;
-    }
 }

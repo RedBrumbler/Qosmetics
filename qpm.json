@@ -2,18 +2,18 @@
   "sharedDir": "shared",
   "dependenciesDir": "extern",
   "info": {
-    "name": "Qosmetics",
-    "id": "Qosmetics",
-    "version": "1.3.3",
+    "name": "Qosmetics Core",
+    "id": "qosmetics-core",
+    "version": "0.1.0",
     "url": null,
     "additionalData": {
-      "overrideSoName": "libquestcosmetics.so"
+      "overrideSoName": "libqosmetics-core.so"
     }
   },
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "=2.3.2",
+      "versionRange": "^3.6.0",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -21,48 +21,28 @@
       }
     },
     {
-      "id": "questui",
-      "versionRange": "^0.11.1",
+      "id": "codegen",
+      "versionRange": "^0.18.2",
       "additionalData": {}
     },
     {
       "id": "custom-types",
-      "versionRange": "^0.12.7",
-      "additionalData": {}
-    },
-    {
-      "id": "conditional-dependencies",
-      "versionRange": "^0.2.0",
-      "additionalData": {}
-    },
-    {
-      "id": "bs-utils",
-      "versionRange": "=0.6.4",
-      "additionalData": {}
-    },
-    {
-      "id": "codegen",
       "versionRange": "^0.14.0",
       "additionalData": {}
     },
     {
-      "id": "libcurl",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
-      "id": "sombrero",
-      "versionRange": "^0.1.24",
-      "additionalData": {}
-    },
-    {
-      "id": "chroma",
-      "versionRange": "=2.4.15",
+      "id": "questui",
+      "versionRange": "^0.12.2",
       "additionalData": {}
     },
     {
       "id": "modloader",
-      "versionRange": "^1.2.0",
+      "versionRange": "^1.2.3",
+      "additionalData": {}
+    },
+    {
+      "id": "zip",
+      "versionRange": "^1.7.4",
       "additionalData": {}
     }
   ],

@@ -9,7 +9,11 @@
             "windows": {
                 "command": "ndk-build.cmd"
             },
-            "args": ["NDK_PROJECT_PATH=.", "APP_BUILD_SCRIPT=./Android.mk", "NDK_APPLICATION_MK=./Application.mk"],
+            "args": [
+                "NDK_PROJECT_PATH=.",
+                "APP_BUILD_SCRIPT=./Android.mk",
+                "NDK_APPLICATION_MK=./Application.mk"
+            ],
             "group": "build",
             "options": {
                 "env": {}
@@ -33,7 +37,7 @@
         },
         {
             "label": "Powershell Build and Copy",
-            "detail": "Builds and copies the library to the Quest using adb and force-quits Beat Saber",
+            "detail": "Builds and copies the library to the Quest using ADB and force-quits Beat Saber",
             "type": "shell",
             "command": "./copy.ps1",
             "windows": {
@@ -45,12 +49,12 @@
             }
         },
         {
-            "label": "BMBF Build",
-            "detail": "Builds a .zip to be uploaded into BMBF",
+            "label": "QMOD Build",
+            "detail": "Builds a .qmod to be installed into BMBF or QuestPatcher",
             "type": "shell",
-            "command": "./buildBMBF.ps1",
+            "command": "./buildQMOD.ps1",
             "windows": {
-                "command": "./buildBMBF.ps1"
+                "command": "./buildQMOD.ps1"
             },
             "args": [],
             "group": "build",
@@ -58,5 +62,14 @@
                 "env": {}
             }
         },
+        {
+            "label": "Start logging to file",
+            "detail": "Begin logging from the Quest to the console and saving output to a file 'log.log'",
+            "type": "shell",
+            "command": "./log.ps1",
+            "windows": {
+                "command": "./log.ps1"
+            }
+        }
     ]
 }

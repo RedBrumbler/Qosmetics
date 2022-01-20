@@ -21,9 +21,8 @@ on:
     branches: master
 
 env:
-    ndkname: android-ndk-r22
-    module_id: questcosmetics
-    qmodName: Qosmetics
+    module_id: qosmetics-core
+    qmodName: QosmeticsCore
 
 jobs:
   build:

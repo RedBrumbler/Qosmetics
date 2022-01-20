@@ -1,18 +1,9 @@
 #pragma once
-#include "beatsaber-hook/shared/utils/utils-functions.h"
-#define BASEPATH            "/sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/"
+#include "UnityEngine/Color.hpp"
 
-#define SABERPATH           string_format("%s%s", BASEPATH, "sabers/")
-#define SABEREXT            "qsaber"
+constexpr const char* userconfig_path = "sdcard/ModData/com.beatgames.beatsaber/Mods/Qosmetics/Configs";
+constexpr const char* patron_url = "https://raw.githubusercontent.com/RedBrumbler/Qosmetics/master/ExtraFiles/Patrons.json";
+constexpr const char* patreon_url = "https://www.patreon.com/Qosmetics";
 
-#define NOTEPATH            string_format("%s%s", BASEPATH, "notes/")
-#define NOTEEXT             "qbloq"
-
-#define WALLPATH            string_format("%s%s", BASEPATH, "walls/")
-#define WALLEXT             "qwall"
-
-#define UIPATH              string_format("%s/%s", BASEPATH, "UI/")
-#define CONFIGPATH              string_format("%s/%s", BASEPATH, "Configs/")
-
-#define DESCRIPTORCACHE     string_format("%s/%s", BASEPATH, "DescriptorCache")
-#define CREATORCACHE        string_format("%s/%s", BASEPATH, "CreatorCache")
+constexpr const UnityEngine::Color qosmetics_purple = {0.3f, 0.15f, 0.6f, 1.0f};
+constexpr const UnityEngine::Color beatsaber_light_blue = {0.0f, 0.75f, 1.0f, 1.0f};

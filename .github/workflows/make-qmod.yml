@@ -4,8 +4,8 @@ name: Make Qmod
 # set env variables
 env:
     ndkname: android-ndk-r22
-    module_id: questcosmetics
-    qmodName: Qosmetics
+    module_id: qosmetics-core
+    qmodName: QosmeticsCore
 
 # run this workflow when
 on:

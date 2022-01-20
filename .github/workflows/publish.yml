@@ -1,9 +1,8 @@
 name: Publish QPM Package
 
 env:
-    ndkname: android-ndk-r22
-    module_id: questcosmetics
-    qmodName: Qosmetics
+    module_id: qosmetics-core
+    qmodName: QosmeticsCore
     
 on:
   push:
