@@ -1,3 +1,5 @@
+# [DEVELOPMENT HAS MOVED TO A DEDICATED GITHUB ORG](https://github.com/Qosmetics)
+
 # Qosmetics
 
 Quest Cosmetics on a whole new level!
