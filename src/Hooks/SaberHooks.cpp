@@ -101,12 +101,12 @@ MAKE_HOOK_MATCH(GamePause_Pause, &GlobalNamespace::GamePause::Pause, void, Globa
     return;
     Pointer::AddToAll();
 
-    Array<Qosmetics::Pointer*>* pointers = Resources::FindObjectsOfTypeAll<Qosmetics::Pointer*>();
+    ArrayW<Qosmetics::Pointer*> pointers = Resources::FindObjectsOfTypeAll<Qosmetics::Pointer*>();
 
-    int pointerLength = pointers->Length();
+    int pointerLength = pointers.Length();
     for (int i = 0; i < pointerLength; i++)
     {
-        pointers->values[i]->OnApplicationFocus(true);
+        pointers.get(i)->OnApplicationFocus(true);
     }
 }
 
@@ -114,12 +114,12 @@ MAKE_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void, Glo
 {
     GamePause_Resume(self);
     return;
-    Array<Qosmetics::Pointer*>* pointers = Resources::FindObjectsOfTypeAll<Qosmetics::Pointer*>();
+    ArrayW<Qosmetics::Pointer*> pointers = Resources::FindObjectsOfTypeAll<Qosmetics::Pointer*>();
 
-    int pointerLength = pointers->Length();
+    int pointerLength = pointers.Length();
     for (int i = 0; i < pointerLength; i++)
     {
-        pointers->values[i]->OnApplicationFocus(false);
+        pointers.get(i)->OnApplicationFocus(false);
     }
 }
 

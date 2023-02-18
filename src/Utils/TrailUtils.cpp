@@ -42,14 +42,14 @@ void TrailUtils::RemoveTrail(Transform* obj)
 {
     if (!obj)
         return;
-    Array<GlobalNamespace::SaberTrail*>* trails = obj->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
+    ArrayW<GlobalNamespace::SaberTrail*> trails = obj->get_gameObject()->GetComponents<GlobalNamespace::SaberTrail*>();
 
     if (trails)
     {
         QosmeticsTrail* customTrail = obj->get_gameObject()->GetComponent<QosmeticsTrail*>();
-        for (int i = 0; i < trails->Length(); i++)
+        for (int i = 0; i < trails.Length(); i++)
         {
-            GlobalNamespace::SaberTrail* trail = trails->values[i];
+            GlobalNamespace::SaberTrail* trail = trails.get(i);
             if (trail && trail != customTrail)
             {
                 trail->trailDuration = 0.0f;

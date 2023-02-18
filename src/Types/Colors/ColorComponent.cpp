@@ -76,10 +76,10 @@ namespace Qosmetics
         }
 
         auto trails = get_gameObject()->GetComponentsInChildren<Qosmetics::TrailHelper*>();
-        int length = trails->Length();
+        int length = trails.Length();
         for (int i = 0; i < length; i++)
         {
-            trails->values[i]->SetColors(leftColor, rightColor);
+            trails.get(i)->SetColors(leftColor, rightColor);
         }
     }
 
@@ -115,8 +115,8 @@ namespace Qosmetics
     {
         if (!colorManager) return;
 
-        Sombrero::FastColor leftColor = Chroma::NoteAPI::getNoteColorSafe(0).value_or(colorManager->ColorForNoteType(0));
-        Sombrero::FastColor rightColor = Chroma::NoteAPI::getNoteColorSafe(1).value_or(colorManager->ColorForNoteType(1));
+        Sombrero::FastColor leftColor = Chroma::NoteAPI::getGlobalNoteColorSafe(0).value_or(colorManager->ColorForNoteType(0));
+        Sombrero::FastColor rightColor = Chroma::NoteAPI::getGlobalNoteColorSafe(1).value_or(colorManager->ColorForNoteType(1));
 
         SetNoteColors(leftColor, rightColor);
     }

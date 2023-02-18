@@ -51,8 +51,8 @@ namespace SaberUtils
 {
     void HideObjects(GameObject* object, bool enableFakeGlow, bool doHide)
     {
-        Array<MeshFilter*>* filters = object->GetComponentsInChildren<MeshFilter*>(true);
-        DisableMesh(filters, enableFakeGlow, doHide);
+        ArrayW<MeshFilter*> filters = object->GetComponentsInChildren<MeshFilter*>(true);
+        DisableMesh((Array<MeshFilter*>*) filters, enableFakeGlow, doHide);
     }
 
     void SetColors(GameObject* object, Color color, Color otherColor)
@@ -112,14 +112,14 @@ namespace SaberUtils
         else if (config.saberConfig.trailType != TrailType::none)
         {
             // get original saber for copying over orig trail stuff
-            Array<Qosmetics::Saber*>* sabers = Resources::FindObjectsOfTypeAll<Qosmetics::Saber*>();
+            ArrayW<Qosmetics::Saber*> sabers = Resources::FindObjectsOfTypeAll<Qosmetics::Saber*>();
             Qosmetics::Saber* saber = nullptr;
     
-            int length = sabers->Length();
+            int length = sabers.Length();
     
             for (int i = 0; i < length; i++)
             {
-                auto currentSaber = sabers->values[i];
+                auto currentSaber = sabers.get(i);
                 if (currentSaber->saberType.value == saberType) 
                 {
                     saber = currentSaber;

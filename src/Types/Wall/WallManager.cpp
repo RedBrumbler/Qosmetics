@@ -151,7 +151,7 @@ namespace Qosmetics
         Renderer* core = get_coreRenderer();
         if (!core)
             return nullptr;
-        return MaterialUtils::GetMaterials(core);
+        return (Array<Material*>*) MaterialUtils::GetMaterials(core);
     }
 
     Array<Material*>* WallManager::get_frameMaterialArray()
@@ -159,7 +159,7 @@ namespace Qosmetics
         Renderer* frame = get_frameRenderer();
         if (!frame)
             return nullptr;
-        return MaterialUtils::GetMaterials(frame);
+        return (Array<Material*>*) MaterialUtils::GetMaterials(frame);
     }
 
     Array<Material*>* WallManager::get_coreSharedMaterials()
@@ -167,7 +167,7 @@ namespace Qosmetics
         Renderer* core = get_coreRenderer();
         if (!core)
             return nullptr;
-        return core->get_sharedMaterials();
+        return (Array<Material*>*) core->get_sharedMaterials();
     }
 
     Array<Material*>* WallManager::get_frameSharedMaterials()
@@ -175,7 +175,7 @@ namespace Qosmetics
         Renderer* frame = get_frameRenderer();
         if (!frame)
             return nullptr;
-        return frame->get_sharedMaterials();
+        return (Array<Material*>*) frame->get_sharedMaterials();
     }
 
     UnityEngine::Mesh* WallManager::get_coreMesh()

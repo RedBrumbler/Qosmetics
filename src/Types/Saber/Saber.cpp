@@ -103,12 +103,12 @@ namespace Qosmetics
         if (!firstUpdate)
         {
             // whether or not it's custom, reset the trails, config and stuff is automatically handled by the trails themselves
-            Array<QosmeticsTrail*>* trails = GetComponentsInChildren<QosmeticsTrail*>();
+            ArrayW<QosmeticsTrail*> trails = GetComponentsInChildren<QosmeticsTrail*>();
             if (trails)
             {
-                for (int i = 0; i < trails->Length(); i++)
+                for (int i = 0; i < trails.Length(); i++)
                 {
-                    QosmeticsTrail* trail = trails->values[i];
+                    QosmeticsTrail* trail = trails.get(i);
                     if (trail) trail->Reset();
                 }
             }

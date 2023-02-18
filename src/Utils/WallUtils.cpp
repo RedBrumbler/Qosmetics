@@ -23,14 +23,14 @@ namespace WallUtils
         if (!_EdgeSize)
             _EdgeSize = Shader::PropertyToID(il2cpp_utils::newcsstr("_EdgeSize"));
 
-        Array<Renderer*>* renderers = object->GetComponentsInChildren<Renderer*>(true);
+        ArrayW<Renderer*> renderers = object->GetComponentsInChildren<Renderer*>(true);
         localScale = localScale * 0.5f;
         Vector4 sizeParams = UnityEngine::Vector4(localScale.x, localScale.y, localScale.z, 0.05f);
 
-        int rendererCount = renderers->Length();
+        int rendererCount = renderers.Length();
         for (int i = 0; i < rendererCount; i++)
         {
-            Renderer* renderer = renderers->values[i];
+            Renderer* renderer = renderers.get(i);
 
             Array<Material*>* materials = MaterialUtils::GetMaterials(renderer);
             int materialCount = materials->Length();
